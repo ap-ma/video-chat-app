@@ -1,0 +1,22 @@
+// extensionsにて「prettier」「eslint」をインストール
+{
+  // 半角スペースを描画
+  "editor.renderWhitespace": "all",
+  // ソフトタブ スペース2つ
+  "editor.tabSize": 2,
+  // デフォルトフォーマッタ prettier
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // 自動フォーマット ペースト時
+  "editor.formatOnPaste": true,
+  // 自動フォーマット 保存時
+  "editor.formatOnSave": true,
+  // 自動フォーマット コード入力時
+  "editor.formatOnType": true,
+  // コードアクション 拡張機能がコードへの指摘をユーザーに示す機能
+  "editor.codeActionsOnSave": [
+    // import文を保存時に自動ソート
+    "source.organizeImports",
+    // 保存時のソース自動修正
+    "source.fixAll.eslint"
+  ]
+}

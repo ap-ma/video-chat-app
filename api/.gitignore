@@ -1,0 +1,5 @@
+/target
+/cache
+.trigger
+.env
+.env.prod

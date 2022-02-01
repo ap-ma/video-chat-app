@@ -1,0 +1,12 @@
+[package]
+name = "links"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "3.3.3"
+diesel = { version = "1.4.8", features = ["mysql"] }
+dotenv = "0.15.0"
+juniper = "0.15.7"
