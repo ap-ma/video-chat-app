@@ -10,7 +10,7 @@ export const root = ({
 > =>
   ({
     pos: 'relative',
-    p: 5,
+    p: 4,
     bgColor,
     d: autoSizing ? 'inline-block' : 'block',
     rounded: 'lg',
@@ -20,11 +20,10 @@ export const root = ({
       pos: 'absolute',
       w: 0,
       h: 0,
-      top: '16px',
-      borderTop: 'solid transparent',
-      borderTopWidth: 15,
-      borderBottom: 'solid transparent',
-      borderBottomWidth: 15,
+      // top: '16px',
+      top: 'calc(50% - 8px)',
+      borderTop: '8px solid transparent',
+      borderBottom: '8px solid transparent',
       ...triangle({ triangleMarkPosition, bgColor })
     }
   } as const)
@@ -35,23 +34,21 @@ const triangle = ({
 }: Pick<MessageProps, 'triangleMarkPosition' | 'bgColor'>) => {
   if (triangleMarkPosition === 'left') {
     return {
-      left: -15,
-      borderRight: 'solid',
-      borderRightWidth: 15,
+      left: -13,
+      borderRight: '13px solid',
       borderRightColor: bgColor
     }
   }
   if (triangleMarkPosition === 'right') {
     return {
-      right: -15,
-      borderLeft: 'solid',
-      borderLeftWidth: 15,
+      right: -13,
+      borderLeft: '13px solid',
       borderLeftColor: bgColor
     }
   }
   return {
-    borderLeft: '15px solid transparent',
-    borderRight: '15px solid transparent'
+    borderLeft: '8px solid transparent',
+    borderRight: '8px solid transparent'
   }
 }
 
