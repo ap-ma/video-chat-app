@@ -9,7 +9,8 @@ export const contactList = (
     result.push({
       name: `鈴木${i + (r ? '子' : '郎')}`,
       image: illustya[r],
-      desc: descGen(i)
+      desc: descGen(i),
+      bg: i == 5 ? 'gray.200' : undefined
     })
   }
   return result

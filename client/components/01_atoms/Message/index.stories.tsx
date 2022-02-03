@@ -4,6 +4,7 @@ import { container } from '.storybook/decorators'
 /* eslint-enable import/no-unresolved  */
 import { Meta, Story } from '@storybook/react/types-6-0'
 import React from 'react'
+import { NonEmptyList } from 'types'
 import Message, { MessageProps } from './index'
 
 export default {
@@ -12,7 +13,11 @@ export default {
   decorators: [(Story) => container({ margin: '50px' })(Story())]
 } as Meta
 
-const triangleMarkPositions: MessageProps['triangleMarkPosition'][] = ['left', 'right', 'none']
+const triangleMarkPositions: NonEmptyList<MessageProps['triangleMarkPosition']> = [
+  'left',
+  'right',
+  'none'
+]
 
 const Template: Story<MessageProps> = ({ children, ...props }) => (
   <Message {...props}>{children}</Message>

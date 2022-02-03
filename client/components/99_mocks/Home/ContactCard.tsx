@@ -12,8 +12,8 @@ const ContactCard: React.VFC<ContactCardProps> = ({ image, name, desc, ...props 
     <Flex
       align='center'
       py='4'
-      px='1'
-      mx='3'
+      px='3'
+      marginStart='1'
       borderRadius='lg'
       role='group'
       cursor='pointer'
