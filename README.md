@@ -23,7 +23,7 @@ setup.sh or .bat
   * GraphQL: https://graphql.org/
   * Rust: https://www.rust-lang.org/
   * Actix Web: https://actix.rs/
-  * Juniper: https://graphql-rust.github.io/
+  * Async-graphql: https://github.com/async-graphql/async-graphql
   * React: https://reactjs.org/
   * Next.js: https://nextjs.org/
   * Apollo: https://www.apollographql.com/

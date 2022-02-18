@@ -4,8 +4,8 @@ table! {
         user_id -> Unsigned<Bigint>,
         contact_user_id -> Unsigned<Bigint>,
         status -> Integer,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
+        created_at -> Datetime,
+        updated_at -> Datetime,
         version -> Integer,
     }
 }
@@ -15,12 +15,11 @@ table! {
         id -> Unsigned<Bigint>,
         tx_user_id -> Unsigned<Bigint>,
         rx_user_id -> Unsigned<Bigint>,
-        #[sql_name = "type"]
-        type_ -> Integer,
+        category -> Integer,
         message -> Nullable<Text>,
         status -> Integer,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
+        created_at -> Datetime,
+        updated_at -> Datetime,
         version -> Integer,
     }
 }
@@ -30,13 +29,13 @@ table! {
         id -> Unsigned<Bigint>,
         code -> Varchar,
         name -> Nullable<Varchar>,
-        name_alphabet -> Nullable<Varchar>,
         email -> Varchar,
         password -> Varchar,
-        avatar -> Nullable<Mediumtext>,
+        avatar -> Nullable<Varchar>,
+        role -> Integer,
         status -> Integer,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
+        created_at -> Datetime,
+        updated_at -> Datetime,
         version -> Integer,
     }
 }

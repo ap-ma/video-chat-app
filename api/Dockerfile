@@ -1,6 +1,7 @@
 # 開発環境
 FROM rust:1.57 as developer
 WORKDIR /app
+RUN apt-get update -y && apt-get install -y clang llvm-dev libclang-dev
 RUN cargo install cargo-watch && \ 
   cargo install diesel_cli --no-default-features --features mysql
 
@@ -8,7 +9,6 @@ RUN cargo install cargo-watch && \
 FROM developer as builder
 COPY . .
 RUN cp -p .env.prod .env
-# RUN diesel migration run
 RUN cargo build --release
 
 # リリース環境
