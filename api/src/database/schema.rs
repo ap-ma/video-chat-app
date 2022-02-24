@@ -31,6 +31,7 @@ table! {
         name -> Nullable<Varchar>,
         email -> Varchar,
         password -> Varchar,
+        secret -> Varchar,
         avatar -> Nullable<Varchar>,
         role -> Integer,
         status -> Integer,

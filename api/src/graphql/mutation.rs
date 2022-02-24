@@ -1,46 +1,70 @@
-use super::auth::password;
-use super::auth::role::{Role, RoleGuard};
 use super::form::{SignInInput, UserInput};
 use super::model::User;
-use crate::constants::{role, user_status};
-use crate::database::entity::NewUserEntity;
-use crate::database::service;
+use super::security::{guard::RoleGuard, password, random};
+use crate::auth::{Identity, Role, Sign};
+use crate::constants::user as user_const;
+use crate::database::{entity::NewUserEntity, service};
 use async_graphql::*;
+use std::sync::{Arc, Mutex};
 
 pub struct Mutation;
 
 #[Object]
 impl Mutation {
   #[graphql(guard = "RoleGuard::new(Role::Guest)")]
-  async fn sign_up(&self, ctx: &Context<'_>, user: UserInput) -> User {
-    let user = NewUserEntity {
-      code: user.code,
-      name: user.name,
-      email: user.email,
-      password: password::hash(user.password.as_str()).expect("Unable to get password hash"),
-      avatar: user.avatar,
-      role: role::USER,
-      status: user_status::ACTIVE,
-    };
-
-    let user = service::create_user(user, &super::get_conn(ctx)).expect("Failed to create user");
-
-    User::from(&user)
+  async fn sign_up(&self, ctx: &Context<'_>, input: UserInput) -> Result<User> {
+    let conn = super::get_conn(ctx);
+    match service::find_user_by_email(&input.email, &conn).ok() {
+      Some(_) => Err(Error::new("Email has already been registered")),
+      None => {
+        let secret = random::gen(50);
+        let password =
+          password::hash(input.password.as_str(), &secret).expect("Failed to create password hash");
+        let user = NewUserEntity {
+          code: input.code,
+          name: input.name,
+          email: input.email,
+          password,
+          secret,
+          avatar: input.avatar,
+          role: user_const::role::USER,
+          status: user_const::status::ACTIVE,
+        };
+        let user = service::create_user(user, &conn).expect("Failed to create user");
+        Ok(User::from(&user))
+      }
+    }
   }
 
-  // async fn sign_in(&self, ctx: &Context<'_>, input: SignInInput) -> Result<String, Error> {
-  //   let maybe_user = repository::get_user(&input.username, &get_conn_from_ctx(ctx)).ok();
+  #[graphql(guard = "RoleGuard::new(Role::Guest)")]
+  async fn sign_in(&self, ctx: &Context<'_>, input: SignInInput) -> Result<bool> {
+    let conn = super::get_conn(ctx);
+    let option_user = service::find_user_by_email(&input.email, &conn).ok();
 
-  //   if let Some(user) = maybe_user {
-  //     if let Ok(matching) = verify_password(&user.hash, &input.password) {
-  //       if matching {
-  //         let role =
-  //           AuthRole::from_str(user.role.as_str()).expect("Can't convert &str to AuthRole");
-  //         return Ok(common_utils::create_token(user.username, role));
-  //       }
-  //     }
-  //   }
+    if let Some(user) = option_user {
+      if let Ok(matching) = password::verify(&user.password, &input.password, &user.secret) {
+        if matching {
+          let identity = Identity::from(&user);
+          let mut auth_proc = ctx
+            .data_unchecked::<Arc<Mutex<Option<Sign>>>>()
+            .lock()
+            .expect("Failed to get Mutex");
+          *auth_proc = Some(Sign::In(identity));
+          return Ok(true);
+        }
+      }
+    }
 
-  //   Err(Error::new("Can't authenticate a user"))
-  // }
+    Err(Error::new("Failed to authenticate user"))
+  }
+
+  #[graphql(guard = "RoleGuard::new(Role::User)")]
+  async fn sign_out(&self, ctx: &Context<'_>) -> Result<bool> {
+    let mut auth_proc = ctx
+      .data_unchecked::<Arc<Mutex<Option<Sign>>>>()
+      .lock()
+      .expect("Failed to get Mutex");
+    *auth_proc = Some(Sign::Out);
+    Ok(true)
+  }
 }
