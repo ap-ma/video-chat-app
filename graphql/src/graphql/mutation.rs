@@ -1,4 +1,4 @@
-use super::form::{SignInInput, UserInput};
+use super::form::{SignInInput, SignUpInput};
 use super::model::User;
 use super::security::{guard::RoleGuard, password, random};
 use crate::auth::{Identity, Role, Sign};
@@ -12,7 +12,7 @@ pub struct Mutation;
 #[Object]
 impl Mutation {
   #[graphql(guard = "RoleGuard::new(Role::Guest)")]
-  async fn sign_up(&self, ctx: &Context<'_>, input: UserInput) -> Result<User> {
+  async fn sign_up(&self, ctx: &Context<'_>, input: SignUpInput) -> Result<User> {
     let conn = super::get_conn(ctx);
     match service::find_user_by_email(&input.email, &conn).ok() {
       Some(_) => Err(Error::new("Email has already been registered")),
@@ -22,7 +22,7 @@ impl Mutation {
           password::hash(input.password.as_str(), &secret).expect("Failed to create password hash");
         let user = NewUserEntity {
           code: input.code,
-          name: input.name,
+          name: Some(input.name),
           email: input.email,
           password,
           secret,
@@ -37,7 +37,7 @@ impl Mutation {
   }
 
   #[graphql(guard = "RoleGuard::new(Role::Guest)")]
-  async fn sign_in(&self, ctx: &Context<'_>, input: SignInInput) -> Result<bool> {
+  async fn sign_in(&self, ctx: &Context<'_>, input: SignInInput) -> bool {
     let conn = super::get_conn(ctx);
     let option_user = service::find_user_by_email(&input.email, &conn).ok();
 
@@ -50,21 +50,21 @@ impl Mutation {
             .lock()
             .expect("Failed to get Mutex");
           *auth_proc = Some(Sign::In(identity));
-          return Ok(true);
+          return true;
         }
       }
     }
 
-    Err(Error::new("Failed to authenticate user"))
+    false
   }
 
   #[graphql(guard = "RoleGuard::new(Role::User)")]
-  async fn sign_out(&self, ctx: &Context<'_>) -> Result<bool> {
+  async fn sign_out(&self, ctx: &Context<'_>) -> bool {
     let mut auth_proc = ctx
       .data_unchecked::<Arc<Mutex<Option<Sign>>>>()
       .lock()
       .expect("Failed to get Mutex");
     *auth_proc = Some(Sign::Out);
-    Ok(true)
+    true
   }
 }

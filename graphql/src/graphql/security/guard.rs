@@ -17,8 +17,10 @@ impl Guard for RoleGuard {
   async fn check(&self, ctx: &Context<'_>) -> Result<()> {
     match graphql::get_identity(ctx) {
       Some(identity) => {
-        if identity.role == self.role {
-          return Ok(());
+        if self.role != Role::Guest {
+          if (identity.role == self.role) || (identity.role == Role::Admin) {
+            return Ok(());
+          }
         }
       }
       None => {

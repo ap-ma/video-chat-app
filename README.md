@@ -12,6 +12,7 @@ setup.sh or .bat
 使用ポートは以下  
 
   * Actix Web: 8080
+  * Redis: 6379
   * MySQL: 3306
   * Next.js: 3000
   * Storybook: 6006
@@ -24,6 +25,8 @@ setup.sh or .bat
   * Rust: https://www.rust-lang.org/
   * Actix Web: https://actix.rs/
   * Async-graphql: https://github.com/async-graphql/async-graphql
+  * redis: https://redis.io/
+  * MySQL: https://www.mysql.com/
   * React: https://reactjs.org/
   * Next.js: https://nextjs.org/
   * Apollo: https://www.apollographql.com/

@@ -22,11 +22,11 @@ pub struct UserEntity {
 #[table_name = "users"]
 pub struct NewUserEntity {
     pub code: String,
-    pub name: String,
+    pub name: Option<String>,
     pub email: String,
     pub password: String,
     pub secret: String,
-    pub avatar: String,
+    pub avatar: Option<String>,
     pub role: i32,
     pub status: i32,
 }

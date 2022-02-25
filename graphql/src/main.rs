@@ -25,7 +25,7 @@ async fn main() -> std::io::Result<()> {
   let schema = graphql::create_schema(pool);
 
   let app_url = env::var("APP_URL").unwrap_or("0.0.0.0:8080".to_owned());
-  let redis_url = env::var("REDIS_URL").unwrap_or("127.0.0.1:6379".to_owned());
+  let redis_url = env::var("REDIS_URL").unwrap_or("0.0.0.0:6379".to_owned());
 
   let cookie_private = cookie::Key::generate();
 
