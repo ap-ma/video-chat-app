@@ -1,5 +1,9 @@
-use super::contact::Contact;
+use super::{contact::Contact, message::Message};
+use crate::auth::Role;
 use crate::database::entity::UserEntity;
+use crate::database::service;
+use crate::graphql;
+use crate::graphql::security::guard::{ResourceGuard, RoleGuard};
 use async_graphql::*;
 
 #[derive(Default, Debug)]
@@ -9,52 +13,70 @@ pub struct User {
     pub name: Option<String>,
     pub email: String,
     pub avatar: Option<String>,
-    pub version: i32,
 }
 
 impl From<&UserEntity> for User {
     fn from(entity: &UserEntity) -> Self {
-        User {
+        Self {
             id: entity.id,
             code: entity.code.clone(),
             name: entity.name.clone(),
             email: entity.email.clone(),
             avatar: entity.avatar.clone(),
-            version: entity.version,
         }
     }
 }
 
-/// links user
 #[Object]
 impl User {
-    /// The id of the user.
     async fn id(&self) -> u64 {
         self.id
     }
 
-    /// The code of the user.
     async fn code(&self) -> &str {
         self.code.as_str()
     }
 
-    /// The name of the user.
     async fn name(&self) -> Option<&str> {
         self.name.as_deref()
     }
 
-    /// The email of the user.
     async fn email(&self) -> &str {
         self.email.as_str()
     }
 
-    /// The avatar of the user.
     async fn avatar(&self) -> Option<&str> {
         self.name.as_deref()
     }
 
-    /// The version of the user.
-    async fn version(&self) -> i32 {
-        self.version
+    #[graphql(guard = "ResourceGuard::new(self.id)")]
+    async fn contacts(&self, ctx: &Context<'_>) -> Vec<Contact> {
+        let conn = graphql::get_conn(ctx);
+        service::get_contacts_by_user_id(self.id, &conn)
+            .expect("Failed to get the user's contacts")
+            .iter()
+            .map(Contact::from)
+            .collect()
+    }
+
+    #[graphql(guard = "ResourceGuard::new(self.id)")]
+    async fn feed(&self, ctx: &Context<'_>) -> Vec<Message> {
+        let conn = graphql::get_conn(ctx);
+        service::get_latest_messages_for_each_contact(self.id, &conn)
+            .expect("Failed to get feed")
+            .iter()
+            .map(Message::from)
+            .collect()
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn chat(&self, ctx: &Context<'_>) -> Vec<Message> {
+        let conn = graphql::get_conn(ctx);
+        let identity = graphql::get_identity(ctx).expect("Failed to get the signed in user");
+        service::get_contacts_by_user_id(self.id, &conn)
+            .expect("Failed to get the user's contacts")
+            .iter()
+            .map(Contact::from)
+            .collect()
     }
 }

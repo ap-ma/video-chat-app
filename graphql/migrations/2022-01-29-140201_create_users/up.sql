@@ -11,7 +11,6 @@ CREATE TABLE `users` (
   `status` int(11) NOT NULL COMMENT 'ステータス',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時',
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新日時',
-  `version` int(11) NOT NULL DEFAULT '1' COMMENT 'データバージョン',
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_code_unique` (`code`),
   KEY `users_email_idx` (`email`)

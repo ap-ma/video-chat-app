@@ -39,9 +39,7 @@ impl Mutation {
   #[graphql(guard = "RoleGuard::new(Role::Guest)")]
   async fn sign_in(&self, ctx: &Context<'_>, input: SignInInput) -> bool {
     let conn = super::get_conn(ctx);
-    let option_user = service::find_user_by_email(&input.email, &conn).ok();
-
-    if let Some(user) = option_user {
+    if let Some(user) = service::find_user_by_email(&input.email, &conn).ok() {
       if let Ok(matching) = password::verify(&user.password, &input.password, &user.secret) {
         if matching {
           let identity = Identity::from(&user);
@@ -54,7 +52,6 @@ impl Mutation {
         }
       }
     }
-
     false
   }
 

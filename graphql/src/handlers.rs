@@ -28,8 +28,7 @@ async fn graphql(
   let mut query = request.into_inner();
 
   // 認証済ユーザー 取得
-  let option_identity = auth::get_identity(&session);
-  if let Some(identity) = option_identity {
+  if let Some(identity) = auth::get_identity(&session) {
     query = query.data(identity);
   }
 

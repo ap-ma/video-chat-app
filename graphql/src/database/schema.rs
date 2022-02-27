@@ -6,7 +6,6 @@ table! {
         status -> Integer,
         created_at -> Datetime,
         updated_at -> Datetime,
-        version -> Integer,
     }
 }
 
@@ -20,7 +19,6 @@ table! {
         status -> Integer,
         created_at -> Datetime,
         updated_at -> Datetime,
-        version -> Integer,
     }
 }
 
@@ -37,7 +35,6 @@ table! {
         status -> Integer,
         created_at -> Datetime,
         updated_at -> Datetime,
-        version -> Integer,
     }
 }
 

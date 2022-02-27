@@ -15,7 +15,6 @@ pub struct UserEntity {
     pub status: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub version: i32,
 }
 
 #[derive(Insertable)]
@@ -54,20 +53,17 @@ pub struct ContactEntity {
     pub status: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub version: i32,
 }
 
-#[derive(Identifiable, Queryable, Associations)]
-#[belongs_to(UserEntity, foreign_key = "tx_user_id")]
+#[derive(Identifiable, Queryable, QueryableByName)]
 #[table_name = "messages"]
 pub struct MessageEntity {
     pub id: u64,
     pub tx_user_id: u64,
     pub rx_user_id: u64,
     pub category: i32,
-    pub message: String,
+    pub message: Option<String>,
     pub status: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
-    pub version: i32,
 }
