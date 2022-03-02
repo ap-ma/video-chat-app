@@ -1,12 +1,18 @@
 select
-    messages.*
+    users.id as user_id,
+    users.code as user_code,
+    users.name as user_name,
+    users.avatar as user_avatar,
+    messages.id as message_id,
+    messages.category as message_category,
+    messages.message
 from
     messages
     inner join
         (
             select
                 max(id) as id,
-                CONCAT(tx_user_id + rx_user_id) as combination
+                concat(tx_user_id + rx_user_id) as combination
             from
                 messages
             where

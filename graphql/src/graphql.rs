@@ -17,22 +17,21 @@ use subscription::Subscription;
 pub type AppSchema = Schema<Query, Mutation, EmptySubscription>;
 
 pub fn create_schema(pool: MySqlPool) -> AppSchema {
-  Schema::build(Query, Mutation, EmptySubscription)
-    .data(pool)
-    .finish()
+    Schema::build(Query, Mutation, EmptySubscription)
+        .data(pool)
+        .finish()
 }
 
 fn get_identity(ctx: &Context<'_>) -> Option<Identity> {
-  match ctx.data_opt::<Identity>() {
-    Some(identity) => Some(identity.clone()),
-    _ => None,
-  }
+    match ctx.data_opt::<Identity>() {
+        Some(identity) => Some(identity.clone()),
+        _ => None,
+    }
 }
 
 fn get_conn(ctx: &Context<'_>) -> PooledConnection<ConnectionManager<MysqlConnection>> {
-  ctx
-    .data::<MySqlPool>()
-    .expect("Unable to get pool")
-    .get()
-    .expect("Unable to get DB connection")
+    ctx.data::<MySqlPool>()
+        .expect("Unable to get pool")
+        .get()
+        .expect("Unable to get DB connection")
 }

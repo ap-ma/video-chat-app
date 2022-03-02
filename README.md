@@ -24,8 +24,8 @@ setup.sh or .bat
   * GraphQL: https://graphql.org/
   * Rust: https://www.rust-lang.org/
   * Actix Web: https://actix.rs/
-  * Async-graphql: https://github.com/async-graphql/async-graphql
-  * redis: https://redis.io/
+  * Async Graphql: https://github.com/async-graphql/async-graphql
+  * Redis: https://redis.io/
   * MySQL: https://www.mysql.com/
   * React: https://reactjs.org/
   * Next.js: https://nextjs.org/

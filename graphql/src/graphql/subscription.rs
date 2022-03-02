@@ -1,6 +1,6 @@
 use async_graphql::*;
-use futures::{Stream, StreamExt};
 use async_graphql::{EmptySubscription, Schema};
+use futures::{Stream, StreamExt};
 
 pub struct Subscription;
 
