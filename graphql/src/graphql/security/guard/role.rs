@@ -1,5 +1,5 @@
+use super::super::super::get_identity_from_ctx;
 use crate::auth::Role;
-use crate::graphql;
 use async_graphql::*;
 
 pub struct RoleGuard {
@@ -15,7 +15,7 @@ impl RoleGuard {
 #[async_trait::async_trait]
 impl Guard for RoleGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
-        match graphql::get_identity(ctx) {
+        match get_identity_from_ctx(ctx) {
             Some(identity) => {
                 if self.role != Role::Guest {
                     if (identity.role == self.role) || (identity.role == Role::Admin) {

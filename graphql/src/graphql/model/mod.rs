@@ -1,5 +1,5 @@
 pub mod contact;
-pub mod history;
+pub mod log;
 pub mod message;
 pub mod user;
 

@@ -1,7 +1,7 @@
+use super::super::{get_conn_from_ctx, get_identity_from_ctx};
 use super::message::Message;
 use crate::database::entity::{ContactEntity, UserEntity};
 use crate::database::service;
-use crate::graphql;
 use async_graphql::*;
 
 #[derive(Default, Debug)]
@@ -54,8 +54,8 @@ impl Contact {
     }
 
     async fn chat(&self, ctx: &Context<'_>, limit: Option<i64>) -> Vec<Message> {
-        let conn = graphql::get_conn(ctx);
-        let identity = graphql::get_identity(ctx).expect("Unable to get sign-in user");
+        let conn = get_conn_from_ctx(ctx);
+        let identity = get_identity_from_ctx(ctx).expect("Unable to get sign-in user");
         service::get_messages(identity.id, self.user_id, limit, &conn)
             .expect("Failed to get chat")
             .iter()

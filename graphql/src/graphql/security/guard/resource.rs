@@ -1,4 +1,4 @@
-use crate::graphql;
+use super::super::super::get_identity_from_ctx;
 use async_graphql::*;
 
 pub struct ResourceGuard {
@@ -14,7 +14,7 @@ impl ResourceGuard {
 #[async_trait::async_trait]
 impl Guard for ResourceGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
-        if let Some(identity) = graphql::get_identity(ctx) {
+        if let Some(identity) = get_identity_from_ctx(ctx) {
             if self.user_id == identity.id {
                 return Ok(());
             }

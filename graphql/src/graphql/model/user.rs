@@ -1,7 +1,7 @@
-use super::{contact::Contact, history::History};
+use super::super::get_conn_from_ctx;
+use super::{contact::Contact, log::Log};
 use crate::database::entity::UserEntity;
 use crate::database::service;
-use crate::graphql;
 use crate::graphql::security::guard::ResourceGuard;
 use async_graphql::*;
 
@@ -50,7 +50,7 @@ impl User {
 
     #[graphql(guard = "ResourceGuard::new(self.id)")]
     async fn contacts(&self, ctx: &Context<'_>) -> Vec<Contact> {
-        let conn = graphql::get_conn(ctx);
+        let conn = get_conn_from_ctx(ctx);
         service::get_contacts(self.id, &conn)
             .expect("Failed to get the user's contacts")
             .iter()
@@ -59,12 +59,12 @@ impl User {
     }
 
     #[graphql(guard = "ResourceGuard::new(self.id)")]
-    async fn history(&self, ctx: &Context<'_>) -> Vec<History> {
-        let conn = graphql::get_conn(ctx);
+    async fn log(&self, ctx: &Context<'_>) -> Vec<Log> {
+        let conn = get_conn_from_ctx(ctx);
         service::get_latest_messages_for_each_user(self.id, &conn)
-            .expect("Failed to get history")
+            .expect("Failed to get Log")
             .iter()
-            .map(History::from)
+            .map(Log::from)
             .collect()
     }
 }
