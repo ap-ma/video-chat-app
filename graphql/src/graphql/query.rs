@@ -1,4 +1,4 @@
-use super::model::{contact::Contact, user::User};
+use super::model::{Contact, User};
 use super::security::guard::RoleGuard;
 use super::{get_conn_from_ctx, get_identity_from_ctx};
 use crate::auth::Role;
@@ -12,7 +12,7 @@ impl Query {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn me(&self, ctx: &Context<'_>) -> User {
         let conn = get_conn_from_ctx(ctx);
-        let identity = get_identity_from_ctx(ctx).expect("Unable to get sign-in user");
+        let identity = get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
         let user = service::find_user_by_id(identity.id, &conn).expect("Failed to get the user");
         User::from(&user)
     }
@@ -24,7 +24,7 @@ impl Query {
         contact_user_id: u64,
     ) -> Result<Contact, Error> {
         let conn = get_conn_from_ctx(ctx);
-        let identity = get_identity_from_ctx(ctx).expect("Unable to get sign-in user");
+        let identity = get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
         let contact_result = service::find_contact(identity.id, contact_user_id, &conn).ok();
 
         match contact_result {

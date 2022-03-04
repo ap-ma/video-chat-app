@@ -1,8 +1,6 @@
 use super::entity::*;
 use super::schema::{contacts, messages, users};
-use crate::constants::contact as contact_const;
-use crate::constants::message as message_const;
-use crate::constants::user as user_const;
+use crate::constants::{contact as contact_const, message as message_const, user as user_const};
 use diesel::prelude::*;
 use diesel::sql_types::{Bigint, Integer, Unsigned};
 
@@ -44,6 +42,10 @@ pub fn find_contact(
         .filter(contacts::contact_user_id.eq(contact_user_id))
         .filter(users::status.eq(user_const::status::ACTIVE))
         .first(conn)
+}
+
+pub fn find_message(message_id: u64, conn: &MysqlConnection) -> QueryResult<MessageEntity> {
+    messages::table.find(message_id).first(conn)
 }
 
 pub fn get_contacts(

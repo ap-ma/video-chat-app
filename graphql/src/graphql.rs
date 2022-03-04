@@ -1,13 +1,14 @@
-pub mod form;
-pub mod model;
-pub mod mutation;
-pub mod query;
-pub mod security;
-pub mod subscription;
+mod common;
+mod form;
+mod model;
+mod mutation;
+mod query;
+mod security;
+mod subscription;
 
 use crate::auth::Identity;
 use crate::database::MySqlPool;
-use async_graphql::{Context, Schema};
+use async_graphql::{Context, Schema, ID};
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use diesel::MysqlConnection;
 use mutation::Mutation;
@@ -34,4 +35,8 @@ fn get_conn_from_ctx(ctx: &Context<'_>) -> PooledConnection<ConnectionManager<My
         .expect("Unable to get pool")
         .get()
         .expect("Unable to get DB connection")
+}
+
+fn convert_id(id: &ID) -> u64 {
+    id.to_string().parse::<u64>().expect("Failed to convert id")
 }

@@ -13,7 +13,7 @@ pub fn gen(length: usize) -> String {
         .collect()
 }
 
-fn gen_alphanumeric(length: usize) -> String {
+fn _gen_alphanumeric(length: usize) -> String {
     rand::thread_rng()
         .sample_iter(&Alphanumeric)
         .take(length)

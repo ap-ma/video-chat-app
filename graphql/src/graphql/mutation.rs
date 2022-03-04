@@ -1,7 +1,7 @@
 use super::form::{SignInInput, SignUpInput};
 use super::get_conn_from_ctx;
 use super::model::User;
-use super::security::{guard::RoleGuard, password, random};
+use super::security::{password, random, RoleGuard};
 use crate::auth::{Identity, Role, Sign};
 use crate::constants::user as user_const;
 use crate::database::{entity::NewUserEntity, service};
@@ -47,7 +47,7 @@ impl Mutation {
                     let mut auth_proc = ctx
                         .data_unchecked::<Arc<Mutex<Option<Sign>>>>()
                         .lock()
-                        .expect("Failed to get Mutex");
+                        .unwrap();
                     *auth_proc = Some(Sign::In(identity));
                     return true;
                 }
@@ -61,7 +61,7 @@ impl Mutation {
         let mut auth_proc = ctx
             .data_unchecked::<Arc<Mutex<Option<Sign>>>>()
             .lock()
-            .expect("Failed to get Mutex");
+            .unwrap();
         *auth_proc = Some(Sign::Out);
         true
     }

@@ -3,11 +3,11 @@ use async_graphql::*;
 
 #[derive(Default, Debug)]
 pub struct Log {
-    pub user_id: u64,
+    pub user_id: ID,
     pub user_code: String,
     pub user_name: Option<String>,
     pub user_avatar: Option<String>,
-    pub message_id: u64,
+    pub message_id: ID,
     pub message_category: i32,
     pub message: Option<String>,
 }
@@ -15,11 +15,11 @@ pub struct Log {
 impl From<&LatestMessageEntity> for Log {
     fn from(entity: &LatestMessageEntity) -> Self {
         Self {
-            user_id: entity.user_id,
+            user_id: entity.user_id.into(),
             user_code: entity.user_code.clone(),
             user_name: entity.user_name.clone(),
             user_avatar: entity.user_avatar.clone(),
-            message_id: entity.message_id,
+            message_id: entity.message_id.into(),
             message_category: entity.message_category,
             message: entity.message.clone(),
         }
@@ -28,8 +28,8 @@ impl From<&LatestMessageEntity> for Log {
 
 #[Object]
 impl Log {
-    async fn user_id(&self) -> u64 {
-        self.user_id
+    async fn user_id(&self) -> &ID {
+        &self.user_id
     }
 
     async fn user_code(&self) -> &str {
@@ -44,8 +44,8 @@ impl Log {
         self.user_avatar.as_deref()
     }
 
-    async fn message_id(&self) -> u64 {
-        self.message_id
+    async fn message_id(&self) -> &ID {
+        &self.message_id
     }
 
     async fn message_category(&self) -> i32 {

@@ -1,4 +1,4 @@
-use super::super::super::get_identity_from_ctx;
+use super::super::super::{convert_id, get_identity_from_ctx};
 use async_graphql::*;
 
 pub struct ResourceGuard {
@@ -6,8 +6,10 @@ pub struct ResourceGuard {
 }
 
 impl ResourceGuard {
-    pub fn new(user_id: u64) -> Self {
-        Self { user_id }
+    pub fn new(user_id: &ID) -> Self {
+        Self {
+            user_id: convert_id(user_id),
+        }
     }
 }
 
