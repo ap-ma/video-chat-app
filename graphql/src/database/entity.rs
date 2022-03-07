@@ -60,6 +60,15 @@ pub struct ContactEntity {
     pub updated_at: NaiveDateTime,
 }
 
+#[derive(Insertable)]
+#[table_name = "contacts"]
+pub struct NewContactEntity {
+    pub user_id: u64,
+    pub contact_user_id: u64,
+    pub status: i32,
+    pub blocked: bool,
+}
+
 #[derive(Identifiable, Queryable, QueryableByName)]
 #[table_name = "messages"]
 pub struct MessageEntity {
@@ -71,6 +80,16 @@ pub struct MessageEntity {
     pub status: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+}
+
+#[derive(Insertable)]
+#[table_name = "messages"]
+pub struct NewMessageEntity {
+    pub tx_user_id: u64,
+    pub rx_user_id: u64,
+    pub category: i32,
+    pub message: Option<String>,
+    pub status: i32,
 }
 
 #[derive(QueryableByName)]

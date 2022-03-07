@@ -1,25 +1,22 @@
 use super::form::{SignInInput, SignUpInput};
-use super::get_conn_from_ctx;
-use super::model::User;
 use super::security::{password, random, RoleGuard};
-use crate::auth::{Identity, Role, Sign};
-use crate::constants::user as user_const;
-use crate::database::{entity::NewUserEntity, service};
+use super::{get_conn_from_ctx, sign_in, sign_out};
+use crate::auth::Role;
+use crate::constants::{contact as contact_const, user as user_const};
+use crate::database::entity::{NewContactEntity, NewUserEntity};
+use crate::database::service;
 use async_graphql::*;
-use std::sync::{Arc, Mutex};
 
 pub struct Mutation;
 
 #[Object]
 impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::Guest)")]
-    async fn sign_up(&self, ctx: &Context<'_>, input: SignUpInput) -> Result<User> {
+    async fn sign_up(&self, ctx: &Context<'_>, input: SignUpInput) -> Result<bool> {
         let conn = get_conn_from_ctx(ctx);
-
         if let Ok(_) = service::find_user_by_email(&input.email, &conn) {
             return Err(Error::new("Email has already been registered"));
         }
-
         if let Ok(_) = service::find_user_by_code(&input.code, &conn) {
             return Err(Error::new("Code has already been registered"));
         }
@@ -27,7 +24,7 @@ impl Mutation {
         let secret = random::gen(50);
         let password = password::hash(input.password.as_str(), &secret)
             .expect("Failed to create password hash");
-        let user = NewUserEntity {
+        let new_user = NewUserEntity {
             code: input.code,
             name: Some(input.name),
             email: input.email,
@@ -38,8 +35,19 @@ impl Mutation {
             role: user_const::role::USER,
             status: user_const::status::ACTIVE,
         };
-        let user = service::create_user(user, &conn).expect("Failed to create user");
-        Ok(User::from(&user))
+        let user = service::create_user(new_user, &conn).expect("Failed to create user");
+
+        let new_contact = NewContactEntity {
+            user_id: user.id,
+            contact_user_id: user.id,
+            status: contact_const::status::APPROVED,
+            blocked: false,
+        };
+        let _ = service::create_contact(new_contact, &conn).expect("Failed to create contact");
+
+        sign_in(ctx, &user);
+
+        Ok(true)
     }
 
     #[graphql(guard = "RoleGuard::new(Role::Guest)")]
@@ -48,12 +56,7 @@ impl Mutation {
         if let Some(user) = service::find_user_by_email(&input.email, &conn).ok() {
             if let Ok(matching) = password::verify(&user.password, &input.password, &user.secret) {
                 if matching {
-                    let identity = Identity::from(&user);
-                    let mut auth_proc = ctx
-                        .data_unchecked::<Arc<Mutex<Option<Sign>>>>()
-                        .lock()
-                        .unwrap();
-                    *auth_proc = Some(Sign::In(identity));
+                    sign_in(ctx, &user);
                     return true;
                 }
             }
@@ -63,11 +66,7 @@ impl Mutation {
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn sign_out(&self, ctx: &Context<'_>) -> bool {
-        let mut auth_proc = ctx
-            .data_unchecked::<Arc<Mutex<Option<Sign>>>>()
-            .lock()
-            .unwrap();
-        *auth_proc = Some(Sign::Out);
+        sign_out(ctx);
         true
     }
 }

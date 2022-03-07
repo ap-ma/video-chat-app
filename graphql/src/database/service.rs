@@ -41,6 +41,18 @@ pub fn get_users_by_code(user_code: &str, conn: &MysqlConnection) -> QueryResult
         .load(conn)
 }
 
+pub fn create_contact(
+    contact: NewContactEntity,
+    conn: &MysqlConnection,
+) -> QueryResult<ContactEntity> {
+    use super::schema::contacts::dsl::*;
+    diesel::insert_into(contacts)
+        .values(contact)
+        .execute(conn)?;
+    let contact_id: u64 = diesel::select(last_insert_id).first(conn)?;
+    contacts.find(contact_id).first(conn)
+}
+
 pub fn find_contact(
     user_id: u64,
     contact_user_id: u64,
