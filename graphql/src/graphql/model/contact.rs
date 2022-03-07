@@ -12,6 +12,7 @@ pub struct Contact {
     pub user_name: Option<String>,
     pub user_avatar: Option<String>,
     pub status: i32,
+    pub blocked: bool,
 }
 
 impl From<&(ContactEntity, UserEntity)> for Contact {
@@ -23,6 +24,7 @@ impl From<&(ContactEntity, UserEntity)> for Contact {
             user_name: user.name.clone(),
             user_avatar: user.avatar.clone(),
             status: contact.status,
+            blocked: contact.blocked,
         }
     }
 }
@@ -51,6 +53,10 @@ impl Contact {
 
     async fn status(&self) -> i32 {
         self.status
+    }
+
+    async fn blocked(&self) -> bool {
+        self.blocked
     }
 
     async fn chat(&self, ctx: &Context<'_>, limit: Option<i64>) -> Vec<Message> {

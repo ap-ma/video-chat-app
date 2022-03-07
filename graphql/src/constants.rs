@@ -12,10 +12,8 @@ pub mod user {
 
 pub mod contact {
     pub mod status {
-        pub const _UNAPPROVED: i32 = 1;
-        pub const APPROVED: i32 = 2;
-        pub const _DELETED: i32 = 3;
-        pub const _BLOCKED: i32 = 4;
+        pub const ACTIVE: i32 = 1;
+        pub const _DELETED: i32 = 2;
     }
 }
 

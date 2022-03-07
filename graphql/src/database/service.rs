@@ -55,7 +55,8 @@ pub fn get_contacts(
     contacts::table
         .inner_join(users::table.on(users::id.eq(contacts::contact_user_id)))
         .filter(contacts::user_id.eq(user_id))
-        .filter(contacts::status.eq(contact_const::status::APPROVED))
+        .filter(contacts::status.eq(contact_const::status::ACTIVE))
+        .filter(contacts::blocked.eq(false))
         .filter(users::status.eq(user_const::status::ACTIVE))
         .order(users::name.asc())
         .load(conn)

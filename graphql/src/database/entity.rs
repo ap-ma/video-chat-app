@@ -55,6 +55,7 @@ pub struct ContactEntity {
     pub user_id: u64,
     pub contact_user_id: u64,
     pub status: i32,
+    pub blocked: bool,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }

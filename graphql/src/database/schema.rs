@@ -4,6 +4,7 @@ table! {
         user_id -> Unsigned<Bigint>,
         contact_user_id -> Unsigned<Bigint>,
         status -> Integer,
+        blocked -> Bool,
         created_at -> Datetime,
         updated_at -> Datetime,
     }
