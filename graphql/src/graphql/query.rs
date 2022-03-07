@@ -2,6 +2,7 @@ use super::model::{Contact, User};
 use super::security::guard::RoleGuard;
 use super::{get_conn_from_ctx, get_identity_from_ctx};
 use crate::auth::Role;
+use crate::constants::contact as contact_const;
 use crate::database::service;
 use async_graphql::*;
 
@@ -29,7 +30,19 @@ impl Query {
 
         match contact_result {
             Some(contact) => Ok(Contact::from(&contact)),
-            None => Err(Error::new("Unable to get the contact user")),
+            // コンタクト未登録時もチャット画面を表示
+            None => match service::find_user_by_id(contact_user_id, &conn).ok() {
+                Some(other_user) => Ok(Contact {
+                    id: 0.into(),
+                    user_id: other_user.id.into(),
+                    user_code: other_user.code,
+                    user_name: other_user.name,
+                    user_avatar: other_user.avatar,
+                    status: contact_const::status::UNAPPROVED,
+                    blocked: false,
+                }),
+                None => Err(Error::new("Unable to get the contact user")),
+            },
         }
     }
 

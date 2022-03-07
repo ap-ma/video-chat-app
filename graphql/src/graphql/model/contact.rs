@@ -66,6 +66,7 @@ impl Contact {
             .expect("Failed to get chat")
             .iter()
             .map(Message::from)
+            .rev()
             .collect()
     }
 }

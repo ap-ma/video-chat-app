@@ -2,7 +2,7 @@ use super::entity::*;
 use super::schema::{contacts, messages, users};
 use crate::constants::{contact as contact_const, message as message_const, user as user_const};
 use diesel::prelude::*;
-use diesel::sql_types::{Bigint, Integer, Unsigned};
+use diesel::sql_types::{Bigint, Bool, Integer, Unsigned};
 
 diesel::no_arg_sql_function!(last_insert_id, Unsigned<Bigint>);
 
@@ -14,7 +14,17 @@ pub fn create_user(user: NewUserEntity, conn: &MysqlConnection) -> QueryResult<U
 }
 
 pub fn find_user_by_id(user_id: u64, conn: &MysqlConnection) -> QueryResult<UserEntity> {
-    users::table.find(user_id).first(conn)
+    users::table
+        .find(user_id)
+        .filter(users::status.eq(user_const::status::ACTIVE))
+        .first(conn)
+}
+
+pub fn find_user_by_code(code: &str, conn: &MysqlConnection) -> QueryResult<UserEntity> {
+    users::table
+        .filter(users::code.eq(code))
+        .filter(users::status.eq(user_const::status::ACTIVE))
+        .first(conn)
 }
 
 pub fn find_user_by_email(email: &str, conn: &MysqlConnection) -> QueryResult<UserEntity> {
@@ -55,7 +65,7 @@ pub fn get_contacts(
     contacts::table
         .inner_join(users::table.on(users::id.eq(contacts::contact_user_id)))
         .filter(contacts::user_id.eq(user_id))
-        .filter(contacts::status.eq(contact_const::status::ACTIVE))
+        .filter(contacts::status.eq(contact_const::status::APPROVED))
         .filter(contacts::blocked.eq(false))
         .filter(users::status.eq(user_const::status::ACTIVE))
         .order(users::name.asc())
@@ -80,7 +90,7 @@ pub fn get_messages(
                 .or(messages::rx_user_id.eq(other_user_id)),
         )
         .filter(messages::status.ne(message_const::status::DELETED))
-        .order(messages::id.desc())
+        .order(messages::created_at.desc())
         .into_boxed();
 
     if let Some(value) = limit {
@@ -99,6 +109,8 @@ pub fn get_latest_messages_for_each_user(
         .bind::<Unsigned<Bigint>, _>(user_id)
         .bind::<Integer, _>(message_const::status::DELETED)
         .bind::<Unsigned<Bigint>, _>(user_id)
+        .bind::<Unsigned<Bigint>, _>(user_id)
         .bind::<Integer, _>(user_const::status::ACTIVE)
+        .bind::<Bool, _>(false)
         .load(conn)
 }

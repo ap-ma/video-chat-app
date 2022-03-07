@@ -15,27 +15,31 @@ impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::Guest)")]
     async fn sign_up(&self, ctx: &Context<'_>, input: SignUpInput) -> Result<User> {
         let conn = get_conn_from_ctx(ctx);
-        match service::find_user_by_email(&input.email, &conn).ok() {
-            Some(_) => Err(Error::new("Email has already been registered")),
-            None => {
-                let secret = random::gen(50);
-                let password = password::hash(input.password.as_str(), &secret)
-                    .expect("Failed to create password hash");
-                let user = NewUserEntity {
-                    code: input.code,
-                    name: Some(input.name),
-                    email: input.email,
-                    password,
-                    secret,
-                    comment: input.comment,
-                    avatar: input.avatar,
-                    role: user_const::role::USER,
-                    status: user_const::status::ACTIVE,
-                };
-                let user = service::create_user(user, &conn).expect("Failed to create user");
-                Ok(User::from(&user))
-            }
+
+        if let Ok(_) = service::find_user_by_email(&input.email, &conn) {
+            return Err(Error::new("Email has already been registered"));
         }
+
+        if let Ok(_) = service::find_user_by_code(&input.code, &conn) {
+            return Err(Error::new("Code has already been registered"));
+        }
+
+        let secret = random::gen(50);
+        let password = password::hash(input.password.as_str(), &secret)
+            .expect("Failed to create password hash");
+        let user = NewUserEntity {
+            code: input.code,
+            name: Some(input.name),
+            email: input.email,
+            password,
+            secret,
+            comment: input.comment,
+            avatar: input.avatar,
+            role: user_const::role::USER,
+            status: user_const::status::ACTIVE,
+        };
+        let user = service::create_user(user, &conn).expect("Failed to create user");
+        Ok(User::from(&user))
     }
 
     #[graphql(guard = "RoleGuard::new(Role::Guest)")]

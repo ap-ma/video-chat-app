@@ -12,7 +12,7 @@ from
         (
             select
                 max(id) as id,
-                concat(tx_user_id + rx_user_id) as combination
+                tx_user_id + rx_user_id as combination
             from
                 messages
             where
@@ -28,5 +28,15 @@ from
     inner join
         users
     on  users.id = latest.combination - ?
+    left join
+        contacts
+    on  contacts.user_id = ?
+    and contact_user_id = users.id
 where
     users.status = ?
+and (
+        contacts.blocked <> ?
+    or  contacts.id is null
+    )
+order by
+    messages.created_at desc
