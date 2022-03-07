@@ -11,6 +11,7 @@ pub struct User {
     pub code: String,
     pub name: Option<String>,
     pub email: String,
+    pub comment: Option<String>,
     pub avatar: Option<String>,
 }
 
@@ -21,6 +22,7 @@ impl From<&UserEntity> for User {
             code: entity.code.clone(),
             name: entity.name.clone(),
             email: entity.email.clone(),
+            comment: entity.comment.clone(),
             avatar: entity.avatar.clone(),
         }
     }
@@ -44,8 +46,12 @@ impl User {
         self.email.as_str()
     }
 
+    async fn comment(&self) -> Option<&str> {
+        self.comment.as_deref()
+    }
+
     async fn avatar(&self) -> Option<&str> {
-        self.name.as_deref()
+        self.avatar.as_deref()
     }
 
     #[graphql(guard = "ResourceGuard::new(&self.id)")]

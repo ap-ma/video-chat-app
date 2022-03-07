@@ -30,6 +30,7 @@ table! {
         email -> Varchar,
         password -> Varchar,
         secret -> Varchar,
+        comment -> Nullable<Varchar>,
         avatar -> Nullable<Varchar>,
         role -> Integer,
         status -> Integer,

@@ -9,6 +9,7 @@ pub struct SignUpInput {
     // 最低8文字 最大24文字 大文字、小文字をそれぞれ1文字以上含む半角英数字
     #[graphql(validator(regex = "(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{8,24}"))]
     pub password: String,
+    pub comment: Option<String>,
     pub avatar: Option<String>,
     pub version: i32,
 }

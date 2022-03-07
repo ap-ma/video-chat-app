@@ -27,6 +27,7 @@ impl Mutation {
                     email: input.email,
                     password,
                     secret,
+                    comment: input.comment,
                     avatar: input.avatar,
                     role: user_const::role::USER,
                     status: user_const::status::ACTIVE,
