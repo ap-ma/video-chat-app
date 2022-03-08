@@ -40,7 +40,7 @@ impl MessageChanged {
 
     async fn message(&self, ctx: &Context<'_>) -> Option<Message> {
         let conn = get_conn_from_ctx(ctx);
-        match service::find_message(convert_id(&self.id), &conn) {
+        match service::find_message_by_id(convert_id(&self.id), &conn) {
             Ok(message_eneity) => Some(Message::from(&message_eneity)),
             _ => None,
         }

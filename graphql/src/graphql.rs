@@ -25,7 +25,7 @@ pub fn create_schema(pool: MySqlPool) -> AppSchema {
         .finish()
 }
 
-fn sign_in(ctx: &Context<'_>, user: &UserEntity) {
+fn sign_in(user: &UserEntity, ctx: &Context<'_>) {
     let identity = Identity::from(user);
     let mut auth_proc = ctx
         .data_unchecked::<Arc<Mutex<Option<Sign>>>>()

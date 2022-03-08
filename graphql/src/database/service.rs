@@ -6,9 +6,9 @@ use diesel::sql_types::{Bigint, Bool, Integer, Unsigned};
 
 diesel::no_arg_sql_function!(last_insert_id, Unsigned<Bigint>);
 
-pub fn create_user(user: NewUserEntity, conn: &MysqlConnection) -> QueryResult<UserEntity> {
+pub fn create_user(new_user: NewUserEntity, conn: &MysqlConnection) -> QueryResult<UserEntity> {
     use super::schema::users::dsl::*;
-    diesel::insert_into(users).values(user).execute(conn)?;
+    diesel::insert_into(users).values(new_user).execute(conn)?;
     let user_id: u64 = diesel::select(last_insert_id).first(conn)?;
     users.find(user_id).first(conn)
 }
@@ -42,18 +42,31 @@ pub fn get_users_by_code(user_code: &str, conn: &MysqlConnection) -> QueryResult
 }
 
 pub fn create_contact(
-    contact: NewContactEntity,
+    new_contact: NewContactEntity,
     conn: &MysqlConnection,
 ) -> QueryResult<ContactEntity> {
     use super::schema::contacts::dsl::*;
     diesel::insert_into(contacts)
-        .values(contact)
+        .values(new_contact)
         .execute(conn)?;
     let contact_id: u64 = diesel::select(last_insert_id).first(conn)?;
     contacts.find(contact_id).first(conn)
 }
 
-pub fn find_contact(
+pub fn update_contact(
+    change_contact: ChangeContactEntity,
+    conn: &MysqlConnection,
+) -> QueryResult<usize> {
+    diesel::update(&change_contact)
+        .set(&change_contact)
+        .execute(conn)
+}
+
+pub fn find_contact_by_id(contact_id: u64, conn: &MysqlConnection) -> QueryResult<ContactEntity> {
+    contacts::table.find(contact_id).first(conn)
+}
+
+pub fn find_contact_with_user(
     user_id: u64,
     contact_user_id: u64,
     conn: &MysqlConnection,
@@ -66,7 +79,19 @@ pub fn find_contact(
         .first(conn)
 }
 
-pub fn find_message(message_id: u64, conn: &MysqlConnection) -> QueryResult<MessageEntity> {
+pub fn create_message(
+    new_message: NewMessageEntity,
+    conn: &MysqlConnection,
+) -> QueryResult<MessageEntity> {
+    use super::schema::messages::dsl::*;
+    diesel::insert_into(messages)
+        .values(new_message)
+        .execute(conn)?;
+    let message_id: u64 = diesel::select(last_insert_id).first(conn)?;
+    messages.find(message_id).first(conn)
+}
+
+pub fn find_message_by_id(message_id: u64, conn: &MysqlConnection) -> QueryResult<MessageEntity> {
     messages::table.find(message_id).first(conn)
 }
 

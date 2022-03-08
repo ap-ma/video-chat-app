@@ -4,7 +4,7 @@ use crate::database::entity::{ContactEntity, UserEntity};
 use crate::database::service;
 use async_graphql::*;
 
-#[derive(Default, Debug)]
+#[derive(Clone, Debug)]
 pub struct Contact {
     pub id: ID,
     pub user_id: ID,
@@ -43,7 +43,11 @@ impl Contact {
         self.user_code.as_str()
     }
 
-    async fn user_name(&self) -> Option<&str> {
+    async fn user_name(&self, ctx: &Context<'_>) -> Option<&str> {
+        let identity = get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
+        if identity.id == convert_id(&self.user_id) {
+            return Some("Myspace");
+        }
         self.user_name.as_deref()
     }
 
@@ -60,6 +64,10 @@ impl Contact {
     }
 
     async fn chat(&self, ctx: &Context<'_>, limit: Option<i64>) -> Vec<Message> {
+        if self.blocked {
+            return Vec::new();
+        }
+
         let conn = get_conn_from_ctx(ctx);
         let identity = get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
         service::get_messages(identity.id, convert_id(&self.user_id), limit, &conn)

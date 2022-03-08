@@ -5,7 +5,7 @@ use crate::database::service;
 use crate::graphql::security::guard::ResourceGuard;
 use async_graphql::*;
 
-#[derive(Default, Debug)]
+#[derive(Clone, Debug)]
 pub struct User {
     pub id: ID,
     pub code: String,

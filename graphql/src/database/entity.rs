@@ -33,16 +33,17 @@ pub struct NewUserEntity {
     pub status: i32,
 }
 
-#[derive(AsChangeset)]
+#[derive(Identifiable, AsChangeset, Default)]
 #[table_name = "users"]
 pub struct ChangeUserEntity {
+    pub id: u64,
     pub code: Option<String>,
-    pub name: Option<String>,
+    pub name: Option<Option<String>>,
     pub email: Option<String>,
     pub password: Option<String>,
     pub secret: Option<String>,
-    pub comment: Option<String>,
-    pub avatar: Option<String>,
+    pub comment: Option<Option<String>>,
+    pub avatar: Option<Option<String>>,
     pub role: Option<i32>,
     pub status: Option<i32>,
 }
@@ -67,6 +68,16 @@ pub struct NewContactEntity {
     pub contact_user_id: u64,
     pub status: i32,
     pub blocked: bool,
+}
+
+#[derive(Identifiable, AsChangeset, Default)]
+#[table_name = "contacts"]
+pub struct ChangeContactEntity {
+    pub id: u64,
+    pub user_id: Option<u64>,
+    pub contact_user_id: Option<u64>,
+    pub status: Option<i32>,
+    pub blocked: Option<bool>,
 }
 
 #[derive(Identifiable, Queryable, QueryableByName)]

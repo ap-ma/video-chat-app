@@ -1,7 +1,7 @@
 use crate::database::entity::LatestMessageEntity;
 use async_graphql::*;
 
-#[derive(Default, Debug)]
+#[derive(Clone, Debug)]
 pub struct Log {
     pub user_id: ID,
     pub user_code: String,

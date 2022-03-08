@@ -19,16 +19,11 @@ impl Query {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn contact_info(
-        &self,
-        ctx: &Context<'_>,
-        contact_user_id: u64,
-    ) -> Result<Contact, Error> {
+    async fn contact_info(&self, ctx: &Context<'_>, contact_user_id: u64) -> Result<Contact> {
         let conn = get_conn_from_ctx(ctx);
         let identity = get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
-        let contact_result = service::find_contact(identity.id, contact_user_id, &conn).ok();
 
-        match contact_result {
+        match service::find_contact_with_user(identity.id, contact_user_id, &conn).ok() {
             Some(contact) => Ok(Contact::from(&contact)),
             // コンタクト未登録時もチャット画面を表示
             None => match service::find_user_by_id(contact_user_id, &conn).ok() {

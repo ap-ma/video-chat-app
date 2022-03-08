@@ -1,7 +1,8 @@
 use crate::database::entity::MessageEntity;
 use async_graphql::*;
+use chrono::NaiveDateTime;
 
-#[derive(Default, Debug)]
+#[derive(Clone, Debug)]
 pub struct Message {
     pub id: ID,
     pub tx_user_id: ID,
@@ -9,6 +10,7 @@ pub struct Message {
     pub category: i32,
     pub message: Option<String>,
     pub status: i32,
+    pub created_at: NaiveDateTime,
 }
 
 impl From<&MessageEntity> for Message {
@@ -20,6 +22,7 @@ impl From<&MessageEntity> for Message {
             category: entity.category,
             message: entity.message.clone(),
             status: entity.status,
+            created_at: entity.created_at,
         }
     }
 }
@@ -48,5 +51,15 @@ impl Message {
 
     async fn status(&self) -> i32 {
         self.status
+    }
+
+    async fn created_at(&self, format: Option<String>) -> String {
+        let format = if let Some(t_format) = format {
+            t_format
+        } else {
+            "%m/%d/%Y %H:%M:%S".to_owned()
+        };
+
+        self.created_at.format(format.as_str()).to_string()
     }
 }
