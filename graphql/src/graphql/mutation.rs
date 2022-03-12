@@ -1,8 +1,7 @@
-use super::common::{MutationType, SimpleBroker};
+use super::common::{self, MutationType, SimpleBroker};
 use super::form::{SignInInput, SignUpInput};
 use super::model::{Contact, Message, MessageChanged};
 use super::security::{password, random, RoleGuard};
-use super::{get_conn_from_ctx, get_identity_from_ctx, sign_in, sign_out};
 use crate::auth::Role;
 use crate::constants::{contact as contact_const, message as message_const, user as user_const};
 use crate::database::entity::{
@@ -10,14 +9,35 @@ use crate::database::entity::{
 };
 use crate::database::service;
 use async_graphql::*;
+use diesel::connection::Connection;
 
 pub struct Mutation;
 
 #[Object]
 impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::Guest)")]
+    async fn sign_in(&self, ctx: &Context<'_>, input: SignInInput) -> bool {
+        let conn = common::get_conn_from_ctx(ctx);
+        if let Some(user) = service::find_user_by_email(&input.email, &conn).ok() {
+            if let Ok(matching) = password::verify(&user.password, &input.password, &user.secret) {
+                if matching {
+                    common::sign_in(&user, ctx);
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn sign_out(&self, ctx: &Context<'_>) -> bool {
+        common::sign_out(ctx);
+        true
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::Guest)")]
     async fn sign_up(&self, ctx: &Context<'_>, input: SignUpInput) -> Result<bool> {
-        let conn = get_conn_from_ctx(ctx);
+        let conn = common::get_conn_from_ctx(ctx);
         if let Some(_) = service::find_user_by_email(&input.email, &conn).ok() {
             return Err(Error::new("Email has already been registered"));
         }
@@ -39,40 +59,24 @@ impl Mutation {
             role: user_const::role::USER,
             status: user_const::status::ACTIVE,
         };
-        let user = service::create_user(new_user, &conn).expect("Failed to create user");
 
-        // myself
-        create_contact(user.id, user.id, ctx);
+        let user = conn.transaction::<_, diesel::result::Error, _>(|| {
+            let user = service::create_user(new_user, &conn).expect("Failed to create user");
+            // myself
+            create_contact(user.id, user.id, ctx);
+            Ok(user)
+        })?;
 
-        sign_in(&user, ctx);
+        common::sign_in(&user, ctx);
 
         Ok(true)
     }
 
-    #[graphql(guard = "RoleGuard::new(Role::Guest)")]
-    async fn sign_in(&self, ctx: &Context<'_>, input: SignInInput) -> bool {
-        let conn = get_conn_from_ctx(ctx);
-        if let Some(user) = service::find_user_by_email(&input.email, &conn).ok() {
-            if let Ok(matching) = password::verify(&user.password, &input.password, &user.secret) {
-                if matching {
-                    sign_in(&user, ctx);
-                    return true;
-                }
-            }
-        }
-        false
-    }
-
-    #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn sign_out(&self, ctx: &Context<'_>) -> bool {
-        sign_out(ctx);
-        true
-    }
-
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn contact_application(&self, ctx: &Context<'_>, other_user_id: u64) -> Result<Message> {
-        let conn = get_conn_from_ctx(ctx);
-        let identity = get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
+        let conn = common::get_conn_from_ctx(ctx);
+
+        let identity = common::get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
         if let Some(_) = service::find_contact_with_user(identity.id, other_user_id, &conn).ok() {
             return Err(Error::new("Contact is already registered"));
         }
@@ -89,8 +93,8 @@ impl Mutation {
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn contact_approval(&self, ctx: &Context<'_>, message_id: u64) -> Result<Message> {
-        let conn = get_conn_from_ctx(ctx);
-        let identity = get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
+        let conn = common::get_conn_from_ctx(ctx);
+        let identity = common::get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
 
         if let Some(message) = service::find_message_by_id(message_id, &conn).ok() {
             // 指定のメッセージがコンタクト申請でない
@@ -98,7 +102,7 @@ impl Mutation {
                 return Err(Error::new("Message is not a contact application message"));
             }
             // コンタクト申請対象がサインインユーザーでない
-            if identity.id != message.rx_user_id {
+            if message.rx_user_id != identity.id {
                 return Err(Error::new("Invalid contact application message id"));
             }
             if let Ok(_) = service::find_contact_with_user(identity.id, message.tx_user_id, &conn) {
@@ -123,11 +127,11 @@ impl Mutation {
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn contact_delete(&self, ctx: &Context<'_>, contact_id: u64) -> Result<Contact> {
-        let conn = get_conn_from_ctx(ctx);
-        let identity = get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
+        let conn = common::get_conn_from_ctx(ctx);
+        let identity = common::get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
         if let Some(contact) = service::find_contact_by_id(contact_id, &conn).ok() {
             // コンタクトがサインインユーザーのものでない
-            if identity.id != contact.user_id {
+            if contact.user_id != identity.id {
                 return Err(Error::new("Invalid contact id"));
             }
             if contact.status == contact_const::status::DELETED {
@@ -153,11 +157,11 @@ impl Mutation {
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn contact_undelete(&self, ctx: &Context<'_>, contact_id: u64) -> Result<Contact> {
-        let conn = get_conn_from_ctx(ctx);
-        let identity = get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
+        let conn = common::get_conn_from_ctx(ctx);
+        let identity = common::get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
         if let Some(contact) = service::find_contact_by_id(contact_id, &conn).ok() {
             // コンタクトがサインインユーザーのものでない
-            if identity.id != contact.user_id {
+            if contact.user_id != identity.id {
                 return Err(Error::new("Invalid contact id"));
             }
             if contact.status != contact_const::status::DELETED {
@@ -183,11 +187,11 @@ impl Mutation {
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn contact_block(&self, ctx: &Context<'_>, contact_id: u64) -> Result<Contact> {
-        let conn = get_conn_from_ctx(ctx);
-        let identity = get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
+        let conn = common::get_conn_from_ctx(ctx);
+        let identity = common::get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
         if let Some(contact) = service::find_contact_by_id(contact_id, &conn).ok() {
             // コンタクトがサインインユーザーのものでない
-            if identity.id != contact.user_id {
+            if contact.user_id != identity.id {
                 return Err(Error::new("Invalid contact id"));
             }
             if contact.blocked {
@@ -213,11 +217,11 @@ impl Mutation {
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn contact_unblock(&self, ctx: &Context<'_>, contact_id: u64) -> Result<Contact> {
-        let conn = get_conn_from_ctx(ctx);
-        let identity = get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
+        let conn = common::get_conn_from_ctx(ctx);
+        let identity = common::get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
         if let Some(contact) = service::find_contact_by_id(contact_id, &conn).ok() {
             // コンタクトがサインインユーザーのものでない
-            if identity.id != contact.user_id {
+            if contact.user_id != identity.id {
                 return Err(Error::new("Invalid contact id"));
             }
             if !contact.blocked {
@@ -243,7 +247,7 @@ impl Mutation {
 }
 
 fn create_contact(user_id: u64, contact_user_id: u64, ctx: &Context<'_>) -> ContactEntity {
-    let conn = get_conn_from_ctx(ctx);
+    let conn = common::get_conn_from_ctx(ctx);
     let new_contact = NewContactEntity {
         user_id: user_id,
         contact_user_id: contact_user_id,
@@ -259,8 +263,8 @@ fn create_message(
     message: Option<String>,
     ctx: &Context<'_>,
 ) -> Message {
-    let conn = get_conn_from_ctx(ctx);
-    let identity = get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
+    let conn = common::get_conn_from_ctx(ctx);
+    let identity = common::get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
     let new_message = NewMessageEntity {
         tx_user_id: identity.id,
         rx_user_id,

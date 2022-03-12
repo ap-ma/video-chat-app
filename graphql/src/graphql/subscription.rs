@@ -1,7 +1,6 @@
-use super::common::SimpleBroker;
+use super::common::{self, SimpleBroker};
 use super::model::MessageChanged;
 use super::security::guard::RoleGuard;
-use super::{convert_id, get_identity_from_ctx};
 use crate::auth::Role;
 use async_graphql::*;
 use futures::Stream;
@@ -13,10 +12,10 @@ pub struct Subscription;
 impl Subscription {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn message(&self, ctx: &Context<'_>) -> impl Stream<Item = MessageChanged> {
-        let identity = get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
+        let identity = common::get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
         SimpleBroker::<MessageChanged>::subscribe().filter(move |event| {
-            let res = identity.id != convert_id(&event.tx_user_id)
-                && identity.id == convert_id(&event.rx_user_id);
+            let res = common::convert_id(&event.tx_user_id) != identity.id
+                && common::convert_id(&event.rx_user_id) == identity.id;
             async move { res }
         })
     }

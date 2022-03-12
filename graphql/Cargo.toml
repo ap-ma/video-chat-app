@@ -10,7 +10,7 @@ actix-redis = "0.10.0-beta.6"
 actix-session = "0.5.0-beta.8"
 actix-web = "4.0.0-rc.2"
 argonautica = "0.2.0"
-async-graphql = "3.0.29"
+async-graphql = { version = "3.0.29", features = ["log"] }
 async-graphql-actix-web = "3.0.28"
 chrono = "0.4.19"
 diesel = { version = "1.4.8", features = ["mysql", "r2d2", "chrono"] }
@@ -24,3 +24,4 @@ once_cell = "1.10.0"
 rand = "0.8.5"
 serde = { version = "1.0.136", features = ["derive"] }
 slab = "0.4.5"
+thiserror = "1.0.30"

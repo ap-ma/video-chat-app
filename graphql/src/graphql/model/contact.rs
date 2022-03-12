@@ -1,7 +1,7 @@
-use super::super::{convert_id, get_conn_from_ctx, get_identity_from_ctx};
 use super::Message;
 use crate::database::entity::{ContactEntity, UserEntity};
 use crate::database::service;
+use crate::graphql::common;
 use async_graphql::*;
 
 #[derive(Clone, Debug)]
@@ -44,8 +44,8 @@ impl Contact {
     }
 
     async fn user_name(&self, ctx: &Context<'_>) -> Option<&str> {
-        let identity = get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
-        if identity.id == convert_id(&self.user_id) {
+        let identity = common::get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
+        if identity.id == common::convert_id(&self.user_id) {
             return Some("Myspace");
         }
         self.user_name.as_deref()
@@ -68,9 +68,9 @@ impl Contact {
             return Vec::new();
         }
 
-        let conn = get_conn_from_ctx(ctx);
-        let identity = get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
-        service::get_messages(identity.id, convert_id(&self.user_id), limit, &conn)
+        let conn = common::get_conn_from_ctx(ctx);
+        let identity = common::get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
+        service::get_messages(identity.id, common::convert_id(&self.user_id), limit, &conn)
             .expect("Failed to get chat")
             .iter()
             .map(Message::from)

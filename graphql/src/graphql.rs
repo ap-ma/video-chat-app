@@ -6,56 +6,41 @@ mod query;
 mod security;
 mod subscription;
 
-use crate::auth::{Identity, Sign};
-use crate::database::entity::UserEntity;
 use crate::database::MySqlPool;
-use async_graphql::{Context, Schema, ID};
-use diesel::r2d2::{ConnectionManager, PooledConnection};
-use diesel::MysqlConnection;
+use async_graphql::{extensions::Logger, Error, ErrorExtensions, Schema};
 use mutation::Mutation;
 use query::Query;
-use std::sync::{Arc, Mutex};
 use subscription::Subscription;
 
 pub type AppSchema = Schema<Query, Mutation, Subscription>;
 
-pub fn create_schema(pool: MySqlPool) -> AppSchema {
-    Schema::build(Query, Mutation, Subscription)
-        .data(pool)
-        .finish()
+#[derive(Debug, Error)]
+pub enum GraphqlError {
+    #[error("Validation Error")]
+    ValidationError(String, String),
+
+    #[error("Internal Server Error")]
+    ServerError(String),
 }
 
-fn sign_in(user: &UserEntity, ctx: &Context<'_>) {
-    let identity = Identity::from(user);
-    let mut auth_proc = ctx
-        .data_unchecked::<Arc<Mutex<Option<Sign>>>>()
-        .lock()
-        .unwrap();
-    *auth_proc = Some(Sign::In(identity));
-}
-
-fn sign_out(ctx: &Context<'_>) {
-    let mut auth_proc = ctx
-        .data_unchecked::<Arc<Mutex<Option<Sign>>>>()
-        .lock()
-        .unwrap();
-    *auth_proc = Some(Sign::Out);
-}
-
-fn get_identity_from_ctx(ctx: &Context<'_>) -> Option<Identity> {
-    match ctx.data_opt::<Identity>() {
-        Some(identity) => Some(identity.clone()),
-        _ => None,
+impl ErrorExtensions for GraphqlError {
+    fn extend(&self) -> Error {
+        let message = match self {
+            GraphqlError::ValidationError(_, message) => message,
+            GraphqlError::ServerError(message) => message,
+        };
+        Error::new(message)
+            .extend_with(|_, e| e.set("type", format!("{}", self)))
+            .extend_with(|_, e| match self {
+                GraphqlError::ValidationError(field, _) => e.set("field", field.to_owned()),
+                GraphqlError::ServerError(detail) => e.set("detail", detail.to_owned()),
+            })
     }
 }
 
-fn get_conn_from_ctx(ctx: &Context<'_>) -> PooledConnection<ConnectionManager<MysqlConnection>> {
-    ctx.data::<MySqlPool>()
-        .expect("Unable to get pool")
-        .get()
-        .expect("Unable to get DB connection")
-}
-
-fn convert_id(id: &ID) -> u64 {
-    id.to_string().parse::<u64>().expect("Failed to convert id")
+pub fn create_schema(pool: MySqlPool) -> AppSchema {
+    Schema::build(Query, Mutation, Subscription)
+        .data(pool)
+        .extension(Logger)
+        .finish()
 }

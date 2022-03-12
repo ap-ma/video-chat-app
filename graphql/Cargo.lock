@@ -469,6 +469,7 @@ dependencies = [
  "futures-util",
  "http",
  "indexmap",
+ "log",
  "mime",
  "multer",
  "num-traits",
@@ -1603,6 +1604,7 @@ dependencies = [
  "rand 0.8.5",
  "serde",
  "slab",
+ "thiserror",
 ]
 
 [[package]]

@@ -2,6 +2,8 @@
 extern crate diesel;
 #[macro_use]
 extern crate diesel_migrations;
+#[macro_use]
+extern crate thiserror;
 
 mod auth;
 mod constants;

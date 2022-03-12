@@ -1,4 +1,4 @@
-use super::super::super::{convert_id, get_identity_from_ctx};
+use crate::graphql::common;
 use async_graphql::*;
 
 pub struct ResourceGuard {
@@ -8,7 +8,7 @@ pub struct ResourceGuard {
 impl ResourceGuard {
     pub fn new(user_id: &ID) -> Self {
         Self {
-            user_id: convert_id(user_id),
+            user_id: common::convert_id(user_id),
         }
     }
 }
@@ -16,7 +16,7 @@ impl ResourceGuard {
 #[async_trait::async_trait]
 impl Guard for ResourceGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
-        if let Some(identity) = get_identity_from_ctx(ctx) {
+        if let Some(identity) = common::get_identity_from_ctx(ctx) {
             if self.user_id == identity.id {
                 return Ok(());
             }
