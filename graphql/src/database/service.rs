@@ -125,6 +125,29 @@ pub fn create_message(
     messages.find(message_id).first(conn)
 }
 
+pub fn update_message(
+    change_message: ChangeMessageEntity,
+    conn: &MysqlConnection,
+) -> QueryResult<usize> {
+    diesel::update(&change_message)
+        .set(&change_message)
+        .execute(conn)
+}
+
+pub fn update_message_to_read(
+    user_id: u64,
+    other_user_id: u64,
+    conn: &MysqlConnection,
+) -> QueryResult<usize> {
+    let target = messages::table
+        .filter(messages::tx_user_id.eq(user_id))
+        .filter(messages::rx_user_id.eq(other_user_id))
+        .filter(messages::status.eq(message_const::status::UNREAD));
+    diesel::update(target)
+        .set(messages::status.eq(message_const::status::READ))
+        .execute(conn)
+}
+
 pub fn find_message_by_id(message_id: u64, conn: &MysqlConnection) -> QueryResult<MessageEntity> {
     messages::table.find(message_id).first(conn)
 }
@@ -155,6 +178,18 @@ pub fn get_messages(
     }
 
     query.load(conn)
+}
+
+pub fn get_unread_messages(
+    user_id: u64,
+    other_user_id: u64,
+    conn: &MysqlConnection,
+) -> QueryResult<Vec<MessageEntity>> {
+    messages::table
+        .filter(messages::tx_user_id.eq(user_id))
+        .filter(messages::rx_user_id.eq(other_user_id))
+        .filter(messages::status.eq(message_const::status::UNREAD))
+        .load(conn)
 }
 
 pub fn get_latest_messages_for_each_user(

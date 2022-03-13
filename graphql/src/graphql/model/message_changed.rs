@@ -9,6 +9,7 @@ pub struct MessageChanged {
     pub id: ID,
     pub tx_user_id: ID,
     pub rx_user_id: ID,
+    pub status: i32,
     pub mutation_type: MutationType,
 }
 
@@ -24,6 +25,10 @@ impl MessageChanged {
 
     async fn rx_user_id(&self) -> &ID {
         &self.rx_user_id
+    }
+
+    async fn status(&self) -> i32 {
+        self.status
     }
 
     async fn mutation_type(&self) -> MutationType {

@@ -22,13 +22,13 @@ pub mod message {
     pub mod category {
         pub const CONTACT_APPLICATION: i32 = 1;
         pub const CONTACT_APPROVAL: i32 = 2;
-        pub const _MESSAGE: i32 = 3;
+        pub const MESSAGE: i32 = 3;
         pub const _CALLING: i32 = 4;
         pub const _FILE_TRANSMISSION: i32 = 5;
     }
     pub mod status {
         pub const UNREAD: i32 = 1;
-        pub const _ALREADY_READ: i32 = 2;
+        pub const READ: i32 = 2;
         pub const DELETED: i32 = 3;
     }
 }

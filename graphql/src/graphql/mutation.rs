@@ -6,7 +6,8 @@ use super::GraphqlError;
 use crate::auth::Role;
 use crate::constants::{contact as contact_const, message as message_const, user as user_const};
 use crate::database::entity::{
-    ChangeContactEntity, ContactEntity, NewContactEntity, NewMessageEntity, NewUserEntity,
+    ChangeContactEntity, ChangeMessageEntity, ContactEntity, NewContactEntity, NewMessageEntity,
+    NewUserEntity,
 };
 use crate::database::service;
 use async_graphql::*;
@@ -86,10 +87,163 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn contact_application(&self, ctx: &Context<'_>, other_user_id: u64) -> Result<Message> {
+    async fn message_send(
+        &self,
+        ctx: &Context<'_>,
+        contact_id: ID,
+        message: String,
+    ) -> Result<Message> {
         let conn = common::get_conn_from_ctx(ctx)?;
-
         let identity = common::get_identity_from_ctx(ctx).unwrap();
+
+        let contact_id = common::convert_id(&contact_id)?;
+        if let Some(contact) = service::find_contact_by_id(contact_id, &conn).ok() {
+            if contact.user_id != identity.id {
+                return Err(GraphqlError::ValidationError(
+                    "Invalid contact id".into(),
+                    "contact_id",
+                )
+                .extend());
+            }
+            if contact.status == contact_const::status::DELETED {
+                return Err(GraphqlError::ValidationError(
+                    "Contact has been deleted.".into(),
+                    "contact_id",
+                )
+                .extend());
+            }
+            if contact.blocked {
+                return Err(GraphqlError::ValidationError(
+                    "Cntact is blocked".into(),
+                    "contact_id",
+                )
+                .extend());
+            }
+
+            let message = create_message(
+                contact.contact_user_id,
+                message_const::category::MESSAGE,
+                Some(message),
+                ctx,
+            )?;
+
+            return Ok(message);
+        };
+
+        Err(GraphqlError::ValidationError("Unable to get contact.".into(), "contact_id").extend())
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn message_delete(&self, ctx: &Context<'_>, message_id: ID) -> Result<Message> {
+        let conn = common::get_conn_from_ctx(ctx)?;
+        let identity = common::get_identity_from_ctx(ctx).unwrap();
+
+        let message_id = common::convert_id(&message_id)?;
+        if let Some(message) = service::find_message_by_id(message_id, &conn).ok() {
+            if message.tx_user_id != identity.id {
+                return Err(GraphqlError::ValidationError(
+                    "Invalid message id".into(),
+                    "message_id",
+                )
+                .extend());
+            }
+            if message.status == message_const::status::DELETED {
+                return Err(GraphqlError::ValidationError(
+                    "Message has already been deleted".into(),
+                    "contact_id",
+                )
+                .extend());
+            }
+
+            let message_change = ChangeMessageEntity {
+                id: message.id,
+                status: Some(message_const::status::DELETED),
+                ..Default::default()
+            };
+            common::convert_query_result(
+                service::update_message(message_change, &conn),
+                "Failed to update message",
+            )?;
+
+            let message = common::convert_query_result(
+                service::find_message_by_id(message.id, &conn),
+                "Failed to get message",
+            )?;
+
+            return Ok(Message::from(&message));
+        }
+
+        Err(GraphqlError::ValidationError("Unable to get message".into(), "message_id").extend())
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn message_read(&self, ctx: &Context<'_>, contact_id: ID) -> Result<usize> {
+        let conn = common::get_conn_from_ctx(ctx)?;
+        let identity = common::get_identity_from_ctx(ctx).unwrap();
+
+        let contact_id = common::convert_id(&contact_id)?;
+        if let Some(contact) = service::find_contact_by_id(contact_id, &conn).ok() {
+            if contact.user_id != identity.id {
+                return Err(GraphqlError::ValidationError(
+                    "Invalid contact id".into(),
+                    "contact_id",
+                )
+                .extend());
+            }
+            if contact.status == contact_const::status::DELETED {
+                return Err(GraphqlError::ValidationError(
+                    "Contact has been deleted.".into(),
+                    "contact_id",
+                )
+                .extend());
+            }
+            if contact.blocked {
+                return Err(GraphqlError::ValidationError(
+                    "Cntact is blocked".into(),
+                    "contact_id",
+                )
+                .extend());
+            }
+
+            let target = common::convert_query_result(
+                service::get_unread_messages(contact.user_id, contact.contact_user_id, &conn),
+                "Failed to get messages",
+            )?;
+
+            let rows = common::convert_query_result(
+                service::update_message_to_read(contact.user_id, contact.contact_user_id, &conn),
+                "Failed to update messages",
+            )?;
+
+            let contact_user_contact =
+                service::find_contact_with_user(contact.contact_user_id, contact.user_id, &conn);
+
+            if let Some(contact_user_contact) = contact_user_contact.ok() {
+                if !(contact_user_contact.0.blocked) {
+                    for row in target {
+                        SimpleBroker::publish(MessageChanged {
+                            id: row.id.into(),
+                            tx_user_id: row.tx_user_id.into(),
+                            rx_user_id: row.rx_user_id.into(),
+                            status: row.status,
+                            mutation_type: MutationType::Updated,
+                        });
+                    }
+                }
+            }
+
+            return Ok(rows);
+        };
+
+        Err(GraphqlError::ValidationError("Unable to get contact.".into(), "contact_id").extend())
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn contact_application(&self, ctx: &Context<'_>, other_user_id: ID) -> Result<Message> {
+        let conn = common::get_conn_from_ctx(ctx)?;
+        let identity = common::get_identity_from_ctx(ctx).unwrap();
+
+        let other_user_id = common::convert_id(&other_user_id)?;
         if let Some(_) = service::find_contact_with_user(identity.id, other_user_id, &conn).ok() {
             return Err(GraphqlError::ValidationError(
                 "Contact is already registered".into(),
@@ -109,10 +263,11 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn contact_approval(&self, ctx: &Context<'_>, message_id: u64) -> Result<Message> {
+    async fn contact_approval(&self, ctx: &Context<'_>, message_id: ID) -> Result<Message> {
         let conn = common::get_conn_from_ctx(ctx)?;
         let identity = common::get_identity_from_ctx(ctx).unwrap();
 
+        let message_id = common::convert_id(&message_id)?;
         if let Some(message) = service::find_message_by_id(message_id, &conn).ok() {
             // 指定のメッセージがコンタクト申請でない
             if message.category != message_const::category::CONTACT_APPLICATION {
@@ -161,11 +316,12 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn contact_delete(&self, ctx: &Context<'_>, contact_id: u64) -> Result<Contact> {
+    async fn contact_delete(&self, ctx: &Context<'_>, contact_id: ID) -> Result<Contact> {
         let conn = common::get_conn_from_ctx(ctx)?;
         let identity = common::get_identity_from_ctx(ctx).unwrap();
+
+        let contact_id = common::convert_id(&contact_id)?;
         if let Some(contact) = service::find_contact_by_id(contact_id, &conn).ok() {
-            // コンタクトがサインインユーザーのものでない
             if contact.user_id != identity.id {
                 return Err(GraphqlError::ValidationError(
                     "Invalid contact id".into(),
@@ -182,18 +338,18 @@ impl Mutation {
             }
 
             let contact_change = ChangeContactEntity {
-                id: contact_id,
+                id: contact.id,
                 status: Some(contact_const::status::DELETED),
                 ..Default::default()
             };
             common::convert_query_result(
                 service::update_contact(contact_change, &conn),
-                "Failed to update the contact",
+                "Failed to update contact",
             )?;
 
             let contact = common::convert_query_result(
                 service::find_contact_with_user(identity.id, contact.contact_user_id, &conn),
-                "Failed to get the contact",
+                "Failed to get contact",
             )?;
 
             return Ok(Contact::from(&contact));
@@ -203,11 +359,12 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn contact_undelete(&self, ctx: &Context<'_>, contact_id: u64) -> Result<Contact> {
+    async fn contact_undelete(&self, ctx: &Context<'_>, contact_id: ID) -> Result<Contact> {
         let conn = common::get_conn_from_ctx(ctx)?;
         let identity = common::get_identity_from_ctx(ctx).unwrap();
+
+        let contact_id = common::convert_id(&contact_id)?;
         if let Some(contact) = service::find_contact_by_id(contact_id, &conn).ok() {
-            // コンタクトがサインインユーザーのものでない
             if contact.user_id != identity.id {
                 return Err(GraphqlError::ValidationError(
                     "Invalid contact id".into(),
@@ -224,18 +381,18 @@ impl Mutation {
             }
 
             let contact_change = ChangeContactEntity {
-                id: contact_id,
+                id: contact.id,
                 status: Some(contact_const::status::APPROVED),
                 ..Default::default()
             };
             common::convert_query_result(
                 service::update_contact(contact_change, &conn),
-                "Failed to update the contact",
+                "Failed to update contact",
             )?;
 
             let contact = common::convert_query_result(
                 service::find_contact_with_user(identity.id, contact.contact_user_id, &conn),
-                "Failed to get the contact",
+                "Failed to get contact",
             )?;
 
             return Ok(Contact::from(&contact));
@@ -245,11 +402,12 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn contact_block(&self, ctx: &Context<'_>, contact_id: u64) -> Result<Contact> {
+    async fn contact_block(&self, ctx: &Context<'_>, contact_id: ID) -> Result<Contact> {
         let conn = common::get_conn_from_ctx(ctx)?;
         let identity = common::get_identity_from_ctx(ctx).unwrap();
+
+        let contact_id = common::convert_id(&contact_id)?;
         if let Some(contact) = service::find_contact_by_id(contact_id, &conn).ok() {
-            // コンタクトがサインインユーザーのものでない
             if contact.user_id != identity.id {
                 return Err(GraphqlError::ValidationError(
                     "Invalid contact id".into(),
@@ -266,18 +424,18 @@ impl Mutation {
             }
 
             let contact_change = ChangeContactEntity {
-                id: contact_id,
+                id: contact.id,
                 blocked: Some(true),
                 ..Default::default()
             };
             common::convert_query_result(
                 service::update_contact(contact_change, &conn),
-                "Failed to update the contact",
+                "Failed to update contact",
             )?;
 
             let contact = common::convert_query_result(
                 service::find_contact_with_user(identity.id, contact.contact_user_id, &conn),
-                "Failed to get the contact",
+                "Failed to get contact",
             )?;
 
             return Ok(Contact::from(&contact));
@@ -287,11 +445,12 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn contact_unblock(&self, ctx: &Context<'_>, contact_id: u64) -> Result<Contact> {
+    async fn contact_unblock(&self, ctx: &Context<'_>, contact_id: ID) -> Result<Contact> {
         let conn = common::get_conn_from_ctx(ctx)?;
         let identity = common::get_identity_from_ctx(ctx).unwrap();
+
+        let contact_id = common::convert_id(&contact_id)?;
         if let Some(contact) = service::find_contact_by_id(contact_id, &conn).ok() {
-            // コンタクトがサインインユーザーのものでない
             if contact.user_id != identity.id {
                 return Err(GraphqlError::ValidationError(
                     "Invalid contact id".into(),
@@ -308,18 +467,18 @@ impl Mutation {
             }
 
             let contact_change = ChangeContactEntity {
-                id: contact_id,
+                id: contact.id,
                 blocked: Some(false),
                 ..Default::default()
             };
             common::convert_query_result(
                 service::update_contact(contact_change, &conn),
-                "Failed to update the contact",
+                "Failed to update contact",
             )?;
 
             let contact = common::convert_query_result(
                 service::find_contact_with_user(identity.id, contact.contact_user_id, &conn),
-                "Failed to get the contact",
+                "Failed to get contact",
             )?;
 
             return Ok(Contact::from(&contact));
@@ -371,12 +530,19 @@ fn create_message(
         "Failed to create message",
     )?;
 
-    SimpleBroker::publish(MessageChanged {
-        id: message.id.into(),
-        tx_user_id: message.tx_user_id.into(),
-        rx_user_id: message.rx_user_id.into(),
-        mutation_type: MutationType::Created,
-    });
+    if let Some(rx_user_contact) =
+        service::find_contact_with_user(rx_user_id, identity.id, &conn).ok()
+    {
+        if !(rx_user_contact.0.blocked) {
+            SimpleBroker::publish(MessageChanged {
+                id: message.id.into(),
+                tx_user_id: message.tx_user_id.into(),
+                rx_user_id: message.rx_user_id.into(),
+                status: message.status,
+                mutation_type: MutationType::Created,
+            });
+        }
+    }
 
     Ok(Message::from(&message))
 }

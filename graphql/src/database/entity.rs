@@ -103,6 +103,17 @@ pub struct NewMessageEntity {
     pub status: i32,
 }
 
+#[derive(Identifiable, AsChangeset, Default)]
+#[table_name = "messages"]
+pub struct ChangeMessageEntity {
+    pub id: u64,
+    pub tx_user_id: Option<u64>,
+    pub rx_user_id: Option<u64>,
+    pub category: Option<i32>,
+    pub message: Option<Option<String>>,
+    pub status: Option<i32>,
+}
+
 #[derive(QueryableByName)]
 pub struct LatestMessageEntity {
     #[sql_type = "SqlTypeOf<users::id>"]
