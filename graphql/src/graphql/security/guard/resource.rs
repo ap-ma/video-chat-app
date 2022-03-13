@@ -1,26 +1,31 @@
-use crate::graphql::common;
+use crate::graphql::{common, GraphqlError};
+use async_graphql::ErrorExtensions;
 use async_graphql::*;
 
-pub struct ResourceGuard {
-    user_id: u64,
+pub struct ResourceGuard<'a> {
+    owner_id: &'a ID,
 }
 
-impl ResourceGuard {
-    pub fn new(user_id: &ID) -> Self {
-        Self {
-            user_id: common::convert_id(user_id),
-        }
+impl<'a> ResourceGuard<'a> {
+    pub fn new(owner_id: &'a ID) -> Self {
+        Self { owner_id: owner_id }
     }
 }
 
 #[async_trait::async_trait]
-impl Guard for ResourceGuard {
+impl<'a> Guard for ResourceGuard<'a> {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
         if let Some(identity) = common::get_identity_from_ctx(ctx) {
-            if self.user_id == identity.id {
+            if common::convert_id(self.owner_id)? == identity.id {
                 return Ok(());
             }
+
+            return Err(GraphqlError::AuthorizationError(
+                "Access to the resource is unauthorized.".into(),
+            )
+            .extend());
         }
-        Err("Forbidden".into())
+
+        Err(GraphqlError::AuthenticationError.extend())
     }
 }

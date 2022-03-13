@@ -1,5 +1,6 @@
 use crate::auth::Role;
-use crate::graphql::common;
+use crate::graphql::{common, GraphqlError};
+use async_graphql::ErrorExtensions;
 use async_graphql::*;
 
 pub struct RoleGuard {
@@ -22,14 +23,14 @@ impl Guard for RoleGuard {
                         return Ok(());
                     }
                 }
+                Err(GraphqlError::AuthorizationError("Not authorized.".into()).extend())
             }
             None => {
                 if self.role == Role::Guest {
                     return Ok(());
                 }
+                Err(GraphqlError::AuthenticationError.extend())
             }
         }
-
-        Err("Forbidden".into())
     }
 }

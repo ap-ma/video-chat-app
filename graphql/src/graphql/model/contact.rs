@@ -1,7 +1,8 @@
 use super::Message;
+use crate::auth::Role;
 use crate::database::entity::{ContactEntity, UserEntity};
 use crate::database::service;
-use crate::graphql::common;
+use crate::graphql::{common, security::RoleGuard};
 use async_graphql::*;
 
 #[derive(Clone, Debug)]
@@ -43,12 +44,14 @@ impl Contact {
         self.user_code.as_str()
     }
 
-    async fn user_name(&self, ctx: &Context<'_>) -> Option<&str> {
-        let identity = common::get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
-        if identity.id == common::convert_id(&self.user_id) {
-            return Some("Myspace");
+    async fn user_name(&self, ctx: &Context<'_>) -> Result<Option<&str>> {
+        if let Some(identity) = common::get_identity_from_ctx(ctx) {
+            if identity.id == common::convert_id(&self.user_id)? {
+                return Ok(Some("Myspace"));
+            }
         }
-        self.user_name.as_deref()
+
+        Ok(self.user_name.as_deref())
     }
 
     async fn user_avatar(&self) -> Option<&str> {
@@ -63,18 +66,24 @@ impl Contact {
         self.blocked
     }
 
-    async fn chat(&self, ctx: &Context<'_>, limit: Option<i64>) -> Vec<Message> {
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn chat(&self, ctx: &Context<'_>, limit: Option<i64>) -> Result<Vec<Message>> {
         if self.blocked {
-            return Vec::new();
+            return Ok(Vec::new());
         }
 
-        let conn = common::get_conn_from_ctx(ctx);
-        let identity = common::get_identity_from_ctx(ctx).expect("Unable to get signed-in user");
-        service::get_messages(identity.id, common::convert_id(&self.user_id), limit, &conn)
-            .expect("Failed to get chat")
-            .iter()
-            .map(Message::from)
-            .rev()
-            .collect()
+        let conn = common::get_conn_from_ctx(ctx)?;
+        let identity = common::get_identity_from_ctx(ctx).unwrap();
+        let messages = common::convert_query_result(
+            service::get_messages(
+                identity.id,
+                common::convert_id(&self.user_id)?,
+                limit,
+                &conn,
+            ),
+            "Failed to get chat",
+        )?;
+
+        Ok(messages.iter().map(Message::from).rev().collect())
     }
 }

@@ -2,8 +2,10 @@ mod simple_broker;
 
 use crate::auth::{Identity, Sign};
 use crate::database::{entity::UserEntity, MySqlPool};
-use async_graphql::{Context, Enum, ID};
+use crate::graphql::GraphqlError;
+use async_graphql::{Context, Enum, ErrorExtensions, Result, ID};
 use diesel::r2d2::{ConnectionManager, PooledConnection};
+use diesel::result::QueryResult;
 use diesel::MysqlConnection;
 pub use simple_broker::SimpleBroker;
 use std::sync::{Arc, Mutex};
@@ -41,13 +43,18 @@ pub fn get_identity_from_ctx(ctx: &Context<'_>) -> Option<Identity> {
 
 pub fn get_conn_from_ctx(
     ctx: &Context<'_>,
-) -> PooledConnection<ConnectionManager<MysqlConnection>> {
-    ctx.data::<MySqlPool>()
-        .expect("Unable to get pool")
-        .get()
-        .expect("Unable to get DB connection")
+) -> Result<PooledConnection<ConnectionManager<MysqlConnection>>> {
+    ctx.data::<MySqlPool>().unwrap().get().map_err(|e| {
+        GraphqlError::ServerError("Unable to get DB connection".into(), format!("{}", e)).extend()
+    })
 }
 
-pub fn convert_id(id: &ID) -> u64 {
-    id.to_string().parse::<u64>().expect("Failed to convert id")
+pub fn convert_id(id: &ID) -> Result<u64> {
+    id.to_string().parse::<u64>().map_err(|e| {
+        GraphqlError::ServerError("Failed to convert id".into(), format!("{}", e)).extend()
+    })
+}
+
+pub fn convert_query_result<T>(result: QueryResult<T>, message: &str) -> Result<T> {
+    result.map_err(|e| GraphqlError::ServerError(message.into(), format!("{}", e)).extend())
 }

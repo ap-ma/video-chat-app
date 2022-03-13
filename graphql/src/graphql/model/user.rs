@@ -55,22 +55,24 @@ impl User {
     }
 
     #[graphql(guard = "ResourceGuard::new(&self.id)")]
-    async fn contacts(&self, ctx: &Context<'_>) -> Vec<Contact> {
-        let conn = common::get_conn_from_ctx(ctx);
-        service::get_contacts(common::convert_id(&self.id), &conn)
-            .expect("Failed to get the user's contacts")
-            .iter()
-            .map(Contact::from)
-            .collect()
+    async fn contacts(&self, ctx: &Context<'_>) -> Result<Vec<Contact>> {
+        let conn = common::get_conn_from_ctx(ctx)?;
+        let contacts = common::convert_query_result(
+            service::get_contacts(common::convert_id(&self.id)?, &conn),
+            "Failed to get the user's contacts",
+        )?;
+
+        Ok(contacts.iter().map(Contact::from).collect())
     }
 
     #[graphql(guard = "ResourceGuard::new(&self.id)")]
-    async fn log(&self, ctx: &Context<'_>) -> Vec<Log> {
-        let conn = common::get_conn_from_ctx(ctx);
-        service::get_latest_messages_for_each_user(common::convert_id(&self.id), &conn)
-            .expect("Failed to get Log")
-            .iter()
-            .map(Log::from)
-            .collect()
+    async fn log(&self, ctx: &Context<'_>) -> Result<Vec<Log>> {
+        let conn = common::get_conn_from_ctx(ctx)?;
+        let log = common::convert_query_result(
+            service::get_latest_messages_for_each_user(common::convert_id(&self.id)?, &conn),
+            "Failed to get Log",
+        )?;
+
+        Ok(log.iter().map(Log::from).collect())
     }
 }

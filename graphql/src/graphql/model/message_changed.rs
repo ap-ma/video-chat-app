@@ -30,18 +30,22 @@ impl MessageChanged {
         self.mutation_type
     }
 
-    async fn tx_user(&self, ctx: &Context<'_>) -> User {
-        let conn = common::get_conn_from_ctx(ctx);
-        let tx_user = service::find_user_by_id(common::convert_id(&self.tx_user_id), &conn)
-            .expect("Failed to get the tx_user");
-        User::from(&tx_user)
+    async fn tx_user(&self, ctx: &Context<'_>) -> Result<User> {
+        let conn = common::get_conn_from_ctx(ctx)?;
+        let tx_user = common::convert_query_result(
+            service::find_user_by_id(common::convert_id(&self.tx_user_id)?, &conn),
+            "Failed to get the tx_user",
+        )?;
+
+        Ok(User::from(&tx_user))
     }
 
-    async fn message(&self, ctx: &Context<'_>) -> Option<Message> {
-        let conn = common::get_conn_from_ctx(ctx);
-        match service::find_message_by_id(common::convert_id(&self.id), &conn) {
+    async fn message(&self, ctx: &Context<'_>) -> Result<Option<Message>> {
+        let conn = common::get_conn_from_ctx(ctx)?;
+        let message = match service::find_message_by_id(common::convert_id(&self.id)?, &conn) {
             Ok(message_eneity) => Some(Message::from(&message_eneity)),
             _ => None,
-        }
+        };
+        Ok(message)
     }
 }

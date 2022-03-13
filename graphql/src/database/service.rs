@@ -20,18 +20,38 @@ pub fn find_user_by_id(user_id: u64, conn: &MysqlConnection) -> QueryResult<User
         .first(conn)
 }
 
-pub fn find_user_by_code(code: &str, conn: &MysqlConnection) -> QueryResult<UserEntity> {
-    users::table
+pub fn find_user_by_code(
+    code: &str,
+    excluded_user_id: Option<u64>,
+    conn: &MysqlConnection,
+) -> QueryResult<UserEntity> {
+    let mut query = users::table
         .filter(users::code.eq(code))
         .filter(users::status.eq(user_const::status::ACTIVE))
-        .first(conn)
+        .into_boxed();
+
+    if let Some(excluded_user_id) = excluded_user_id {
+        query = query.filter(users::id.ne(excluded_user_id));
+    }
+
+    query.first(conn)
 }
 
-pub fn find_user_by_email(email: &str, conn: &MysqlConnection) -> QueryResult<UserEntity> {
-    users::table
+pub fn find_user_by_email(
+    email: &str,
+    excluded_user_id: Option<u64>,
+    conn: &MysqlConnection,
+) -> QueryResult<UserEntity> {
+    let mut query = users::table
         .filter(users::email.eq(email))
         .filter(users::status.eq(user_const::status::ACTIVE))
-        .first(conn)
+        .into_boxed();
+
+    if let Some(excluded_user_id) = excluded_user_id {
+        query = query.filter(users::id.ne(excluded_user_id));
+    }
+
+    query.first(conn)
 }
 
 pub fn get_users_by_code(user_code: &str, conn: &MysqlConnection) -> QueryResult<Vec<UserEntity>> {
