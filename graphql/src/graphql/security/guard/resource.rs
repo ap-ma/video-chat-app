@@ -2,21 +2,21 @@ use crate::graphql::{common, GraphqlError};
 use async_graphql::ErrorExtensions;
 use async_graphql::*;
 
-pub struct ResourceGuard<'a> {
-    owner_id: &'a ID,
+pub struct ResourceGuard {
+    owner_id: u64,
 }
 
-impl<'a> ResourceGuard<'a> {
-    pub fn new(owner_id: &'a ID) -> Self {
+impl ResourceGuard {
+    pub fn new(owner_id: u64) -> Self {
         Self { owner_id: owner_id }
     }
 }
 
 #[async_trait::async_trait]
-impl<'a> Guard for ResourceGuard<'a> {
+impl Guard for ResourceGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
         if let Some(identity) = common::get_identity_from_ctx(ctx) {
-            if common::convert_id(self.owner_id)? == identity.id {
+            if self.owner_id == identity.id {
                 return Ok(());
             }
 

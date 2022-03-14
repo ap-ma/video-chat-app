@@ -4,9 +4,9 @@ use chrono::NaiveDateTime;
 
 #[derive(Clone, Debug)]
 pub struct Message {
-    pub id: ID,
-    pub tx_user_id: ID,
-    pub rx_user_id: ID,
+    pub id: u64,
+    pub tx_user_id: u64,
+    pub rx_user_id: u64,
     pub category: i32,
     pub message: Option<String>,
     pub status: i32,
@@ -16,9 +16,9 @@ pub struct Message {
 impl From<&MessageEntity> for Message {
     fn from(entity: &MessageEntity) -> Self {
         Self {
-            id: entity.id.into(),
-            tx_user_id: entity.tx_user_id.into(),
-            rx_user_id: entity.rx_user_id.into(),
+            id: entity.id,
+            tx_user_id: entity.tx_user_id,
+            rx_user_id: entity.rx_user_id,
             category: entity.category,
             message: entity.message.clone(),
             status: entity.status,
@@ -29,16 +29,16 @@ impl From<&MessageEntity> for Message {
 
 #[Object]
 impl Message {
-    async fn id(&self) -> &ID {
-        &self.id
+    async fn id(&self) -> ID {
+        self.id.into()
     }
 
-    async fn tx_user_id(&self) -> &ID {
-        &self.tx_user_id
+    async fn tx_user_id(&self) -> ID {
+        self.tx_user_id.into()
     }
 
-    async fn rx_user_id(&self) -> &ID {
-        &self.rx_user_id
+    async fn rx_user_id(&self) -> ID {
+        self.rx_user_id.into()
     }
 
     async fn category(&self) -> i32 {

@@ -13,6 +13,10 @@ pub fn create_user(new_user: NewUserEntity, conn: &MysqlConnection) -> QueryResu
     users.find(user_id).first(conn)
 }
 
+pub fn update_user(change_user: ChangeUserEntity, conn: &MysqlConnection) -> QueryResult<usize> {
+    diesel::update(&change_user).set(&change_user).execute(conn)
+}
+
 pub fn find_user_by_id(user_id: u64, conn: &MysqlConnection) -> QueryResult<UserEntity> {
     users::table
         .find(user_id)
@@ -139,12 +143,13 @@ pub fn update_message_to_read(
     other_user_id: u64,
     conn: &MysqlConnection,
 ) -> QueryResult<usize> {
-    let target = messages::table
-        .filter(messages::tx_user_id.eq(user_id))
-        .filter(messages::rx_user_id.eq(other_user_id))
-        .filter(messages::status.eq(message_const::status::UNREAD));
+    use super::schema::messages::dsl::*;
+    let target = messages
+        .filter(tx_user_id.eq(user_id))
+        .filter(rx_user_id.eq(other_user_id))
+        .filter(status.eq(message_const::status::UNREAD));
     diesel::update(target)
-        .set(messages::status.eq(message_const::status::READ))
+        .set(status.eq(message_const::status::READ))
         .execute(conn)
 }
 

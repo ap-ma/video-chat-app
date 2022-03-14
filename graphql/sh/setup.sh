@@ -10,5 +10,5 @@ chmod 645 ./sh/wait-for-it.sh
 
 # auto reloading server
 touch .trigger
-cargo watch -x check -s 'touch .trigger' &
+cargo watch -x check -s 'touch .trigger' -i .trigger &
 cargo watch --no-gitignore -w .trigger -x run

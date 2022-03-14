@@ -18,6 +18,7 @@ impl Query {
             service::find_user_by_id(identity.id, &conn),
             "Failed to get the user",
         )?;
+
         Ok(User::from(&user))
     }
 
@@ -26,7 +27,6 @@ impl Query {
         let conn = common::get_conn_from_ctx(ctx)?;
         let identity = common::get_identity_from_ctx(ctx).unwrap();
         let contact_user_id = common::convert_id(&contact_user_id)?;
-
         match service::find_contact_with_user(identity.id, contact_user_id, &conn).ok() {
             Some(contact) => Ok(Contact::from(&contact)),
             // コンタクト未登録時もチャット画面を表示
@@ -35,9 +35,10 @@ impl Query {
                     service::find_user_by_id(contact_user_id, &conn),
                     "Failed to get the contact user",
                 )?;
+
                 Ok(Contact {
-                    id: 0.into(),
-                    user_id: other_user.id.into(),
+                    id: 0,
+                    user_id: other_user.id,
                     user_code: other_user.code,
                     user_name: other_user.name,
                     user_avatar: other_user.avatar,
@@ -55,6 +56,7 @@ impl Query {
             service::get_users_by_code(user_code.as_str(), &conn),
             "Failed to get chat",
         )?;
+
         Ok(users.iter().map(User::from).collect())
     }
 }

@@ -7,7 +7,7 @@ use async_graphql::*;
 
 #[derive(Clone, Debug)]
 pub struct User {
-    pub id: ID,
+    pub id: u64,
     pub code: String,
     pub name: Option<String>,
     pub email: String,
@@ -18,7 +18,7 @@ pub struct User {
 impl From<&UserEntity> for User {
     fn from(entity: &UserEntity) -> Self {
         Self {
-            id: entity.id.into(),
+            id: entity.id,
             code: entity.code.clone(),
             name: entity.name.clone(),
             email: entity.email.clone(),
@@ -30,8 +30,8 @@ impl From<&UserEntity> for User {
 
 #[Object]
 impl User {
-    async fn id(&self) -> &ID {
-        &self.id
+    async fn id(&self) -> ID {
+        self.id.into()
     }
 
     async fn code(&self) -> &str {
@@ -54,22 +54,22 @@ impl User {
         self.avatar.as_deref()
     }
 
-    #[graphql(guard = "ResourceGuard::new(&self.id)")]
+    #[graphql(guard = "ResourceGuard::new(self.id)")]
     async fn contacts(&self, ctx: &Context<'_>) -> Result<Vec<Contact>> {
         let conn = common::get_conn_from_ctx(ctx)?;
         let contacts = common::convert_query_result(
-            service::get_contacts(common::convert_id(&self.id)?, &conn),
+            service::get_contacts(self.id, &conn),
             "Failed to get the user's contacts",
         )?;
 
         Ok(contacts.iter().map(Contact::from).collect())
     }
 
-    #[graphql(guard = "ResourceGuard::new(&self.id)")]
+    #[graphql(guard = "ResourceGuard::new(self.id)")]
     async fn log(&self, ctx: &Context<'_>) -> Result<Vec<Log>> {
         let conn = common::get_conn_from_ctx(ctx)?;
         let log = common::convert_query_result(
-            service::get_latest_messages_for_each_user(common::convert_id(&self.id)?, &conn),
+            service::get_latest_messages_for_each_user(self.id, &conn),
             "Failed to get Log",
         )?;
 

@@ -7,8 +7,8 @@ use async_graphql::*;
 
 #[derive(Clone, Debug)]
 pub struct Contact {
-    pub id: ID,
-    pub user_id: ID,
+    pub id: u64,
+    pub user_id: u64,
     pub user_code: String,
     pub user_name: Option<String>,
     pub user_avatar: Option<String>,
@@ -19,8 +19,8 @@ pub struct Contact {
 impl From<&(ContactEntity, UserEntity)> for Contact {
     fn from((contact, user): &(ContactEntity, UserEntity)) -> Self {
         Self {
-            id: contact.id.into(),
-            user_id: user.id.into(),
+            id: contact.id,
+            user_id: user.id,
             user_code: user.code.clone(),
             user_name: user.name.clone(),
             user_avatar: user.avatar.clone(),
@@ -32,26 +32,27 @@ impl From<&(ContactEntity, UserEntity)> for Contact {
 
 #[Object]
 impl Contact {
-    async fn id(&self) -> &ID {
-        &self.id
+    async fn id(&self) -> ID {
+        self.id.into()
     }
 
-    async fn user_id(&self) -> &ID {
-        &self.user_id
+    async fn user_id(&self) -> ID {
+        self.user_id.into()
     }
 
     async fn user_code(&self) -> &str {
         self.user_code.as_str()
     }
 
-    async fn user_name(&self, ctx: &Context<'_>) -> Result<Option<&str>> {
+    async fn user_name(&self, ctx: &Context<'_>) -> Result<Option<String>> {
         if let Some(identity) = common::get_identity_from_ctx(ctx) {
-            if identity.id == common::convert_id(&self.user_id)? {
-                return Ok(Some("Myspace"));
+            if identity.id == self.user_id {
+                let name = self.user_name.clone().map_or(String::new(), |v| v + " ");
+                return Ok(Some(name + "(myself)"));
             }
         }
 
-        Ok(self.user_name.as_deref())
+        Ok(self.user_name.clone())
     }
 
     async fn user_avatar(&self) -> Option<&str> {
@@ -75,12 +76,7 @@ impl Contact {
         let conn = common::get_conn_from_ctx(ctx)?;
         let identity = common::get_identity_from_ctx(ctx).unwrap();
         let messages = common::convert_query_result(
-            service::get_messages(
-                identity.id,
-                common::convert_id(&self.user_id)?,
-                limit,
-                &conn,
-            ),
+            service::get_messages(identity.id, self.user_id, limit, &conn),
             "Failed to get chat",
         )?;
 

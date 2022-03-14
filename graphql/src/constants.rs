@@ -5,7 +5,7 @@ pub mod user {
     }
     pub mod status {
         pub const ACTIVE: i32 = 1;
-        pub const _INACTIVE: i32 = 2;
+        pub const DELETED: i32 = 2;
         pub const _UNAPPROVED: i32 = 3;
     }
 }
