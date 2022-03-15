@@ -1,17 +1,16 @@
 use crate::graphql::AppSchema;
-use crate::{auth, auth::Sign};
+use crate::shared::Shared;
 use actix_session::Session;
 use actix_web::{guard, web, HttpRequest, HttpResponse, Result};
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql::Schema;
 use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse, GraphQLSubscription};
-use std::sync::{Arc, Mutex};
 
 pub fn register(config: &mut web::ServiceConfig) {
     config.service(
         web::resource("/")
             .route(web::get().to(playground))
-            .route(web::post().to(graphql))
+            .route(web::post().to(index))
             .route(
                 web::get()
                     .guard(guard::Header("upgrade", "websocket"))
@@ -20,39 +19,31 @@ pub fn register(config: &mut web::ServiceConfig) {
     );
 }
 
-async fn graphql(
+async fn index(
     schema: web::Data<AppSchema>,
     request: GraphQLRequest,
     session: Session,
 ) -> GraphQLResponse {
-    let mut query = request.into_inner();
-
-    // 認証済ユーザー 取得
-    if let Some(identity) = auth::get_identity(&session) {
-        query = query.data(identity);
-    }
-
-    // ユーザー認証によるセッションの追加/削除処理をactix web側のハンドラーに委譲するため、
-    // 処理種別を表現するenumのoptionをasync graphqlと共有する
-    let auth_proc: Arc<Mutex<Option<Sign>>> = Default::default();
-    query = query.data(Arc::clone(&auth_proc));
-
-    let response = schema.execute(query).await.into();
-
-    // ユーザー認証によるセッションへの追加/削除が発生した場合
-    if let Some(ref mode) = *auth_proc.lock().unwrap() {
-        auth::handle(mode, &session);
-    }
-
-    response
+    let session = Shared::new(session);
+    schema
+        .execute(request.into_inner().data(session))
+        .await
+        .into()
 }
 
 async fn subscription(
     schema: web::Data<AppSchema>,
     request: HttpRequest,
+    session: Session,
     payload: web::Payload,
 ) -> Result<HttpResponse> {
-    GraphQLSubscription::new(Schema::clone(&*schema)).start(&request, payload)
+    let mut data = async_graphql::Data::default();
+    let session = Shared::new(session);
+    data.insert(session);
+
+    GraphQLSubscription::new(Schema::clone(&*schema))
+        .with_data(data)
+        .start(&request, payload)
 }
 
 async fn playground() -> HttpResponse {

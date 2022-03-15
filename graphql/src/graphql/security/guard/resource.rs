@@ -1,4 +1,4 @@
-use crate::graphql::{common, GraphqlError};
+use crate::graphql::{security::auth, GraphqlError};
 use async_graphql::ErrorExtensions;
 use async_graphql::*;
 
@@ -15,7 +15,7 @@ impl ResourceGuard {
 #[async_trait::async_trait]
 impl Guard for ResourceGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
-        if let Some(identity) = common::get_identity_from_ctx(ctx) {
+        if let Some(identity) = auth::get_identity(ctx)? {
             if self.owner_id == identity.id {
                 return Ok(());
             }

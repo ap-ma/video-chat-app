@@ -1,5 +1,5 @@
-use crate::auth::Role;
-use crate::graphql::{common, GraphqlError};
+use crate::graphql::security::auth::{self, Role};
+use crate::graphql::GraphqlError;
 use async_graphql::ErrorExtensions;
 use async_graphql::*;
 
@@ -16,7 +16,7 @@ impl RoleGuard {
 #[async_trait::async_trait]
 impl Guard for RoleGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
-        match common::get_identity_from_ctx(ctx) {
+        match auth::get_identity(ctx)? {
             Some(identity) => {
                 if self.role != Role::Guest {
                     if (identity.role == self.role) || (identity.role == Role::Admin) {

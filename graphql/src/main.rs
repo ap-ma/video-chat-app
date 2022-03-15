@@ -5,11 +5,11 @@ extern crate diesel_migrations;
 #[macro_use]
 extern crate thiserror;
 
-mod auth;
 mod constants;
 mod database;
 mod graphql;
 mod handlers;
+mod shared;
 
 use actix_redis::RedisSession;
 use actix_web::{cookie, middleware::Logger, web::Data, App, HttpServer};

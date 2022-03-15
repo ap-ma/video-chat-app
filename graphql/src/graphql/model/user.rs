@@ -56,7 +56,7 @@ impl User {
 
     #[graphql(guard = "ResourceGuard::new(self.id)")]
     async fn contacts(&self, ctx: &Context<'_>) -> Result<Vec<Contact>> {
-        let conn = common::get_conn_from_ctx(ctx)?;
+        let conn = common::get_conn(ctx)?;
         let contacts = common::convert_query_result(
             service::get_contacts(self.id, &conn),
             "Failed to get the user's contacts",
@@ -67,7 +67,7 @@ impl User {
 
     #[graphql(guard = "ResourceGuard::new(self.id)")]
     async fn log(&self, ctx: &Context<'_>) -> Result<Vec<Log>> {
-        let conn = common::get_conn_from_ctx(ctx)?;
+        let conn = common::get_conn(ctx)?;
         let log = common::convert_query_result(
             service::get_latest_messages_for_each_user(self.id, &conn),
             "Failed to get Log",

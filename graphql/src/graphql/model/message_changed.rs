@@ -36,7 +36,7 @@ impl MessageChanged {
     }
 
     async fn tx_user(&self, ctx: &Context<'_>) -> Result<User> {
-        let conn = common::get_conn_from_ctx(ctx)?;
+        let conn = common::get_conn(ctx)?;
         let tx_user = common::convert_query_result(
             service::find_user_by_id(self.tx_user_id, &conn),
             "Failed to get the tx_user",
@@ -46,7 +46,7 @@ impl MessageChanged {
     }
 
     async fn message(&self, ctx: &Context<'_>) -> Result<Option<Message>> {
-        let conn = common::get_conn_from_ctx(ctx)?;
+        let conn = common::get_conn(ctx)?;
         let message = match service::find_message_by_id(self.id, &conn) {
             Ok(message_eneity) => Some(Message::from(&message_eneity)),
             _ => None,

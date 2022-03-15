@@ -1629,6 +1629,7 @@ dependencies = [
  "futures-util",
  "once_cell",
  "rand 0.8.5",
+ "send_wrapper",
  "serde",
  "slab",
  "thiserror",
@@ -2465,6 +2466,12 @@ name = "semver"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "568a8e6258aa33c13358f81fd834adb854c6f7c9468520910a9b1e8fac068012"
+
+[[package]]
+name = "send_wrapper"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "930c0acf610d3fdb5e2ab6213019aaa04e227ebe9547b0649ba599b16d788bd7"
 
 [[package]]
 name = "serde"

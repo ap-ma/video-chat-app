@@ -1,7 +1,7 @@
 use super::Message;
-use crate::auth::Role;
 use crate::database::entity::{ContactEntity, UserEntity};
 use crate::database::service;
+use crate::graphql::security::auth::{self, Role};
 use crate::graphql::{common, security::RoleGuard};
 use async_graphql::*;
 
@@ -45,7 +45,7 @@ impl Contact {
     }
 
     async fn user_name(&self, ctx: &Context<'_>) -> Result<Option<String>> {
-        if let Some(identity) = common::get_identity_from_ctx(ctx) {
+        if let Some(identity) = auth::get_identity(ctx)? {
             if identity.id == self.user_id {
                 let name = self.user_name.clone().map_or(String::new(), |v| v + " ");
                 return Ok(Some(name + "(myself)"));
@@ -73,8 +73,8 @@ impl Contact {
             return Ok(Vec::new());
         }
 
-        let conn = common::get_conn_from_ctx(ctx)?;
-        let identity = common::get_identity_from_ctx(ctx).unwrap();
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?.unwrap();
         let messages = common::convert_query_result(
             service::get_messages(identity.id, self.user_id, limit, &conn),
             "Failed to get chat",
