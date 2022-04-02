@@ -68,7 +68,12 @@ impl Contact {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn chat(&self, ctx: &Context<'_>, limit: Option<i64>) -> Result<Vec<Message>> {
+    async fn chat(
+        &self,
+        ctx: &Context<'_>,
+        limit: Option<i64>,
+        offset: Option<i64>,
+    ) -> Result<Vec<Message>> {
         if self.blocked {
             return Ok(Vec::new());
         }
@@ -76,7 +81,7 @@ impl Contact {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
         let messages = common::convert_query_result(
-            service::get_messages(identity.id, self.user_id, limit, &conn),
+            service::get_messages(identity.id, self.user_id, limit, offset, &conn),
             "Failed to get chat",
         )?;
 

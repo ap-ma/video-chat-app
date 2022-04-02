@@ -161,6 +161,7 @@ pub fn get_messages(
     user_id: u64,
     other_user_id: u64,
     limit: Option<i64>,
+    offset: Option<i64>,
     conn: &MysqlConnection,
 ) -> QueryResult<Vec<MessageEntity>> {
     let mut query = messages::table
@@ -180,6 +181,10 @@ pub fn get_messages(
 
     if let Some(value) = limit {
         query = query.limit(value);
+    }
+
+    if let Some(value) = offset {
+        query = query.offset(value);
     }
 
     query.load(conn)

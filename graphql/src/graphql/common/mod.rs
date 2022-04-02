@@ -16,7 +16,7 @@ pub enum MutationType {
 }
 
 pub fn get_conn(ctx: &Context<'_>) -> Result<PooledConnection<ConnectionManager<MysqlConnection>>> {
-    ctx.data::<MySqlPool>().unwrap().get().map_err(|e| {
+    ctx.data_unchecked::<MySqlPool>().get().map_err(|e| {
         GraphqlError::ServerError("Unable to get DB connection".into(), format!("{}", e)).extend()
     })
 }

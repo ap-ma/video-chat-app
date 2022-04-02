@@ -10,6 +10,13 @@ pub struct Query;
 
 #[Object]
 impl Query {
+    async fn is_signed_in(&self, ctx: &Context<'_>) -> Result<bool> {
+        match auth::get_identity(ctx)? {
+            Some(_) => Ok(true),
+            None => Ok(false),
+        }
+    }
+
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn me(&self, ctx: &Context<'_>) -> Result<User> {
         let conn = common::get_conn(ctx)?;

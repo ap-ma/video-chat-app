@@ -52,7 +52,8 @@ impl Mutation {
             &input.password_confirm,
         )?;
         if let Some(comment) = &input.comment {
-            validator::max_length_validator("comment", comment, 200)?; // 平均4バイト想定 50文字前後
+            // 平均4バイト想定 50文字前後
+            validator::max_length_validator("comment", comment, 200)?;
         }
 
         let secret = random::gen(50);
@@ -100,6 +101,10 @@ impl Mutation {
 
         validator::code_validator("code", &input.code, Some(identity.id), &conn)?;
         validator::email_validator("email", &input.email, Some(identity.id), &conn)?;
+        if let Some(comment) = &input.comment {
+            // 平均4バイト想定 50文字前後
+            validator::max_length_validator("comment", comment, 200)?;
+        }
 
         let change_user = ChangeUserEntity {
             id: identity.id,
@@ -299,13 +304,13 @@ impl Mutation {
 
         if let Some(rx_user_contact) = rx_user_contact.ok() {
             if !(rx_user_contact.0.blocked) {
-                SimpleBroker::publish(MessageChanged {
-                    id: message.id,
-                    tx_user_id: message.tx_user_id,
-                    rx_user_id: message.rx_user_id,
-                    status: message.status,
-                    mutation_type: MutationType::Deleted,
-                });
+                publish_message(
+                    message.id,
+                    message.tx_user_id,
+                    message.rx_user_id,
+                    message.status,
+                    MutationType::Deleted,
+                );
             }
         }
 
@@ -361,13 +366,13 @@ impl Mutation {
         if let Some(contact_user_contact) = contact_user_contact.ok() {
             if !(contact_user_contact.0.blocked) {
                 for row in target {
-                    SimpleBroker::publish(MessageChanged {
-                        id: row.id.into(),
-                        tx_user_id: row.tx_user_id,
-                        rx_user_id: row.rx_user_id,
-                        status: message_const::status::READ,
-                        mutation_type: MutationType::Updated,
-                    });
+                    publish_message(
+                        row.id,
+                        row.tx_user_id,
+                        row.rx_user_id,
+                        message_const::status::READ,
+                        MutationType::Updated,
+                    );
                 }
             }
         }
@@ -689,15 +694,31 @@ fn create_message(
     let rx_user_contact = service::find_contact_with_user(rx_user_id, identity.id, &conn).ok();
     if let Some(rx_user_contact) = rx_user_contact {
         if !(rx_user_contact.0.blocked) {
-            SimpleBroker::publish(MessageChanged {
-                id: message.id,
-                tx_user_id: message.tx_user_id,
-                rx_user_id: message.rx_user_id,
-                status: message.status,
-                mutation_type: MutationType::Created,
-            });
+            publish_message(
+                message.id,
+                message.tx_user_id,
+                message.rx_user_id,
+                message.status,
+                MutationType::Created,
+            )
         }
     }
 
     Ok(Message::from(&message))
+}
+
+fn publish_message(
+    message_id: u64,
+    tx_user_id: u64,
+    rx_user_id: u64,
+    message_status: i32,
+    mutation_type: MutationType,
+) {
+    SimpleBroker::publish(MessageChanged {
+        id: message_id,
+        tx_user_id,
+        rx_user_id,
+        status: message_status,
+        mutation_type,
+    });
 }

@@ -1,0 +1,14 @@
+// extensionsにて「Rust」「CodeLLDB」をインストール、ubuntu上にLLDBをインストール（sudo apt install lldb）
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Rust: debug",
+      "program": "${workspaceFolder}/target/debug/links",
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
