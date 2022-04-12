@@ -1,0 +1,12 @@
+mutation BlockContact($contactId: ID!) {
+  blockContact(contactId: $contactId) {
+    __typename
+    id
+    userId
+    userCode
+    userName
+    userAvatar
+    status
+    blocked
+  }
+}

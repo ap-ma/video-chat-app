@@ -1,0 +1,12 @@
+query ChatHistory {
+  chatHistory {
+    __typename
+    userId
+    userCode
+    userName
+    userAvatar
+    messageId
+    messageCategory
+    message
+  }
+}

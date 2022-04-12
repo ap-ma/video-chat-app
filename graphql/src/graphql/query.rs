@@ -1,5 +1,5 @@
 use super::common;
-use super::model::{Contact, User};
+use super::model::{ChatHistory, Contact, User};
 use super::security::auth::{self, Role};
 use super::security::guard::RoleGuard;
 use crate::constants::contact as contact_const;
@@ -27,6 +27,18 @@ impl Query {
         )?;
 
         Ok(User::from(&user))
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn chat_history(&self, ctx: &Context<'_>) -> Result<Vec<ChatHistory>> {
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?.unwrap();
+        let chat_history = common::convert_query_result(
+            service::get_latest_messages_for_each_user(identity.id, &conn),
+            "Failed to get chat history",
+        )?;
+
+        Ok(chat_history.iter().map(ChatHistory::from).collect())
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
@@ -61,7 +73,7 @@ impl Query {
         let conn = common::get_conn(ctx)?;
         let users = common::convert_query_result(
             service::get_users_by_code(user_code.as_str(), &conn),
-            "Failed to get chat",
+            "Failed to get user",
         )?;
 
         Ok(users.iter().map(User::from).collect())

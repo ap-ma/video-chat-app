@@ -1,0 +1,12 @@
+mutation UnblockContact($contactId: ID!) {
+  unblockContact(contactId: $contactId) {
+    __typename
+    id
+    userId
+    userCode
+    userName
+    userAvatar
+    status
+    blocked
+  }
+}

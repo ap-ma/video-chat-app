@@ -1,0 +1,22 @@
+query ContactInfo($contactUserId: ID!, $limit: Int!, $offset: Int!, $chatTimeFormat: String) {
+  contactInfo(contactUserId: $contactUserId) {
+    __typename
+    id
+    userId
+    userCode
+    userName
+    userAvatar
+    status
+    blocked
+    chat(limit: $limit, offset: $offset) {
+      __typename
+      id
+      txUserId
+      rxUserId
+      category
+      message
+      status
+      createdAt(format: $chatTimeFormat)
+    }
+  }
+}

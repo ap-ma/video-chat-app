@@ -4,14 +4,12 @@ pub mod service;
 
 use diesel::mysql::MysqlConnection;
 use diesel::r2d2::{ConnectionManager, Pool};
-use std::env;
 
 embed_migrations!();
 
 pub type MySqlPool = Pool<ConnectionManager<MysqlConnection>>;
 
-pub fn get_db_pool() -> MySqlPool {
-    let db_url = env::var("DATABASE_URL").expect("Unable to get DATABASE_URL");
+pub fn get_db_pool(db_url: &str) -> MySqlPool {
     let manager = ConnectionManager::<MysqlConnection>::new(db_url);
     Pool::new(manager).expect("Failed to create pool")
 }

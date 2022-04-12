@@ -1,9 +1,12 @@
+import { addApolloState, initializeApollo } from 'graphql/apollo'
+import { MeDocument } from 'graphql/generated'
+import { GetServerSideProps, NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import React from 'react'
 import styles from '../styles/Home.module.css'
 
-export default function Home() {
+const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
@@ -14,7 +17,7 @@ export default function Home() {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to <a href='https://nextjs.org'>Next.js!</a>
+          Learn <a href='https://nextjs.org'>Next.js!</a>
         </h1>
 
         <p className={styles.description}>
@@ -62,3 +65,31 @@ export default function Home() {
     </div>
   )
 }
+
+/**
+ * SSR時のみ実行され、ページのレンダリングに使用されるpropsを含むオブジェクトを返す
+ *
+ * SSR時のみAPIアクセスを行うクエリを実行し、キャッシュを作成する
+ * 各コンポーネントにてuseQueryを用いて対象となるqueryが実行される場合、
+ * SSR, CSR問わずこの関数にて作成されたキャッシュを参照することができる
+ * 主にCSRにおいて、頻繁に更新されることのないデータのqueryについてはこちらで実行し、
+ * useQueryのFetchPoliciesをcache-firstとすることで不要なAPIアクセスを削減できる
+ *
+ * @param context
+ * @returns
+ */
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const apolloClient = initializeApollo()
+  const cookie = context.req.headers.cookie
+
+  await apolloClient.query({
+    context: { headers: { cookie } },
+    query: MeDocument
+  })
+
+  return addApolloState(apolloClient, {
+    props: {}
+  })
+}
+
+export default Home

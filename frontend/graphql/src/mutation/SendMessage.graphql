@@ -1,0 +1,17 @@
+input SendMessageInput {
+  contactId: ID!
+  message: String!
+}
+
+mutation SendMessage($input: SendMessageInput!, $chatTimeFormat: String) {
+  sendMessage(input: $input) {
+    __typename
+    id
+    txUserId
+    rxUserId
+    category
+    message
+    status
+    createdAt(format: $chatTimeFormat)
+  }
+}

@@ -9,7 +9,7 @@ APIランタイムにGraphQLを用いています。
 setup.sh or .bat
 ```
 
-使用ポートは以下  
+使用ポート  
 
   * Actix Web: 8080
   * Redis: 6379
@@ -24,7 +24,7 @@ setup.sh or .bat
   * GraphQL: https://graphql.org/
   * Rust: https://www.rust-lang.org/
   * Actix Web: https://actix.rs/
-  * Async Graphql: https://github.com/async-graphql/async-graphql
+  * Async Graphql: https://async-graphql.github.io/async-graphql/en/index.html
   * Redis: https://redis.io/
   * MySQL: https://www.mysql.com/
   * React: https://reactjs.org/

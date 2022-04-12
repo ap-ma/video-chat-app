@@ -1,0 +1,19 @@
+input EditProfileInput {
+  code: String!
+  name: String!
+  email: String!
+  comment: String
+  avatar: String
+}
+
+mutation EditProfile($input: EditProfileInput!) {
+  editProfile(input: $input) {
+    __typename
+    id
+    code
+    name
+    email
+    comment
+    avatar
+  }
+}

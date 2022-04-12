@@ -2,7 +2,7 @@ use crate::database::entity::LatestMessageEntity;
 use async_graphql::*;
 
 #[derive(Clone, Debug)]
-pub struct Log {
+pub struct ChatHistory {
     pub user_id: u64,
     pub user_code: String,
     pub user_name: Option<String>,
@@ -12,7 +12,7 @@ pub struct Log {
     pub message: Option<String>,
 }
 
-impl From<&LatestMessageEntity> for Log {
+impl From<&LatestMessageEntity> for ChatHistory {
     fn from(entity: &LatestMessageEntity) -> Self {
         Self {
             user_id: entity.user_id,
@@ -27,7 +27,7 @@ impl From<&LatestMessageEntity> for Log {
 }
 
 #[Object]
-impl Log {
+impl ChatHistory {
     async fn user_id(&self) -> ID {
         self.user_id.into()
     }

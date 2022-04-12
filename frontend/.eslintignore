@@ -1,1 +1,2 @@
 # ESLintの検証対象外とする特定のファイルやディレクトリ
+/graphql/generated.tsx

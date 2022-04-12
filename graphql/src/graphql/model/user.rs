@@ -1,4 +1,4 @@
-use super::{Contact, Log};
+use super::Contact;
 use crate::database::entity::UserEntity;
 use crate::database::service;
 use crate::graphql::common;
@@ -42,6 +42,7 @@ impl User {
         self.name.as_deref()
     }
 
+    #[graphql(guard = "ResourceGuard::new(self.id)")]
     async fn email(&self) -> &str {
         self.email.as_str()
     }
@@ -63,16 +64,5 @@ impl User {
         )?;
 
         Ok(contacts.iter().map(Contact::from).collect())
-    }
-
-    #[graphql(guard = "ResourceGuard::new(self.id)")]
-    async fn log(&self, ctx: &Context<'_>) -> Result<Vec<Log>> {
-        let conn = common::get_conn(ctx)?;
-        let log = common::convert_query_result(
-            service::get_latest_messages_for_each_user(self.id, &conn),
-            "Failed to get Log",
-        )?;
-
-        Ok(log.iter().map(Log::from).collect())
     }
 }

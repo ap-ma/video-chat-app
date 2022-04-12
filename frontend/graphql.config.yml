@@ -1,0 +1,14 @@
+overwrite: true
+schema: 'http://host.docker.internal:8080'
+documents: './graphql/src/**/*.graphql'
+extensions:
+  codegen:
+    generates:
+      ./graphql/generated.tsx:
+        plugins:
+          - 'typescript'
+          - 'typescript-operations'
+          - 'typescript-react-apollo'
+      ./graphql.schema.json:
+        plugins:
+          - 'introspection'

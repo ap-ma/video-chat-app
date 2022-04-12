@@ -1,4 +1,4 @@
-import { API_ROOT } from 'const'
+import { API_URL } from 'const'
 import { isNullish } from 'utils/impl/object'
 
 /** HTTP Request Method */
@@ -21,7 +21,7 @@ export const ContentType = {
  *
  * @param method - Request Method
  * @param contentType - Content-Type
- * @param [url="定数: API_ROOT"] - URL文字列
+ * @param [url="定数: API_URL"] - URL文字列
  * @param [headers={}] - ヘッダーを表すオブジェクト
  * @param [parameters={}] - パラメータを表すオブジェクト
  * @returns responseをresolveの引数とするPromiseオブジェクト
@@ -29,7 +29,7 @@ export const ContentType = {
 export const request = async (
   method: typeof Method[keyof typeof Method],
   contentType: typeof ContentType[keyof typeof ContentType],
-  url = API_ROOT,
+  url = API_URL,
   headers: HeadersInit = {},
   parameters: Record<string, unknown> = {}
 ): Promise<Response> => {

@@ -1,0 +1,13 @@
+input SignUpInput {
+  code: String!
+  name: String!
+  email: String!
+  password: String!
+  passwordConfirm: String!
+  comment: String
+  avatar: String
+}
+
+mutation SignUp($input: SignUpInput!) {
+  signUp(input: $input)
+}

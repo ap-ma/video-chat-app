@@ -35,7 +35,7 @@ from
 where
     users.status = ?
 and (
-        contacts.blocked <> ?
+        contacts.blocked = ?
     or  contacts.id is null
     )
 order by
