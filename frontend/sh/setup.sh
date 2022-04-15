@@ -7,4 +7,4 @@ npm install
 npm run storybook &
 
 # next.js server
-npm run dev
+npm run debug

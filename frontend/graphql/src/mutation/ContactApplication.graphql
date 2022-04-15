@@ -1,12 +1,5 @@
 mutation ContactApplication($otherUserId: ID!, $chatTimeFormat: String) {
   contactApplication(otherUserId: $otherUserId) {
-    __typename
-    id
-    txUserId
-    rxUserId
-    category
-    message
-    status
-    createdAt(format: $chatTimeFormat)
+    ...MessageFields
   }
 }

@@ -10,7 +10,7 @@ pub struct Query;
 
 #[Object]
 impl Query {
-    async fn is_signed_in(&self, ctx: &Context<'_>) -> Result<bool> {
+    async fn is_authenticated(&self, ctx: &Context<'_>) -> Result<bool> {
         match auth::get_identity(ctx)? {
             Some(_) => Ok(true),
             None => Ok(false),
@@ -42,10 +42,18 @@ impl Query {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn contact_info(&self, ctx: &Context<'_>, contact_user_id: ID) -> Result<Contact> {
+    async fn contact_info(
+        &self,
+        ctx: &Context<'_>,
+        contact_user_id: Option<ID>,
+    ) -> Result<Contact> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
-        let contact_user_id = common::convert_id(&contact_user_id)?;
+        let contact_user_id = match contact_user_id {
+            Some(contact_user_id) => common::convert_id(&contact_user_id)?,
+            None => identity.id,
+        };
+
         match service::find_contact_with_user(identity.id, contact_user_id, &conn).ok() {
             Some(contact) => Ok(Contact::from(&contact)),
             // コンタクト未登録時もチャット画面を表示

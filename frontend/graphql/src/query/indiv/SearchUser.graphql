@@ -1,10 +1,5 @@
 query SearchUser($userCode: String!) {
   searchUser(userCode: $userCode) {
-    __typename
-    id
-    code
-    name
-    comment
-    avatar
+    ...OtherUserFields
   }
 }

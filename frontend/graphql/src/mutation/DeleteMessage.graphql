@@ -1,12 +1,5 @@
 mutation DeleteMessage($messageId: ID!, $chatTimeFormat: String) {
   deleteMessage(messageId: $messageId) {
-    __typename
-    id
-    txUserId
-    rxUserId
-    category
-    message
-    status
-    createdAt(format: $chatTimeFormat)
+    ...MessageFields
   }
 }

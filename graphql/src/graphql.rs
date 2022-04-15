@@ -17,19 +17,19 @@ pub type AppSchema = Schema<Query, Mutation, Subscription>;
 #[derive(Debug, Error)]
 pub enum GraphqlError {
     // バリデーション (message, field_name)
-    #[error("Validation Error")]
+    #[error("ValidationError")]
     ValidationError(String, &'static str),
 
     // 認証
-    #[error("Authentication Error")]
+    #[error("AuthenticationError")]
     AuthenticationError,
 
     // 認可 (message)
-    #[error("Authorization Error")]
+    #[error("AuthorizationError")]
     AuthorizationError(String),
 
     // サーバーエラー (message, description)
-    #[error("Internal Server Error")]
+    #[error("InternalServerError")]
     ServerError(String, String),
 }
 

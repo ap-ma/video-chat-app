@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "debug": "node --inspect=0.0.0.0:9229 ./node_modules/.bin/next dev",
     "build": "next build",
     "start": "next start",
     "gqlcodegen": "graphql-codegen --config graphql.config.yml",
@@ -26,7 +27,6 @@
     "@emotion/styled": "^11.3.0",
     "@types/react": "17.0.9",
     "babel-loader": "^8.2.2",
-    "csstype": "^3.0.8",
     "date-fns": "^2.22.1",
     "deepmerge": "^4.2.2",
     "framer-motion": "^4.1.17",

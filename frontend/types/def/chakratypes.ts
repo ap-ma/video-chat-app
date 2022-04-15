@@ -1,9 +1,11 @@
-import { Token } from '@chakra-ui/styled-system/dist/types/utils'
-import { Property } from 'csstype'
+import { ColorProps, PositionProps } from '@chakra-ui/styled-system'
 
 //  ----------------------------------------------------------------------------
 //  Chakra UI props types
 //  ----------------------------------------------------------------------------
 
 /** Chakra UI props colors */
-export type ChakraColors = Token<Property.Color, 'colors'>
+export type ChakraColors = ColorProps['color']
+
+/** Chakra UI props position */
+export type ChakraPosition = PositionProps['position']

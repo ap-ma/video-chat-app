@@ -8,12 +8,6 @@ input EditProfileInput {
 
 mutation EditProfile($input: EditProfileInput!) {
   editProfile(input: $input) {
-    __typename
-    id
-    code
-    name
-    email
-    comment
-    avatar
+    ...OwnUserFields
   }
 }

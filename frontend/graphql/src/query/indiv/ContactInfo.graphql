@@ -1,0 +1,5 @@
+query ContactInfo($contactUserId: ID!, $limit: Int!, $offset: Int!, $chatTimeFormat: String) {
+  contactInfo(contactUserId: $contactUserId) {
+    ...ContactFieldsWithChat
+  }
+}

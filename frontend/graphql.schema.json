@@ -1246,13 +1246,9 @@
                 "name": "contactUserId",
                 "description": null,
                 "type": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "ID",
-                    "ofType": null
-                  }
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
                 },
                 "defaultValue": null,
                 "isDeprecated": false,
@@ -1272,7 +1268,7 @@
             "deprecationReason": null
           },
           {
-            "name": "isSignedIn",
+            "name": "isAuthenticated",
             "description": null,
             "args": [],
             "type": {

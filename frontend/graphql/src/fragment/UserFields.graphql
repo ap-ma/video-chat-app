@@ -1,0 +1,20 @@
+fragment OtherUserFields on User {
+  __typename
+  id
+  code
+  name
+  comment
+  avatar
+}
+
+fragment OwnUserFields on User {
+  ...OtherUserFields
+  email
+}
+
+fragment OwnUserFieldsWithContacts on User {
+  ...OwnUserFields
+  contacts {
+    ...ContactFields
+  }
+}

@@ -56,6 +56,8 @@ async fn main() -> std::io::Result<()> {
                 Cors::default()
                     .allowed_origin(api_url.as_ref())
                     .allowed_origin(front_url.as_ref())
+                    .allow_any_method()
+                    .allow_any_header()
                     .supports_credentials()
                     .max_age(cors_max_age),
             )

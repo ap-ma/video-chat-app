@@ -1,4 +1,5 @@
 # prettierの検証対象外とする特定のファイルやディレクトリ
 /.next/
 /types/advancedtypes.ts
+/package-lock.json
 /tsconfig.json

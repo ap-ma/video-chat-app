@@ -1,12 +1,5 @@
 mutation ContactApproval($messageId: ID!, $chatTimeFormat: String) {
   contactApproval(messageId: $messageId) {
-    __typename
-    id
-    txUserId
-    rxUserId
-    category
-    message
-    status
-    createdAt(format: $chatTimeFormat)
+    ...MessageFields
   }
 }

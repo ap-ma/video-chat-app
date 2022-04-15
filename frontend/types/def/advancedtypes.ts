@@ -17,9 +17,12 @@ export type Unbox<T> = T extends { [k: string]: infer U } ? U : T extends (infer
  * @関数型 関数の戻り型を返却
  * @Promise型 resolve引数型を返却
  */
-export type Unpacked<T> = T extends (infer U)[] ? U
-  : T extends (...args: any) => infer U ? U
-  : T extends Promise<infer U> ? U
+export type Unpacked<T> = T extends (infer U)[]
+  ? U
+  : T extends (...args: any) => infer U
+  ? U
+  : T extends Promise<infer U>
+  ? U
   : T
 
 /** 型引数に指定された型が配列型もしくはオブジェクト型の場合neverを返却し、それ以外の場合指定した型をそのまま返却 */

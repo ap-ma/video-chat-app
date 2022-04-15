@@ -1,0 +1,10 @@
+fragment ChatHistoryFields on ChatHistory {
+  __typename
+  userId
+  userCode
+  userName
+  userAvatar
+  messageId
+  messageCategory
+  message
+}

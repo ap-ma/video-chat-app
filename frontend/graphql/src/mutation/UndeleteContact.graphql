@@ -1,12 +1,5 @@
 mutation UndeleteContact($contactId: ID!) {
   undeleteContact(contactId: $contactId) {
-    __typename
-    id
-    userId
-    userCode
-    userName
-    userAvatar
-    status
-    blocked
+    ...ContactFields
   }
 }

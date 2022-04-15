@@ -1,8 +1,8 @@
 use super::Message;
 use crate::database::entity::{ContactEntity, UserEntity};
 use crate::database::service;
-use crate::graphql::security::auth::{self, Role};
-use crate::graphql::{common, security::RoleGuard};
+use crate::graphql::common;
+use crate::graphql::security::auth;
 use async_graphql::*;
 
 #[derive(Clone, Debug)]
@@ -67,7 +67,6 @@ impl Contact {
         self.blocked
     }
 
-    #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn chat(
         &self,
         ctx: &Context<'_>,

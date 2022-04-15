@@ -1,0 +1,17 @@
+fragment ContactFields on Contact {
+  __typename
+  id
+  userId
+  userCode
+  userName
+  userAvatar
+  status
+  blocked
+}
+
+fragment ContactFieldsWithChat on Contact {
+  ...ContactFields
+  chat(limit: $limit, offset: $offset) {
+    ...MessageFields
+  }
+}

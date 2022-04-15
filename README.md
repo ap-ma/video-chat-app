@@ -29,5 +29,5 @@ setup.sh or .bat
   * MySQL: https://www.mysql.com/
   * React: https://reactjs.org/
   * Next.js: https://nextjs.org/
-  * Apollo: https://www.apollographql.com/
+  * Apollo Client (React): https://www.apollographql.com/docs/react/
   * Storybook: https://storybook.js.org/

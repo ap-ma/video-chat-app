@@ -5,7 +5,7 @@ import merge from 'deepmerge'
 import isEqual from 'lodash/isEqual'
 import { AppProps } from 'next/app'
 import { useMemo } from 'react'
-import { isNullish } from 'utils'
+import { isNode, isNullish } from 'utils'
 
 /** props apollo state key */
 export const APOLLO_STATE_PROP_NAME = '__APOLLO_STATE__'
@@ -34,16 +34,17 @@ function createCache() {
 function createApolloClient() {
   return new ApolloClient({
     cache: createCache(),
-    ssrMode: typeof window === 'undefined',
+    ssrMode: isNode(),
     link: new HttpLink({
       uri: API_URL,
+      // graphqlサーバー発行のcookieを含める
       credentials: 'include'
     }),
     defaultOptions: {
-      // useQuery
-      watchQuery: { fetchPolicy: 'cache-and-network' },
       // client.query()
-      query: { fetchPolicy: 'network-only' }
+      query: { fetchPolicy: 'network-only' },
+      // useQuery()
+      watchQuery: { fetchPolicy: isNode() ? 'cache-only' : 'cache-and-network' }
     }
   })
 }
@@ -84,7 +85,7 @@ export function initializeApollo(
     _apolloClient.cache.restore(data)
   }
   // SSR/SSG時は常に新規で作成されたApolloClientを返す
-  if (typeof window === 'undefined') return _apolloClient
+  if (isNode()) return _apolloClient
   // CSR時でApolloClientを新規作成した場合は、変数に保持
   if (!apolloClient) apolloClient = _apolloClient
 

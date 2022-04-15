@@ -13,8 +13,7 @@ import {
   Text,
   useBreakpointValue
 } from '@chakra-ui/react'
-import { Token } from '@chakra-ui/styled-system/dist/types/utils'
-import * as CSS from 'csstype'
+import { PositionProps } from '@chakra-ui/styled-system'
 import React from 'react'
 
 const avatars = [
@@ -193,7 +192,7 @@ const Login: React.VFC = () => {
 export default Login
 
 export const Blur: React.VFC<{
-  position: Token<CSS.Property.Position>
+  position: PositionProps['position']
   top: number
   left: number
   style: Record<string, unknown>
