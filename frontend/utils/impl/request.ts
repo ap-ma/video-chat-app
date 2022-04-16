@@ -11,9 +11,9 @@ export const Method = {
 
 /** Http request header content-type */
 export const ContentType = {
-  urlencoded: 'urlencoded',
-  multipart: 'multipart',
-  json: 'json'
+  URLENCODED: 'urlencoded',
+  MULTIPART: 'multipart',
+  JSON: 'json'
 } as const
 
 /**
@@ -37,15 +37,15 @@ export const request = async (
   const response = await fetch(url, {
     method,
     headers:
-      contentType === ContentType.json
+      contentType === ContentType.JSON
         ? { 'Content-Type': 'application/json', ...headers }
         : headers,
     body:
       method === Method.GET
         ? undefined
-        : contentType === ContentType.urlencoded
+        : contentType === ContentType.URLENCODED
         ? createURLSearchParams(parameters)
-        : contentType === ContentType.multipart
+        : contentType === ContentType.MULTIPART
         ? createFormData(parameters)
         : JSON.stringify(parameters)
   })

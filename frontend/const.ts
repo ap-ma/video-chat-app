@@ -8,7 +8,7 @@ export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME
 export const LOCALE = process.env.NEXT_PUBLIC_LOCALE as 'ja' | 'en'
 /** システム モード */
 export const APP_MODE = process.env.NODE_ENV
-/** システム APIルートURL */
+/** システム API URL */
 export const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 //  ----------------------------------------------------------------------------
@@ -17,3 +17,6 @@ export const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 /** 日付 デフォルトフォーマット */
 export const DATE_FORMAT = 'PP'
+
+/** チャット フェッチ件数 */
+export const CHAT_LENGTH = 50

@@ -1,5 +1,14 @@
+import { ApolloError } from '@apollo/client/errors'
+import { CHAT_LENGTH } from 'const'
 import { addApolloState, initializeApollo } from 'graphql/apollo'
-import { InitDocument, useChatHistoryQuery, useMeQuery } from 'graphql/generated'
+import {
+  InitDocument,
+  InitQuery,
+  InitQueryVariables,
+  useChatHistoryQuery,
+  useMeQuery
+} from 'graphql/generated'
+import { handle } from 'lib/error'
 import { GetServerSideProps, NextPage } from 'next'
 import Head from 'next/head'
 import React from 'react'
@@ -7,7 +16,8 @@ import React from 'react'
 const Index: NextPage = () => {
   // ユーザー情報
   const data1 = useMeQuery({ fetchPolicy: 'cache-first' })
-  const data2 = useChatHistoryQuery()
+  const { error } = useChatHistoryQuery()
+  const error1 = error?.graphQLErrors
 
   return (
     <div>
@@ -27,7 +37,7 @@ const Index: NextPage = () => {
  * SSR時のみAPIアクセスを行うクエリを実行し、キャッシュを作成する
  * 各コンポーネントにてuseQueryを用いて対象となるqueryが実行される場合、
  * SSR, CSR問わずこの関数にて作成されたキャッシュを参照することができる
- * 主にCSRにおいて、頻繁に更新されることのないデータのqueryについてはこちらで実行し、
+ * CSRにおいて、頻繁に更新されることのないデータのqueryについてはこちらでキャッシュを作成し、
  * useQueryのFetchPoliciesをcache-firstとすることで不要なAPIアクセスを削減できる
  *
  * @param context
@@ -38,16 +48,22 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const cookie = ctx.req.headers.cookie
   const context = { headers: { cookie } }
 
-  // const { errors } =
-  await apolloClient.query({
-    query: InitDocument,
-    variables: { limit: 50 },
-    errorPolicy: 'all',
-    context
-  })
+  const { error } = await apolloClient
+    .query<InitQuery, InitQueryVariables>({
+      query: InitDocument,
+      variables: { limit: CHAT_LENGTH },
+      context
+    })
+    .catch((e) => {
+      const error = e as ApolloError
+      return { error }
+    })
 
-  return addApolloState(apolloClient, {
-    props: {}
+  return handle(error, {
+    noError: () => addApolloState(apolloClient, { props: {} }),
+    authenticationError: () => ({ redirect: { permanent: false, destination: '/signin' } }),
+    // InternalServerError | NetworkError
+    _default: () => ({ redirect: { permanent: false, destination: '/error' } })
   })
 }
 

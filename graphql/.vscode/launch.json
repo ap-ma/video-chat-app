@@ -3,9 +3,9 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Rust: debug",
       "type": "lldb",
       "request": "launch",
-      "name": "Rust: debug",
       "program": "${workspaceFolder}/target/debug/links",
       "args": [],
       "cwd": "${workspaceFolder}"

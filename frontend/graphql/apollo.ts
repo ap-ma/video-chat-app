@@ -1,7 +1,10 @@
-import { ApolloClient, HttpLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
+import { ApolloClient, from, HttpLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
+import { onError } from '@apollo/client/link/error'
+import { RetryLink } from '@apollo/client/link/retry'
 import { concatPagination } from '@apollo/client/utilities'
 import { API_URL } from 'const'
 import merge from 'deepmerge'
+import { report } from 'lib/error'
 import isEqual from 'lodash/isEqual'
 import { AppProps } from 'next/app'
 import { useMemo } from 'react'
@@ -27,6 +30,53 @@ function createCache() {
 }
 
 /**
+ * HttpLinkオブジェクトを生成する
+ *
+ * @returns HttpLink
+ */
+function createLink() {
+  return new HttpLink({
+    uri: API_URL,
+    // graphqlサーバー発行のcookieを含める
+    credentials: 'include'
+  })
+}
+
+/**
+ * RetryLinkを生成する
+ *
+ * 通信が不安定な状況において、操作を明示的に失敗するのではなく再試行を試みる
+ * delay.jitterをtrueとすることで、Thundering Herdの回避を図る
+ *
+ * @returns ApolloLink
+ */
+function createRetryLink() {
+  return new RetryLink({
+    delay: {
+      initial: 300,
+      max: Infinity,
+      jitter: true
+    },
+    attempts: {
+      max: 5,
+      retryIf: (error) => !!error
+    }
+  })
+}
+
+/**
+ * ErrorLinkを生成する
+ *
+ * サーバーのレスポンスにgraphQLErrorsまたはnetworkErrorが存在するかどうかを確認し、
+ * エラーが存在する場合その詳細を受け取り、内容に応じた処理をチェーンに追加する
+ *
+ * @returns ApolloLink
+ */
+function createErrorLink() {
+  return onError((errorResponse) => report(errorResponse))
+}
+
+/**
  * ApolloClientオブジェクトを生成する
  *
  * @returns ApolloClient
@@ -35,11 +85,7 @@ function createApolloClient() {
   return new ApolloClient({
     cache: createCache(),
     ssrMode: isNode(),
-    link: new HttpLink({
-      uri: API_URL,
-      // graphqlサーバー発行のcookieを含める
-      credentials: 'include'
-    }),
+    link: from([createErrorLink(), createRetryLink(), createLink()]),
     defaultOptions: {
       // client.query()
       query: { fetchPolicy: 'network-only' },
