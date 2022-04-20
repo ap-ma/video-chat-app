@@ -1,4 +1,13 @@
-import { Unbox } from 'types'
+import { NonEmptyArray, Unbox } from 'types'
+
+/**
+ * 値がオブジェクトか否かを示す真偽値を返す
+ *
+ * @param argment - 判定対象の値
+ * @returns 配列か否かを示す真偽値
+ */
+export const isObject = (argment: unknown): argment is Record<string, unknown> =>
+  !isNullish(argment) && !isArray(argment) && typeof argment === 'object'
 
 /**
  * 値が配列か否かを示す真偽値を返す
@@ -9,13 +18,13 @@ import { Unbox } from 'types'
 export const isArray = (argment: unknown): argment is unknown[] => Array.isArray(argment)
 
 /**
- * 値がオブジェクトか否かを示す真偽値を返す
+ * 指定された配列が要素を持つか否かを示す真偽値を返す
  *
- * @param argment - 判定対象の値
- * @returns 配列か否かを示す真偽値
+ * @param argment - 判定対象の配列
+ * @returns 要素を持つか否かを示す真偽値
  */
-export const isObject = (argment: unknown): argment is Record<string, unknown> =>
-  argment !== null && !isArray(argment) && typeof argment === 'object'
+export const isNonEmptyArray = <T>(argment: readonly T[]): argment is NonEmptyArray<T> =>
+  !isBlank(argment)
 
 /**
  * ReactNodeオブジェクトがReactElementか否かを示す真偽値を返す
@@ -24,7 +33,7 @@ export const isObject = (argment: unknown): argment is Record<string, unknown> =
  * @returns ReactElementか否かを示す真偽値
  */
 export const isReactElement = (reactNode: React.ReactNode): reactNode is React.ReactElement =>
-  !isNullish(reactNode) && !isArray(reactNode) && typeof reactNode === 'object'
+  isObject(reactNode)
 
 /**
  * 値がnullまたはundefinedか否かを示す真偽値を返す
@@ -52,12 +61,12 @@ export const isBlank = (argment: unknown): boolean => {
 }
 
 /**
- * 配列の要素にブランクとして評価される値が含まれるか否かを示す真偽値を返す
+ * 指定された値にブランクとして評価される値が含まれるか否かを示す真偽値を返す
  *
  * @param argments - 判定対象の配列
  * @returns ブランクを含むか否かを示す真偽値
  */
-export const includesBlank = (...argments: unknown[]): boolean => {
+export const includesBlank = (...argments: readonly unknown[]): boolean => {
   for (const argment of argments) if (isBlank(argment)) return true
   return false
 }
@@ -87,7 +96,7 @@ export const hasValue = (argment: unknown): boolean => {
  * @param targetArray - 検索先となる値
  * @returns 含まれているか否かを示す真偽値
  */
-export const includes = (valueToFind: unknown, ...targetArray: unknown[]): boolean =>
+export const includes = (valueToFind: unknown, ...targetArray: readonly unknown[]): boolean =>
   targetArray.includes(valueToFind)
 
 /**
@@ -101,6 +110,22 @@ export const hasProperty = (target: unknown, key: string): key is keyof typeof t
   isObject(target) && key in target
 
 /**
+ * 要素を持つ配列の最初の要素を返す
+ *
+ * @param array - 要素を抽出する配列
+ * @returns 配列の最初の要素
+ */
+export const first = <T>(array: Readonly<NonEmptyArray<T>>): T => array[0]
+
+/**
+ * 要素を持つ配列の最後の要素を返す
+ *
+ * @param array - 要素を抽出する配列
+ * @returns 配列の最後の要素
+ */
+export const last = <T>(array: Readonly<NonEmptyArray<T>>): T => array[array.length - 1] as T
+
+/**
  * 配列にArray.prototype.spliceが実施された状態の新規配列を返す
  *
  * @param array - コピー元配列
@@ -109,7 +134,12 @@ export const hasProperty = (target: unknown, key: string): key is keyof typeof t
  * @param item - 配列に新規で追加する要素
  * @returns コピー元配列にArray.prototype.spliceが実施された状態の配列
  */
-export const splice = <T>(array: T[], start: number, deleteCount: number, ...item: T[]): T[] => {
+export const splice = <T>(
+  array: readonly T[],
+  start: number,
+  deleteCount: number,
+  ...item: readonly T[]
+): T[] => {
   const copyArray = [...array]
   copyArray.splice(start, deleteCount, ...item)
   return copyArray
@@ -124,7 +154,7 @@ export const splice = <T>(array: T[], start: number, deleteCount: number, ...ite
  * @returns コピー元オブジェクトの指定プロパティが指定の値に変更された状態のオブジェクト
  */
 export const breedObject = <T extends Record<string, unknown>>(
-  object: T,
+  object: Readonly<T>,
   property: keyof T,
   value: Unbox<T>
 ): T => ({
@@ -142,7 +172,7 @@ export const breedObject = <T extends Record<string, unknown>>(
  * @returns コピー元配列の指定要素の指定プロパティが指定の値に変更された状態の配列
  */
 export const breedArray = <T extends Record<string, unknown>>(
-  array: T[],
+  array: readonly T[],
   index: number,
   property: keyof T,
   value: Unbox<T>
@@ -159,4 +189,4 @@ export const breedArray = <T extends Record<string, unknown>>(
  * @param argment - コピー元配列
  * @returns JSONを用いてコピーしたオブジェクト
  */
-export const deepCopy = <T>(argment: T): T => JSON.parse(JSON.stringify(argment)) as T
+export const copy = <T>(argment: T): T => JSON.parse(JSON.stringify(argment)) as T

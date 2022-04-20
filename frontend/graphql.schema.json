@@ -216,7 +216,7 @@
             "description": null,
             "args": [
               {
-                "name": "limit",
+                "name": "cursor",
                 "description": null,
                 "type": {
                   "kind": "SCALAR",
@@ -228,7 +228,7 @@
                 "deprecationReason": null
               },
               {
-                "name": "offset",
+                "name": "limit",
                 "description": null,
                 "type": {
                   "kind": "SCALAR",
@@ -1268,6 +1268,30 @@
             "deprecationReason": null
           },
           {
+            "name": "contactList",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Contact",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "isAuthenticated",
             "description": null,
             "args": [],
@@ -1625,30 +1649,6 @@
               "kind": "SCALAR",
               "name": "String",
               "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "contacts",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "Contact",
-                    "ofType": null
-                  }
-                }
-              }
             },
             "isDeprecated": false,
             "deprecationReason": null

@@ -55,8 +55,8 @@ services:
     command: bash /tmp/setup.sh
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: links_dev
-      MYSQL_USER: links_app
+      MYSQL_DATABASE: dev_db
+      MYSQL_USER: apu
       MYSQL_PASSWORD: secret
       UID: ${USER_ID:-1000}
       GID: ${GROUP_ID:-1000}

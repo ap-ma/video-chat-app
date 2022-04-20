@@ -28,6 +28,10 @@ async fn main() -> std::io::Result<()> {
     let front_url = env::var("FRONT_URL").expect("Unable to get FRONT_URL");
     let redis_url = env::var("REDIS_URL").expect("Unable to get REDIS_URL");
     let db_url = env::var("DATABASE_URL").expect("Unable to get DATABASE_URL");
+    let cookie_secure = env::var("COOKIE_SECURE")
+        .expect("Unable to get COOKIE_SECURE")
+        .parse::<bool>()
+        .expect("COOKIE_SECURE is invalid");
     let cors_max_age = env::var("CORS_MAX_AGE")
         .expect("Unable to get CORS_MAX_AGE")
         .parse::<usize>()
@@ -43,11 +47,12 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .wrap(
-                // redis session - tokenで認可を完結させるとDB状態と矛盾が発生する可能性があるため
+                // session - tokenで認可を完結させるとDB状態と矛盾が発生する可能性があるため
                 SessionMiddleware::builder(
                     RedisActorSessionStore::new(&redis_url),
                     cookie_private.clone(),
                 )
+                .cookie_secure(cookie_secure)
                 .cookie_domain(Some(app_domain.clone()))
                 .build(),
             )

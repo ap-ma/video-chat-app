@@ -11,7 +11,7 @@ fragment ContactFields on Contact {
 
 fragment ContactFieldsWithChat on Contact {
   ...ContactFields
-  chat(limit: $limit, offset: $offset) {
+  chat(cursor: $cursor, limit: $limit) {
     ...MessageFields
   }
 }

@@ -1,4 +1,4 @@
-# links
+# video-chat-app
 
 WebRTC を用いたビデオチャットアプリです。  
 フロントにReact/Next.js、APIサーバーにRust/Actic Webを使用し、  
@@ -9,6 +9,9 @@ APIランタイムにGraphQLを用いています。
 setup.sh or .bat
 ```
 
+起動後しばらく時間を置き、  
+ブラウザから [`http://localhost:3000`](http://localhost:3000) にアクセスして動作を確認してください。  
+
 使用ポート  
 
   * Actix Web: 8080
@@ -16,8 +19,6 @@ setup.sh or .bat
   * MySQL: 3306
   * Next.js: 3000
   * Storybook: 6006
-
-ブラウザから [`localhost:3000`](http://localhost:3000) にアクセスし、動作を確認してください。
 
 ## 参考
 

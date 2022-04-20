@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react'
 import ContactList from 'components/99_mocks/Home/ContactList'
 import { contactList } from 'components/99_mocks/Home/temp'
+import { APP_NAME } from 'const'
 import React from 'react'
 
 export type SidebarProps = BoxProps & {
@@ -34,7 +35,7 @@ const Sidebar: React.VFC<SidebarProps> = ({ onClose, ...rest }) => {
     >
       <Flex h='20' ml='4' mr='8' alignItems='center' justifyContent='space-between'>
         <Text fontSize='2xl' fontFamily='monospace' fontWeight='bold'>
-          Links!
+          {APP_NAME}
         </Text>
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>

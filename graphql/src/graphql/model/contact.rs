@@ -70,8 +70,8 @@ impl Contact {
     async fn chat(
         &self,
         ctx: &Context<'_>,
+        cursor: Option<u64>,
         limit: Option<i64>,
-        offset: Option<i64>,
     ) -> Result<Vec<Message>> {
         if self.blocked {
             return Ok(Vec::new());
@@ -80,10 +80,10 @@ impl Contact {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
         let messages = common::convert_query_result(
-            service::get_messages(identity.id, self.user_id, limit, offset, &conn),
+            service::get_messages(identity.id, self.user_id, cursor, limit, &conn),
             "Failed to get chat",
         )?;
 
-        Ok(messages.iter().map(Message::from).rev().collect())
+        Ok(messages.iter().map(Message::from).collect())
     }
 }

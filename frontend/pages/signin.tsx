@@ -1,11 +1,12 @@
 import { ApolloError } from '@apollo/client/errors'
+import { ERROR_PAGE, INDEX_PAGE } from 'const'
 import { initializeApollo } from 'graphql/apollo'
 import {
   IsAuthenticatedDocument,
   IsAuthenticatedQuery,
   IsAuthenticatedQueryVariables
 } from 'graphql/generated'
-import { handle } from 'lib/error'
+import { handle } from 'graphql/lib'
 import { NextPage } from 'next'
 import Head from 'next/head'
 import { default as Router } from 'next/router'
@@ -29,7 +30,7 @@ const Signin: NextPage = () => {
  * 初期ロードではサーバー上のみで実行され、
  * next/link, next/routerを使用してページ遷移する際はクライアント上で実行される
  *
- * リダイレクト等の処理を適切なランタイムで実行できるため、
+ * リダイレクト等の処理を適切な環境で実行できるため、
  * 常にgetServerSidePropsを用いて処理を行うよりパフォーマンスに優れる
  *
  * @param param0
@@ -49,16 +50,12 @@ Signin.getInitialProps = async ({ req, res }) => {
       query: IsAuthenticatedDocument,
       context
     })
-    .catch((e) => {
-      const error = e as ApolloError
-      return { data: undefined, error }
-    })
+    .catch((error) => ({ data: undefined, error: error as ApolloError }))
 
   if (data?.isAuthenticated || !isNullish(error)) {
     const page = handle(error, {
-      noError: () => '/',
-      // InternalServerError | NetworkError
-      _default: () => '/error'
+      noError: () => INDEX_PAGE,
+      _default: () => ERROR_PAGE
     })
 
     if (isNode()) {

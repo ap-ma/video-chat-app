@@ -1,0 +1,5 @@
+query ContactList {
+  contactList {
+    ...ContactFields
+  }
+}

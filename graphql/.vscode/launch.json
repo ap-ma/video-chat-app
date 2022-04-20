@@ -6,7 +6,7 @@
       "name": "Rust: debug",
       "type": "lldb",
       "request": "launch",
-      "program": "${workspaceFolder}/target/debug/links",
+      "program": "${workspaceFolder}/target/debug/chat-app-api",
       "args": [],
       "cwd": "${workspaceFolder}"
     }

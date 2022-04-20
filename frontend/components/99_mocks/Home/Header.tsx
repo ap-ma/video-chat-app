@@ -14,6 +14,7 @@ import {
   useColorModeValue,
   VStack
 } from '@chakra-ui/react'
+import { APP_NAME } from 'const'
 import React from 'react'
 import { FiBell, FiChevronDown, FiMenu } from 'react-icons/fi'
 
@@ -48,7 +49,7 @@ const Header: React.VFC<HeaderProps> = ({ onOpen, ...rest }) => {
         fontFamily='monospace'
         fontWeight='bold'
       >
-        Links!
+        {APP_NAME}
       </Text>
       <HStack spacing={{ base: '0', md: '6' }}>
         <IconButton size='lg' variant='ghost' aria-label='open menu' icon={<FiBell />} />

@@ -1,7 +1,5 @@
-use super::Contact;
 use crate::database::entity::UserEntity;
-use crate::database::service;
-use crate::graphql::common;
+
 use crate::graphql::security::guard::ResourceGuard;
 use async_graphql::*;
 
@@ -53,16 +51,5 @@ impl User {
 
     async fn avatar(&self) -> Option<&str> {
         self.avatar.as_deref()
-    }
-
-    #[graphql(guard = "ResourceGuard::new(self.id)")]
-    async fn contacts(&self, ctx: &Context<'_>) -> Result<Vec<Contact>> {
-        let conn = common::get_conn(ctx)?;
-        let contacts = common::convert_query_result(
-            service::get_contacts(self.id, &conn),
-            "Failed to get the user's contacts",
-        )?;
-
-        Ok(contacts.iter().map(Contact::from).collect())
     }
 }

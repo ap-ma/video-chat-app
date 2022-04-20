@@ -4,7 +4,7 @@ import { container } from '.storybook/decorators'
 /* eslint-enable import/no-unresolved  */
 import { Meta, Story } from '@storybook/react/types-6-0'
 import React from 'react'
-import { NonEmptyList } from 'types'
+import { NonEmptyArray } from 'types'
 import Message, { MessageProps } from './index'
 
 export default {
@@ -13,7 +13,7 @@ export default {
   decorators: [(Story) => container({ margin: '50px' })(Story())]
 } as Meta
 
-const triangleMarkPositions: NonEmptyList<MessageProps['triangleMarkPosition']> = [
+const triangleMarkPositions: NonEmptyArray<MessageProps['triangleMarkPosition']> = [
   'left',
   'right',
   'none'
@@ -26,7 +26,7 @@ const Template: Story<MessageProps> = ({ children, ...props }) => (
 export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'
 Primary.argTypes = {
-  triangleMarkPosition: { type: 'select', options: triangleMarkPositions },
+  triangleMarkPosition: { control: { type: 'select' }, options: triangleMarkPositions },
   bgColor: { control: 'color' },
   textColor: { control: 'color' }
 }
@@ -41,9 +41,9 @@ Primary.args = {
 export const Chat = Template.bind({})
 Chat.storyName = 'チャット'
 Chat.argTypes = {
-  triangleMarkPosition: { type: 'select', options: triangleMarkPositions },
-  bgColor: { type: 'select', options: chakraColors },
-  textColor: { type: 'select', options: chakraColors }
+  triangleMarkPosition: { control: { type: 'select' }, options: triangleMarkPositions },
+  bgColor: { control: { type: 'select' }, options: chakraColors },
+  textColor: { control: { type: 'select' }, options: chakraColors }
 }
 Chat.args = {
   triangleMarkPosition: 'left',

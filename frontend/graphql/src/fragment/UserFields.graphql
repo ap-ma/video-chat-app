@@ -11,10 +11,3 @@ fragment OwnUserFields on User {
   ...OtherUserFields
   email
 }
-
-fragment OwnUserFieldsWithContacts on User {
-  ...OwnUserFields
-  contacts {
-    ...ContactFields
-  }
-}

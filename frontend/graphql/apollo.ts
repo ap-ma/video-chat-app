@@ -1,14 +1,13 @@
 import { ApolloClient, from, HttpLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
 import { onError } from '@apollo/client/link/error'
 import { RetryLink } from '@apollo/client/link/retry'
-import { concatPagination } from '@apollo/client/utilities'
 import { API_URL } from 'const'
 import merge from 'deepmerge'
-import { report } from 'lib/error'
 import isEqual from 'lodash/isEqual'
 import { AppProps } from 'next/app'
 import { useMemo } from 'react'
 import { isNode, isNullish } from 'utils'
+import { cursorPagination, report } from './lib'
 
 /** props apollo state key */
 export const APOLLO_STATE_PROP_NAME = '__APOLLO_STATE__'
@@ -23,9 +22,7 @@ let apolloClient: ApolloClient<NormalizedCacheObject> | undefined
  */
 function createCache() {
   return new InMemoryCache({
-    typePolicies: {
-      Query: { fields: { allPosts: concatPagination() } }
-    }
+    typePolicies: { Contact: { fields: { chat: cursorPagination() } } }
   })
 }
 
@@ -52,15 +49,8 @@ function createLink() {
  */
 function createRetryLink() {
   return new RetryLink({
-    delay: {
-      initial: 300,
-      max: Infinity,
-      jitter: true
-    },
-    attempts: {
-      max: 5,
-      retryIf: (error) => !!error
-    }
+    delay: { initial: 300, max: Infinity, jitter: true },
+    attempts: { max: 5, retryIf: (error) => !!error }
   })
 }
 

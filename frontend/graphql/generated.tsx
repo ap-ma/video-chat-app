@@ -45,8 +45,8 @@ export type Contact = {
 }
 
 export type ContactChatArgs = {
+  cursor?: InputMaybe<Scalars['Int']>
   limit?: InputMaybe<Scalars['Int']>
-  offset?: InputMaybe<Scalars['Int']>
 }
 
 export type EditProfileInput = {
@@ -164,6 +164,7 @@ export type Query = {
   __typename?: 'Query'
   chatHistory: Array<ChatHistory>
   contactInfo: Contact
+  contactList: Array<Contact>
   isAuthenticated: Scalars['Boolean']
   me: User
   searchUser: Array<User>
@@ -207,7 +208,6 @@ export type User = {
   avatar?: Maybe<Scalars['String']>
   code: Scalars['String']
   comment?: Maybe<Scalars['String']>
-  contacts: Array<Contact>
   email: Scalars['String']
   id: Scalars['ID']
   name?: Maybe<Scalars['String']>
@@ -284,26 +284,6 @@ export type OwnUserFieldsFragment = {
   name?: string | null
   comment?: string | null
   avatar?: string | null
-}
-
-export type OwnUserFieldsWithContactsFragment = {
-  __typename: 'User'
-  email: string
-  id: string
-  code: string
-  name?: string | null
-  comment?: string | null
-  avatar?: string | null
-  contacts: Array<{
-    __typename: 'Contact'
-    id: string
-    userId: string
-    userCode: string
-    userName?: string | null
-    userAvatar?: string | null
-    status: number
-    blocked: boolean
-  }>
 }
 
 export type BlockContactMutationVariables = Exact<{
@@ -504,8 +484,9 @@ export type UndeleteContactMutation = {
 }
 
 export type InitQueryVariables = Exact<{
-  limit: Scalars['Int']
-  offset?: InputMaybe<Scalars['Int']>
+  contactUserId?: InputMaybe<Scalars['ID']>
+  cursor?: InputMaybe<Scalars['Int']>
+  limit?: InputMaybe<Scalars['Int']>
   chatTimeFormat?: InputMaybe<Scalars['String']>
 }>
 
@@ -519,17 +500,17 @@ export type InitQuery = {
     name?: string | null
     comment?: string | null
     avatar?: string | null
-    contacts: Array<{
-      __typename: 'Contact'
-      id: string
-      userId: string
-      userCode: string
-      userName?: string | null
-      userAvatar?: string | null
-      status: number
-      blocked: boolean
-    }>
   }
+  contactList: Array<{
+    __typename: 'Contact'
+    id: string
+    userId: string
+    userCode: string
+    userName?: string | null
+    userAvatar?: string | null
+    status: number
+    blocked: boolean
+  }>
   chatHistory: Array<{
     __typename: 'ChatHistory'
     userId: string
@@ -579,9 +560,9 @@ export type ChatHistoryQuery = {
 }
 
 export type ContactInfoQueryVariables = Exact<{
-  contactUserId: Scalars['ID']
-  limit: Scalars['Int']
-  offset: Scalars['Int']
+  contactUserId?: InputMaybe<Scalars['ID']>
+  cursor?: InputMaybe<Scalars['Int']>
+  limit?: InputMaybe<Scalars['Int']>
   chatTimeFormat?: InputMaybe<Scalars['String']>
 }>
 
@@ -609,6 +590,22 @@ export type ContactInfoQuery = {
   }
 }
 
+export type ContactListQueryVariables = Exact<{ [key: string]: never }>
+
+export type ContactListQuery = {
+  __typename?: 'Query'
+  contactList: Array<{
+    __typename: 'Contact'
+    id: string
+    userId: string
+    userCode: string
+    userName?: string | null
+    userAvatar?: string | null
+    status: number
+    blocked: boolean
+  }>
+}
+
 export type IsAuthenticatedQueryVariables = Exact<{ [key: string]: never }>
 
 export type IsAuthenticatedQuery = { __typename?: 'Query'; isAuthenticated: boolean }
@@ -625,16 +622,6 @@ export type MeQuery = {
     name?: string | null
     comment?: string | null
     avatar?: string | null
-    contacts: Array<{
-      __typename: 'Contact'
-      id: string
-      userId: string
-      userCode: string
-      userName?: string | null
-      userAvatar?: string | null
-      status: number
-      blocked: boolean
-    }>
   }
 }
 
@@ -693,7 +680,7 @@ export const MessageFieldsFragmentDoc = gql`
 export const ContactFieldsWithChatFragmentDoc = gql`
   fragment ContactFieldsWithChat on Contact {
     ...ContactFields
-    chat(limit: $limit, offset: $offset) {
+    chat(cursor: $cursor, limit: $limit) {
       ...MessageFields
     }
   }
@@ -716,16 +703,6 @@ export const OwnUserFieldsFragmentDoc = gql`
     email
   }
   ${OtherUserFieldsFragmentDoc}
-`
-export const OwnUserFieldsWithContactsFragmentDoc = gql`
-  fragment OwnUserFieldsWithContacts on User {
-    ...OwnUserFields
-    contacts {
-      ...ContactFields
-    }
-  }
-  ${OwnUserFieldsFragmentDoc}
-  ${ContactFieldsFragmentDoc}
 `
 export const BlockContactDocument = gql`
   mutation BlockContact($contactId: ID!) {
@@ -1378,18 +1355,22 @@ export type UndeleteContactMutationOptions = Apollo.BaseMutationOptions<
   UndeleteContactMutationVariables
 >
 export const InitDocument = gql`
-  query Init($limit: Int!, $offset: Int = 0, $chatTimeFormat: String) {
+  query Init($contactUserId: ID, $cursor: Int, $limit: Int, $chatTimeFormat: String) {
     me {
-      ...OwnUserFieldsWithContacts
+      ...OwnUserFields
+    }
+    contactList {
+      ...ContactFields
     }
     chatHistory {
       ...ChatHistoryFields
     }
-    contactInfo {
+    contactInfo(contactUserId: $contactUserId) {
       ...ContactFieldsWithChat
     }
   }
-  ${OwnUserFieldsWithContactsFragmentDoc}
+  ${OwnUserFieldsFragmentDoc}
+  ${ContactFieldsFragmentDoc}
   ${ChatHistoryFieldsFragmentDoc}
   ${ContactFieldsWithChatFragmentDoc}
 `
@@ -1406,13 +1387,14 @@ export const InitDocument = gql`
  * @example
  * const { data, loading, error } = useInitQuery({
  *   variables: {
+ *      contactUserId: // value for 'contactUserId'
+ *      cursor: // value for 'cursor'
  *      limit: // value for 'limit'
- *      offset: // value for 'offset'
  *      chatTimeFormat: // value for 'chatTimeFormat'
  *   },
  * });
  */
-export function useInitQuery(baseOptions: Apollo.QueryHookOptions<InitQuery, InitQueryVariables>) {
+export function useInitQuery(baseOptions?: Apollo.QueryHookOptions<InitQuery, InitQueryVariables>) {
   const options = { ...defaultOptions, ...baseOptions }
   return Apollo.useQuery<InitQuery, InitQueryVariables>(InitDocument, options)
 }
@@ -1468,7 +1450,7 @@ export type ChatHistoryQueryHookResult = ReturnType<typeof useChatHistoryQuery>
 export type ChatHistoryLazyQueryHookResult = ReturnType<typeof useChatHistoryLazyQuery>
 export type ChatHistoryQueryResult = Apollo.QueryResult<ChatHistoryQuery, ChatHistoryQueryVariables>
 export const ContactInfoDocument = gql`
-  query ContactInfo($contactUserId: ID!, $limit: Int!, $offset: Int!, $chatTimeFormat: String) {
+  query ContactInfo($contactUserId: ID, $cursor: Int, $limit: Int, $chatTimeFormat: String) {
     contactInfo(contactUserId: $contactUserId) {
       ...ContactFieldsWithChat
     }
@@ -1489,14 +1471,14 @@ export const ContactInfoDocument = gql`
  * const { data, loading, error } = useContactInfoQuery({
  *   variables: {
  *      contactUserId: // value for 'contactUserId'
+ *      cursor: // value for 'cursor'
  *      limit: // value for 'limit'
- *      offset: // value for 'offset'
  *      chatTimeFormat: // value for 'chatTimeFormat'
  *   },
  * });
  */
 export function useContactInfoQuery(
-  baseOptions: Apollo.QueryHookOptions<ContactInfoQuery, ContactInfoQueryVariables>
+  baseOptions?: Apollo.QueryHookOptions<ContactInfoQuery, ContactInfoQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
   return Apollo.useQuery<ContactInfoQuery, ContactInfoQueryVariables>(ContactInfoDocument, options)
@@ -1513,6 +1495,48 @@ export function useContactInfoLazyQuery(
 export type ContactInfoQueryHookResult = ReturnType<typeof useContactInfoQuery>
 export type ContactInfoLazyQueryHookResult = ReturnType<typeof useContactInfoLazyQuery>
 export type ContactInfoQueryResult = Apollo.QueryResult<ContactInfoQuery, ContactInfoQueryVariables>
+export const ContactListDocument = gql`
+  query ContactList {
+    contactList {
+      ...ContactFields
+    }
+  }
+  ${ContactFieldsFragmentDoc}
+`
+
+/**
+ * __useContactListQuery__
+ *
+ * To run a query within a React component, call `useContactListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useContactListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useContactListQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useContactListQuery(
+  baseOptions?: Apollo.QueryHookOptions<ContactListQuery, ContactListQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<ContactListQuery, ContactListQueryVariables>(ContactListDocument, options)
+}
+export function useContactListLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<ContactListQuery, ContactListQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<ContactListQuery, ContactListQueryVariables>(
+    ContactListDocument,
+    options
+  )
+}
+export type ContactListQueryHookResult = ReturnType<typeof useContactListQuery>
+export type ContactListLazyQueryHookResult = ReturnType<typeof useContactListLazyQuery>
+export type ContactListQueryResult = Apollo.QueryResult<ContactListQuery, ContactListQueryVariables>
 export const IsAuthenticatedDocument = gql`
   query IsAuthenticated {
     isAuthenticated
@@ -1561,10 +1585,10 @@ export type IsAuthenticatedQueryResult = Apollo.QueryResult<
 export const MeDocument = gql`
   query Me {
     me {
-      ...OwnUserFieldsWithContacts
+      ...OwnUserFields
     }
   }
-  ${OwnUserFieldsWithContactsFragmentDoc}
+  ${OwnUserFieldsFragmentDoc}
 `
 
 /**

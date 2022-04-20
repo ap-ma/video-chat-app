@@ -30,6 +30,18 @@ impl Query {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn contact_list(&self, ctx: &Context<'_>) -> Result<Vec<Contact>> {
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?.unwrap();
+        let contacts = common::convert_query_result(
+            service::get_contacts(identity.id, &conn),
+            "Failed to get contact list",
+        )?;
+
+        Ok(contacts.iter().map(Contact::from).collect())
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn chat_history(&self, ctx: &Context<'_>) -> Result<Vec<ChatHistory>> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();

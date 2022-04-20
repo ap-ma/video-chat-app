@@ -39,4 +39,4 @@ and (
     or  contacts.id is null
     )
 order by
-    messages.created_at desc
+    messages.id desc

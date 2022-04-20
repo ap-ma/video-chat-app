@@ -1,11 +1,14 @@
-query Init($limit: Int!, $offset: Int = 0, $chatTimeFormat: String) {
+query Init($contactUserId: ID, $cursor: Int, $limit: Int, $chatTimeFormat: String) {
   me {
-    ...OwnUserFieldsWithContacts
+    ...OwnUserFields
+  }
+  contactList {
+    ...ContactFields
   }
   chatHistory {
     ...ChatHistoryFields
   }
-  contactInfo {
+  contactInfo(contactUserId: $contactUserId) {
     ...ContactFieldsWithChat
   }
 }

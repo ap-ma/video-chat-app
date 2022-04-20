@@ -160,11 +160,17 @@ pub fn find_message_by_id(message_id: u64, conn: &MysqlConnection) -> QueryResul
 pub fn get_messages(
     user_id: u64,
     other_user_id: u64,
+    cursor: Option<u64>,
     limit: Option<i64>,
-    offset: Option<i64>,
     conn: &MysqlConnection,
 ) -> QueryResult<Vec<MessageEntity>> {
-    let mut query = messages::table
+    let mut query = messages::table.into_boxed();
+
+    if let Some(value) = cursor {
+        query = query.filter(messages::id.lt(value));
+    }
+
+    query = query
         .filter(
             messages::tx_user_id
                 .eq(user_id)
@@ -176,15 +182,10 @@ pub fn get_messages(
                 .or(messages::rx_user_id.eq(other_user_id)),
         )
         .filter(messages::status.ne(message_const::status::DELETED))
-        .order(messages::created_at.desc())
-        .into_boxed();
+        .order(messages::id.desc());
 
     if let Some(value) = limit {
         query = query.limit(value);
-    }
-
-    if let Some(value) = offset {
-        query = query.offset(value);
     }
 
     query.load(conn)

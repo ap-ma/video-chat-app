@@ -1,4 +1,4 @@
 #!/bin/sh
 
-mysql -uroot -proot links_dev < "/tmp/init.d/schema.sql"
-mysql -uroot -proot links_dev < "/tmp/init.d/data.sql"
+mysql -uroot -proot dev_db < "/tmp/init.d/schema.sql"
+mysql -uroot -proot dev_db < "/tmp/init.d/data.sql"

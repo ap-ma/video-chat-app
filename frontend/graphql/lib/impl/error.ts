@@ -1,6 +1,6 @@
 import { GraphQLErrors, NetworkError } from '@apollo/client/errors'
 import { ErrorResponse } from '@apollo/client/link/error'
-import { isBlank, isNode, isNullish } from 'utils'
+import { isNonEmptyArray as isNotBlank, isNullish } from 'utils'
 
 /** GraphQL Error Type */
 export const GqlErrorType = {
@@ -40,20 +40,20 @@ export const handle = <R>(
     }
 
     // GraphQL Errors
-    if (!isNullish(error.graphQLErrors) && !isBlank(error.graphQLErrors)) {
+    if (!isNullish(error.graphQLErrors) && isNotBlank(error.graphQLErrors)) {
       const gqlErrors = error.graphQLErrors
 
       let errors: GraphQLErrors
-      if (!isBlank((errors = filterGqlError(gqlErrors, GqlErrorType['InternalServerError'])))) {
+      if (isNotBlank((errors = filterGqlError(gqlErrors, GqlErrorType['InternalServerError'])))) {
         if (!isNullish(supplier.internalServerError)) return supplier.internalServerError(errors)
       }
-      if (!isBlank((errors = filterGqlError(gqlErrors, GqlErrorType['AuthenticationError'])))) {
+      if (isNotBlank((errors = filterGqlError(gqlErrors, GqlErrorType['AuthenticationError'])))) {
         if (!isNullish(supplier.authenticationError)) return supplier.authenticationError(errors)
       }
-      if (!isBlank((errors = filterGqlError(gqlErrors, GqlErrorType['AuthorizationError'])))) {
+      if (isNotBlank((errors = filterGqlError(gqlErrors, GqlErrorType['AuthorizationError'])))) {
         if (!isNullish(supplier.authorizationError)) return supplier.authorizationError(errors)
       }
-      if (!isBlank((errors = filterGqlError(gqlErrors, GqlErrorType['ValidationError'])))) {
+      if (isNotBlank((errors = filterGqlError(gqlErrors, GqlErrorType['ValidationError'])))) {
         if (!isNullish(supplier.validationError)) return supplier.validationError(errors)
       }
       return supplier._default()
@@ -66,36 +66,38 @@ export const handle = <R>(
 
 /**
  * エラーのログ出力
- * サーバーにエラー内容を送信する必要がある場合、こちらで行う
+ * サーバーにエラー内容を送信する必要がある場合、ここで行う
  *
  * @param errorResponse - onErrorリンクの引数のErrorHandlerに渡されるレスポンスオブジェクト
  */
 export const report = (errorResponse: ErrorResponse): void => {
   let details: string | undefined
 
-  handle(errorResponse, {
+  const formatter: Parameters<typeof handle>[1] = {
     networkError: (error) => {
       details = `[NetworkError]: ${error}`
     },
     internalServerError: (errors) => {
-      details = errors
-        .map(({ message, locations, path, extensions }) => {
-          const locationsJSON = JSON.stringify(locations)
-          const pathJSON = JSON.stringify(path)
-          const extensionsJSON = JSON.stringify(extensions)
-          return `[InternalServerError]: Message: ${message}, Location: ${locationsJSON}, Path: ${pathJSON}, Extensions: ${extensionsJSON}`
-        })
-        .join('\n')
+      const formattedErrors = errors.map(
+        ({ message, locations, path, extensions }) =>
+          `[InternalServerError]: Message: ${message}, Location: ${JSON.stringify(locations)},` +
+          ` Path: ${JSON.stringify(path)}, Extensions: ${JSON.stringify(extensions)}`
+      )
+      details = formattedErrors.join('\n')
     },
     _default: () => {
       /* do nothing */
     }
-  })
+  }
+
+  handle(errorResponse, formatter)
 
   if (!isNullish(details)) {
-    const report = { context: isNode() ? 'node' : navigator?.userAgent, details }
     // サーバーにエラー内容を送信する必要がある場合、ここでリクエストを発行する
-    console.error(`Application Error: ${JSON.stringify(report)}`)
+    // const report = { context: typeof window === 'undefined' ? 'node' : navigator?.userAgent, details }
+    // request(report)
+    console.error('Application Error')
+    console.error(details)
   }
 }
 

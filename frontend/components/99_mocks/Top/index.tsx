@@ -14,6 +14,7 @@ import {
   useBreakpointValue
 } from '@chakra-ui/react'
 import { PositionProps } from '@chakra-ui/styled-system'
+import { APP_NAME } from 'const'
 import React from 'react'
 
 const avatars = [
@@ -53,7 +54,7 @@ const Login: React.VFC = () => {
         <Stack spacing={{ base: 10, md: 20 }}>
           <Heading lineHeight={1.1} fontSize={{ base: '4xl', sm: '7xl', md: '8xl', lg: '9xl' }}>
             <Text as='span' bgGradient='linear(to-r, cyan.400, blue.400)' bgClip='text'>
-              Links!
+              {APP_NAME}
             </Text>
           </Heading>
           <Stack direction={'row'} spacing={4} align={'center'}>

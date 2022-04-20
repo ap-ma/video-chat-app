@@ -13,5 +13,5 @@ RUN cargo build --release
 
 # リリース環境
 FROM debian:11
-COPY --from=builder /app/target/release/links /usr/local/bin/links
-CMD ["/usr/local/bin/links"]
+COPY --from=builder /app/target/release/chat-app-api /usr/local/bin/chat-app-api
+CMD ["/usr/local/bin/chat-app-api"]

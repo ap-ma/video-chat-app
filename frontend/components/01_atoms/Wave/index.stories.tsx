@@ -15,6 +15,7 @@ import {
   Text
 } from '@chakra-ui/react'
 import { Meta, Story } from '@storybook/react/types-6-0'
+import { APP_NAME } from 'const'
 import React, { Fragment } from 'react'
 import Wave, { WaveProps } from './index'
 
@@ -49,7 +50,7 @@ export const BackGround: Story<WaveProps> = ({ topColor, bottomColor, animationN
           <Stack align='center'>
             <Heading fontSize='4xl'>Sign in to your account</Heading>
             <Text fontSize='lg' color='gray.600'>
-              New to Links?
+              New to {APP_NAME}
               <Link color='blue.400' ml={2}>
                 Create an account.
               </Link>
@@ -101,8 +102,8 @@ export const BackGround: Story<WaveProps> = ({ topColor, bottomColor, animationN
 )
 BackGround.storyName = 'バックグラウンド'
 BackGround.argTypes = {
-  topColor: { type: 'select', options: chakraColors },
-  bottomColor: { type: 'select', options: chakraColors }
+  topColor: { control: { type: 'select' }, options: chakraColors },
+  bottomColor: { control: { type: 'select' }, options: chakraColors }
 }
 BackGround.args = {
   topColor: 'gray.100',
