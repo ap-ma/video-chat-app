@@ -1,4 +1,4 @@
-import { isArray, isNullish } from 'utils/impl/object'
+import { isArray, isNullish } from 'utils'
 
 /**
  * 値を文字列表現に変換して返す
@@ -12,15 +12,6 @@ export const toStr = (value: unknown): string => {
   }
   return isNullish(value) ? '' : `${value}`
 }
-
-/**
- * 未定義を含む文字列配列から文字列要素のみを半角スペース区切りで結合した文字列を返す
- *
- * @param classNames - 未定義を含む文字列の残余引数
- * @returns 文字列配列を半角スペース区切りで結合した文字列
- */
-export const classNames = (...classNames: Array<string | undefined>): string =>
-  classNames.filter(Boolean).join(' ')
 
 /**
  * 文字列、数値を指定の長さまで0埋めした文字列を返す
@@ -63,6 +54,24 @@ export const range = (start: number, end: number, step = 1): number[] => {
     start += step
   }
   return result
+}
+
+/**
+ * 指定した値の簡易ハッシュコードを生成して返す
+ *
+ * @param target ハッシュコードを算出する値
+ * @returns 値のハッシュコード
+ */
+export const hashCode = (target: unknown): number => {
+  let hash = 0
+  if (!isNullish(target)) {
+    const valStr = JSON.stringify(target)
+    for (let i = 0; i < valStr.length; i++) {
+      hash = hash * 31 + valStr.charCodeAt(i)
+      hash = hash | 0
+    }
+  }
+  return hash
 }
 
 /**

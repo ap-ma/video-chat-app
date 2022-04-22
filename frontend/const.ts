@@ -1,7 +1,7 @@
 import { isDevelopment, isNode } from 'utils'
 
 //  ----------------------------------------------------------------------------
-//  system const values
+//  System const values
 //  ----------------------------------------------------------------------------
 
 /** システム アプリ名 */
@@ -23,7 +23,23 @@ export const API_URL =
     : process.env.NEXT_PUBLIC_API_URL
 
 //  ----------------------------------------------------------------------------
-//  page path const values
+//  API Error types
+//  ----------------------------------------------------------------------------
+
+/** API Error type InternalServerError */
+export const INTERNAL_SERVER_ERROR = 'InternalServerError'
+
+/** API Error type AuthenticationError */
+export const AUTHENTICATION_ERROR = 'AuthenticationError'
+
+/** API Error type AuthorizationError */
+export const AUTHORIZATION_ERROR = 'AuthorizationError'
+
+/** API Error type ValidationError */
+export const VALIDATION_ERROR = 'ValidationError'
+
+//  ----------------------------------------------------------------------------
+//  Page path const values
 //  ----------------------------------------------------------------------------
 
 /** ページ index */
@@ -36,10 +52,10 @@ export const SIGNIN_PAGE = '/signin'
 export const ERROR_PAGE = '/error'
 
 //  ----------------------------------------------------------------------------
-//  general const values
+//  General const values
 //  ----------------------------------------------------------------------------
 
-/** 日付 デフォルトフォーマット */
+/** Dateオブジェクト 文字列表現デフォルトフォーマット */
 export const DATE_FORMAT = 'PP'
 
 /** チャット フェッチ件数 */

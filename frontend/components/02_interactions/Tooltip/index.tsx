@@ -1,8 +1,8 @@
+import classnames from 'classnames'
 import { connect } from 'components/hoc'
-import { nanoid } from 'nanoid'
 import React, { Children, cloneElement, useMemo } from 'react'
 import { ContainerProps } from 'types'
-import { classNames, includes, isReactElement } from 'utils'
+import { hashCode, includes, isReactElement } from 'utils'
 import Marker from './Marker'
 import * as styles from './styles'
 import Tip from './Tip'
@@ -14,7 +14,7 @@ type PresenterProps = TooltipProps
 
 /** Presenter Component */
 const Presenter: React.VFC<PresenterProps> = ({ children, className, ...props }) => (
-  <span className={classNames(styles.root, className)} {...props}>
+  <span className={classnames(styles.root, className)} {...props}>
     {children}
   </span>
 )
@@ -23,14 +23,16 @@ const Presenter: React.VFC<PresenterProps> = ({ children, className, ...props })
 const Container: React.VFC<ContainerProps<TooltipProps, PresenterProps>> = ({
   presenter,
   children,
+  className,
   ...props
 }) => {
-  const className = useMemo(() => `css-${nanoid()}`, [])
+  const rootClassName = useMemo(() => `tooltip-${hashCode(props)}`, [props])
   children = Children.map(children, (child) =>
     isReactElement(child) && includes(child.type, Tip, Marker)
-      ? cloneElement(child, { rootClassName: className })
+      ? cloneElement(child, { rootClassName })
       : child
   )
+  className = classnames(rootClassName, className)
   return presenter({ children, className, ...props })
 }
 

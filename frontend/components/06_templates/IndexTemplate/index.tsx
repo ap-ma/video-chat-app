@@ -1,20 +1,37 @@
-import { QueryResult, QueryTuple } from '@apollo/client/'
 import Layout, { Title } from 'components/05_layouts/Layout'
 import { connect } from 'components/hoc'
 import {
   ChatHistoryQuery,
   ContactInfoQuery,
   ContactListQuery,
+  EditProfileMutation,
+  EditProfileMutationVariables,
   MeQuery,
   SearchUserQuery,
-  SearchUserQueryVariables
+  SearchUserQueryVariables,
+  SignOutMutation,
+  SignOutMutationVariables
 } from 'graphql/generated'
 import React from 'react'
-import { ContainerProps } from 'types'
+import {
+  ContainerProps,
+  LazyQueryFunction,
+  MutaionLoading,
+  MutateFunction,
+  QueryFetchMore,
+  QueryLoading,
+  QueryNetworkStatus,
+  QueryRefetch,
+  ValidationErrors
+} from 'types'
 
 /** IndexTemplate Props */
 export type IndexTemplateProps = {
   // ここの型定義は後で下位コンポーネントに移動
+
+  //  ----------------------------------------------------------------------------
+  //  Query
+  //  ----------------------------------------------------------------------------
 
   /**
    * サインインユーザー情報
@@ -33,18 +50,38 @@ export type IndexTemplateProps = {
    */
   contactInfo: {
     contactInfo?: ContactInfoQuery['contactInfo']
-    loading: QueryResult['loading']
-    networkStatus: QueryResult['networkStatus']
-    refetch: QueryResult['refetch']
-    fetchMore: QueryResult['fetchMore']
+    loading: QueryLoading
+    networkStatus: QueryNetworkStatus
+    refetch: QueryRefetch
+    fetchMore: QueryFetchMore
   }
   /**
    * ユーザー検索
    */
   searchUser: {
     users?: SearchUserQuery['searchUser']
-    loading: QueryResult['loading']
-    getUsersByCode: QueryTuple<SearchUserQuery, SearchUserQueryVariables>[0]
+    loading: QueryLoading
+    getUsersByCode: LazyQueryFunction<SearchUserQuery, SearchUserQueryVariables>
+  }
+
+  //  ----------------------------------------------------------------------------
+  //  Mutation
+  //  ----------------------------------------------------------------------------
+
+  /**
+   * サインアウト
+   */
+  signOut: {
+    loading: MutaionLoading
+    signOut: MutateFunction<SignOutMutation, SignOutMutationVariables>
+  }
+  /**
+   * プロフィール編集
+   */
+  editProfile: {
+    loading: MutaionLoading
+    errors?: ValidationErrors
+    editProfile: MutateFunction<EditProfileMutation, EditProfileMutationVariables>
   }
 }
 /** Presenter Props */

@@ -15,7 +15,6 @@ import {
   Text
 } from '@chakra-ui/react'
 import { Meta, Story } from '@storybook/react/types-6-0'
-import { APP_NAME } from 'const'
 import React, { Fragment } from 'react'
 import Wave, { WaveProps } from './index'
 
@@ -50,7 +49,7 @@ export const BackGround: Story<WaveProps> = ({ topColor, bottomColor, animationN
           <Stack align='center'>
             <Heading fontSize='4xl'>Sign in to your account</Heading>
             <Text fontSize='lg' color='gray.600'>
-              New to {APP_NAME}
+              New to this app?
               <Link color='blue.400' ml={2}>
                 Create an account.
               </Link>

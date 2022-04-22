@@ -1,7 +1,7 @@
+import classnames from 'classnames'
 import { connect } from 'components/hoc'
 import React from 'react'
 import { ContainerProps } from 'types'
-import { classNames } from 'utils'
 import * as styles from './styles'
 
 /** Balloon Props */
@@ -11,7 +11,7 @@ type PresenterProps = BalloonProps
 
 /** Presenter Component */
 const Presenter: React.VFC<PresenterProps> = ({ children, className, ...props }) => (
-  <span className={classNames(styles.root, className)} {...props}>
+  <span className={classnames(styles.root, className)} {...props}>
     {children}
   </span>
 )

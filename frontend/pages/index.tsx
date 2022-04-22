@@ -1,4 +1,4 @@
-import { ApolloError } from '@apollo/client/errors'
+import { ApolloError, GraphQLErrors } from '@apollo/client/errors'
 import IndexTemplate, { IndexTemplateProps } from 'components/06_templates/IndexTemplate'
 import { CHAT_LENGTH, ERROR_PAGE, SIGNIN_PAGE } from 'const'
 import { addApolloState, initializeApollo } from 'graphql/apollo'
@@ -6,13 +6,26 @@ import {
   InitDocument,
   InitQuery,
   InitQueryVariables,
+  useBlockContactMutation,
+  useChangePasswordMutation,
   useChatHistoryQuery,
+  useContactApplicationMutation,
+  useContactApprovalMutation,
   useContactInfoQuery,
   useContactListQuery,
+  useDeleteAccountMutation,
+  useDeleteContactMutation,
+  useDeleteMessageMutation,
+  useEditProfileMutation,
   useMeQuery,
-  useSearchUserLazyQuery
+  useReadMessageMutation,
+  useSearchUserLazyQuery,
+  useSendMessageMutation,
+  useSignOutMutation,
+  useUnblockContactMutation,
+  useUndeleteContactMutation
 } from 'graphql/generated'
-import { handle } from 'graphql/lib'
+import { handle, Handler, isValidationErrors } from 'graphql/lib'
 import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import React from 'react'
@@ -20,51 +33,125 @@ import React from 'react'
 const Index: NextPage = () => {
   const router = useRouter()
 
-  // リダイレクト
+  // Redirect
   const toSigninPage = () => router.replace(SIGNIN_PAGE)
   const toErrorPage = () => router.replace(ERROR_PAGE)
 
-  // エラーハンドリング
-  const resolver: Parameters<typeof handle>[1] = {
-    internalServerError: () => toErrorPage(),
+  // Operation Handler
+  const handler: Handler<Promise<boolean> | GraphQLErrors | undefined> = {
+    noError: () => undefined,
     authenticationError: () => toSigninPage(),
-    networkError: () => toErrorPage(),
-    validationError: (errors) => Promise.resolve(errors),
-    _default: () => Promise.resolve(undefined)
+    validationError: (errors) => errors,
+    _default: () => toErrorPage()
   }
+
+  //  ----------------------------------------------------------------------------
+  //  Query
+  //  ----------------------------------------------------------------------------
 
   // ユーザー情報
   const meQuery = useMeQuery({ fetchPolicy: 'cache-only' })
-  handle(meQuery.error, resolver)
+  handle(meQuery.error, handler)
 
   // コンタクト一覧
   const contactListQuery = useContactListQuery({ fetchPolicy: 'cache-only' })
-  handle(contactListQuery.error, resolver)
+  handle(contactListQuery.error, handler)
 
   // チャット履歴
   const chatHistoryQuery = useChatHistoryQuery()
-  handle(chatHistoryQuery.error, resolver)
+  handle(chatHistoryQuery.error, handler)
 
   // コンタクト情報
   const contactInfoQuery = useContactInfoQuery({
     variables: { limit: CHAT_LENGTH },
     notifyOnNetworkStatusChange: true
   })
-  handle(contactInfoQuery.error, resolver)
+  handle(contactInfoQuery.error, handler)
 
   // ユーザー検索
   const [getUsersByCode, searchUserQuery] = useSearchUserLazyQuery({ fetchPolicy: 'network-only' })
-  handle(searchUserQuery.error, resolver)
+  handle(searchUserQuery.error, handler)
 
+  //  ----------------------------------------------------------------------------
+  //  Mutation
+  //  ----------------------------------------------------------------------------
+
+  // サインアウト
+  const [signOut, signOutMutation] = useSignOutMutation()
+  handle(signOutMutation.error, handler)
+
+  // プロフィール編集
+  const [editProfile, editProfileMutation] = useEditProfileMutation()
+  const editProfileResult = handle(editProfileMutation.error, handler)
+
+  // パスワード変更
+  const [changePassword, changePasswordMutation] = useChangePasswordMutation()
+  handle(changePasswordMutation.error, handler)
+
+  // アカウント削除
+  const [deleteAccount, deleteAccountMutation] = useDeleteAccountMutation()
+  handle(deleteAccountMutation.error, handler)
+
+  // メッセージ送信
+  const [sendMessage, sendMessageMutation] = useSendMessageMutation()
+  handle(sendMessageMutation.error, handler)
+
+  // メッセージ削除
+  const [deleteMessage, deleteMessageMutation] = useDeleteMessageMutation()
+  handle(deleteMessageMutation.error, handler)
+
+  // メッセージ既読
+  const [readMessage, readMessageMutation] = useReadMessageMutation()
+  handle(readMessageMutation.error, handler)
+
+  // コンタクト申請
+  const [contactApplication, contactApplicationMutation] = useContactApplicationMutation()
+  handle(contactApplicationMutation.error, handler)
+
+  // コンタクト承認
+  const [contactApproval, contactApprovalMutation] = useContactApprovalMutation()
+  handle(contactApprovalMutation.error, handler)
+
+  // コンタクト削除
+  const [deleteContact, deleteContactMutation] = useDeleteContactMutation()
+  handle(deleteContactMutation.error, handler)
+
+  // コンタクト削除取消
+  const [undeleteContact, undeleteContactMutation] = useUndeleteContactMutation()
+  handle(undeleteContactMutation.error, handler)
+
+  // コンタクトブロック
+  const [blockContact, blockContactMutation] = useBlockContactMutation()
+  handle(blockContactMutation.error, handler)
+
+  // コンタクトブロック解除
+  const [unblockContact, unblockContactMutation] = useUnblockContactMutation()
+  handle(unblockContactMutation.error, handler)
+
+  // IndexTemplate Props
   const props: IndexTemplateProps = {
+    // Query
     me: meQuery.data?.me,
     contactList: contactListQuery.data?.contactList,
     chatHistroy: chatHistoryQuery.data?.chatHistory,
-    contactInfo: { contactInfo: contactInfoQuery.data?.contactInfo, ...contactInfoQuery },
+    contactInfo: {
+      contactInfo: contactInfoQuery.data?.contactInfo,
+      ...contactInfoQuery
+    },
     searchUser: {
       users: searchUserQuery.data?.searchUser,
       loading: searchUserQuery.loading,
       getUsersByCode
+    },
+    // Mutation
+    signOut: {
+      loading: signOutMutation.loading,
+      signOut
+    },
+    editProfile: {
+      loading: editProfileMutation.loading,
+      errors: isValidationErrors(editProfileResult) ? editProfileResult : undefined,
+      editProfile
     }
   }
 

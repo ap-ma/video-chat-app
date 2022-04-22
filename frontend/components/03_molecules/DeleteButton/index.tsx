@@ -29,7 +29,7 @@ const Presenter: React.VFC<DeleteButtonProps> = ({ tip, ...props }) => (
 /** Container Component */
 const Container: React.VFC<ContainerProps<DeleteButtonProps, PresenterProps>> = ({
   presenter,
-  tip = '削除する',
+  tip = 'Delete',
   ...props
 }) => {
   return presenter({ tip, ...props })

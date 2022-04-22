@@ -1,8 +1,8 @@
 import { Box, BoxProps, Icon } from '@chakra-ui/react'
 import { connect } from 'components/hoc'
-import { nanoid } from 'nanoid'
 import React from 'react'
 import { ChakraColors, ContainerProps } from 'types'
+import { hashCode } from 'utils'
 import * as styles from './styles'
 
 /** Wave Props */
@@ -51,7 +51,7 @@ const Container: React.VFC<ContainerProps<WaveProps, PresenterProps>> = ({
   presenter,
   ...props
 }) => {
-  const id = nanoid()
+  const id = `wave-${hashCode(props)}`
   return presenter({ id, ...props })
 }
 

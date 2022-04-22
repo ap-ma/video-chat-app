@@ -18,7 +18,7 @@ const ContactCard: React.VFC<ContactCardProps> = ({ image, name, desc, ...props 
       role='group'
       cursor='pointer'
       _hover={{
-        bg: 'gray.200'
+        bg: 'gray.100'
       }}
       {...props}
     >

@@ -17,7 +17,7 @@ export const box = ({ active }: Pick<UserCardProps, 'active'>): Record<string, u
     role: 'group',
     cursor: 'pointer',
     _hover: {
-      bg: 'gray.200'
+      bg: 'gray.100'
     }
   } as const)
 
