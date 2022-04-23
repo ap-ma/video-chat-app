@@ -7,6 +7,7 @@ import UserCard, { UserCardProps } from './index'
 
 export default {
   title: '03_molecules/UserCard',
+  argTypes: { onClick: { action: 'clicked' } },
   component: UserCard
 } as Meta
 
@@ -23,8 +24,7 @@ Primary.args = {
     'https://1.bp.blogspot.com/-Na00Q49BuPg/XJB5IFwcscI/AAAAAAABR8g/aWBDjkVwnHU2CVeLX2dgklqWQdz03DU4wCLcBGAs/s800/pistol_pose_man.png',
   name: '鈴木太郎',
   content: 'ひとことメッセージ',
-  active: false,
-  href: 'https://www.google.com/'
+  active: false
 }
 
 export const Active = Template.bind({})
@@ -36,6 +36,5 @@ Active.args = {
   name: '佐藤亜美',
   content:
     '本日プロジェクトについての打ち合わせを行いたいです。何時ごろお時間都合がよいでしょうか？',
-  active: true,
-  href: 'https://www.google.com/'
+  active: true
 }

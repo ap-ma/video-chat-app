@@ -40,7 +40,7 @@ const avatars = [
   }
 ]
 
-const Login: React.VFC = () => {
+const Signin: React.VFC = () => {
   const avatarSize = useBreakpointValue({ base: 'md', md: 'lg' })
   return (
     <Box position='relative'>
@@ -190,7 +190,7 @@ const Login: React.VFC = () => {
   )
 }
 
-export default Login
+export default Signin
 
 export const Blur: React.VFC<{
   position: PositionProps['position']

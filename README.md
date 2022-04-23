@@ -1,6 +1,6 @@
 # video-chat-app
 
-WebRTC を用いたビデオチャットアプリです。  
+WebRTCを用いたビデオチャットアプリです。  
 フロントにReact/Next.js、APIサーバーにRust/Actic Webを使用し、  
 APIランタイムにGraphQLを用いています。
 

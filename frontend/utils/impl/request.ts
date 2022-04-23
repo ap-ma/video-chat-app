@@ -1,5 +1,5 @@
 import { API_URL } from 'const'
-import { isNullish } from 'utils'
+import { isNullish } from './object'
 
 /** HTTP Request Method */
 export const Method = {

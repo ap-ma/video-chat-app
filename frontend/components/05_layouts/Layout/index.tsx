@@ -4,7 +4,7 @@ import { APP_NAME, APP_URL } from 'const'
 import Head from 'next/head'
 import React, { Children } from 'react'
 import { ContainerProps, WithChildren } from 'types'
-import { isNullish, isReactElement } from 'utils'
+import { isNullish, isReactElement } from 'utils/impl/object'
 import Title, { TitleProps } from './Title'
 
 /** Layout Props */

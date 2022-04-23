@@ -1,4 +1,4 @@
-import { isArray, isNullish } from 'utils'
+import { isArray, isNullish } from './object'
 
 /**
  * 値を文字列表現に変換して返す

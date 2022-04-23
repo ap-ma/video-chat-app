@@ -1,6 +1,6 @@
 import { FieldPolicy, Reference, StoreObject } from '@apollo/client'
 import { ReadFieldFunction, SafeReadonly } from '@apollo/client/cache/core/types/common'
-import { isNullish } from 'utils'
+import { isNullish } from 'utils/impl/object'
 
 /**
  * カーソルベースページネーションのFieldPolicyを返す

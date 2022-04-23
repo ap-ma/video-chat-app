@@ -1,6 +1,3 @@
-/* eslint-disable import/no-unresolved */
-import { chakraColors } from '.storybook/const'
-/* eslint-enable import/no-unresolved  */
 import {
   Box,
   Button,
@@ -14,33 +11,21 @@ import {
   Stack,
   Text
 } from '@chakra-ui/react'
-import { Meta, Story } from '@storybook/react/types-6-0'
-import React, { Fragment } from 'react'
-import Wave, { WaveProps } from './index'
+import Wave from 'components/01_atoms/Wave'
+import Layout, { Title } from 'components/05_layouts/Layout'
+import { connect } from 'components/hoc'
+import React from 'react'
+import { ContainerProps } from 'types'
 
-export default {
-  title: '01_atoms/Wave',
-  component: Wave
-} as Meta
+/** SigninTemplate Props */
+export type SigninTemplateProps = Record<string, unknown>
+/** Presenter Props */
+type PresenterProps = SigninTemplateProps
 
-export const Primary: Story<WaveProps> = ({ topColor, bottomColor, animationNegativeDelay }) => (
-  <Wave
-    topColor={topColor}
-    bottomColor={bottomColor}
-    animationNegativeDelay={animationNegativeDelay}
-  />
-)
-Primary.storyName = 'プライマリ'
-Primary.argTypes = {
-  topColor: { control: 'color' },
-  bottomColor: { control: 'color' }
-}
-Primary.args = {
-  animationNegativeDelay: 2
-}
-
-export const BackGround: Story<WaveProps> = ({ topColor, bottomColor, animationNegativeDelay }) => (
-  <Fragment>
+/** Presenter Component */
+const Presenter: React.VFC<PresenterProps> = ({ ...props }) => (
+  <Layout>
+    <Title>signin</Title>
     <Box h='100vh'>
       <Flex align='center' justify='center'>
         <Stack spacing={8} mx='auto' maxW='lg' py={12} px={6}>
@@ -87,23 +72,20 @@ export const BackGround: Story<WaveProps> = ({ topColor, bottomColor, animationN
         </Stack>
       </Flex>
     </Box>
-    <Box h='100vh' mt='-100vh' pos='relative' zIndex={-1} bg={bottomColor}>
-      <Box h='400px' bg={topColor} />
-      <Wave
-        topColor={topColor}
-        bottomColor={bottomColor}
-        animationNegativeDelay={animationNegativeDelay}
-      />
+    <Box h='100vh' mt='-100vh' pos='relative' zIndex={-1} bg='gray.50'>
+      <Box h='400px' bg='gray.100' />
+      <Wave topColor='gray.100' bottomColor='gray.50' animationNegativeDelay={2} />
     </Box>
-  </Fragment>
+  </Layout>
 )
-BackGround.storyName = 'バックグラウンド'
-BackGround.argTypes = {
-  topColor: { control: { type: 'select' }, options: chakraColors },
-  bottomColor: { control: { type: 'select' }, options: chakraColors }
+
+/** Container Component */
+const Container: React.VFC<ContainerProps<SigninTemplateProps, PresenterProps>> = ({
+  presenter,
+  ...props
+}) => {
+  return presenter({ ...props })
 }
-BackGround.args = {
-  topColor: 'gray.100',
-  bottomColor: 'gray.50',
-  animationNegativeDelay: 2
-}
+
+/** SigninTemplate */
+export default connect<SigninTemplateProps, PresenterProps>('SigninTemplate', Presenter, Container)

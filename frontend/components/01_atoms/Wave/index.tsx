@@ -2,7 +2,7 @@ import { Box, BoxProps, Icon } from '@chakra-ui/react'
 import { connect } from 'components/hoc'
 import React from 'react'
 import { ChakraColors, ContainerProps } from 'types'
-import { hashCode } from 'utils'
+import { hashCode } from 'utils/impl/helper'
 import * as styles from './styles'
 
 /** Wave Props */
@@ -49,10 +49,12 @@ const Presenter: React.VFC<PresenterProps> = ({
 /** Container Component */
 const Container: React.VFC<ContainerProps<WaveProps, PresenterProps>> = ({
   presenter,
+  topColor = '#4829B2',
+  bottomColor = '#FFFFFF',
   ...props
 }) => {
   const id = `wave-${hashCode(props)}`
-  return presenter({ id, ...props })
+  return presenter({ id, topColor, bottomColor, ...props })
 }
 
 /** Wave */

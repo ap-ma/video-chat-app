@@ -16,6 +16,4 @@ const Template: Story<LayoutProps> = ({ children }) => (
 
 export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'
-Primary.args = {
-  children: 'Next.jsのContextのみで有効なコンポーネント'
-}
+Primary.args = { children: 'Next.jsのContextでのみ有効なコンポーネント' }

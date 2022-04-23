@@ -17,7 +17,7 @@ export const tip = ({ rootClassName }: Pick<TipProps, 'rootClassName'>): string 
 `
 export const marker = ({
   rootClassName,
-  mkColor = '#9DECF9'
+  mkColor
 }: Pick<MarkerProps, 'mkColor' | 'rootClassName'>): string => css`
   ${'.' + rootClassName}:hover & {
     background: linear-gradient(transparent 70%, ${mkColor} 0%);

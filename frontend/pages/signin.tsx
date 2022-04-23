@@ -1,5 +1,5 @@
 import { ApolloError, GraphQLErrors } from '@apollo/client/errors'
-import SignInTemplate, { SignInTemplateProps } from 'components/06_templates/SignInTemplate'
+import SigninTemplate, { SigninTemplateProps } from 'components/06_templates/SigninTemplate'
 import { ERROR_PAGE, INDEX_PAGE } from 'const'
 import { initializeApollo } from 'graphql/apollo'
 import {
@@ -15,7 +15,7 @@ import { default as Router, useRouter } from 'next/router'
 import React from 'react'
 import { isBrowser, isNode, isNullish } from 'utils'
 
-const SignIn: NextPage = () => {
+const Signin: NextPage = () => {
   const router = useRouter()
 
   // Redirect
@@ -36,10 +36,10 @@ const SignIn: NextPage = () => {
   const [signUp, signUpMutation] = useSignUpMutation()
   handle(signUpMutation.error, handler)
 
-  // SignInTemplate Props
-  const props: SignInTemplateProps = {}
+  // SigninTemplate Props
+  const props: SigninTemplateProps = {}
 
-  return <SignInTemplate {...props} />
+  return <SigninTemplate {...props} />
 }
 
 /**
@@ -52,7 +52,7 @@ const SignIn: NextPage = () => {
  * @param param0
  * @returns
  */
-SignIn.getInitialProps = async ({ req, res }) => {
+Signin.getInitialProps = async ({ req, res }) => {
   const apolloClient = initializeApollo()
   const context: Record<string, unknown> = {}
 
@@ -75,8 +75,7 @@ SignIn.getInitialProps = async ({ req, res }) => {
     })
 
     if (isNode()) {
-      res?.writeHead(307, { Location: page })
-      res?.end()
+      res?.writeHead(307, { Location: page }).end()
     }
 
     if (isBrowser()) {
@@ -88,4 +87,4 @@ SignIn.getInitialProps = async ({ req, res }) => {
   return { __dummy: undefined }
 }
 
-export default SignIn
+export default Signin

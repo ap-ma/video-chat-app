@@ -24,9 +24,10 @@ const Presenter: React.VFC<PresenterProps> = ({ children, ...props }) => (
 /** Container Component */
 const Container: React.VFC<ContainerProps<MarkerProps, PresenterProps>> = ({
   presenter,
+  mkColor = '#9DECF9',
   ...props
 }) => {
-  return presenter({ ...props })
+  return presenter({ mkColor, ...props })
 }
 
 /** Marker */

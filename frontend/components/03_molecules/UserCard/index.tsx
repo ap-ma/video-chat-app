@@ -22,17 +22,13 @@ export type UserCardProps = FlexProps & {
    * 選択状態か否か
    */
   active?: boolean
-  /**
-   * クリック時遷移先URL
-   */
-  href: string
 }
 /** Presenter Props */
 type PresenterProps = UserCardProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ image, name, content, active, href, ...props }) => (
-  <Link {...styles.root({ active })} href={href}>
+const Presenter: React.VFC<PresenterProps> = ({ image, name, content, active, ...props }) => (
+  <Link {...styles.root({ active })}>
     <Flex {...styles.box({ active })} {...props}>
       <Avatar size='md' src={image} />
       <Box ml='3' overflow='hidden'>
