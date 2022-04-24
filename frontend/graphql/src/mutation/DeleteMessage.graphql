@@ -1,5 +1,5 @@
 mutation DeleteMessage($messageId: ID!, $chatTimeFormat: String) {
   deleteMessage(messageId: $messageId) {
-    ...MessageFields
+    ...MessageChangedFields
   }
 }

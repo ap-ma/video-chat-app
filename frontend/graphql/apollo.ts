@@ -22,7 +22,11 @@ let apolloClient: ApolloClient<NormalizedCacheObject> | undefined
  */
 function createCache() {
   return new InMemoryCache({
-    typePolicies: { Contact: { fields: { chat: cursorPagination() } } }
+    typePolicies: {
+      Contact: { fields: { chat: cursorPagination() } },
+      ChatHistory: { keyFields: ['userId'] },
+      MessageChanged: { keyFields: ['txUserId', 'rxUserId'] }
+    }
   })
 }
 

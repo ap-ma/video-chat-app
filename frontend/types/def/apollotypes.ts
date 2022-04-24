@@ -1,4 +1,11 @@
-import { MutationResult, MutationTuple, QueryResult, QueryTuple } from '@apollo/client/'
+import {
+  MutationResult,
+  MutationTuple,
+  QueryResult,
+  QueryTuple,
+  Reference,
+  StoreObject
+} from '@apollo/client'
 import { GraphQLError } from 'graphql'
 
 //  ----------------------------------------------------------------------------
@@ -42,6 +49,9 @@ export type ValidationErrors = ReadonlyArray<ValidationError>
 //  Apollo Client common types
 //  ----------------------------------------------------------------------------
 
+/** Apollo Client readField Param Type  */
+export type ReadFieldParam = StoreObject | Reference | undefined
+
 /** Apollo Client Query loading  */
 export type QueryLoading = QueryResult['loading']
 
@@ -59,6 +69,9 @@ export type LazyQueryFunction<TData, TVariables> = QueryTuple<TData, TVariables>
 
 /** Apollo Client Mutation loading */
 export type MutaionLoading = MutationResult['loading']
+
+/** Apollo Client Mutation reset */
+export type MutaionReset = MutationResult['reset']
 
 /** Apollo Client Mutation mutate function */
 export type MutateFunction<TData, TVariables> = MutationTuple<TData, TVariables>[0]

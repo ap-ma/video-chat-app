@@ -203,6 +203,27 @@ pub fn get_unread_messages(
         .load(conn)
 }
 
+pub fn get_latest_message(
+    user_id: u64,
+    other_user_id: u64,
+    conn: &MysqlConnection,
+) -> QueryResult<MessageEntity> {
+    messages::table
+        .filter(
+            messages::tx_user_id
+                .eq(user_id)
+                .or(messages::rx_user_id.eq(user_id)),
+        )
+        .filter(
+            messages::tx_user_id
+                .eq(other_user_id)
+                .or(messages::rx_user_id.eq(other_user_id)),
+        )
+        .filter(messages::status.ne(message_const::status::DELETED))
+        .order(messages::id.desc())
+        .first(conn)
+}
+
 pub fn get_latest_messages_for_each_user(
     user_id: u64,
     conn: &MysqlConnection,

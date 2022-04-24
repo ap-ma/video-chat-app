@@ -1,5 +1,5 @@
 mutation ContactApproval($messageId: ID!, $chatTimeFormat: String) {
   contactApproval(messageId: $messageId) {
-    ...MessageFields
+    ...MessageChangedFields
   }
 }

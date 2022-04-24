@@ -5,7 +5,8 @@ select
     users.avatar as user_avatar,
     messages.id as message_id,
     messages.category as message_category,
-    messages.message
+    messages.message,
+    messages.status as message_status
 from
     messages
     inner join

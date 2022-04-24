@@ -30,7 +30,11 @@ impl Mutation {
                 }
             }
         }
-        Ok(false)
+        return Err(GraphqlError::ValidationError(
+            "Incorrect Email address or Password.".into(),
+            "email, password",
+        )
+        .extend());
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
@@ -212,7 +216,11 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn send_message(&self, ctx: &Context<'_>, input: SendMessageInput) -> Result<Message> {
+    async fn send_message(
+        &self,
+        ctx: &Context<'_>,
+        input: SendMessageInput,
+    ) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
 
@@ -245,18 +253,18 @@ impl Mutation {
             );
         }
 
-        let message = create_message(
+        let message_changed = create_message(
             contact.contact_user_id,
             message_const::category::MESSAGE,
             Some(input.message),
             ctx,
         )?;
 
-        Ok(message)
+        Ok(message_changed)
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn delete_message(&self, ctx: &Context<'_>, message_id: ID) -> Result<Message> {
+    async fn delete_message(&self, ctx: &Context<'_>, message_id: ID) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
 
@@ -299,26 +307,28 @@ impl Mutation {
             "Failed to get message",
         )?;
 
+        let message_changed = MessageChanged {
+            tx_user_id: message.tx_user_id,
+            rx_user_id: message.rx_user_id,
+            message: Some(Message::from(&message)),
+            messages: None,
+            mutation_type: MutationType::Deleted,
+        };
+
         let rx_user_contact =
             service::find_contact_with_user(message.tx_user_id, message.rx_user_id, &conn);
 
         if let Some(rx_user_contact) = rx_user_contact.ok() {
             if !(rx_user_contact.0.blocked) {
-                publish_message(
-                    message.id,
-                    message.tx_user_id,
-                    message.rx_user_id,
-                    message.status,
-                    MutationType::Deleted,
-                );
+                publish_message(&message_changed);
             }
         }
 
-        Ok(Message::from(&message))
+        Ok(message_changed)
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn read_message(&self, ctx: &Context<'_>, contact_id: ID) -> Result<usize> {
+    async fn read_messages(&self, ctx: &Context<'_>, contact_id: ID) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
 
@@ -350,38 +360,43 @@ impl Mutation {
             );
         }
 
-        let target = common::convert_query_result(
+        let targets = common::convert_query_result(
             service::get_unread_messages(contact.user_id, contact.contact_user_id, &conn),
             "Failed to get messages",
         )?;
 
-        let rows = common::convert_query_result(
+        common::convert_query_result(
             service::update_message_to_read(contact.user_id, contact.contact_user_id, &conn),
             "Failed to update messages",
         )?;
+
+        let messages = targets.iter().map(Message::from).collect();
+        let message_changed = MessageChanged {
+            tx_user_id: contact.user_id,
+            rx_user_id: contact.contact_user_id,
+            message: None,
+            messages: Some(messages),
+            mutation_type: MutationType::Updated,
+        };
 
         let contact_user_contact =
             service::find_contact_with_user(contact.contact_user_id, contact.user_id, &conn);
 
         if let Some(contact_user_contact) = contact_user_contact.ok() {
             if !(contact_user_contact.0.blocked) {
-                for row in target {
-                    publish_message(
-                        row.id,
-                        row.tx_user_id,
-                        row.rx_user_id,
-                        message_const::status::READ,
-                        MutationType::Updated,
-                    );
-                }
+                publish_message(&message_changed)
             }
         }
 
-        Ok(rows)
+        Ok(message_changed)
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn contact_application(&self, ctx: &Context<'_>, other_user_id: ID) -> Result<Message> {
+    async fn contact_application(
+        &self,
+        ctx: &Context<'_>,
+        other_user_id: ID,
+    ) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
 
@@ -394,18 +409,18 @@ impl Mutation {
             .extend());
         }
 
-        let message = create_message(
+        let message_changed = create_message(
             other_user_id,
             message_const::category::CONTACT_APPLICATION,
             None,
             ctx,
         )?;
 
-        Ok(message)
+        Ok(message_changed)
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn contact_approval(&self, ctx: &Context<'_>, message_id: ID) -> Result<Message> {
+    async fn contact_approval(&self, ctx: &Context<'_>, message_id: ID) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
 
@@ -443,19 +458,19 @@ impl Mutation {
             .extend());
         }
 
-        let message = conn.transaction::<_, Error, _>(|| {
+        let message_changed = conn.transaction::<_, Error, _>(|| {
             create_contact(identity.id, message.rx_user_id, ctx)?;
             create_contact(message.rx_user_id, identity.id, ctx)?;
-            let message = create_message(
+            let message_changed = create_message(
                 message.rx_user_id,
                 message_const::category::CONTACT_APPROVAL,
                 None,
                 ctx,
             )?;
-            Ok(message)
+            Ok(message_changed)
         })?;
 
-        Ok(message)
+        Ok(message_changed)
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
@@ -669,7 +684,7 @@ fn create_message(
     category: i32,
     message: Option<String>,
     ctx: &Context<'_>,
-) -> Result<Message> {
+) -> Result<MessageChanged> {
     let conn = common::get_conn(ctx)?;
     let identity = auth::get_identity(ctx)?;
 
@@ -691,34 +706,24 @@ fn create_message(
         "Failed to create message",
     )?;
 
+    let message_changed = MessageChanged {
+        tx_user_id: message.tx_user_id,
+        rx_user_id: message.rx_user_id,
+        message: Some(Message::from(&message)),
+        messages: None,
+        mutation_type: MutationType::Created,
+    };
+
     let rx_user_contact = service::find_contact_with_user(rx_user_id, identity.id, &conn).ok();
     if let Some(rx_user_contact) = rx_user_contact {
         if !(rx_user_contact.0.blocked) {
-            publish_message(
-                message.id,
-                message.tx_user_id,
-                message.rx_user_id,
-                message.status,
-                MutationType::Created,
-            )
+            publish_message(&message_changed)
         }
     }
 
-    Ok(Message::from(&message))
+    Ok(message_changed)
 }
 
-fn publish_message(
-    message_id: u64,
-    tx_user_id: u64,
-    rx_user_id: u64,
-    message_status: i32,
-    mutation_type: MutationType,
-) {
-    SimpleBroker::publish(MessageChanged {
-        id: message_id,
-        tx_user_id,
-        rx_user_id,
-        status: message_status,
-        mutation_type,
-    });
+fn publish_message(message_changed: &MessageChanged) {
+    SimpleBroker::publish(message_changed.clone());
 }

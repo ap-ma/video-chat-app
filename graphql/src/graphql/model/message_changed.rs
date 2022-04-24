@@ -1,24 +1,20 @@
-use super::Message;
-use super::User;
+use super::{ChatHistory, Message, User};
 use crate::database::service;
 use crate::graphql::common::{self, MutationType};
+use crate::graphql::security::auth;
 use async_graphql::*;
 
 #[derive(Clone)]
 pub struct MessageChanged {
-    pub id: u64,
     pub tx_user_id: u64,
     pub rx_user_id: u64,
-    pub status: i32,
+    pub message: Option<Message>,
+    pub messages: Option<Vec<Message>>,
     pub mutation_type: MutationType,
 }
 
 #[Object]
 impl MessageChanged {
-    async fn id(&self) -> ID {
-        self.id.into()
-    }
-
     async fn tx_user_id(&self) -> ID {
         self.tx_user_id.into()
     }
@@ -27,8 +23,12 @@ impl MessageChanged {
         self.rx_user_id.into()
     }
 
-    async fn status(&self) -> i32 {
-        self.status
+    async fn message(&self) -> Option<Message> {
+        self.message.clone()
+    }
+
+    async fn messages(&self) -> Option<Vec<Message>> {
+        self.messages.clone()
     }
 
     async fn mutation_type(&self) -> MutationType {
@@ -45,12 +45,41 @@ impl MessageChanged {
         Ok(User::from(&tx_user))
     }
 
-    async fn message(&self, ctx: &Context<'_>) -> Result<Option<Message>> {
+    async fn rx_user(&self, ctx: &Context<'_>) -> Result<User> {
         let conn = common::get_conn(ctx)?;
-        let message = match service::find_message_by_id(self.id, &conn) {
-            Ok(message_eneity) => Some(Message::from(&message_eneity)),
-            _ => None,
+        let rx_user = common::convert_query_result(
+            service::find_user_by_id(self.rx_user_id, &conn),
+            "Failed to get the rx_user",
+        )?;
+
+        Ok(User::from(&rx_user))
+    }
+
+    async fn latest_chat(&self, ctx: &Context<'_>) -> Result<Option<ChatHistory>> {
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?.unwrap();
+
+        let other_user_id = if identity.id == self.tx_user_id {
+            self.rx_user_id
+        } else if identity.id == self.rx_user_id {
+            self.tx_user_id
+        } else {
+            u64::MIN
         };
-        Ok(message)
+
+        let other_user = common::convert_query_result(
+            service::find_user_by_id(other_user_id, &conn),
+            "Failed to get the other user",
+        )?;
+
+        let latest_message = service::get_latest_message(identity.id, other_user.id, &conn).ok();
+        if let None = latest_message {
+            return Ok(None);
+        }
+
+        let latest_message = latest_message.unwrap();
+        let latest_chat = ChatHistory::from(&(other_user, latest_message));
+
+        Ok(Some(latest_chat))
     }
 }

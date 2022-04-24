@@ -41,8 +41,8 @@ impl User {
     }
 
     #[graphql(guard = "ResourceGuard::new(self.id)")]
-    async fn email(&self) -> &str {
-        self.email.as_str()
+    async fn email(&self) -> Option<&str> {
+        Some(self.email.as_str())
     }
 
     async fn comment(&self) -> Option<&str> {

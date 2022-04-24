@@ -129,6 +129,22 @@
             "deprecationReason": null
           },
           {
+            "name": "messageStatus",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "userAvatar",
             "description": null,
             "args": [],
@@ -595,17 +611,13 @@
         "description": null,
         "fields": [
           {
-            "name": "id",
+            "name": "latestChat",
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "ID",
-                "ofType": null
-              }
+              "kind": "OBJECT",
+              "name": "ChatHistory",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -618,6 +630,26 @@
               "kind": "OBJECT",
               "name": "Message",
               "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "messages",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Message",
+                  "ofType": null
+                }
+              }
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -639,6 +671,22 @@
             "deprecationReason": null
           },
           {
+            "name": "rxUser",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "User",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "rxUserId",
             "description": null,
             "args": [],
@@ -648,22 +696,6 @@
               "ofType": {
                 "kind": "SCALAR",
                 "name": "ID",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "status",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Int",
                 "ofType": null
               }
             },
@@ -805,7 +837,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "Message",
+                "name": "MessageChanged",
                 "ofType": null
               }
             },
@@ -838,7 +870,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "Message",
+                "name": "MessageChanged",
                 "ofType": null
               }
             },
@@ -920,7 +952,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "Message",
+                "name": "MessageChanged",
                 "ofType": null
               }
             },
@@ -961,7 +993,7 @@
             "deprecationReason": null
           },
           {
-            "name": "readMessage",
+            "name": "readMessages",
             "description": null,
             "args": [
               {
@@ -985,8 +1017,8 @@
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "SCALAR",
-                "name": "Int",
+                "kind": "OBJECT",
+                "name": "MessageChanged",
                 "ofType": null
               }
             },
@@ -1019,7 +1051,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "Message",
+                "name": "MessageChanged",
                 "ofType": null
               }
             },
@@ -1658,13 +1690,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null

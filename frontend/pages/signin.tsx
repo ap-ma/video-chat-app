@@ -9,7 +9,7 @@ import {
   useSignInMutation,
   useSignUpMutation
 } from 'graphql/generated'
-import { handle, Handler } from 'graphql/lib'
+import { handle, Handler, isValidationErrors } from 'graphql/lib'
 import { NextPage } from 'next'
 import { default as Router, useRouter } from 'next/router'
 import React from 'react'
@@ -19,6 +19,7 @@ const Signin: NextPage = () => {
   const router = useRouter()
 
   // Redirect
+  const toIndexPage = () => router.replace(INDEX_PAGE)
   const toErrorPage = () => router.replace(ERROR_PAGE)
 
   // Operation Handler
@@ -30,14 +31,29 @@ const Signin: NextPage = () => {
 
   // サインイン
   const [signIn, signInMutation] = useSignInMutation()
-  const signInErrors = handle(signInMutation.error, handler)
+  const signInResult = handle(signInMutation.error, handler)
+  if (signInMutation.data?.signIn) toIndexPage()
 
   // サインアップ
   const [signUp, signUpMutation] = useSignUpMutation()
-  handle(signUpMutation.error, handler)
+  const signUpResult = handle(signUpMutation.error, handler)
+  if (signUpMutation.data?.signUp) toIndexPage()
 
   // SigninTemplate Props
-  const props: SigninTemplateProps = {}
+  const props: SigninTemplateProps = {
+    signIn: {
+      loading: signInMutation.loading,
+      errors: isValidationErrors(signInResult) ? signInResult : undefined,
+      reset: signInMutation.reset,
+      signIn
+    },
+    signUp: {
+      loading: signUpMutation.loading,
+      errors: isValidationErrors(signUpResult) ? signUpResult : undefined,
+      reset: signUpMutation.reset,
+      signUp
+    }
+  }
 
   return <SigninTemplate {...props} />
 }

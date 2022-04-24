@@ -5,6 +5,6 @@ input SendMessageInput {
 
 mutation SendMessage($input: SendMessageInput!, $chatTimeFormat: String) {
   sendMessage(input: $input) {
-    ...MessageFields
+    ...MessageChangedFields
   }
 }

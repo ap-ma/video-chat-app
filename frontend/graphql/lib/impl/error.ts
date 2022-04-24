@@ -1,11 +1,6 @@
 import { GraphQLErrors, NetworkError } from '@apollo/client/errors'
 import { ErrorResponse } from '@apollo/client/link/error'
-import {
-  AUTHENTICATION_ERROR,
-  AUTHORIZATION_ERROR,
-  INTERNAL_SERVER_ERROR,
-  VALIDATION_ERROR
-} from 'const'
+import { API_ERROR_TYPE } from 'const'
 import { isArray } from 'lodash'
 import { ValidationErrors } from 'types'
 import { hasProperty, isNonEmptyArray as isNotBlank, isNullish } from 'utils/impl/object'
@@ -49,16 +44,16 @@ export const handle = <R>(
       const gqlErrors = error.graphQLErrors
 
       let errors: GraphQLErrors
-      if (isNotBlank((errors = filterGqlError(gqlErrors, INTERNAL_SERVER_ERROR)))) {
+      if (isNotBlank((errors = filterGqlError(gqlErrors, API_ERROR_TYPE.INTERNAL_SERVER_ERROR)))) {
         if (!isNullish(handler.internalServerError)) return handler.internalServerError(errors)
       }
-      if (isNotBlank((errors = filterGqlError(gqlErrors, AUTHENTICATION_ERROR)))) {
+      if (isNotBlank((errors = filterGqlError(gqlErrors, API_ERROR_TYPE.AUTHENTICATION_ERROR)))) {
         if (!isNullish(handler.authenticationError)) return handler.authenticationError(errors)
       }
-      if (isNotBlank((errors = filterGqlError(gqlErrors, AUTHORIZATION_ERROR)))) {
+      if (isNotBlank((errors = filterGqlError(gqlErrors, API_ERROR_TYPE.AUTHORIZATION_ERROR)))) {
         if (!isNullish(handler.authorizationError)) return handler.authorizationError(errors)
       }
-      if (isNotBlank((errors = filterGqlError(gqlErrors, VALIDATION_ERROR)))) {
+      if (isNotBlank((errors = filterGqlError(gqlErrors, API_ERROR_TYPE.VALIDATION_ERROR)))) {
         if (!isNullish(handler.validationError)) return handler.validationError(errors)
       }
       return handler._default()
@@ -119,7 +114,7 @@ export const isValidationErrors = (target: unknown): target is ValidationErrors 
     if (hasProperty(element, extensions)) {
       const type = element[extensions]['type']
       if (isNullish(type)) return false
-      if (VALIDATION_ERROR !== type) return false
+      if (API_ERROR_TYPE.VALIDATION_ERROR !== type) return false
     }
   }
 
@@ -135,9 +130,5 @@ export const isValidationErrors = (target: unknown): target is ValidationErrors 
  */
 const filterGqlError = (
   errors: GraphQLErrors,
-  type:
-    | typeof INTERNAL_SERVER_ERROR
-    | typeof AUTHENTICATION_ERROR
-    | typeof AUTHORIZATION_ERROR
-    | typeof VALIDATION_ERROR
+  type: typeof API_ERROR_TYPE[keyof typeof API_ERROR_TYPE]
 ) => errors.filter((e) => e.extensions['type'] === type)

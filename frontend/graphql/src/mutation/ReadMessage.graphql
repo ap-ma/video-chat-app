@@ -1,3 +1,0 @@
-mutation ReadMessage($contactId: ID!) {
-  readMessage(contactId: $contactId)
-}

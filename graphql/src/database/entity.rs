@@ -130,4 +130,6 @@ pub struct LatestMessageEntity {
     pub message_category: i32,
     #[sql_type = "SqlTypeOf<messages::message>"]
     pub message: Option<String>,
+    #[sql_type = "SqlTypeOf<messages::status>"]
+    pub message_status: i32,
 }

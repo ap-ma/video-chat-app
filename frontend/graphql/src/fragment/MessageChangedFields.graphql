@@ -1,0 +1,21 @@
+fragment MessageChangedFields on MessageChanged {
+  __typename
+  txUserId
+  rxUserId
+  message {
+    ...MessageFields
+  }
+  messages {
+    ...MessageFields
+  }
+  mutationType
+  txUser {
+    ...OtherUserFields
+  }
+  rxUser {
+    ...OtherUserFields
+  }
+  latestChat {
+    ...ChatHistoryFields
+  }
+}

@@ -1,4 +1,4 @@
-use crate::database::entity::LatestMessageEntity;
+use crate::database::entity::{LatestMessageEntity, MessageEntity, UserEntity};
 use async_graphql::*;
 
 #[derive(Clone, Debug)]
@@ -10,6 +10,7 @@ pub struct ChatHistory {
     pub message_id: u64,
     pub message_category: i32,
     pub message: Option<String>,
+    pub message_status: i32,
 }
 
 impl From<&LatestMessageEntity> for ChatHistory {
@@ -22,6 +23,22 @@ impl From<&LatestMessageEntity> for ChatHistory {
             message_id: entity.message_id,
             message_category: entity.message_category,
             message: entity.message.clone(),
+            message_status: entity.message_status,
+        }
+    }
+}
+
+impl From<&(UserEntity, MessageEntity)> for ChatHistory {
+    fn from((user, message): &(UserEntity, MessageEntity)) -> Self {
+        Self {
+            user_id: user.id,
+            user_code: user.code.clone(),
+            user_name: user.name.clone(),
+            user_avatar: user.avatar.clone(),
+            message_id: message.id,
+            message_category: message.category,
+            message: message.message.clone(),
+            message_status: message.status,
         }
     }
 }
@@ -54,5 +71,9 @@ impl ChatHistory {
 
     async fn message(&self) -> Option<&str> {
         self.message.as_deref()
+    }
+
+    async fn message_status(&self) -> i32 {
+        self.message_status
     }
 }

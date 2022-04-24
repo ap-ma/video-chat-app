@@ -14,16 +14,47 @@ import {
 import Wave from 'components/01_atoms/Wave'
 import Layout, { Title } from 'components/05_layouts/Layout'
 import { connect } from 'components/hoc'
+import {
+  SignInMutation,
+  SignInMutationVariables,
+  SignUpMutation,
+  SignUpMutationVariables
+} from 'graphql/generated'
 import React from 'react'
-import { ContainerProps } from 'types'
+import {
+  ContainerProps,
+  MutaionLoading,
+  MutaionReset,
+  MutateFunction,
+  ValidationErrors
+} from 'types'
 
 /** SigninTemplate Props */
-export type SigninTemplateProps = Record<string, unknown>
+export type SigninTemplateProps = {
+  /**
+   * サインイン
+   */
+  signIn: {
+    loading: MutaionLoading
+    errors?: ValidationErrors
+    reset: MutaionReset
+    signIn: MutateFunction<SignInMutation, SignInMutationVariables>
+  }
+  /**
+   * サインアップ
+   */
+  signUp: {
+    loading: MutaionLoading
+    errors?: ValidationErrors
+    reset: MutaionReset
+    signUp: MutateFunction<SignUpMutation, SignUpMutationVariables>
+  }
+}
 /** Presenter Props */
 type PresenterProps = SigninTemplateProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ ...props }) => (
+const Presenter: React.VFC<PresenterProps> = () => (
   <Layout>
     <Title>signin</Title>
     <Box h='100vh'>

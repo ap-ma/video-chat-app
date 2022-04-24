@@ -26,6 +26,7 @@ export type ChatHistory = {
   message?: Maybe<Scalars['String']>
   messageCategory: Scalars['Int']
   messageId: Scalars['ID']
+  messageStatus: Scalars['Int']
   userAvatar?: Maybe<Scalars['String']>
   userCode: Scalars['String']
   userId: Scalars['ID']
@@ -74,11 +75,12 @@ export type MessageCreatedAtArgs = {
 
 export type MessageChanged = {
   __typename?: 'MessageChanged'
-  id: Scalars['ID']
+  latestChat?: Maybe<ChatHistory>
   message?: Maybe<Message>
+  messages?: Maybe<Array<Message>>
   mutationType: MutationType
+  rxUser: User
   rxUserId: Scalars['ID']
-  status: Scalars['Int']
   txUser: User
   txUserId: Scalars['ID']
 }
@@ -87,14 +89,14 @@ export type Mutation = {
   __typename?: 'Mutation'
   blockContact: Contact
   changePassword: Scalars['Boolean']
-  contactApplication: Message
-  contactApproval: Message
+  contactApplication: MessageChanged
+  contactApproval: MessageChanged
   deleteAccount: Scalars['Boolean']
   deleteContact: Contact
-  deleteMessage: Message
+  deleteMessage: MessageChanged
   editProfile: User
-  readMessage: Scalars['Int']
-  sendMessage: Message
+  readMessages: MessageChanged
+  sendMessage: MessageChanged
   signIn: Scalars['Boolean']
   signOut: Scalars['Boolean']
   signUp: Scalars['Boolean']
@@ -130,7 +132,7 @@ export type MutationEditProfileArgs = {
   input: EditProfileInput
 }
 
-export type MutationReadMessageArgs = {
+export type MutationReadMessagesArgs = {
   contactId: Scalars['ID']
 }
 
@@ -208,7 +210,7 @@ export type User = {
   avatar?: Maybe<Scalars['String']>
   code: Scalars['String']
   comment?: Maybe<Scalars['String']>
-  email: Scalars['String']
+  email?: Maybe<Scalars['String']>
   id: Scalars['ID']
   name?: Maybe<Scalars['String']>
 }
@@ -222,6 +224,7 @@ export type ChatHistoryFieldsFragment = {
   messageId: string
   messageCategory: number
   message?: string | null
+  messageStatus: number
 }
 
 export type ContactFieldsFragment = {
@@ -256,6 +259,60 @@ export type ContactFieldsWithChatFragment = {
   }>
 }
 
+export type MessageChangedFieldsFragment = {
+  __typename: 'MessageChanged'
+  txUserId: string
+  rxUserId: string
+  mutationType: MutationType
+  message?: {
+    __typename: 'Message'
+    id: string
+    txUserId: string
+    rxUserId: string
+    category: number
+    message?: string | null
+    status: number
+    createdAt: string
+  } | null
+  messages?: Array<{
+    __typename: 'Message'
+    id: string
+    txUserId: string
+    rxUserId: string
+    category: number
+    message?: string | null
+    status: number
+    createdAt: string
+  }> | null
+  txUser: {
+    __typename: 'User'
+    id: string
+    code: string
+    name?: string | null
+    comment?: string | null
+    avatar?: string | null
+  }
+  rxUser: {
+    __typename: 'User'
+    id: string
+    code: string
+    name?: string | null
+    comment?: string | null
+    avatar?: string | null
+  }
+  latestChat?: {
+    __typename: 'ChatHistory'
+    userId: string
+    userCode: string
+    userName?: string | null
+    userAvatar?: string | null
+    messageId: string
+    messageCategory: number
+    message?: string | null
+    messageStatus: number
+  } | null
+}
+
 export type MessageFieldsFragment = {
   __typename: 'Message'
   id: string
@@ -278,7 +335,7 @@ export type OtherUserFieldsFragment = {
 
 export type OwnUserFieldsFragment = {
   __typename: 'User'
-  email: string
+  email?: string | null
   id: string
   code: string
   name?: string | null
@@ -318,14 +375,57 @@ export type ContactApplicationMutationVariables = Exact<{
 export type ContactApplicationMutation = {
   __typename?: 'Mutation'
   contactApplication: {
-    __typename: 'Message'
-    id: string
+    __typename: 'MessageChanged'
     txUserId: string
     rxUserId: string
-    category: number
-    message?: string | null
-    status: number
-    createdAt: string
+    mutationType: MutationType
+    message?: {
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+    } | null
+    messages?: Array<{
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+    }> | null
+    txUser: {
+      __typename: 'User'
+      id: string
+      code: string
+      name?: string | null
+      comment?: string | null
+      avatar?: string | null
+    }
+    rxUser: {
+      __typename: 'User'
+      id: string
+      code: string
+      name?: string | null
+      comment?: string | null
+      avatar?: string | null
+    }
+    latestChat?: {
+      __typename: 'ChatHistory'
+      userId: string
+      userCode: string
+      userName?: string | null
+      userAvatar?: string | null
+      messageId: string
+      messageCategory: number
+      message?: string | null
+      messageStatus: number
+    } | null
   }
 }
 
@@ -337,14 +437,57 @@ export type ContactApprovalMutationVariables = Exact<{
 export type ContactApprovalMutation = {
   __typename?: 'Mutation'
   contactApproval: {
-    __typename: 'Message'
-    id: string
+    __typename: 'MessageChanged'
     txUserId: string
     rxUserId: string
-    category: number
-    message?: string | null
-    status: number
-    createdAt: string
+    mutationType: MutationType
+    message?: {
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+    } | null
+    messages?: Array<{
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+    }> | null
+    txUser: {
+      __typename: 'User'
+      id: string
+      code: string
+      name?: string | null
+      comment?: string | null
+      avatar?: string | null
+    }
+    rxUser: {
+      __typename: 'User'
+      id: string
+      code: string
+      name?: string | null
+      comment?: string | null
+      avatar?: string | null
+    }
+    latestChat?: {
+      __typename: 'ChatHistory'
+      userId: string
+      userCode: string
+      userName?: string | null
+      userAvatar?: string | null
+      messageId: string
+      messageCategory: number
+      message?: string | null
+      messageStatus: number
+    } | null
   }
 }
 
@@ -378,14 +521,57 @@ export type DeleteMessageMutationVariables = Exact<{
 export type DeleteMessageMutation = {
   __typename?: 'Mutation'
   deleteMessage: {
-    __typename: 'Message'
-    id: string
+    __typename: 'MessageChanged'
     txUserId: string
     rxUserId: string
-    category: number
-    message?: string | null
-    status: number
-    createdAt: string
+    mutationType: MutationType
+    message?: {
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+    } | null
+    messages?: Array<{
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+    }> | null
+    txUser: {
+      __typename: 'User'
+      id: string
+      code: string
+      name?: string | null
+      comment?: string | null
+      avatar?: string | null
+    }
+    rxUser: {
+      __typename: 'User'
+      id: string
+      code: string
+      name?: string | null
+      comment?: string | null
+      avatar?: string | null
+    }
+    latestChat?: {
+      __typename: 'ChatHistory'
+      userId: string
+      userCode: string
+      userName?: string | null
+      userAvatar?: string | null
+      messageId: string
+      messageCategory: number
+      message?: string | null
+      messageStatus: number
+    } | null
   }
 }
 
@@ -397,7 +583,7 @@ export type EditProfileMutation = {
   __typename?: 'Mutation'
   editProfile: {
     __typename: 'User'
-    email: string
+    email?: string | null
     id: string
     code: string
     name?: string | null
@@ -406,11 +592,67 @@ export type EditProfileMutation = {
   }
 }
 
-export type ReadMessageMutationVariables = Exact<{
+export type ReadMessagesMutationVariables = Exact<{
   contactId: Scalars['ID']
+  chatTimeFormat?: InputMaybe<Scalars['String']>
 }>
 
-export type ReadMessageMutation = { __typename?: 'Mutation'; readMessage: number }
+export type ReadMessagesMutation = {
+  __typename?: 'Mutation'
+  readMessages: {
+    __typename: 'MessageChanged'
+    txUserId: string
+    rxUserId: string
+    mutationType: MutationType
+    message?: {
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+    } | null
+    messages?: Array<{
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+    }> | null
+    txUser: {
+      __typename: 'User'
+      id: string
+      code: string
+      name?: string | null
+      comment?: string | null
+      avatar?: string | null
+    }
+    rxUser: {
+      __typename: 'User'
+      id: string
+      code: string
+      name?: string | null
+      comment?: string | null
+      avatar?: string | null
+    }
+    latestChat?: {
+      __typename: 'ChatHistory'
+      userId: string
+      userCode: string
+      userName?: string | null
+      userAvatar?: string | null
+      messageId: string
+      messageCategory: number
+      message?: string | null
+      messageStatus: number
+    } | null
+  }
+}
 
 export type SendMessageMutationVariables = Exact<{
   input: SendMessageInput
@@ -420,14 +662,57 @@ export type SendMessageMutationVariables = Exact<{
 export type SendMessageMutation = {
   __typename?: 'Mutation'
   sendMessage: {
-    __typename: 'Message'
-    id: string
+    __typename: 'MessageChanged'
     txUserId: string
     rxUserId: string
-    category: number
-    message?: string | null
-    status: number
-    createdAt: string
+    mutationType: MutationType
+    message?: {
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+    } | null
+    messages?: Array<{
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+    }> | null
+    txUser: {
+      __typename: 'User'
+      id: string
+      code: string
+      name?: string | null
+      comment?: string | null
+      avatar?: string | null
+    }
+    rxUser: {
+      __typename: 'User'
+      id: string
+      code: string
+      name?: string | null
+      comment?: string | null
+      avatar?: string | null
+    }
+    latestChat?: {
+      __typename: 'ChatHistory'
+      userId: string
+      userCode: string
+      userName?: string | null
+      userAvatar?: string | null
+      messageId: string
+      messageCategory: number
+      message?: string | null
+      messageStatus: number
+    } | null
   }
 }
 
@@ -494,7 +779,7 @@ export type InitQuery = {
   __typename?: 'Query'
   me: {
     __typename: 'User'
-    email: string
+    email?: string | null
     id: string
     code: string
     name?: string | null
@@ -520,6 +805,7 @@ export type InitQuery = {
     messageId: string
     messageCategory: number
     message?: string | null
+    messageStatus: number
   }>
   contactInfo: {
     __typename: 'Contact'
@@ -556,6 +842,7 @@ export type ChatHistoryQuery = {
     messageId: string
     messageCategory: number
     message?: string | null
+    messageStatus: number
   }>
 }
 
@@ -616,7 +903,7 @@ export type MeQuery = {
   __typename?: 'Query'
   me: {
     __typename: 'User'
-    email: string
+    email?: string | null
     id: string
     code: string
     name?: string | null
@@ -641,18 +928,6 @@ export type SearchUserQuery = {
   }>
 }
 
-export const ChatHistoryFieldsFragmentDoc = gql`
-  fragment ChatHistoryFields on ChatHistory {
-    __typename
-    userId
-    userCode
-    userName
-    userAvatar
-    messageId
-    messageCategory
-    message
-  }
-`
 export const ContactFieldsFragmentDoc = gql`
   fragment ContactFields on Contact {
     __typename
@@ -696,6 +971,45 @@ export const OtherUserFieldsFragmentDoc = gql`
     comment
     avatar
   }
+`
+export const ChatHistoryFieldsFragmentDoc = gql`
+  fragment ChatHistoryFields on ChatHistory {
+    __typename
+    userId
+    userCode
+    userName
+    userAvatar
+    messageId
+    messageCategory
+    message
+    messageStatus
+  }
+`
+export const MessageChangedFieldsFragmentDoc = gql`
+  fragment MessageChangedFields on MessageChanged {
+    __typename
+    txUserId
+    rxUserId
+    message {
+      ...MessageFields
+    }
+    messages {
+      ...MessageFields
+    }
+    mutationType
+    txUser {
+      ...OtherUserFields
+    }
+    rxUser {
+      ...OtherUserFields
+    }
+    latestChat {
+      ...ChatHistoryFields
+    }
+  }
+  ${MessageFieldsFragmentDoc}
+  ${OtherUserFieldsFragmentDoc}
+  ${ChatHistoryFieldsFragmentDoc}
 `
 export const OwnUserFieldsFragmentDoc = gql`
   fragment OwnUserFields on User {
@@ -794,10 +1108,10 @@ export type ChangePasswordMutationOptions = Apollo.BaseMutationOptions<
 export const ContactApplicationDocument = gql`
   mutation ContactApplication($otherUserId: ID!, $chatTimeFormat: String) {
     contactApplication(otherUserId: $otherUserId) {
-      ...MessageFields
+      ...MessageChangedFields
     }
   }
-  ${MessageFieldsFragmentDoc}
+  ${MessageChangedFieldsFragmentDoc}
 `
 export type ContactApplicationMutationFn = Apollo.MutationFunction<
   ContactApplicationMutation,
@@ -843,10 +1157,10 @@ export type ContactApplicationMutationOptions = Apollo.BaseMutationOptions<
 export const ContactApprovalDocument = gql`
   mutation ContactApproval($messageId: ID!, $chatTimeFormat: String) {
     contactApproval(messageId: $messageId) {
-      ...MessageFields
+      ...MessageChangedFields
     }
   }
-  ${MessageFieldsFragmentDoc}
+  ${MessageChangedFieldsFragmentDoc}
 `
 export type ContactApprovalMutationFn = Apollo.MutationFunction<
   ContactApprovalMutation,
@@ -978,10 +1292,10 @@ export type DeleteContactMutationOptions = Apollo.BaseMutationOptions<
 export const DeleteMessageDocument = gql`
   mutation DeleteMessage($messageId: ID!, $chatTimeFormat: String) {
     deleteMessage(messageId: $messageId) {
-      ...MessageFields
+      ...MessageChangedFields
     }
   }
-  ${MessageFieldsFragmentDoc}
+  ${MessageChangedFieldsFragmentDoc}
 `
 export type DeleteMessageMutationFn = Apollo.MutationFunction<
   DeleteMessageMutation,
@@ -1066,55 +1380,59 @@ export type EditProfileMutationOptions = Apollo.BaseMutationOptions<
   EditProfileMutation,
   EditProfileMutationVariables
 >
-export const ReadMessageDocument = gql`
-  mutation ReadMessage($contactId: ID!) {
-    readMessage(contactId: $contactId)
+export const ReadMessagesDocument = gql`
+  mutation ReadMessages($contactId: ID!, $chatTimeFormat: String) {
+    readMessages(contactId: $contactId) {
+      ...MessageChangedFields
+    }
   }
+  ${MessageChangedFieldsFragmentDoc}
 `
-export type ReadMessageMutationFn = Apollo.MutationFunction<
-  ReadMessageMutation,
-  ReadMessageMutationVariables
+export type ReadMessagesMutationFn = Apollo.MutationFunction<
+  ReadMessagesMutation,
+  ReadMessagesMutationVariables
 >
 
 /**
- * __useReadMessageMutation__
+ * __useReadMessagesMutation__
  *
- * To run a mutation, you first call `useReadMessageMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useReadMessageMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useReadMessagesMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useReadMessagesMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [readMessageMutation, { data, loading, error }] = useReadMessageMutation({
+ * const [readMessagesMutation, { data, loading, error }] = useReadMessagesMutation({
  *   variables: {
  *      contactId: // value for 'contactId'
+ *      chatTimeFormat: // value for 'chatTimeFormat'
  *   },
  * });
  */
-export function useReadMessageMutation(
-  baseOptions?: Apollo.MutationHookOptions<ReadMessageMutation, ReadMessageMutationVariables>
+export function useReadMessagesMutation(
+  baseOptions?: Apollo.MutationHookOptions<ReadMessagesMutation, ReadMessagesMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<ReadMessageMutation, ReadMessageMutationVariables>(
-    ReadMessageDocument,
+  return Apollo.useMutation<ReadMessagesMutation, ReadMessagesMutationVariables>(
+    ReadMessagesDocument,
     options
   )
 }
-export type ReadMessageMutationHookResult = ReturnType<typeof useReadMessageMutation>
-export type ReadMessageMutationResult = Apollo.MutationResult<ReadMessageMutation>
-export type ReadMessageMutationOptions = Apollo.BaseMutationOptions<
-  ReadMessageMutation,
-  ReadMessageMutationVariables
+export type ReadMessagesMutationHookResult = ReturnType<typeof useReadMessagesMutation>
+export type ReadMessagesMutationResult = Apollo.MutationResult<ReadMessagesMutation>
+export type ReadMessagesMutationOptions = Apollo.BaseMutationOptions<
+  ReadMessagesMutation,
+  ReadMessagesMutationVariables
 >
 export const SendMessageDocument = gql`
   mutation SendMessage($input: SendMessageInput!, $chatTimeFormat: String) {
     sendMessage(input: $input) {
-      ...MessageFields
+      ...MessageChangedFields
     }
   }
-  ${MessageFieldsFragmentDoc}
+  ${MessageChangedFieldsFragmentDoc}
 `
 export type SendMessageMutationFn = Apollo.MutationFunction<
   SendMessageMutation,

@@ -7,4 +7,5 @@ fragment ChatHistoryFields on ChatHistory {
   messageId
   messageCategory
   message
+  messageStatus
 }

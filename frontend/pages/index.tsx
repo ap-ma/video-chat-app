@@ -3,6 +3,7 @@ import IndexTemplate, { IndexTemplateProps } from 'components/06_templates/Index
 import { CHAT_LENGTH, ERROR_PAGE, SIGNIN_PAGE } from 'const'
 import { addApolloState, initializeApollo } from 'graphql/apollo'
 import {
+  ContactListDocument,
   InitDocument,
   InitQuery,
   InitQueryVariables,
@@ -18,17 +19,18 @@ import {
   useDeleteMessageMutation,
   useEditProfileMutation,
   useMeQuery,
-  useReadMessageMutation,
+  useReadMessagesMutation,
   useSearchUserLazyQuery,
   useSendMessageMutation,
   useSignOutMutation,
   useUnblockContactMutation,
   useUndeleteContactMutation
 } from 'graphql/generated'
-import { handle, Handler, isValidationErrors } from 'graphql/lib'
+import { handle, Handler, isValidationErrors, updateChatCache } from 'graphql/lib'
 import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import React from 'react'
+import { isNullish } from 'utils'
 
 const Index: NextPage = () => {
   const router = useRouter()
@@ -79,6 +81,10 @@ const Index: NextPage = () => {
   // サインアウト
   const [signOut, signOutMutation] = useSignOutMutation()
   handle(signOutMutation.error, handler)
+  if (signOutMutation.data?.signOut) {
+    signOutMutation.client.clearStore()
+    toSigninPage()
+  }
 
   // プロフィール編集
   const [editProfile, editProfileMutation] = useEditProfileMutation()
@@ -86,72 +92,157 @@ const Index: NextPage = () => {
 
   // パスワード変更
   const [changePassword, changePasswordMutation] = useChangePasswordMutation()
-  handle(changePasswordMutation.error, handler)
+  const changePasswordResult = handle(changePasswordMutation.error, handler)
 
   // アカウント削除
   const [deleteAccount, deleteAccountMutation] = useDeleteAccountMutation()
   handle(deleteAccountMutation.error, handler)
+  if (deleteAccountMutation.data?.deleteAccount) toSigninPage()
 
   // メッセージ送信
-  const [sendMessage, sendMessageMutation] = useSendMessageMutation()
-  handle(sendMessageMutation.error, handler)
+  const [sendMessage, sendMessageMutation] = useSendMessageMutation({
+    update(cache, { data }) {
+      if (!isNullish(data)) updateChatCache(cache, data.sendMessage)
+    }
+  })
+  const sendMessageResult = handle(sendMessageMutation.error, handler)
 
   // メッセージ削除
-  const [deleteMessage, deleteMessageMutation] = useDeleteMessageMutation()
-  handle(deleteMessageMutation.error, handler)
+  const [deleteMessage, deleteMessageMutation] = useDeleteMessageMutation({
+    update(cache, { data }) {
+      if (!isNullish(data)) updateChatCache(cache, data.deleteMessage)
+    }
+  })
+  const deleteMessageResult = handle(deleteMessageMutation.error, handler)
 
   // メッセージ既読
-  const [readMessage, readMessageMutation] = useReadMessageMutation()
-  handle(readMessageMutation.error, handler)
+  const [readMessages, readMessagesMutation] = useReadMessagesMutation()
+  const readMessagesResult = handle(readMessagesMutation.error, handler)
 
   // コンタクト申請
-  const [contactApplication, contactApplicationMutation] = useContactApplicationMutation()
-  handle(contactApplicationMutation.error, handler)
+  const [contactApplication, contactApplicationMutation] = useContactApplicationMutation({
+    update(cache, { data }) {
+      if (!isNullish(data)) updateChatCache(cache, data.contactApplication)
+    }
+  })
+  const contactApplicationResult = handle(contactApplicationMutation.error, handler)
 
   // コンタクト承認
-  const [contactApproval, contactApprovalMutation] = useContactApprovalMutation()
-  handle(contactApprovalMutation.error, handler)
+  const [contactApproval, contactApprovalMutation] = useContactApprovalMutation({
+    update(cache, { data }) {
+      if (!isNullish(data)) updateChatCache(cache, data.contactApproval)
+    },
+    refetchQueries: [ContactListDocument]
+  })
+  const contactApprovalResult = handle(contactApprovalMutation.error, handler)
 
   // コンタクト削除
   const [deleteContact, deleteContactMutation] = useDeleteContactMutation()
-  handle(deleteContactMutation.error, handler)
+  const deleteContactResult = handle(deleteContactMutation.error, handler)
 
   // コンタクト削除取消
   const [undeleteContact, undeleteContactMutation] = useUndeleteContactMutation()
-  handle(undeleteContactMutation.error, handler)
+  const undeleteContactResult = handle(undeleteContactMutation.error, handler)
 
   // コンタクトブロック
   const [blockContact, blockContactMutation] = useBlockContactMutation()
-  handle(blockContactMutation.error, handler)
+  const blockContactResult = handle(blockContactMutation.error, handler)
 
   // コンタクトブロック解除
   const [unblockContact, unblockContactMutation] = useUnblockContactMutation()
-  handle(unblockContactMutation.error, handler)
+  const unblockContactResult = handle(unblockContactMutation.error, handler)
 
   // IndexTemplate Props
   const props: IndexTemplateProps = {
-    // Query
-    me: meQuery.data?.me,
-    contactList: contactListQuery.data?.contactList,
-    chatHistroy: chatHistoryQuery.data?.chatHistory,
-    contactInfo: {
-      contactInfo: contactInfoQuery.data?.contactInfo,
-      ...contactInfoQuery
+    query: {
+      me: meQuery.data?.me,
+      contactList: contactListQuery.data?.contactList,
+      chatHistroy: chatHistoryQuery.data?.chatHistory,
+      contactInfo: {
+        contactInfo: contactInfoQuery.data?.contactInfo,
+        ...contactInfoQuery
+      },
+      searchUser: {
+        users: searchUserQuery.data?.searchUser,
+        loading: searchUserQuery.loading,
+        getUsersByCode
+      }
     },
-    searchUser: {
-      users: searchUserQuery.data?.searchUser,
-      loading: searchUserQuery.loading,
-      getUsersByCode
-    },
-    // Mutation
-    signOut: {
-      loading: signOutMutation.loading,
-      signOut
-    },
-    editProfile: {
-      loading: editProfileMutation.loading,
-      errors: isValidationErrors(editProfileResult) ? editProfileResult : undefined,
-      editProfile
+    mutation: {
+      signOut: {
+        loading: signOutMutation.loading,
+        signOut
+      },
+      editProfile: {
+        loading: editProfileMutation.loading,
+        errors: isValidationErrors(editProfileResult) ? editProfileResult : undefined,
+        reset: editProfileMutation.reset,
+        editProfile
+      },
+      changePassword: {
+        loading: changePasswordMutation.loading,
+        errors: isValidationErrors(changePasswordResult) ? changePasswordResult : undefined,
+        reset: changePasswordMutation.reset,
+        changePassword
+      },
+      deleteAccount: {
+        loading: deleteAccountMutation.loading,
+        deleteAccount
+      },
+      sendMessage: {
+        loading: sendMessageMutation.loading,
+        errors: isValidationErrors(sendMessageResult) ? sendMessageResult : undefined,
+        reset: sendMessageMutation.reset,
+        sendMessage
+      },
+      deleteMessage: {
+        loading: deleteMessageMutation.loading,
+        errors: isValidationErrors(deleteMessageResult) ? deleteMessageResult : undefined,
+        reset: deleteMessageMutation.reset,
+        deleteMessage
+      },
+      readMessages: {
+        loading: readMessagesMutation.loading,
+        errors: isValidationErrors(readMessagesResult) ? readMessagesResult : undefined,
+        reset: readMessagesMutation.reset,
+        readMessages
+      },
+      contactApplication: {
+        loading: contactApplicationMutation.loading,
+        errors: isValidationErrors(contactApplicationResult) ? contactApplicationResult : undefined,
+        reset: contactApplicationMutation.reset,
+        contactApplication
+      },
+      contactApproval: {
+        loading: contactApprovalMutation.loading,
+        errors: isValidationErrors(contactApprovalResult) ? contactApprovalResult : undefined,
+        reset: contactApprovalMutation.reset,
+        contactApproval
+      },
+      deleteContact: {
+        loading: deleteContactMutation.loading,
+        errors: isValidationErrors(deleteContactResult) ? deleteContactResult : undefined,
+        reset: deleteContactMutation.reset,
+        deleteContact
+      },
+      undeleteContact: {
+        loading: undeleteContactMutation.loading,
+        errors: isValidationErrors(undeleteContactResult) ? undeleteContactResult : undefined,
+        reset: undeleteContactMutation.reset,
+        undeleteContact
+      },
+      blockContact: {
+        loading: blockContactMutation.loading,
+        errors: isValidationErrors(blockContactResult) ? blockContactResult : undefined,
+        reset: blockContactMutation.reset,
+        blockContact
+      },
+      unblockContact: {
+        loading: unblockContactMutation.loading,
+        errors: isValidationErrors(unblockContactResult) ? unblockContactResult : undefined,
+        reset: unblockContactMutation.reset,
+        unblockContact
+      }
     }
   }
 
