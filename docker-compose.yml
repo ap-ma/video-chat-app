@@ -5,11 +5,11 @@ services:
   rust:
     container_name: rust
     build:
-      context: ./graphql
+      context: ./backend
       target: developer
     volumes:
-      - ./graphql:/app
-      - ./graphql/cache/cargo:/usr/local/cargo/registry
+      - ./backend:/app
+      - ./backend/cache/cargo:/usr/local/cargo/registry
     ports:
       - 8080:8080
     command: bash ./sh/setup.sh
