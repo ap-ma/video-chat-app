@@ -257,6 +257,8 @@ impl Mutation {
             contact.contact_user_id,
             message_const::category::MESSAGE,
             Some(input.message),
+            Some(contact.id),
+            Some(contact.status),
             ctx,
         )?;
 
@@ -291,6 +293,15 @@ impl Mutation {
             .extend());
         }
 
+        let mut contact_id = None;
+        let mut contact_status = None;
+        if let Some((contact, _)) =
+            service::find_contact_with_user(identity.id, message.rx_user_id, &conn).ok()
+        {
+            contact_id = Some(contact.id);
+            contact_status = Some(contact.status);
+        }
+
         let change_message = ChangeMessageEntity {
             id: message.id,
             status: Some(message_const::status::DELETED),
@@ -310,6 +321,8 @@ impl Mutation {
         let message_changed = MessageChanged {
             tx_user_id: message.tx_user_id,
             rx_user_id: message.rx_user_id,
+            contact_id,
+            contact_status,
             message: Some(Message::from(&message)),
             messages: None,
             mutation_type: MutationType::Deleted,
@@ -328,59 +341,51 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn read_messages(&self, ctx: &Context<'_>, contact_id: ID) -> Result<MessageChanged> {
+    async fn read_messages(&self, ctx: &Context<'_>, other_user_id: ID) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
+        let other_user_id = common::convert_id(&other_user_id)?;
 
-        let contact = service::find_contact_by_id(common::convert_id(&contact_id)?, &conn).ok();
-        if let None = contact {
-            return Err(GraphqlError::ValidationError(
-                "Unable to get contact.".into(),
-                "contact_id",
-            )
-            .extend());
-        }
+        let mut contact_id = None;
+        let mut contact_status = None;
+        if let Some((contact, _)) =
+            service::find_contact_with_user(identity.id, other_user_id, &conn).ok()
+        {
+            if contact.blocked {
+                return Err(GraphqlError::ValidationError(
+                    "Cntact is blocked".into(),
+                    "other_user_id",
+                )
+                .extend());
+            }
 
-        let contact = contact.unwrap();
-        if contact.user_id != identity.id {
-            return Err(
-                GraphqlError::ValidationError("Invalid contact id".into(), "contact_id").extend(),
-            );
-        }
-        if contact.status == contact_const::status::DELETED {
-            return Err(GraphqlError::ValidationError(
-                "Contact has been deleted.".into(),
-                "contact_id",
-            )
-            .extend());
-        }
-        if contact.blocked {
-            return Err(
-                GraphqlError::ValidationError("Cntact is blocked".into(), "contact_id").extend(),
-            );
+            contact_id = Some(contact.id);
+            contact_status = Some(contact.status);
         }
 
         let targets = common::convert_query_result(
-            service::get_unread_messages(contact.user_id, contact.contact_user_id, &conn),
+            service::get_unread_messages(identity.id, other_user_id, &conn),
             "Failed to get messages",
         )?;
 
         common::convert_query_result(
-            service::update_message_to_read(contact.user_id, contact.contact_user_id, &conn),
+            service::update_message_to_read(identity.id, other_user_id, &conn),
             "Failed to update messages",
         )?;
 
         let messages = targets.iter().map(Message::from).collect();
         let message_changed = MessageChanged {
-            tx_user_id: contact.user_id,
-            rx_user_id: contact.contact_user_id,
+            tx_user_id: identity.id,
+            rx_user_id: other_user_id,
+            contact_id,
+            contact_status,
             message: None,
             messages: Some(messages),
             mutation_type: MutationType::Updated,
         };
 
         let contact_user_contact =
-            service::find_contact_with_user(contact.contact_user_id, contact.user_id, &conn);
+            service::find_contact_with_user(other_user_id, identity.id, &conn);
 
         if let Some(contact_user_contact) = contact_user_contact.ok() {
             if !(contact_user_contact.0.blocked) {
@@ -412,6 +417,8 @@ impl Mutation {
         let message_changed = create_message(
             other_user_id,
             message_const::category::CONTACT_APPLICATION,
+            None,
+            None,
             None,
             ctx,
         )?;
@@ -459,12 +466,14 @@ impl Mutation {
         }
 
         let message_changed = conn.transaction::<_, Error, _>(|| {
-            create_contact(identity.id, message.rx_user_id, ctx)?;
+            let contact = create_contact(identity.id, message.rx_user_id, ctx)?;
             create_contact(message.rx_user_id, identity.id, ctx)?;
             let message_changed = create_message(
                 message.rx_user_id,
                 message_const::category::CONTACT_APPROVAL,
                 None,
+                Some(contact.id),
+                Some(contact.status),
                 ctx,
             )?;
             Ok(message_changed)
@@ -683,6 +692,8 @@ fn create_message(
     rx_user_id: u64,
     category: i32,
     message: Option<String>,
+    contact_id: Option<u64>,
+    contact_status: Option<i32>,
     ctx: &Context<'_>,
 ) -> Result<MessageChanged> {
     let conn = common::get_conn(ctx)?;
@@ -709,6 +720,8 @@ fn create_message(
     let message_changed = MessageChanged {
         tx_user_id: message.tx_user_id,
         rx_user_id: message.rx_user_id,
+        contact_id,
+        contact_status,
         message: Some(Message::from(&message)),
         messages: None,
         mutation_type: MutationType::Created,

@@ -1,5 +1,5 @@
 mutation UnblockContact($contactId: ID!) {
   unblockContact(contactId: $contactId) {
-    ...ContactFields
+    ...ContactFieldsWithLatestMessage
   }
 }

@@ -2,11 +2,11 @@ query Init($contactUserId: ID, $cursor: Int, $limit: Int, $chatTimeFormat: Strin
   me {
     ...OwnUserFields
   }
-  contactList {
+  contacts {
     ...ContactFields
   }
-  chatHistory {
-    ...ChatHistoryFields
+  latestMessages {
+    ...LatestMessageFields
   }
   contactInfo(contactUserId: $contactUserId) {
     ...ContactFieldsWithChat

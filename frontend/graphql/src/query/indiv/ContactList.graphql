@@ -1,5 +1,0 @@
-query ContactList {
-  contactList {
-    ...ContactFields
-  }
-}

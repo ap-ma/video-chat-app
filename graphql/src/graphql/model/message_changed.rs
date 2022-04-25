@@ -1,4 +1,4 @@
-use super::{ChatHistory, Message, User};
+use super::{LatestMessage, Message};
 use crate::database::service;
 use crate::graphql::common::{self, MutationType};
 use crate::graphql::security::auth;
@@ -8,6 +8,8 @@ use async_graphql::*;
 pub struct MessageChanged {
     pub tx_user_id: u64,
     pub rx_user_id: u64,
+    pub contact_id: Option<u64>,
+    pub contact_status: Option<i32>,
     pub message: Option<Message>,
     pub messages: Option<Vec<Message>>,
     pub mutation_type: MutationType,
@@ -23,6 +25,17 @@ impl MessageChanged {
         self.rx_user_id.into()
     }
 
+    async fn contact_id(&self) -> Option<ID> {
+        match self.contact_id {
+            Some(contact_id) => Some(contact_id.into()),
+            _ => None,
+        }
+    }
+
+    async fn contact_status(&self) -> Option<i32> {
+        self.contact_status.clone()
+    }
+
     async fn message(&self) -> Option<Message> {
         self.message.clone()
     }
@@ -35,27 +48,7 @@ impl MessageChanged {
         self.mutation_type
     }
 
-    async fn tx_user(&self, ctx: &Context<'_>) -> Result<User> {
-        let conn = common::get_conn(ctx)?;
-        let tx_user = common::convert_query_result(
-            service::find_user_by_id(self.tx_user_id, &conn),
-            "Failed to get the tx_user",
-        )?;
-
-        Ok(User::from(&tx_user))
-    }
-
-    async fn rx_user(&self, ctx: &Context<'_>) -> Result<User> {
-        let conn = common::get_conn(ctx)?;
-        let rx_user = common::convert_query_result(
-            service::find_user_by_id(self.rx_user_id, &conn),
-            "Failed to get the rx_user",
-        )?;
-
-        Ok(User::from(&rx_user))
-    }
-
-    async fn latest_chat(&self, ctx: &Context<'_>) -> Result<Option<ChatHistory>> {
+    async fn latest_message(&self, ctx: &Context<'_>) -> Result<Option<LatestMessage>> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
 
@@ -78,8 +71,8 @@ impl MessageChanged {
         }
 
         let latest_message = latest_message.unwrap();
-        let latest_chat = ChatHistory::from(&(other_user, latest_message));
+        let latest_message = LatestMessage::from(&(other_user, latest_message));
 
-        Ok(Some(latest_chat))
+        Ok(Some(latest_message))
     }
 }

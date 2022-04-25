@@ -112,7 +112,7 @@ export const isValidationErrors = (target: unknown): target is ValidationErrors 
   for (const element of target) {
     const extensions = 'extensions'
     if (hasProperty(element, extensions)) {
-      const type = element[extensions]['type']
+      const type = element[extensions].type
       if (isNullish(type)) return false
       if (API_ERROR_TYPE.VALIDATION_ERROR !== type) return false
     }
@@ -131,4 +131,4 @@ export const isValidationErrors = (target: unknown): target is ValidationErrors 
 const filterGqlError = (
   errors: GraphQLErrors,
   type: typeof API_ERROR_TYPE[keyof typeof API_ERROR_TYPE]
-) => errors.filter((e) => e.extensions['type'] === type)
+) => errors.filter((e) => e.extensions?.type === type)

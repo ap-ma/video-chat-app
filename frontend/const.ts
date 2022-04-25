@@ -17,10 +17,14 @@ export const APP_MODE = process.env.NODE_ENV
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL
 
 /** システム API URL */
-export const API_URL =
+export const API_URL = (
   isNode() && isDevelopment()
     ? process.env.NEXT_PUBLIC_API_URL?.replace('localhost', 'rust')
     : process.env.NEXT_PUBLIC_API_URL
+) as string
+
+/** システム API WebSocket URL */
+export const API_WS_URL = process.env.NEXT_PUBLIC_API_WS_URL as string
 
 //  ----------------------------------------------------------------------------
 //  API Error type

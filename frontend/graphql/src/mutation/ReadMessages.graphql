@@ -1,5 +1,5 @@
-mutation ReadMessages($contactId: ID!, $chatTimeFormat: String) {
-  readMessages(contactId: $contactId) {
+mutation ReadMessages($otherUserId: ID!, $chatTimeFormat: String) {
+  readMessages(otherUserId: $otherUserId) {
     ...MessageChangedFields
   }
 }

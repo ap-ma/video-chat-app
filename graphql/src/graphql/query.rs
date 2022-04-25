@@ -1,5 +1,5 @@
 use super::common;
-use super::model::{ChatHistory, Contact, User};
+use super::model::{Contact, LatestMessage, User};
 use super::security::auth::{self, Role};
 use super::security::guard::RoleGuard;
 use crate::constants::contact as contact_const;
@@ -30,27 +30,27 @@ impl Query {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn contact_list(&self, ctx: &Context<'_>) -> Result<Vec<Contact>> {
+    async fn contacts(&self, ctx: &Context<'_>) -> Result<Vec<Contact>> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
         let contacts = common::convert_query_result(
             service::get_contacts(identity.id, &conn),
-            "Failed to get contact list",
+            "Failed to get contacts",
         )?;
 
         Ok(contacts.iter().map(Contact::from).collect())
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn chat_history(&self, ctx: &Context<'_>) -> Result<Vec<ChatHistory>> {
+    async fn latest_messages(&self, ctx: &Context<'_>) -> Result<Vec<LatestMessage>> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
-        let chat_history = common::convert_query_result(
+        let latest_messages = common::convert_query_result(
             service::get_latest_messages_for_each_user(identity.id, &conn),
-            "Failed to get chat history",
+            "Failed to get latest messages",
         )?;
 
-        Ok(chat_history.iter().map(ChatHistory::from).collect())
+        Ok(latest_messages.iter().map(LatestMessage::from).collect())
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
@@ -76,7 +76,7 @@ impl Query {
                 )?;
 
                 Ok(Contact {
-                    id: 0,
+                    id: u64::MIN,
                     user_id: other_user.id,
                     user_code: other_user.code,
                     user_name: other_user.name,

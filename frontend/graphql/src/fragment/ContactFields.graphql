@@ -9,6 +9,13 @@ fragment ContactFields on Contact {
   blocked
 }
 
+fragment ContactFieldsWithLatestMessage on Contact {
+  ...ContactFields
+  latestMessage {
+    ...LatestMessageFields
+  }
+}
+
 fragment ContactFieldsWithChat on Contact {
   ...ContactFields
   chat(cursor: $cursor, limit: $limit) {

@@ -1,24 +1,25 @@
+import { useApolloClient } from '@apollo/client'
 import { ApolloError, GraphQLErrors } from '@apollo/client/errors'
 import IndexTemplate, { IndexTemplateProps } from 'components/06_templates/IndexTemplate'
 import { CHAT_LENGTH, ERROR_PAGE, SIGNIN_PAGE } from 'const'
 import { addApolloState, initializeApollo } from 'graphql/apollo'
 import {
-  ContactListDocument,
   InitDocument,
   InitQuery,
   InitQueryVariables,
   useBlockContactMutation,
   useChangePasswordMutation,
-  useChatHistoryQuery,
   useContactApplicationMutation,
   useContactApprovalMutation,
   useContactInfoQuery,
-  useContactListQuery,
+  useContactsQuery,
   useDeleteAccountMutation,
   useDeleteContactMutation,
   useDeleteMessageMutation,
   useEditProfileMutation,
+  useLatestMessagesQuery,
   useMeQuery,
+  useMessageSubscription,
   useReadMessagesMutation,
   useSearchUserLazyQuery,
   useSendMessageMutation,
@@ -26,18 +27,32 @@ import {
   useUnblockContactMutation,
   useUndeleteContactMutation
 } from 'graphql/generated'
-import { handle, Handler, isValidationErrors, updateChatCache } from 'graphql/lib'
+import {
+  handle,
+  Handler,
+  isContactApproval,
+  isValidationErrors,
+  updateContactCache,
+  updateMessageCache
+} from 'graphql/lib'
 import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import React from 'react'
-import { isNullish } from 'utils'
+import { isNode, isNullish } from 'utils'
 
 const Index: NextPage = () => {
   const router = useRouter()
 
+  // Apollo Client
+  const apolloClient = useApolloClient()
+
   // Redirect
   const toSigninPage = () => router.replace(SIGNIN_PAGE)
   const toErrorPage = () => router.replace(ERROR_PAGE)
+  const destroy = () => {
+    apolloClient.clearStore()
+    toSigninPage()
+  }
 
   // Operation Handler
   const handler: Handler<Promise<boolean> | GraphQLErrors | undefined> = {
@@ -52,16 +67,19 @@ const Index: NextPage = () => {
   //  ----------------------------------------------------------------------------
 
   // ユーザー情報
-  const meQuery = useMeQuery({ fetchPolicy: 'cache-only' })
+  const meQuery = useMeQuery({ fetchPolicy: 'cache-first' })
   handle(meQuery.error, handler)
 
   // コンタクト一覧
-  const contactListQuery = useContactListQuery({ fetchPolicy: 'cache-only' })
-  handle(contactListQuery.error, handler)
+  const contactsQuery = useContactsQuery({
+    fetchPolicy: 'cache-first',
+    notifyOnNetworkStatusChange: true
+  })
+  handle(contactsQuery.error, handler)
 
-  // チャット履歴
-  const chatHistoryQuery = useChatHistoryQuery()
-  handle(chatHistoryQuery.error, handler)
+  // メッセージ一覧
+  const latestMessagesQuery = useLatestMessagesQuery()
+  handle(latestMessagesQuery.error, handler)
 
   // コンタクト情報
   const contactInfoQuery = useContactInfoQuery({
@@ -81,10 +99,7 @@ const Index: NextPage = () => {
   // サインアウト
   const [signOut, signOutMutation] = useSignOutMutation()
   handle(signOutMutation.error, handler)
-  if (signOutMutation.data?.signOut) {
-    signOutMutation.client.clearStore()
-    toSigninPage()
-  }
+  if (signOutMutation.data?.signOut) destroy()
 
   // プロフィール編集
   const [editProfile, editProfileMutation] = useEditProfileMutation()
@@ -97,21 +112,17 @@ const Index: NextPage = () => {
   // アカウント削除
   const [deleteAccount, deleteAccountMutation] = useDeleteAccountMutation()
   handle(deleteAccountMutation.error, handler)
-  if (deleteAccountMutation.data?.deleteAccount) toSigninPage()
+  if (deleteAccountMutation.data?.deleteAccount) destroy()
 
   // メッセージ送信
   const [sendMessage, sendMessageMutation] = useSendMessageMutation({
-    update(cache, { data }) {
-      if (!isNullish(data)) updateChatCache(cache, data.sendMessage)
-    }
+    update: (cache, { data }) => !isNullish(data) && updateMessageCache(cache, data.sendMessage)
   })
   const sendMessageResult = handle(sendMessageMutation.error, handler)
 
   // メッセージ削除
   const [deleteMessage, deleteMessageMutation] = useDeleteMessageMutation({
-    update(cache, { data }) {
-      if (!isNullish(data)) updateChatCache(cache, data.deleteMessage)
-    }
+    update: (cache, { data }) => !isNullish(data) && updateMessageCache(cache, data.deleteMessage)
   })
   const deleteMessageResult = handle(deleteMessageMutation.error, handler)
 
@@ -121,43 +132,79 @@ const Index: NextPage = () => {
 
   // コンタクト申請
   const [contactApplication, contactApplicationMutation] = useContactApplicationMutation({
-    update(cache, { data }) {
-      if (!isNullish(data)) updateChatCache(cache, data.contactApplication)
-    }
+    update: (cache, { data }) =>
+      !isNullish(data) && updateMessageCache(cache, data.contactApplication)
   })
   const contactApplicationResult = handle(contactApplicationMutation.error, handler)
 
   // コンタクト承認
   const [contactApproval, contactApprovalMutation] = useContactApprovalMutation({
-    update(cache, { data }) {
-      if (!isNullish(data)) updateChatCache(cache, data.contactApproval)
-    },
-    refetchQueries: [ContactListDocument]
+    update: (cache, { data }) =>
+      !isNullish(data) && updateMessageCache(cache, data.contactApproval),
+    onCompleted: () => contactsQuery.refetch()
   })
   const contactApprovalResult = handle(contactApprovalMutation.error, handler)
 
   // コンタクト削除
-  const [deleteContact, deleteContactMutation] = useDeleteContactMutation()
+  const [deleteContact, deleteContactMutation] = useDeleteContactMutation({
+    update: (cache, { data }) =>
+      !isNullish(data) && updateContactCache(cache, data.deleteContact, 'DELETE')
+  })
   const deleteContactResult = handle(deleteContactMutation.error, handler)
 
   // コンタクト削除取消
-  const [undeleteContact, undeleteContactMutation] = useUndeleteContactMutation()
+  const [undeleteContact, undeleteContactMutation] = useUndeleteContactMutation({
+    update: (cache, { data }) =>
+      !isNullish(data) && updateContactCache(cache, data.undeleteContact, 'ADD')
+  })
   const undeleteContactResult = handle(undeleteContactMutation.error, handler)
 
   // コンタクトブロック
-  const [blockContact, blockContactMutation] = useBlockContactMutation()
+  const [blockContact, blockContactMutation] = useBlockContactMutation({
+    update: (cache, { data }) =>
+      !isNullish(data) && updateContactCache(cache, data.blockContact, 'DELETE')
+  })
   const blockContactResult = handle(blockContactMutation.error, handler)
 
   // コンタクトブロック解除
-  const [unblockContact, unblockContactMutation] = useUnblockContactMutation()
+  const [unblockContact, unblockContactMutation] = useUnblockContactMutation({
+    update: (cache, { data }) =>
+      !isNullish(data) && updateContactCache(cache, data.unblockContact, 'ADD'),
+    onCompleted: ({ unblockContact }) => {
+      if (contactInfoQuery.data?.contactInfo.userId === unblockContact.userId) {
+        readMessages({ variables: { otherUserId: unblockContact.userId } })
+      }
+    }
+  })
   const unblockContactResult = handle(unblockContactMutation.error, handler)
+
+  //  ----------------------------------------------------------------------------
+  //  Subscription
+  //  ----------------------------------------------------------------------------
+
+  // メッセージ購読
+  const messageSubscription = useMessageSubscription({
+    skip: isNode(),
+    onSubscriptionData: ({ client, subscriptionData: { data } }) => {
+      if (isNullish(data)) return
+      const messageChanged = data.messageSubscription
+      updateMessageCache(client.cache, messageChanged)
+      if (isContactApproval(messageChanged)) contactsQuery.refetch()
+      if (contactInfoQuery.data?.contactInfo.userId === messageChanged.txUserId) {
+        readMessages({ variables: { otherUserId: messageChanged.txUserId } })
+      }
+    }
+  })
+  handle(messageSubscription.error, handler)
+
+  //  ----------------------------------------------------------------------------
 
   // IndexTemplate Props
   const props: IndexTemplateProps = {
     query: {
       me: meQuery.data?.me,
-      contactList: contactListQuery.data?.contactList,
-      chatHistroy: chatHistoryQuery.data?.chatHistory,
+      contacts: contactsQuery.data?.contacts,
+      latestMessages: latestMessagesQuery.data?.latestMessages,
       contactInfo: {
         contactInfo: contactInfoQuery.data?.contactInfo,
         ...contactInfoQuery

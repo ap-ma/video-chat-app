@@ -2,6 +2,8 @@ fragment MessageChangedFields on MessageChanged {
   __typename
   txUserId
   rxUserId
+  contactId
+  contactStatus
   message {
     ...MessageFields
   }
@@ -9,13 +11,7 @@ fragment MessageChangedFields on MessageChanged {
     ...MessageFields
   }
   mutationType
-  txUser {
-    ...OtherUserFields
-  }
-  rxUser {
-    ...OtherUserFields
-  }
-  latestChat {
-    ...ChatHistoryFields
+  latestMessage {
+    ...LatestMessageFields
   }
 }

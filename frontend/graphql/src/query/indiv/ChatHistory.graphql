@@ -1,5 +1,0 @@
-query ChatHistory {
-  chatHistory {
-    ...ChatHistoryFields
-  }
-}

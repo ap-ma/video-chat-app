@@ -1,0 +1,5 @@
+query LatestMessages {
+  latestMessages {
+    ...LatestMessageFields
+  }
+}

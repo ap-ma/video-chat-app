@@ -1,4 +1,4 @@
-fragment ChatHistoryFields on ChatHistory {
+fragment LatestMessageFields on LatestMessage {
   __typename
   userId
   userCode

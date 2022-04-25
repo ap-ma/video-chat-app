@@ -1,4 +1,4 @@
-use super::Message;
+use super::{LatestMessage, Message};
 use crate::database::entity::{ContactEntity, UserEntity};
 use crate::database::service;
 use crate::graphql::common;
@@ -65,6 +65,26 @@ impl Contact {
 
     async fn blocked(&self) -> bool {
         self.blocked
+    }
+
+    async fn latest_message(&self, ctx: &Context<'_>) -> Result<Option<LatestMessage>> {
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?.unwrap();
+
+        let contact_user = common::convert_query_result(
+            service::find_user_by_id(self.user_id, &conn),
+            "Failed to get the contact user",
+        )?;
+
+        let latest_message = service::get_latest_message(identity.id, contact_user.id, &conn).ok();
+        if let None = latest_message {
+            return Ok(None);
+        }
+
+        let latest_message = latest_message.unwrap();
+        let latest_message = LatestMessage::from(&(contact_user, latest_message));
+
+        Ok(Some(latest_message))
     }
 
     async fn chat(

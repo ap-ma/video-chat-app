@@ -1,11 +1,21 @@
-import { ApolloClient, from, HttpLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
+import {
+  ApolloClient,
+  from,
+  HttpLink,
+  InMemoryCache,
+  NormalizedCacheObject,
+  split
+} from '@apollo/client'
 import { onError } from '@apollo/client/link/error'
 import { RetryLink } from '@apollo/client/link/retry'
-import { API_URL } from 'const'
+import { WebSocketLink } from '@apollo/client/link/ws'
+import { getMainDefinition } from '@apollo/client/utilities'
+import { API_URL, API_WS_URL } from 'const'
 import merge from 'deepmerge'
 import isEqual from 'lodash/isEqual'
 import { AppProps } from 'next/app'
 import { useMemo } from 'react'
+import { SubscriptionClient } from 'subscriptions-transport-ws'
 import { isNode, isNullish } from 'utils'
 import { cursorPagination, report } from './lib'
 
@@ -23,7 +33,7 @@ let apolloClient: ApolloClient<NormalizedCacheObject> | undefined
 function createCache() {
   return new InMemoryCache({
     typePolicies: {
-      Contact: { fields: { chat: cursorPagination() } },
+      Contact: { keyFields: ['id', 'userId'], fields: { chat: cursorPagination() } },
       ChatHistory: { keyFields: ['userId'] },
       MessageChanged: { keyFields: ['txUserId', 'rxUserId'] }
     }
@@ -41,6 +51,29 @@ function createLink() {
     // graphqlサーバー発行のcookieを含める
     credentials: 'include'
   })
+}
+
+/**
+ * WebSocketLinkオブジェクトを生成する
+ *
+ * @returns WebSocketLink
+ */
+function createWsLink() {
+  return new WebSocketLink(new SubscriptionClient(API_WS_URL))
+}
+
+/**
+ * 操作別に通信を分割するための分割関数を適用したLinkを生成する
+ *
+ * @returns ApolloLink
+ */
+function splitLink() {
+  if (isNode()) return createLink()
+  const predicate: Parameters<typeof split>[0] = ({ query }) => {
+    const definition = getMainDefinition(query)
+    return definition.kind === 'OperationDefinition' && definition.operation === 'subscription'
+  }
+  return split(predicate, createWsLink(), createLink())
 }
 
 /**
@@ -79,7 +112,7 @@ function createApolloClient() {
   return new ApolloClient({
     cache: createCache(),
     ssrMode: isNode(),
-    link: from([createErrorLink(), createRetryLink(), createLink()]),
+    link: from([createErrorLink(), createRetryLink(), splitLink()]),
     defaultOptions: {
       // client.query()
       query: { fetchPolicy: 'network-only' },

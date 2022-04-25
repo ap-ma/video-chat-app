@@ -5,13 +5,12 @@ import {
   BlockContactMutationVariables,
   ChangePasswordMutation,
   ChangePasswordMutationVariables,
-  ChatHistoryQuery,
   ContactApplicationMutation,
   ContactApplicationMutationVariables,
   ContactApprovalMutation,
   ContactApprovalMutationVariables,
   ContactInfoQuery,
-  ContactListQuery,
+  ContactsQuery,
   DeleteAccountMutation,
   DeleteAccountMutationVariables,
   DeleteContactMutation,
@@ -20,6 +19,7 @@ import {
   DeleteMessageMutationVariables,
   EditProfileMutation,
   EditProfileMutationVariables,
+  LatestMessagesQuery,
   MeQuery,
   ReadMessagesMutation,
   ReadMessagesMutationVariables,
@@ -61,11 +61,11 @@ export type IndexTemplateProps = {
     /**
      * コンタクト一覧
      */
-    contactList?: ContactListQuery['contactList']
+    contacts?: ContactsQuery['contacts']
     /**
-     * チャット履歴
+     * メッセージ一覧
      */
-    chatHistroy?: ChatHistoryQuery['chatHistory']
+    latestMessages?: LatestMessagesQuery['latestMessages']
     /**
      *  コンタクト情報
      */

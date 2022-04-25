@@ -1,11 +1,13 @@
 import { ApolloCache, FieldPolicy, Reference, StoreObject } from '@apollo/client'
 import { ReadFieldFunction, SafeReadonly } from '@apollo/client/cache/core/types/common'
 import {
-  ChatHistory,
-  ChatHistoryFieldsFragmentDoc,
+  Contact,
+  ContactFieldsFragmentDoc,
   ContactInfoDocument,
   ContactInfoQuery,
   ContactInfoQueryVariables,
+  LatestMessage,
+  LatestMessageFieldsFragmentDoc,
   MeDocument,
   MeQuery,
   MeQueryVariables,
@@ -14,8 +16,9 @@ import {
   MessageFieldsFragmentDoc,
   MutationType
 } from 'graphql/generated'
-import { ReadFieldParam } from 'types'
+import { Optional, ReadFieldParam } from 'types'
 import { isNullish } from 'utils/impl/object'
+import { isContactApproval } from './utils'
 
 /**
  * メッセージ登録更新時キャッシュ更新処理
@@ -24,7 +27,10 @@ import { isNullish } from 'utils/impl/object'
  * @param messageChanged - メッセージ変更オブジェクト
  * @returns void
  */
-export function updateChatCache(cache: ApolloCache<unknown>, messageChanged: MessageChanged): void {
+export function updateMessageCache(
+  cache: ApolloCache<unknown>,
+  messageChanged: MessageChanged
+): void {
   // ユーザー情報
   const meQuery = cache.readQuery<MeQuery, MeQueryVariables>({ query: MeDocument })
   if (isNullish(meQuery)) return
@@ -36,38 +42,40 @@ export function updateChatCache(cache: ApolloCache<unknown>, messageChanged: Mes
   if (me.id === messageChanged.rxUserId) otherUserId = messageChanged.txUserId
   if (isNullish(otherUserId)) return
 
-  // チャット履歴の更新
+  // メッセージ一覧の更新
   cache.modify({
     fields: {
-      chatHistory(existingChatHistory = [], { readField }) {
+      latestMessages(existingLatestMessages = [], { readField }) {
         // メッセージ新規作成
         if (MutationType.Created === messageChanged.mutationType) {
-          const included = existingChatHistory.some(
-            (chatHisRef: ReadFieldParam) => readField('userId', chatHisRef) === otherUserId
+          const included = existingLatestMessages.some(
+            (latestMessageRef: ReadFieldParam) =>
+              readField('userId', latestMessageRef) === otherUserId
           )
-          // 対象ユーザーのチャット履歴がキャッシュに存在しない場合
-          if (!included && !isNullish(messageChanged.latestChat)) {
-            const newChatRef = cache.writeFragment<ChatHistory>({
-              data: messageChanged.latestChat,
-              fragment: ChatHistoryFieldsFragmentDoc
+
+          // メッセージ一覧のキャッシュに対象ユーザーのデータが存在しない場合
+          if (!included && !isNullish(messageChanged.latestMessage)) {
+            const newLatestMessageRef = cache.writeFragment<LatestMessage>({
+              data: messageChanged.latestMessage,
+              fragment: LatestMessageFieldsFragmentDoc
             })
-            existingChatHistory = [newChatRef, ...existingChatHistory]
+            existingLatestMessages = [newLatestMessageRef, ...existingLatestMessages]
           }
         }
 
         // メッセージ削除
         if (MutationType.Deleted === messageChanged.mutationType) {
           // 最新メッセージとして表示できるチャットがなくなった場合
-          if (isNullish(messageChanged.latestChat)) {
-            // チャット履歴から対象ユーザーの項目を削除
-            existingChatHistory = existingChatHistory.filter(
+          if (isNullish(messageChanged.latestMessage)) {
+            // チャット履歴から対象ユーザーのデータを削除
+            existingLatestMessages = existingLatestMessages.filter(
               (chatRef: ReadFieldParam) => readField('userId', chatRef) !== otherUserId
             )
           }
         }
 
         // メッセージIDの降順でソート
-        const newChatHistory = existingChatHistory
+        const newLatestMessages = existingLatestMessages
           .filter(Boolean)
           .sort((x: ReadFieldParam, y: ReadFieldParam) => {
             const xId = Number(readField('messageId', x))
@@ -75,7 +83,7 @@ export function updateChatCache(cache: ApolloCache<unknown>, messageChanged: Mes
             return yId - xId
           })
 
-        return newChatHistory
+        return newLatestMessages
       }
     }
   })
@@ -89,19 +97,29 @@ export function updateChatCache(cache: ApolloCache<unknown>, messageChanged: Mes
   // 対象のコンタクト情報がまだキャッシュに存在しない場合は処理を終了
   if (isNullish(contactInfo)) return
 
-  // コンタクト情報（チャット）の更新
+  // コンタクト情報の更新
   cache.modify({
     id: cache.identify(contactInfo.contactInfo),
     fields: {
+      id(existingId) {
+        return isContactApproval(messageChanged) && !isNullish(messageChanged.contactId)
+          ? messageChanged.contactId
+          : existingId
+      },
+      status(existingStatus) {
+        return isContactApproval(messageChanged) && !isNullish(messageChanged.contactStatus)
+          ? messageChanged.contactStatus
+          : existingStatus
+      },
       chat(existingChat = [], { readField }) {
         // メッセージ新規作成
         if (MutationType.Created === messageChanged.mutationType) {
           if (!isNullish(messageChanged.message)) {
-            const newChatRef = cache.writeFragment<Message>({
+            const newMessageRef = cache.writeFragment<Message>({
               data: messageChanged.message,
               fragment: MessageFieldsFragmentDoc
             })
-            existingChat = [newChatRef, ...existingChat]
+            existingChat = [newMessageRef, ...existingChat]
           }
         }
 
@@ -123,6 +141,99 @@ export function updateChatCache(cache: ApolloCache<unknown>, messageChanged: Mes
           })
 
         return newChat
+      }
+    }
+  })
+}
+
+/**
+ * コンタクト更新時キャッシュ更新処理
+ *
+ * @param cache - 更新するApolloCache
+ * @param contact - コンタクトオブジェクト
+ * @param operation - 処理種別
+ * @returns void
+ */
+export function updateContactCache(
+  cache: ApolloCache<unknown>,
+  contact: Optional<Contact, 'chat'>,
+  operation: 'ADD' | 'DELETE'
+): void {
+  // コンタクト一覧の更新
+  cache.modify({
+    fields: {
+      contacts(existingContacts = [], { readField }) {
+        // コンタクト一覧から削除
+        if (operation === 'DELETE') {
+          return existingContacts.filter(
+            (contactRef: ReadFieldParam) => readField('id', contactRef) !== contact.id
+          )
+        }
+
+        // コンタクト一覧に追加
+        if (operation === 'ADD') {
+          const newContactRef = cache.writeFragment<Optional<Contact, 'chat'>>({
+            data: contact,
+            fragment: ContactFieldsFragmentDoc
+          })
+
+          // ユーザー名の昇順でソート
+          const newContacts = [newContactRef, ...existingContacts].sort(
+            (x: ReadFieldParam, y: ReadFieldParam) => {
+              const xUserName = readField('userName', x) as string
+              const yUserName = readField('userName', y) as string
+              if (yUserName > xUserName) return -1
+              if (xUserName < yUserName) return 1
+              return 0
+            }
+          )
+
+          return newContacts
+        }
+
+        return existingContacts
+      }
+    }
+  })
+
+  // メッセージ一覧の更新
+  cache.modify({
+    fields: {
+      latestMessages(existingLatestMessages = [], { readField }) {
+        // コンタクトがブロック済
+        if (contact.blocked) {
+          // メッセージ一覧から対象ユーザーのデータを削除
+          return existingLatestMessages.filter(
+            (chatRef: ReadFieldParam) => readField('userId', chatRef) !== contact.userId
+          )
+        }
+
+        // メッセージ一覧のキャッシュに対象ユーザーのデータが存在するか
+        const included = existingLatestMessages.some(
+          (latestMessageRef: ReadFieldParam) =>
+            readField('userId', latestMessageRef) === contact.userId
+        )
+
+        // メッセージ一覧内に対象ユーザーのデータがない場合
+        if (!included && !isNullish(contact.latestMessage)) {
+          const newLatestMessageRef = cache.writeFragment<LatestMessage>({
+            data: contact.latestMessage,
+            fragment: LatestMessageFieldsFragmentDoc
+          })
+
+          // メッセージ一覧に最新メッセージを追加
+          const newLatestMessages = [newLatestMessageRef, ...existingLatestMessages]
+            .filter(Boolean)
+            .sort((x: ReadFieldParam, y: ReadFieldParam) => {
+              const xId = Number(readField('messageId', x))
+              const yId = Number(readField('messageId', y))
+              return yId - xId
+            })
+
+          return newLatestMessages
+        }
+
+        return existingLatestMessages
       }
     }
   })

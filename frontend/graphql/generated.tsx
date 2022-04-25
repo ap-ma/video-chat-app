@@ -21,23 +21,12 @@ export type ChangePasswordInput = {
   password: Scalars['String']
 }
 
-export type ChatHistory = {
-  __typename?: 'ChatHistory'
-  message?: Maybe<Scalars['String']>
-  messageCategory: Scalars['Int']
-  messageId: Scalars['ID']
-  messageStatus: Scalars['Int']
-  userAvatar?: Maybe<Scalars['String']>
-  userCode: Scalars['String']
-  userId: Scalars['ID']
-  userName?: Maybe<Scalars['String']>
-}
-
 export type Contact = {
   __typename?: 'Contact'
   blocked: Scalars['Boolean']
   chat: Array<Message>
   id: Scalars['ID']
+  latestMessage?: Maybe<LatestMessage>
   status: Scalars['Int']
   userAvatar?: Maybe<Scalars['String']>
   userCode: Scalars['String']
@@ -58,6 +47,18 @@ export type EditProfileInput = {
   name: Scalars['String']
 }
 
+export type LatestMessage = {
+  __typename?: 'LatestMessage'
+  message?: Maybe<Scalars['String']>
+  messageCategory: Scalars['Int']
+  messageId: Scalars['ID']
+  messageStatus: Scalars['Int']
+  userAvatar?: Maybe<Scalars['String']>
+  userCode: Scalars['String']
+  userId: Scalars['ID']
+  userName?: Maybe<Scalars['String']>
+}
+
 export type Message = {
   __typename?: 'Message'
   category: Scalars['Int']
@@ -75,13 +76,13 @@ export type MessageCreatedAtArgs = {
 
 export type MessageChanged = {
   __typename?: 'MessageChanged'
-  latestChat?: Maybe<ChatHistory>
+  contactId?: Maybe<Scalars['ID']>
+  contactStatus?: Maybe<Scalars['Int']>
+  latestMessage?: Maybe<LatestMessage>
   message?: Maybe<Message>
   messages?: Maybe<Array<Message>>
   mutationType: MutationType
-  rxUser: User
   rxUserId: Scalars['ID']
-  txUser: User
   txUserId: Scalars['ID']
 }
 
@@ -133,7 +134,7 @@ export type MutationEditProfileArgs = {
 }
 
 export type MutationReadMessagesArgs = {
-  contactId: Scalars['ID']
+  otherUserId: Scalars['ID']
 }
 
 export type MutationSendMessageArgs = {
@@ -164,10 +165,10 @@ export enum MutationType {
 
 export type Query = {
   __typename?: 'Query'
-  chatHistory: Array<ChatHistory>
   contactInfo: Contact
-  contactList: Array<Contact>
+  contacts: Array<Contact>
   isAuthenticated: Scalars['Boolean']
+  latestMessages: Array<LatestMessage>
   me: User
   searchUser: Array<User>
 }
@@ -202,7 +203,7 @@ export type SignUpInput = {
 
 export type Subscription = {
   __typename?: 'Subscription'
-  message: MessageChanged
+  messageSubscription: MessageChanged
 }
 
 export type User = {
@@ -210,21 +211,9 @@ export type User = {
   avatar?: Maybe<Scalars['String']>
   code: Scalars['String']
   comment?: Maybe<Scalars['String']>
-  email?: Maybe<Scalars['String']>
+  email: Scalars['String']
   id: Scalars['ID']
   name?: Maybe<Scalars['String']>
-}
-
-export type ChatHistoryFieldsFragment = {
-  __typename: 'ChatHistory'
-  userId: string
-  userCode: string
-  userName?: string | null
-  userAvatar?: string | null
-  messageId: string
-  messageCategory: number
-  message?: string | null
-  messageStatus: number
 }
 
 export type ContactFieldsFragment = {
@@ -236,6 +225,28 @@ export type ContactFieldsFragment = {
   userAvatar?: string | null
   status: number
   blocked: boolean
+}
+
+export type ContactFieldsWithLatestMessageFragment = {
+  __typename: 'Contact'
+  id: string
+  userId: string
+  userCode: string
+  userName?: string | null
+  userAvatar?: string | null
+  status: number
+  blocked: boolean
+  latestMessage?: {
+    __typename: 'LatestMessage'
+    userId: string
+    userCode: string
+    userName?: string | null
+    userAvatar?: string | null
+    messageId: string
+    messageCategory: number
+    message?: string | null
+    messageStatus: number
+  } | null
 }
 
 export type ContactFieldsWithChatFragment = {
@@ -259,10 +270,24 @@ export type ContactFieldsWithChatFragment = {
   }>
 }
 
+export type LatestMessageFieldsFragment = {
+  __typename: 'LatestMessage'
+  userId: string
+  userCode: string
+  userName?: string | null
+  userAvatar?: string | null
+  messageId: string
+  messageCategory: number
+  message?: string | null
+  messageStatus: number
+}
+
 export type MessageChangedFieldsFragment = {
   __typename: 'MessageChanged'
   txUserId: string
   rxUserId: string
+  contactId?: string | null
+  contactStatus?: number | null
   mutationType: MutationType
   message?: {
     __typename: 'Message'
@@ -284,24 +309,8 @@ export type MessageChangedFieldsFragment = {
     status: number
     createdAt: string
   }> | null
-  txUser: {
-    __typename: 'User'
-    id: string
-    code: string
-    name?: string | null
-    comment?: string | null
-    avatar?: string | null
-  }
-  rxUser: {
-    __typename: 'User'
-    id: string
-    code: string
-    name?: string | null
-    comment?: string | null
-    avatar?: string | null
-  }
-  latestChat?: {
-    __typename: 'ChatHistory'
+  latestMessage?: {
+    __typename: 'LatestMessage'
     userId: string
     userCode: string
     userName?: string | null
@@ -335,7 +344,7 @@ export type OtherUserFieldsFragment = {
 
 export type OwnUserFieldsFragment = {
   __typename: 'User'
-  email?: string | null
+  email: string
   id: string
   code: string
   name?: string | null
@@ -378,6 +387,8 @@ export type ContactApplicationMutation = {
     __typename: 'MessageChanged'
     txUserId: string
     rxUserId: string
+    contactId?: string | null
+    contactStatus?: number | null
     mutationType: MutationType
     message?: {
       __typename: 'Message'
@@ -399,24 +410,8 @@ export type ContactApplicationMutation = {
       status: number
       createdAt: string
     }> | null
-    txUser: {
-      __typename: 'User'
-      id: string
-      code: string
-      name?: string | null
-      comment?: string | null
-      avatar?: string | null
-    }
-    rxUser: {
-      __typename: 'User'
-      id: string
-      code: string
-      name?: string | null
-      comment?: string | null
-      avatar?: string | null
-    }
-    latestChat?: {
-      __typename: 'ChatHistory'
+    latestMessage?: {
+      __typename: 'LatestMessage'
       userId: string
       userCode: string
       userName?: string | null
@@ -440,6 +435,8 @@ export type ContactApprovalMutation = {
     __typename: 'MessageChanged'
     txUserId: string
     rxUserId: string
+    contactId?: string | null
+    contactStatus?: number | null
     mutationType: MutationType
     message?: {
       __typename: 'Message'
@@ -461,24 +458,8 @@ export type ContactApprovalMutation = {
       status: number
       createdAt: string
     }> | null
-    txUser: {
-      __typename: 'User'
-      id: string
-      code: string
-      name?: string | null
-      comment?: string | null
-      avatar?: string | null
-    }
-    rxUser: {
-      __typename: 'User'
-      id: string
-      code: string
-      name?: string | null
-      comment?: string | null
-      avatar?: string | null
-    }
-    latestChat?: {
-      __typename: 'ChatHistory'
+    latestMessage?: {
+      __typename: 'LatestMessage'
       userId: string
       userCode: string
       userName?: string | null
@@ -524,6 +505,8 @@ export type DeleteMessageMutation = {
     __typename: 'MessageChanged'
     txUserId: string
     rxUserId: string
+    contactId?: string | null
+    contactStatus?: number | null
     mutationType: MutationType
     message?: {
       __typename: 'Message'
@@ -545,24 +528,8 @@ export type DeleteMessageMutation = {
       status: number
       createdAt: string
     }> | null
-    txUser: {
-      __typename: 'User'
-      id: string
-      code: string
-      name?: string | null
-      comment?: string | null
-      avatar?: string | null
-    }
-    rxUser: {
-      __typename: 'User'
-      id: string
-      code: string
-      name?: string | null
-      comment?: string | null
-      avatar?: string | null
-    }
-    latestChat?: {
-      __typename: 'ChatHistory'
+    latestMessage?: {
+      __typename: 'LatestMessage'
       userId: string
       userCode: string
       userName?: string | null
@@ -583,7 +550,7 @@ export type EditProfileMutation = {
   __typename?: 'Mutation'
   editProfile: {
     __typename: 'User'
-    email?: string | null
+    email: string
     id: string
     code: string
     name?: string | null
@@ -593,7 +560,7 @@ export type EditProfileMutation = {
 }
 
 export type ReadMessagesMutationVariables = Exact<{
-  contactId: Scalars['ID']
+  otherUserId: Scalars['ID']
   chatTimeFormat?: InputMaybe<Scalars['String']>
 }>
 
@@ -603,6 +570,8 @@ export type ReadMessagesMutation = {
     __typename: 'MessageChanged'
     txUserId: string
     rxUserId: string
+    contactId?: string | null
+    contactStatus?: number | null
     mutationType: MutationType
     message?: {
       __typename: 'Message'
@@ -624,24 +593,8 @@ export type ReadMessagesMutation = {
       status: number
       createdAt: string
     }> | null
-    txUser: {
-      __typename: 'User'
-      id: string
-      code: string
-      name?: string | null
-      comment?: string | null
-      avatar?: string | null
-    }
-    rxUser: {
-      __typename: 'User'
-      id: string
-      code: string
-      name?: string | null
-      comment?: string | null
-      avatar?: string | null
-    }
-    latestChat?: {
-      __typename: 'ChatHistory'
+    latestMessage?: {
+      __typename: 'LatestMessage'
       userId: string
       userCode: string
       userName?: string | null
@@ -665,6 +618,8 @@ export type SendMessageMutation = {
     __typename: 'MessageChanged'
     txUserId: string
     rxUserId: string
+    contactId?: string | null
+    contactStatus?: number | null
     mutationType: MutationType
     message?: {
       __typename: 'Message'
@@ -686,24 +641,8 @@ export type SendMessageMutation = {
       status: number
       createdAt: string
     }> | null
-    txUser: {
-      __typename: 'User'
-      id: string
-      code: string
-      name?: string | null
-      comment?: string | null
-      avatar?: string | null
-    }
-    rxUser: {
-      __typename: 'User'
-      id: string
-      code: string
-      name?: string | null
-      comment?: string | null
-      avatar?: string | null
-    }
-    latestChat?: {
-      __typename: 'ChatHistory'
+    latestMessage?: {
+      __typename: 'LatestMessage'
       userId: string
       userCode: string
       userName?: string | null
@@ -747,6 +686,17 @@ export type UnblockContactMutation = {
     userAvatar?: string | null
     status: number
     blocked: boolean
+    latestMessage?: {
+      __typename: 'LatestMessage'
+      userId: string
+      userCode: string
+      userName?: string | null
+      userAvatar?: string | null
+      messageId: string
+      messageCategory: number
+      message?: string | null
+      messageStatus: number
+    } | null
   }
 }
 
@@ -779,14 +729,14 @@ export type InitQuery = {
   __typename?: 'Query'
   me: {
     __typename: 'User'
-    email?: string | null
+    email: string
     id: string
     code: string
     name?: string | null
     comment?: string | null
     avatar?: string | null
   }
-  contactList: Array<{
+  contacts: Array<{
     __typename: 'Contact'
     id: string
     userId: string
@@ -796,8 +746,8 @@ export type InitQuery = {
     status: number
     blocked: boolean
   }>
-  chatHistory: Array<{
-    __typename: 'ChatHistory'
+  latestMessages: Array<{
+    __typename: 'LatestMessage'
     userId: string
     userCode: string
     userName?: string | null
@@ -827,23 +777,6 @@ export type InitQuery = {
       createdAt: string
     }>
   }
-}
-
-export type ChatHistoryQueryVariables = Exact<{ [key: string]: never }>
-
-export type ChatHistoryQuery = {
-  __typename?: 'Query'
-  chatHistory: Array<{
-    __typename: 'ChatHistory'
-    userId: string
-    userCode: string
-    userName?: string | null
-    userAvatar?: string | null
-    messageId: string
-    messageCategory: number
-    message?: string | null
-    messageStatus: number
-  }>
 }
 
 export type ContactInfoQueryVariables = Exact<{
@@ -877,11 +810,11 @@ export type ContactInfoQuery = {
   }
 }
 
-export type ContactListQueryVariables = Exact<{ [key: string]: never }>
+export type ContactsQueryVariables = Exact<{ [key: string]: never }>
 
-export type ContactListQuery = {
+export type ContactsQuery = {
   __typename?: 'Query'
-  contactList: Array<{
+  contacts: Array<{
     __typename: 'Contact'
     id: string
     userId: string
@@ -897,13 +830,30 @@ export type IsAuthenticatedQueryVariables = Exact<{ [key: string]: never }>
 
 export type IsAuthenticatedQuery = { __typename?: 'Query'; isAuthenticated: boolean }
 
+export type LatestMessagesQueryVariables = Exact<{ [key: string]: never }>
+
+export type LatestMessagesQuery = {
+  __typename?: 'Query'
+  latestMessages: Array<{
+    __typename: 'LatestMessage'
+    userId: string
+    userCode: string
+    userName?: string | null
+    userAvatar?: string | null
+    messageId: string
+    messageCategory: number
+    message?: string | null
+    messageStatus: number
+  }>
+}
+
 export type MeQueryVariables = Exact<{ [key: string]: never }>
 
 export type MeQuery = {
   __typename?: 'Query'
   me: {
     __typename: 'User'
-    email?: string | null
+    email: string
     id: string
     code: string
     name?: string | null
@@ -928,6 +878,53 @@ export type SearchUserQuery = {
   }>
 }
 
+export type MessageSubscriptionVariables = Exact<{
+  chatTimeFormat?: InputMaybe<Scalars['String']>
+}>
+
+export type MessageSubscription = {
+  __typename?: 'Subscription'
+  messageSubscription: {
+    __typename: 'MessageChanged'
+    txUserId: string
+    rxUserId: string
+    contactId?: string | null
+    contactStatus?: number | null
+    mutationType: MutationType
+    message?: {
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+    } | null
+    messages?: Array<{
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+    }> | null
+    latestMessage?: {
+      __typename: 'LatestMessage'
+      userId: string
+      userCode: string
+      userName?: string | null
+      userAvatar?: string | null
+      messageId: string
+      messageCategory: number
+      message?: string | null
+      messageStatus: number
+    } | null
+  }
+}
+
 export const ContactFieldsFragmentDoc = gql`
   fragment ContactFields on Contact {
     __typename
@@ -939,6 +936,29 @@ export const ContactFieldsFragmentDoc = gql`
     status
     blocked
   }
+`
+export const LatestMessageFieldsFragmentDoc = gql`
+  fragment LatestMessageFields on LatestMessage {
+    __typename
+    userId
+    userCode
+    userName
+    userAvatar
+    messageId
+    messageCategory
+    message
+    messageStatus
+  }
+`
+export const ContactFieldsWithLatestMessageFragmentDoc = gql`
+  fragment ContactFieldsWithLatestMessage on Contact {
+    ...ContactFields
+    latestMessage {
+      ...LatestMessageFields
+    }
+  }
+  ${ContactFieldsFragmentDoc}
+  ${LatestMessageFieldsFragmentDoc}
 `
 export const MessageFieldsFragmentDoc = gql`
   fragment MessageFields on Message {
@@ -962,6 +982,27 @@ export const ContactFieldsWithChatFragmentDoc = gql`
   ${ContactFieldsFragmentDoc}
   ${MessageFieldsFragmentDoc}
 `
+export const MessageChangedFieldsFragmentDoc = gql`
+  fragment MessageChangedFields on MessageChanged {
+    __typename
+    txUserId
+    rxUserId
+    contactId
+    contactStatus
+    message {
+      ...MessageFields
+    }
+    messages {
+      ...MessageFields
+    }
+    mutationType
+    latestMessage {
+      ...LatestMessageFields
+    }
+  }
+  ${MessageFieldsFragmentDoc}
+  ${LatestMessageFieldsFragmentDoc}
+`
 export const OtherUserFieldsFragmentDoc = gql`
   fragment OtherUserFields on User {
     __typename
@@ -971,45 +1012,6 @@ export const OtherUserFieldsFragmentDoc = gql`
     comment
     avatar
   }
-`
-export const ChatHistoryFieldsFragmentDoc = gql`
-  fragment ChatHistoryFields on ChatHistory {
-    __typename
-    userId
-    userCode
-    userName
-    userAvatar
-    messageId
-    messageCategory
-    message
-    messageStatus
-  }
-`
-export const MessageChangedFieldsFragmentDoc = gql`
-  fragment MessageChangedFields on MessageChanged {
-    __typename
-    txUserId
-    rxUserId
-    message {
-      ...MessageFields
-    }
-    messages {
-      ...MessageFields
-    }
-    mutationType
-    txUser {
-      ...OtherUserFields
-    }
-    rxUser {
-      ...OtherUserFields
-    }
-    latestChat {
-      ...ChatHistoryFields
-    }
-  }
-  ${MessageFieldsFragmentDoc}
-  ${OtherUserFieldsFragmentDoc}
-  ${ChatHistoryFieldsFragmentDoc}
 `
 export const OwnUserFieldsFragmentDoc = gql`
   fragment OwnUserFields on User {
@@ -1381,8 +1383,8 @@ export type EditProfileMutationOptions = Apollo.BaseMutationOptions<
   EditProfileMutationVariables
 >
 export const ReadMessagesDocument = gql`
-  mutation ReadMessages($contactId: ID!, $chatTimeFormat: String) {
-    readMessages(contactId: $contactId) {
+  mutation ReadMessages($otherUserId: ID!, $chatTimeFormat: String) {
+    readMessages(otherUserId: $otherUserId) {
       ...MessageChangedFields
     }
   }
@@ -1406,7 +1408,7 @@ export type ReadMessagesMutationFn = Apollo.MutationFunction<
  * @example
  * const [readMessagesMutation, { data, loading, error }] = useReadMessagesMutation({
  *   variables: {
- *      contactId: // value for 'contactId'
+ *      otherUserId: // value for 'otherUserId'
  *      chatTimeFormat: // value for 'chatTimeFormat'
  *   },
  * });
@@ -1582,10 +1584,10 @@ export type SignUpMutationOptions = Apollo.BaseMutationOptions<
 export const UnblockContactDocument = gql`
   mutation UnblockContact($contactId: ID!) {
     unblockContact(contactId: $contactId) {
-      ...ContactFields
+      ...ContactFieldsWithLatestMessage
     }
   }
-  ${ContactFieldsFragmentDoc}
+  ${ContactFieldsWithLatestMessageFragmentDoc}
 `
 export type UnblockContactMutationFn = Apollo.MutationFunction<
   UnblockContactMutation,
@@ -1677,11 +1679,11 @@ export const InitDocument = gql`
     me {
       ...OwnUserFields
     }
-    contactList {
+    contacts {
       ...ContactFields
     }
-    chatHistory {
-      ...ChatHistoryFields
+    latestMessages {
+      ...LatestMessageFields
     }
     contactInfo(contactUserId: $contactUserId) {
       ...ContactFieldsWithChat
@@ -1689,7 +1691,7 @@ export const InitDocument = gql`
   }
   ${OwnUserFieldsFragmentDoc}
   ${ContactFieldsFragmentDoc}
-  ${ChatHistoryFieldsFragmentDoc}
+  ${LatestMessageFieldsFragmentDoc}
   ${ContactFieldsWithChatFragmentDoc}
 `
 
@@ -1725,48 +1727,6 @@ export function useInitLazyQuery(
 export type InitQueryHookResult = ReturnType<typeof useInitQuery>
 export type InitLazyQueryHookResult = ReturnType<typeof useInitLazyQuery>
 export type InitQueryResult = Apollo.QueryResult<InitQuery, InitQueryVariables>
-export const ChatHistoryDocument = gql`
-  query ChatHistory {
-    chatHistory {
-      ...ChatHistoryFields
-    }
-  }
-  ${ChatHistoryFieldsFragmentDoc}
-`
-
-/**
- * __useChatHistoryQuery__
- *
- * To run a query within a React component, call `useChatHistoryQuery` and pass it any options that fit your needs.
- * When your component renders, `useChatHistoryQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useChatHistoryQuery({
- *   variables: {
- *   },
- * });
- */
-export function useChatHistoryQuery(
-  baseOptions?: Apollo.QueryHookOptions<ChatHistoryQuery, ChatHistoryQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<ChatHistoryQuery, ChatHistoryQueryVariables>(ChatHistoryDocument, options)
-}
-export function useChatHistoryLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<ChatHistoryQuery, ChatHistoryQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<ChatHistoryQuery, ChatHistoryQueryVariables>(
-    ChatHistoryDocument,
-    options
-  )
-}
-export type ChatHistoryQueryHookResult = ReturnType<typeof useChatHistoryQuery>
-export type ChatHistoryLazyQueryHookResult = ReturnType<typeof useChatHistoryLazyQuery>
-export type ChatHistoryQueryResult = Apollo.QueryResult<ChatHistoryQuery, ChatHistoryQueryVariables>
 export const ContactInfoDocument = gql`
   query ContactInfo($contactUserId: ID, $cursor: Int, $limit: Int, $chatTimeFormat: String) {
     contactInfo(contactUserId: $contactUserId) {
@@ -1813,9 +1773,9 @@ export function useContactInfoLazyQuery(
 export type ContactInfoQueryHookResult = ReturnType<typeof useContactInfoQuery>
 export type ContactInfoLazyQueryHookResult = ReturnType<typeof useContactInfoLazyQuery>
 export type ContactInfoQueryResult = Apollo.QueryResult<ContactInfoQuery, ContactInfoQueryVariables>
-export const ContactListDocument = gql`
-  query ContactList {
-    contactList {
+export const ContactsDocument = gql`
+  query Contacts {
+    contacts {
       ...ContactFields
     }
   }
@@ -1823,38 +1783,35 @@ export const ContactListDocument = gql`
 `
 
 /**
- * __useContactListQuery__
+ * __useContactsQuery__
  *
- * To run a query within a React component, call `useContactListQuery` and pass it any options that fit your needs.
- * When your component renders, `useContactListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useContactsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useContactsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useContactListQuery({
+ * const { data, loading, error } = useContactsQuery({
  *   variables: {
  *   },
  * });
  */
-export function useContactListQuery(
-  baseOptions?: Apollo.QueryHookOptions<ContactListQuery, ContactListQueryVariables>
+export function useContactsQuery(
+  baseOptions?: Apollo.QueryHookOptions<ContactsQuery, ContactsQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<ContactListQuery, ContactListQueryVariables>(ContactListDocument, options)
+  return Apollo.useQuery<ContactsQuery, ContactsQueryVariables>(ContactsDocument, options)
 }
-export function useContactListLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<ContactListQuery, ContactListQueryVariables>
+export function useContactsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<ContactsQuery, ContactsQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<ContactListQuery, ContactListQueryVariables>(
-    ContactListDocument,
-    options
-  )
+  return Apollo.useLazyQuery<ContactsQuery, ContactsQueryVariables>(ContactsDocument, options)
 }
-export type ContactListQueryHookResult = ReturnType<typeof useContactListQuery>
-export type ContactListLazyQueryHookResult = ReturnType<typeof useContactListLazyQuery>
-export type ContactListQueryResult = Apollo.QueryResult<ContactListQuery, ContactListQueryVariables>
+export type ContactsQueryHookResult = ReturnType<typeof useContactsQuery>
+export type ContactsLazyQueryHookResult = ReturnType<typeof useContactsLazyQuery>
+export type ContactsQueryResult = Apollo.QueryResult<ContactsQuery, ContactsQueryVariables>
 export const IsAuthenticatedDocument = gql`
   query IsAuthenticated {
     isAuthenticated
@@ -1899,6 +1856,54 @@ export type IsAuthenticatedLazyQueryHookResult = ReturnType<typeof useIsAuthenti
 export type IsAuthenticatedQueryResult = Apollo.QueryResult<
   IsAuthenticatedQuery,
   IsAuthenticatedQueryVariables
+>
+export const LatestMessagesDocument = gql`
+  query LatestMessages {
+    latestMessages {
+      ...LatestMessageFields
+    }
+  }
+  ${LatestMessageFieldsFragmentDoc}
+`
+
+/**
+ * __useLatestMessagesQuery__
+ *
+ * To run a query within a React component, call `useLatestMessagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLatestMessagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLatestMessagesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLatestMessagesQuery(
+  baseOptions?: Apollo.QueryHookOptions<LatestMessagesQuery, LatestMessagesQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<LatestMessagesQuery, LatestMessagesQueryVariables>(
+    LatestMessagesDocument,
+    options
+  )
+}
+export function useLatestMessagesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<LatestMessagesQuery, LatestMessagesQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<LatestMessagesQuery, LatestMessagesQueryVariables>(
+    LatestMessagesDocument,
+    options
+  )
+}
+export type LatestMessagesQueryHookResult = ReturnType<typeof useLatestMessagesQuery>
+export type LatestMessagesLazyQueryHookResult = ReturnType<typeof useLatestMessagesLazyQuery>
+export type LatestMessagesQueryResult = Apollo.QueryResult<
+  LatestMessagesQuery,
+  LatestMessagesQueryVariables
 >
 export const MeDocument = gql`
   query Me {
@@ -1977,3 +1982,39 @@ export function useSearchUserLazyQuery(
 export type SearchUserQueryHookResult = ReturnType<typeof useSearchUserQuery>
 export type SearchUserLazyQueryHookResult = ReturnType<typeof useSearchUserLazyQuery>
 export type SearchUserQueryResult = Apollo.QueryResult<SearchUserQuery, SearchUserQueryVariables>
+export const MessageDocument = gql`
+  subscription Message($chatTimeFormat: String) {
+    messageSubscription {
+      ...MessageChangedFields
+    }
+  }
+  ${MessageChangedFieldsFragmentDoc}
+`
+
+/**
+ * __useMessageSubscription__
+ *
+ * To run a query within a React component, call `useMessageSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useMessageSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMessageSubscription({
+ *   variables: {
+ *      chatTimeFormat: // value for 'chatTimeFormat'
+ *   },
+ * });
+ */
+export function useMessageSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<MessageSubscription, MessageSubscriptionVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useSubscription<MessageSubscription, MessageSubscriptionVariables>(
+    MessageDocument,
+    options
+  )
+}
+export type MessageSubscriptionHookResult = ReturnType<typeof useMessageSubscription>
+export type MessageSubscriptionResult = Apollo.SubscriptionResult<MessageSubscription>
