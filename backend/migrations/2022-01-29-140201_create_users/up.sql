@@ -5,7 +5,7 @@ CREATE TABLE `users` (
   `name` varchar(255) DEFAULT NULL COMMENT '名前',
   `email` varchar(255) NOT NULL COMMENT 'メールアドレス',
   `password` varchar(255) NOT NULL COMMENT 'パスワード',
-  `secret` varchar(50) NOT NULL COMMENT 'シークレット',
+  `remember_token` varchar(255) NULL COMMENT 'リメンバートークン',
   `comment` varchar(255) NULL COMMENT 'コメント',
   `avatar` varchar(255) NULL COMMENT 'アバター',
   `role` int(11) NOT NULL COMMENT '権限',

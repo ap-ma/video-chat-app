@@ -1,4 +1,4 @@
-use super::schema::{contacts, messages, users};
+use super::schema::{calls, contacts, messages, password_reset_tokens, users, verify_email_tokens};
 use chrono::NaiveDateTime;
 use diesel::dsl::SqlTypeOf;
 
@@ -10,7 +10,7 @@ pub struct UserEntity {
     pub name: Option<String>,
     pub email: String,
     pub password: String,
-    pub secret: String,
+    pub remember_token: Option<String>,
     pub comment: Option<String>,
     pub avatar: Option<String>,
     pub role: i32,
@@ -26,7 +26,6 @@ pub struct NewUserEntity {
     pub name: Option<String>,
     pub email: String,
     pub password: String,
-    pub secret: String,
     pub comment: Option<String>,
     pub avatar: Option<String>,
     pub role: i32,
@@ -41,7 +40,7 @@ pub struct ChangeUserEntity {
     pub name: Option<Option<String>>,
     pub email: Option<String>,
     pub password: Option<String>,
-    pub secret: Option<String>,
+    pub remember_token: Option<Option<String>>,
     pub comment: Option<Option<String>>,
     pub avatar: Option<Option<String>>,
     pub role: Option<i32>,
@@ -132,4 +131,69 @@ pub struct LatestMessageEntity {
     pub message: Option<String>,
     #[sql_type = "SqlTypeOf<messages::status>"]
     pub message_status: i32,
+}
+
+#[derive(Identifiable, Queryable)]
+#[table_name = "calls"]
+pub struct CallEntity {
+    pub id: u64,
+    pub message_id: u64,
+    pub status: i32,
+    pub started_at: Option<NaiveDateTime>,
+    pub ended_at: Option<NaiveDateTime>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Insertable)]
+#[table_name = "calls"]
+pub struct NewCallEntity {
+    pub message_id: u64,
+    pub status: i32,
+}
+
+#[derive(Identifiable, AsChangeset, Default)]
+#[table_name = "calls"]
+pub struct ChangeCallEntity {
+    pub id: u64,
+    pub message_id: Option<u64>,
+    pub status: Option<i32>,
+    pub started_at: Option<Option<NaiveDateTime>>,
+    pub ended_at: Option<Option<NaiveDateTime>>,
+}
+
+#[derive(Identifiable, Queryable)]
+#[table_name = "verify_email_tokens"]
+#[primary_key(user_id)]
+pub struct VerifyEmailTokenEntity {
+    pub user_id: u64,
+    pub category: i32,
+    pub email: String,
+    pub token: String,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Insertable)]
+#[table_name = "verify_email_tokens"]
+pub struct NewVerifyEmailTokenEntity {
+    pub user_id: u64,
+    pub category: i32,
+    pub email: String,
+    pub token: String,
+}
+
+#[derive(Identifiable, Queryable)]
+#[table_name = "password_reset_tokens"]
+#[primary_key(user_id)]
+pub struct PasswordResetTokenEntity {
+    pub user_id: u64,
+    pub token: String,
+    pub created_at: NaiveDateTime,
+}
+
+#[derive(Insertable)]
+#[table_name = "password_reset_tokens"]
+pub struct NewPasswordResetTokenEntity {
+    pub user_id: u64,
+    pub token: String,
 }

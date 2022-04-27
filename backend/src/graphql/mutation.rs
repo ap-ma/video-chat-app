@@ -4,9 +4,9 @@ use super::form::{
 };
 use super::model::{Contact, Message, MessageChanged, User};
 use super::security::auth::{self, Role};
-use super::security::{password, random, validator, RoleGuard};
+use super::security::{self, validator, RoleGuard};
 use super::GraphqlError;
-use crate::constants::{contact as contact_const, message as message_const, user as user_const};
+use crate::constant::{contact as contact_const, message as message_const, user as user_const};
 use crate::database::entity::{
     ChangeContactEntity, ChangeMessageEntity, ChangeUserEntity, ContactEntity, NewContactEntity,
     NewMessageEntity, NewUserEntity,
@@ -23,18 +23,19 @@ impl Mutation {
     async fn sign_in(&self, ctx: &Context<'_>, input: SignInInput) -> Result<bool> {
         let conn = common::get_conn(ctx)?;
         if let Some(user) = service::find_user_by_email(&input.email, None, &conn).ok() {
-            if let Ok(matching) = password::verify(&user.password, &input.password, &user.secret) {
-                if matching {
-                    auth::sign_in(&user, ctx)?;
-                    return Ok(true);
-                }
+            let matching = security::password_verify(&user.password, &input.password);
+            if matching.unwrap_or(false) {
+                auth::sign_in(&user, ctx)?;
+                auth::remember(user.id, &input.remember_me, ctx)?;
+                return Ok(true);
             }
         }
-        return Err(GraphqlError::ValidationError(
+
+        Err(GraphqlError::ValidationError(
             "Incorrect Email address or Password.".into(),
             "email, password",
         )
-        .extend());
+        .extend())
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
@@ -60,8 +61,7 @@ impl Mutation {
             validator::max_length_validator("comment", comment, 200)?;
         }
 
-        let secret = random::gen(50);
-        let password = password::hash(input.password.as_str(), &secret);
+        let password = security::password_hash(input.password.as_str());
         if let Err(e) = password {
             return Err(GraphqlError::ServerError(
                 "Failed to create password hash".into(),
@@ -76,7 +76,6 @@ impl Mutation {
             name: Some(input.name),
             email: input.email,
             password,
-            secret,
             comment: input.comment,
             avatar: input.avatar,
             role: user_const::role::USER,
@@ -143,7 +142,7 @@ impl Mutation {
             "Failed to get user",
         )?;
 
-        let matching = password::verify(&user.password, &input.password, &user.secret);
+        let matching = security::password_verify(&user.password, &input.password);
         if !matching.unwrap_or(false) {
             return Err(
                 GraphqlError::ValidationError("Password is incorrect.".into(), "password").extend(),
@@ -157,8 +156,7 @@ impl Mutation {
             &input.new_password_confirm,
         )?;
 
-        let secret = random::gen(50);
-        let password = password::hash(input.password.as_str(), &secret);
+        let password = security::password_hash(input.password.as_str());
         if let Err(e) = password {
             return Err(GraphqlError::ServerError(
                 "Failed to create password hash".into(),
@@ -171,7 +169,6 @@ impl Mutation {
         let change_user = ChangeUserEntity {
             id: identity.id,
             password: Some(password),
-            secret: Some(secret),
             ..Default::default()
         };
 

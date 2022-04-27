@@ -1,6 +1,6 @@
 use super::entity::*;
-use super::schema::{contacts, messages, users};
-use crate::constants::{contact as contact_const, message as message_const, user as user_const};
+use super::schema::{calls, contacts, messages, password_reset_tokens, users, verify_email_tokens};
+use crate::constant::{contact as contact_const, message as message_const, user as user_const};
 use diesel::prelude::*;
 use diesel::sql_types::{Bigint, Bool, Integer, Unsigned};
 
@@ -237,4 +237,81 @@ pub fn get_latest_messages_for_each_user(
         .bind::<Integer, _>(user_const::status::ACTIVE)
         .bind::<Bool, _>(false)
         .load(conn)
+}
+
+pub fn _create_call(new_call: NewCallEntity, conn: &MysqlConnection) -> QueryResult<CallEntity> {
+    use super::schema::calls::dsl::*;
+    diesel::insert_into(calls).values(new_call).execute(conn)?;
+    let call_id: u64 = diesel::select(last_insert_id).first(conn)?;
+    calls.find(call_id).first(conn)
+}
+
+pub fn _update_call(change_call: ChangeCallEntity, conn: &MysqlConnection) -> QueryResult<usize> {
+    diesel::update(&change_call).set(&change_call).execute(conn)
+}
+
+pub fn _find_call_by_id(call_id: u64, conn: &MysqlConnection) -> QueryResult<CallEntity> {
+    calls::table.find(call_id).first(conn)
+}
+
+pub fn _create_verify_email_token(
+    verify_email_token: NewVerifyEmailTokenEntity,
+    conn: &MysqlConnection,
+) -> QueryResult<VerifyEmailTokenEntity> {
+    use super::schema::verify_email_tokens::dsl::*;
+    let id = verify_email_token.user_id;
+    diesel::insert_into(verify_email_tokens)
+        .values(verify_email_token)
+        .execute(conn)?;
+    verify_email_tokens.find(id).first(conn)
+}
+
+pub fn _delete_verify_email_token(user_id: u64, conn: &MysqlConnection) -> QueryResult<usize> {
+    diesel::delete(verify_email_tokens::table.find(user_id)).execute(conn)
+}
+
+pub fn _upsert_verify_email_token(
+    verify_email_token: NewVerifyEmailTokenEntity,
+    conn: &MysqlConnection,
+) -> QueryResult<VerifyEmailTokenEntity> {
+    _delete_verify_email_token(verify_email_token.user_id, conn)?;
+    _create_verify_email_token(verify_email_token, conn)
+}
+
+pub fn _find_verify_email_token_by_user_id(
+    user_id: u64,
+    conn: &MysqlConnection,
+) -> QueryResult<VerifyEmailTokenEntity> {
+    verify_email_tokens::table.find(user_id).first(conn)
+}
+
+pub fn _create_password_reset_token(
+    password_reset_token: NewPasswordResetTokenEntity,
+    conn: &MysqlConnection,
+) -> QueryResult<PasswordResetTokenEntity> {
+    use super::schema::password_reset_tokens::dsl::*;
+    let id = password_reset_token.user_id;
+    diesel::insert_into(password_reset_tokens)
+        .values(password_reset_token)
+        .execute(conn)?;
+    password_reset_tokens.find(id).first(conn)
+}
+
+pub fn _delete_password_reset_token(user_id: u64, conn: &MysqlConnection) -> QueryResult<usize> {
+    diesel::delete(password_reset_tokens::table.find(user_id)).execute(conn)
+}
+
+pub fn _upsert_password_reset_token(
+    password_reset_token: NewPasswordResetTokenEntity,
+    conn: &MysqlConnection,
+) -> QueryResult<PasswordResetTokenEntity> {
+    _delete_password_reset_token(password_reset_token.user_id, conn)?;
+    _create_password_reset_token(password_reset_token, conn)
+}
+
+pub fn _find_password_reset_token_by_user_id(
+    user_id: u64,
+    conn: &MysqlConnection,
+) -> QueryResult<PasswordResetTokenEntity> {
+    password_reset_tokens::table.find(user_id).first(conn)
 }

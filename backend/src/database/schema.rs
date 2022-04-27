@@ -1,4 +1,16 @@
 table! {
+    calls (id) {
+        id -> Unsigned<Bigint>,
+        message_id -> Unsigned<Bigint>,
+        status -> Integer,
+        started_at -> Nullable<Datetime>,
+        ended_at -> Nullable<Datetime>,
+        created_at -> Datetime,
+        updated_at -> Datetime,
+    }
+}
+
+table! {
     contacts (id) {
         id -> Unsigned<Bigint>,
         user_id -> Unsigned<Bigint>,
@@ -24,13 +36,21 @@ table! {
 }
 
 table! {
+    password_reset_tokens (user_id) {
+        user_id -> Unsigned<Bigint>,
+        token -> Varchar,
+        created_at -> Datetime,
+    }
+}
+
+table! {
     users (id) {
         id -> Unsigned<Bigint>,
         code -> Varchar,
         name -> Nullable<Varchar>,
         email -> Varchar,
         password -> Varchar,
-        secret -> Varchar,
+        remember_token -> Nullable<Varchar>,
         comment -> Nullable<Varchar>,
         avatar -> Nullable<Varchar>,
         role -> Integer,
@@ -40,8 +60,21 @@ table! {
     }
 }
 
+table! {
+    verify_email_tokens (user_id) {
+        user_id -> Unsigned<Bigint>,
+        category -> Integer,
+        email -> Varchar,
+        token -> Varchar,
+        created_at -> Datetime,
+    }
+}
+
 allow_tables_to_appear_in_same_query!(
+    calls,
     contacts,
     messages,
+    password_reset_tokens,
     users,
+    verify_email_tokens,
 );

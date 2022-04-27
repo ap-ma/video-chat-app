@@ -4,6 +4,7 @@ use async_graphql::*;
 pub struct SignInInput {
     pub email: String,
     pub password: String,
+    pub remember_me: Option<bool>,
 }
 
 #[derive(InputObject)]

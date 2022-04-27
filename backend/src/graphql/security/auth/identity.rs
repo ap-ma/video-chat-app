@@ -1,4 +1,4 @@
-use crate::constants::user::role as role_const;
+use crate::constant::user::role as role_const;
 use crate::database::entity::UserEntity;
 use serde::{Deserialize, Serialize};
 

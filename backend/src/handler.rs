@@ -1,5 +1,6 @@
 use crate::graphql::AppSchema;
 use crate::shared::Shared;
+use crate::token::RememberToken;
 use actix_session::Session;
 use actix_web::{guard, web, HttpRequest, HttpResponse, Result};
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
@@ -21,19 +22,19 @@ pub fn register(config: &mut web::ServiceConfig) {
 
 async fn index(
     schema: web::Data<AppSchema>,
-    request: GraphQLRequest,
+    http_req: HttpRequest,
+    gql_req: GraphQLRequest,
     session: Session,
 ) -> GraphQLResponse {
     let session = Shared::new(session);
-    schema
-        .execute(request.into_inner().data(session))
-        .await
-        .into()
+    let remember_token = RememberToken::new(&http_req);
+    let query = gql_req.into_inner().data(session).data(remember_token);
+    schema.execute(query).await.into()
 }
 
 async fn subscription(
     schema: web::Data<AppSchema>,
-    request: HttpRequest,
+    http_req: HttpRequest,
     session: Session,
     payload: web::Payload,
 ) -> Result<HttpResponse> {
@@ -43,7 +44,7 @@ async fn subscription(
 
     GraphQLSubscription::new(Schema::clone(&*schema))
         .with_data(data)
-        .start(&request, payload)
+        .start(&http_req, payload)
 }
 
 async fn playground() -> HttpResponse {

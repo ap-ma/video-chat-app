@@ -9,9 +9,11 @@ edition = "2021"
 actix-cors = "0.6.1"
 actix-session = { version = "0.6.2", features = ["redis-actor-session"] }
 actix-web = "4.0.1"
+aes-gcm = "0.9.4"
 argonautica = "0.2.0"
 async-graphql = { version = "3.0.38", features = ["log"] }
 async-graphql-actix-web = "3.0.38"
+base64 = "0.13.0"
 chrono = "0.4.19"
 diesel = { version = "1.4.8", features = ["mysql", "r2d2", "chrono"] }
 diesel_migrations = "1.4.0"
@@ -23,8 +25,10 @@ futures = "0.3.21"
 futures-channel = "0.3.21"
 futures-util = "0.3.21"
 once_cell = "1.10.0"
+pbkdf2 = "0.11.0"
 rand = "0.8.5"
 send_wrapper = "0.5.0"
 serde = { version = "1.0.136", features = ["derive"] }
+serde_json = "1.0.79"
 slab = "0.4.5"
 thiserror = "1.0.30"

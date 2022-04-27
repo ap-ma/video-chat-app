@@ -1,5 +1,4 @@
 use crate::database::entity::UserEntity;
-
 use crate::graphql::security::guard::ResourceGuard;
 use async_graphql::*;
 

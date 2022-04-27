@@ -2,7 +2,7 @@ use super::common;
 use super::model::{Contact, LatestMessage, User};
 use super::security::auth::{self, Role};
 use super::security::guard::RoleGuard;
-use crate::constants::contact as contact_const;
+use crate::constant::contact as contact_const;
 use crate::database::service;
 use async_graphql::*;
 

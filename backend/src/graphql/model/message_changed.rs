@@ -2,6 +2,7 @@ use super::{LatestMessage, Message};
 use crate::database::service;
 use crate::graphql::common::{self, MutationType};
 use crate::graphql::security::auth;
+use crate::graphql::GraphqlError;
 use async_graphql::*;
 
 #[derive(Clone)]
@@ -57,7 +58,11 @@ impl MessageChanged {
         } else if identity.id == self.rx_user_id {
             self.tx_user_id
         } else {
-            u64::MIN
+            return Err(GraphqlError::ServerError(
+                "Failed to get the other user id.".into(),
+                "Invalid value set for tx_user_id or rx_user_id.".into(),
+            )
+            .extend());
         };
 
         let other_user = common::convert_query_result(

@@ -1,7 +1,7 @@
-use actix_web::Result;
 use argonautica::{Error, Hasher, Verifier};
+use async_graphql::Result;
 
-pub fn hash(password: &str, secret: &str) -> Result<String, Error> {
+pub fn make(password: &str, secret: &str) -> Result<String, Error> {
     Hasher::default()
         .with_password(password)
         .with_secret_key(secret)

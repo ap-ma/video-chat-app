@@ -6,6 +6,7 @@ use async_graphql::{Context, Enum, ErrorExtensions, Result, ID};
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use diesel::result::QueryResult;
 use diesel::MysqlConnection;
+
 pub use simple_broker::SimpleBroker;
 
 #[derive(Enum, Eq, PartialEq, Copy, Clone)]
