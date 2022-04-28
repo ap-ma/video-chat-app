@@ -1,2 +1,2 @@
 -- This file should undo anything in `up.sql`
-DROP TABLE verify_email_tokens;
+DROP TABLE email_verification_tokens;

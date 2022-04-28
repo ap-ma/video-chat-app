@@ -1,6 +1,6 @@
 use crate::graphql::AppSchema;
+use crate::remember_token::RememberToken;
 use crate::shared::Shared;
-use crate::token::RememberToken;
 use actix_session::Session;
 use actix_web::{guard, web, HttpRequest, HttpResponse, Result};
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};

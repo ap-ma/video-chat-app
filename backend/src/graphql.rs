@@ -42,7 +42,7 @@ impl ErrorExtensions for GraphqlError {
             GraphqlError::ServerError(message, _) => message,
         };
         Error::new(message)
-            .extend_with(|_, e| e.set("type", format!("{}", self)))
+            .extend_with(|_, e| e.set("type", self.to_string()))
             .extend_with(|_, e| match self {
                 GraphqlError::ValidationError(_, field) => e.set("field", field.to_owned()),
                 GraphqlError::ServerError(_, description) => {

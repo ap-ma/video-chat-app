@@ -1,5 +1,5 @@
 -- Your SQL goes here
-CREATE TABLE `verify_email_tokens` (
+CREATE TABLE `email_verification_tokens` (
   `user_id` bigint(20) unsigned NOT NULL COMMENT 'ユーザーID',
   `category` int(11) NOT NULL COMMENT '分類',
   `email` varchar(255) NOT NULL COMMENT 'メールアドレス',

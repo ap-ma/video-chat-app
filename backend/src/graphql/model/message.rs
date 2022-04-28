@@ -54,12 +54,7 @@ impl Message {
     }
 
     async fn created_at(&self, format: Option<String>) -> String {
-        let format = if let Some(t_format) = format {
-            t_format
-        } else {
-            "%m/%d/%Y %H:%M:%S".to_owned()
-        };
-
+        let format = format.unwrap_or("%m/%d/%Y %H:%M:%S".to_owned());
         self.created_at.format(format.as_str()).to_string()
     }
 }

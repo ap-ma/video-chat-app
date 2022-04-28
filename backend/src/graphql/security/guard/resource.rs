@@ -15,17 +15,15 @@ impl ResourceGuard {
 #[async_trait::async_trait]
 impl Guard for ResourceGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
-        if let Some(identity) = auth::get_identity(ctx)? {
-            if self.owner_id == identity.id {
-                return Ok(());
-            }
+        let identity = auth::get_identity(ctx)?;
+        let identity = identity.ok_or_else(|| GraphqlError::AuthenticationError.extend())?;
 
-            return Err(GraphqlError::AuthorizationError(
-                "Access to the resource is unauthorized.".into(),
-            )
-            .extend());
+        if identity.id != self.owner_id {
+            let m = "Access to the resource is unauthorized.";
+            let e = GraphqlError::AuthorizationError(m.into());
+            return Err(e.extend());
         }
 
-        Err(GraphqlError::AuthenticationError.extend())
+        Ok(())
     }
 }

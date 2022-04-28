@@ -16,17 +16,19 @@ impl RoleGuard {
 #[async_trait::async_trait]
 impl Guard for RoleGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
-        match auth::get_identity(ctx)? {
+        let identity = auth::get_identity(ctx)?;
+
+        match identity {
             Some(identity) => {
-                if self.role != Role::Guest {
-                    if (identity.role == self.role) || (identity.role == Role::Admin) {
+                if Role::Guest != self.role {
+                    if (identity.role == self.role) || (Role::Admin == identity.role) {
                         return Ok(());
                     }
                 }
                 Err(GraphqlError::AuthorizationError("Not authorized.".into()).extend())
             }
             None => {
-                if self.role == Role::Guest {
+                if Role::Guest == self.role {
                     return Ok(());
                 }
                 Err(GraphqlError::AuthenticationError.extend())

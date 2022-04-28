@@ -1,4 +1,6 @@
-use super::schema::{calls, contacts, messages, password_reset_tokens, users, verify_email_tokens};
+use super::schema::{
+    calls, contacts, email_verification_tokens, messages, password_reset_tokens, users,
+};
 use chrono::NaiveDateTime;
 use diesel::dsl::SqlTypeOf;
 
@@ -163,9 +165,9 @@ pub struct ChangeCallEntity {
 }
 
 #[derive(Identifiable, Queryable)]
-#[table_name = "verify_email_tokens"]
+#[table_name = "email_verification_tokens"]
 #[primary_key(user_id)]
-pub struct VerifyEmailTokenEntity {
+pub struct EmailVerificationTokenEntity {
     pub user_id: u64,
     pub category: i32,
     pub email: String,
@@ -174,8 +176,8 @@ pub struct VerifyEmailTokenEntity {
 }
 
 #[derive(Insertable)]
-#[table_name = "verify_email_tokens"]
-pub struct NewVerifyEmailTokenEntity {
+#[table_name = "email_verification_tokens"]
+pub struct NewEmailVerificationTokenEntity {
     pub user_id: u64,
     pub category: i32,
     pub email: String,

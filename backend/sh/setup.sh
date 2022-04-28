@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # dotenv
-cp -p ./.env.dev ./.env
+if [ -e .env.local ]; then
+  cat .env.local <(echo -e "\n") .env.dev > .env
+else
+  cp ./.env.dev ./.env
+fi
 
 # db migration
 chmod 645 ./sh/wait-for-it.sh

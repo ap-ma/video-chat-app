@@ -45,8 +45,10 @@ impl Contact {
     }
 
     async fn user_name(&self, ctx: &Context<'_>) -> Result<Option<String>> {
-        if let Some(identity) = auth::get_identity(ctx)? {
-            if identity.id == self.user_id {
+        let identity = auth::get_identity(ctx)?;
+
+        if let Some(identity) = identity {
+            if self.user_id == identity.id {
                 let name = self.user_name.clone().map_or(String::new(), |v| v + " ");
                 return Ok(Some(name + "(myself)"));
             }
@@ -77,14 +79,10 @@ impl Contact {
         )?;
 
         let latest_message = service::get_latest_message(identity.id, contact_user.id, &conn).ok();
-        if let None = latest_message {
-            return Ok(None);
-        }
+        let latest_message = latest_message
+            .map(|latest_message| LatestMessage::from(&(contact_user, latest_message)));
 
-        let latest_message = latest_message.unwrap();
-        let latest_message = LatestMessage::from(&(contact_user, latest_message));
-
-        Ok(Some(latest_message))
+        Ok(latest_message)
     }
 
     async fn chat(

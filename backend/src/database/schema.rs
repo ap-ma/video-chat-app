@@ -23,6 +23,16 @@ table! {
 }
 
 table! {
+    email_verification_tokens (user_id) {
+        user_id -> Unsigned<Bigint>,
+        category -> Integer,
+        email -> Varchar,
+        token -> Varchar,
+        created_at -> Datetime,
+    }
+}
+
+table! {
     messages (id) {
         id -> Unsigned<Bigint>,
         tx_user_id -> Unsigned<Bigint>,
@@ -60,21 +70,11 @@ table! {
     }
 }
 
-table! {
-    verify_email_tokens (user_id) {
-        user_id -> Unsigned<Bigint>,
-        category -> Integer,
-        email -> Varchar,
-        token -> Varchar,
-        created_at -> Datetime,
-    }
-}
-
 allow_tables_to_appear_in_same_query!(
     calls,
     contacts,
+    email_verification_tokens,
     messages,
     password_reset_tokens,
     users,
-    verify_email_tokens,
 );

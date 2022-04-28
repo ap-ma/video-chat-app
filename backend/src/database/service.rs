@@ -1,5 +1,7 @@
 use super::entity::*;
-use super::schema::{calls, contacts, messages, password_reset_tokens, users, verify_email_tokens};
+use super::schema::{
+    calls, contacts, email_verification_tokens, messages, password_reset_tokens, users,
+};
 use crate::constant::{contact as contact_const, message as message_const, user as user_const};
 use diesel::prelude::*;
 use diesel::sql_types::{Bigint, Bool, Integer, Unsigned};
@@ -254,35 +256,38 @@ pub fn _find_call_by_id(call_id: u64, conn: &MysqlConnection) -> QueryResult<Cal
     calls::table.find(call_id).first(conn)
 }
 
-pub fn _create_verify_email_token(
-    verify_email_token: NewVerifyEmailTokenEntity,
+pub fn _create_email_verification_token(
+    email_verification_token: NewEmailVerificationTokenEntity,
     conn: &MysqlConnection,
-) -> QueryResult<VerifyEmailTokenEntity> {
-    use super::schema::verify_email_tokens::dsl::*;
-    let id = verify_email_token.user_id;
-    diesel::insert_into(verify_email_tokens)
-        .values(verify_email_token)
+) -> QueryResult<EmailVerificationTokenEntity> {
+    use super::schema::email_verification_tokens::dsl::*;
+    let id = email_verification_token.user_id;
+    diesel::insert_into(email_verification_tokens)
+        .values(email_verification_token)
         .execute(conn)?;
-    verify_email_tokens.find(id).first(conn)
+    email_verification_tokens.find(id).first(conn)
 }
 
-pub fn _delete_verify_email_token(user_id: u64, conn: &MysqlConnection) -> QueryResult<usize> {
-    diesel::delete(verify_email_tokens::table.find(user_id)).execute(conn)
-}
-
-pub fn _upsert_verify_email_token(
-    verify_email_token: NewVerifyEmailTokenEntity,
-    conn: &MysqlConnection,
-) -> QueryResult<VerifyEmailTokenEntity> {
-    _delete_verify_email_token(verify_email_token.user_id, conn)?;
-    _create_verify_email_token(verify_email_token, conn)
-}
-
-pub fn _find_verify_email_token_by_user_id(
+pub fn _delete_email_verification_token(
     user_id: u64,
     conn: &MysqlConnection,
-) -> QueryResult<VerifyEmailTokenEntity> {
-    verify_email_tokens::table.find(user_id).first(conn)
+) -> QueryResult<usize> {
+    diesel::delete(email_verification_tokens::table.find(user_id)).execute(conn)
+}
+
+pub fn _upsert_email_verification_token(
+    email_verification_token: NewEmailVerificationTokenEntity,
+    conn: &MysqlConnection,
+) -> QueryResult<EmailVerificationTokenEntity> {
+    _delete_email_verification_token(email_verification_token.user_id, conn)?;
+    _create_email_verification_token(email_verification_token, conn)
+}
+
+pub fn _find_email_verification_token_by_user_id(
+    user_id: u64,
+    conn: &MysqlConnection,
+) -> QueryResult<EmailVerificationTokenEntity> {
+    email_verification_tokens::table.find(user_id).first(conn)
 }
 
 pub fn _create_password_reset_token(

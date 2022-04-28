@@ -1,7 +1,7 @@
 mod identity;
 mod remember_me;
 
-use crate::constant::system::SESSION_USER_KEY;
+use crate::constant::system::session::AUTHENTICATED_USER_KEY;
 use crate::database::entity::UserEntity;
 use crate::graphql::GraphqlError;
 use crate::shared::Shared;
@@ -13,30 +13,30 @@ pub use remember_me::*;
 
 pub fn get_identity(ctx: &Context<'_>) -> Result<Option<Identity>> {
     let session = ctx.data_unchecked::<Shared<Session>>();
-    match session.get::<Identity>(SESSION_USER_KEY) {
+    match session.get::<Identity>(AUTHENTICATED_USER_KEY) {
         Ok(maybe_identity) => {
-            if let None = maybe_identity {
+            if maybe_identity.is_none() {
                 return attempt_with_remember_token(ctx);
             }
             Ok(maybe_identity)
         }
-        Err(e) => Err(GraphqlError::ServerError(
-            "Failed to get session information.".into(),
-            format!("{}", e),
-        )
-        .extend()),
+        Err(e) => {
+            let m = "Failed to get session information.";
+            let e = GraphqlError::ServerError(m.into(), e.to_string());
+            Err(e.extend())
+        }
     }
 }
 
 pub fn sign_in(user: &UserEntity, ctx: &Context<'_>) -> Result<()> {
     let session = ctx.data_unchecked::<Shared<Session>>();
-    match session.insert(SESSION_USER_KEY, &Identity::from(user)) {
+    match session.insert(AUTHENTICATED_USER_KEY, &Identity::from(user)) {
         Ok(()) => Ok(session.renew()),
-        Err(e) => Err(GraphqlError::ServerError(
-            "Failed to initiate session.".into(),
-            format!("{}", e),
-        )
-        .extend()),
+        Err(e) => {
+            let m = "Failed to initiate session.";
+            let e = GraphqlError::ServerError(m.into(), e.to_string());
+            Err(e.extend())
+        }
     }
 }
 

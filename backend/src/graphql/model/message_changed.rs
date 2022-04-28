@@ -27,10 +27,7 @@ impl MessageChanged {
     }
 
     async fn contact_id(&self) -> Option<ID> {
-        match self.contact_id {
-            Some(contact_id) => Some(contact_id.into()),
-            _ => None,
-        }
+        self.contact_id.map(|contact_id| contact_id.into())
     }
 
     async fn contact_status(&self) -> Option<i32> {
@@ -58,11 +55,10 @@ impl MessageChanged {
         } else if identity.id == self.rx_user_id {
             self.tx_user_id
         } else {
-            return Err(GraphqlError::ServerError(
-                "Failed to get the other user id.".into(),
-                "Invalid value set for tx_user_id or rx_user_id.".into(),
-            )
-            .extend());
+            let m = "Failed to get the other user id.";
+            let d = "Invalid value set for tx_user_id or rx_user_id.";
+            let e = GraphqlError::ServerError(m.into(), d.into());
+            return Err(e.extend());
         };
 
         let other_user = common::convert_query_result(
@@ -71,13 +67,9 @@ impl MessageChanged {
         )?;
 
         let latest_message = service::get_latest_message(identity.id, other_user.id, &conn).ok();
-        if let None = latest_message {
-            return Ok(None);
-        }
+        let latest_message =
+            latest_message.map(|latest_message| LatestMessage::from(&(other_user, latest_message)));
 
-        let latest_message = latest_message.unwrap();
-        let latest_message = LatestMessage::from(&(other_user, latest_message));
-
-        Ok(Some(latest_message))
+        Ok(latest_message)
     }
 }

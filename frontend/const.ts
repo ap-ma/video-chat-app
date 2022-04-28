@@ -84,8 +84,8 @@ export const USER = {
     ACTIVE: 1,
     /** 削除済 */
     DELETED: 2,
-    /** メールアドレス未承認 */
-    UNAPPROVED: 3
+    /** メールアドレス未検証 */
+    UNVERIFIED: 3
   }
 } as const
 
