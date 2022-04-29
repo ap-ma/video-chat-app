@@ -37,7 +37,6 @@ const Signin: NextPage = () => {
   // サインアップ
   const [signUp, signUpMutation] = useSignUpMutation()
   const signUpResult = handle(signUpMutation.error, handler)
-  if (signUpMutation.data?.signUp) toIndexPage()
 
   // SigninTemplate Props
   const props: SigninTemplateProps = {
@@ -48,6 +47,7 @@ const Signin: NextPage = () => {
       signIn
     },
     signUp: {
+      result: signUpMutation.data?.signUp,
       loading: signUpMutation.loading,
       errors: isValidationErrors(signUpResult) ? signUpResult : undefined,
       reset: signUpMutation.reset,

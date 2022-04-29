@@ -1,0 +1,7 @@
+Hi, {name}!
+Please paste the following link into your browser to verify your email address.
+
+{link}
+
+This email address verification link will expire in {max_miutes} minutes.
+If the expiration has expired, you must start the process over again.

@@ -1,7 +1,6 @@
 input EditProfileInput {
   code: String!
   name: String!
-  email: String!
   comment: String
   avatar: String
 }

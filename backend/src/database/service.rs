@@ -43,21 +43,11 @@ pub fn find_user_by_code(
     query.first(conn)
 }
 
-pub fn find_user_by_email(
-    email: &str,
-    excluded_user_id: Option<u64>,
-    conn: &MysqlConnection,
-) -> QueryResult<UserEntity> {
-    let mut query = users::table
+pub fn find_user_by_email(email: &str, conn: &MysqlConnection) -> QueryResult<UserEntity> {
+    users::table
         .filter(users::email.eq(email))
         .filter(users::status.eq(user_const::status::ACTIVE))
-        .into_boxed();
-
-    if let Some(excluded_user_id) = excluded_user_id {
-        query = query.filter(users::id.ne(excluded_user_id));
-    }
-
-    query.first(conn)
+        .first(conn)
 }
 
 pub fn get_users_by_code(user_code: &str, conn: &MysqlConnection) -> QueryResult<Vec<UserEntity>> {
@@ -256,7 +246,7 @@ pub fn _find_call_by_id(call_id: u64, conn: &MysqlConnection) -> QueryResult<Cal
     calls::table.find(call_id).first(conn)
 }
 
-pub fn _create_email_verification_token(
+pub fn create_email_verification_token(
     email_verification_token: NewEmailVerificationTokenEntity,
     conn: &MysqlConnection,
 ) -> QueryResult<EmailVerificationTokenEntity> {
@@ -268,29 +258,26 @@ pub fn _create_email_verification_token(
     email_verification_tokens.find(id).first(conn)
 }
 
-pub fn _delete_email_verification_token(
-    user_id: u64,
-    conn: &MysqlConnection,
-) -> QueryResult<usize> {
+pub fn delete_email_verification_token(user_id: u64, conn: &MysqlConnection) -> QueryResult<usize> {
     diesel::delete(email_verification_tokens::table.find(user_id)).execute(conn)
 }
 
-pub fn _upsert_email_verification_token(
+pub fn upsert_email_verification_token(
     email_verification_token: NewEmailVerificationTokenEntity,
     conn: &MysqlConnection,
 ) -> QueryResult<EmailVerificationTokenEntity> {
-    _delete_email_verification_token(email_verification_token.user_id, conn)?;
-    _create_email_verification_token(email_verification_token, conn)
+    delete_email_verification_token(email_verification_token.user_id, conn)?;
+    create_email_verification_token(email_verification_token, conn)
 }
 
-pub fn _find_email_verification_token_by_user_id(
+pub fn find_email_verification_token_by_user_id(
     user_id: u64,
     conn: &MysqlConnection,
 ) -> QueryResult<EmailVerificationTokenEntity> {
     email_verification_tokens::table.find(user_id).first(conn)
 }
 
-pub fn _create_password_reset_token(
+pub fn create_password_reset_token(
     password_reset_token: NewPasswordResetTokenEntity,
     conn: &MysqlConnection,
 ) -> QueryResult<PasswordResetTokenEntity> {
@@ -302,19 +289,19 @@ pub fn _create_password_reset_token(
     password_reset_tokens.find(id).first(conn)
 }
 
-pub fn _delete_password_reset_token(user_id: u64, conn: &MysqlConnection) -> QueryResult<usize> {
+pub fn delete_password_reset_token(user_id: u64, conn: &MysqlConnection) -> QueryResult<usize> {
     diesel::delete(password_reset_tokens::table.find(user_id)).execute(conn)
 }
 
-pub fn _upsert_password_reset_token(
+pub fn upsert_password_reset_token(
     password_reset_token: NewPasswordResetTokenEntity,
     conn: &MysqlConnection,
 ) -> QueryResult<PasswordResetTokenEntity> {
-    _delete_password_reset_token(password_reset_token.user_id, conn)?;
-    _create_password_reset_token(password_reset_token, conn)
+    delete_password_reset_token(password_reset_token.user_id, conn)?;
+    create_password_reset_token(password_reset_token, conn)
 }
 
-pub fn _find_password_reset_token_by_user_id(
+pub fn find_password_reset_token_by_user_id(
     user_id: u64,
     conn: &MysqlConnection,
 ) -> QueryResult<PasswordResetTokenEntity> {

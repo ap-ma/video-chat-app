@@ -1,4 +1,6 @@
-use crate::constant::system::mail::{FROM_ADDRESS, FROM_NAME, HOST, PASSWORD, PORT, USERNAME};
+pub mod builder;
+
+use crate::constant::system::mail::{FROM_ADDRESS, FROM_NAME, HOST, PASSWORD, USERNAME};
 use async_graphql::Result;
 use lettre::transport::smtp::{authentication::Credentials, response::Response};
 use lettre::{message::Mailbox, Address, Message, SmtpTransport, Transport};
@@ -19,10 +21,7 @@ pub fn send_mail(to_address: &str, to_name: &str, subject: &str, body: String) -
     let creds = Credentials::new(USERNAME.clone(), PASSWORD.clone());
 
     // Open a remote connection to gmail
-    let mailer = SmtpTransport::relay(&HOST)?
-        .credentials(creds)
-        .port(*PORT)
-        .build();
+    let mailer = SmtpTransport::relay(&HOST)?.credentials(creds).build();
 
     // Send the email
     let response = mailer.send(&email)?;

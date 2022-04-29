@@ -33,8 +33,18 @@ pub mod message {
     }
 }
 
+pub mod email_verification_token {
+    pub mod category {
+        pub const CREATE: i32 = 1;
+        pub const UPDATE: i32 = 2;
+    }
+}
+
 pub mod system {
     use once_cell::sync::Lazy;
+
+    pub static APP_NAME: Lazy<String> =
+        Lazy::new(|| std::env::var("APP_NAME").expect("Unable to get APP_NAME"));
 
     pub static APP_ADDR: Lazy<String> =
         Lazy::new(|| std::env::var("APP_ADDR").expect("Unable to get APP_ADDR"));
@@ -61,6 +71,8 @@ pub mod system {
             .expect("CORS_MAX_AGE is invalid")
     });
 
+    pub const VERIFICATION_TOKEN_LEN: usize = 20;
+
     pub mod session {
         pub const AUTHENTICATED_USER_KEY: &str = "___authenticated_user";
     }
@@ -85,11 +97,55 @@ pub mod system {
     }
 
     pub mod password_reset {
-        pub const TOKEN_LEN: usize = 20;
+        use super::Lazy;
+
+        pub static DIGEST_SECRET_KEY: Lazy<String> = Lazy::new(|| {
+            std::env::var("PASSWORD_RESET_DIGEST_SECRET_KEY")
+                .expect("Unable to get PASSWORD_RESET_DIGEST_SECRET_KEY")
+        });
+
+        pub static CIPHER_PASSWORD: Lazy<String> = Lazy::new(|| {
+            std::env::var("PASSWORD_RESET_CIPHER_PASSWORD")
+                .expect("Unable to get PASSWORD_RESET_CIPHER_PASSWORD")
+        });
+
+        pub static FRONT_PATH: Lazy<String> = Lazy::new(|| {
+            std::env::var("PASSWORD_RESET_FRONT_PATH")
+                .expect("Unable to get PASSWORD_RESET_FRONT_PATH")
+        });
+
+        pub static LINK_MAX_MINUTES: Lazy<i64> = Lazy::new(|| {
+            std::env::var("PASSWORD_RESET_LINK_MAX_MINUTES")
+                .expect("Unable to get PASSWORD_RESET_LINK_MAX_MINUTES")
+                .parse::<i64>()
+                .expect("PASSWORD_RESET_LINK_MAX_MINUTES is invalid")
+        });
     }
 
     pub mod email_verification {
-        pub const TOKEN_LEN: usize = 20;
+        use super::Lazy;
+
+        pub static DIGEST_SECRET_KEY: Lazy<String> = Lazy::new(|| {
+            std::env::var("EMAIL_VERIFICATION_DIGEST_SECRET_KEY")
+                .expect("Unable to get EMAIL_VERIFICATION_DIGEST_SECRET_KEY")
+        });
+
+        pub static CIPHER_PASSWORD: Lazy<String> = Lazy::new(|| {
+            std::env::var("EMAIL_VERIFICATION_CIPHER_PASSWORD")
+                .expect("Unable to get EMAIL_VERIFICATION_CIPHER_PASSWORD")
+        });
+
+        pub static FRONT_PATH: Lazy<String> = Lazy::new(|| {
+            std::env::var("EMAIL_VERIFICATION_FRONT_PATH")
+                .expect("Unable to get EMAIL_VERIFICATION_FRONT_PATH")
+        });
+
+        pub static LINK_MAX_MINUTES: Lazy<i64> = Lazy::new(|| {
+            std::env::var("EMAIL_VERIFICATION_LINK_MAX_MINUTES")
+                .expect("Unable to get EMAIL_VERIFICATION_LINK_MAX_MINUTES")
+                .parse::<i64>()
+                .expect("EMAIL_VERIFICATION_LINK_MAX_MINUTES is invalid")
+        });
     }
 
     pub mod mail {
@@ -97,13 +153,6 @@ pub mod system {
 
         pub static HOST: Lazy<String> =
             Lazy::new(|| std::env::var("MAIL_HOST").expect("Unable to get MAIL_HOST"));
-
-        pub static PORT: Lazy<u16> = Lazy::new(|| {
-            std::env::var("MAIL_PORT")
-                .expect("Unable to get MAIL_PORT")
-                .parse::<u16>()
-                .expect("MAIL_PORT is invalid")
-        });
 
         pub static USERNAME: Lazy<String> =
             Lazy::new(|| std::env::var("MAIL_USERNAME").expect("Unable to get MAIL_USERNAME"));
@@ -121,8 +170,6 @@ pub mod system {
 
     pub mod remember {
         use super::Lazy;
-
-        pub const TOKEN_LEN: usize = 20;
 
         pub const TOKEN_COOKIE_NAME: &str = "remember_token";
 

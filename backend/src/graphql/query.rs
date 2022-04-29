@@ -17,6 +17,15 @@ impl Query {
         }
     }
 
+    #[graphql(guard = "RoleGuard::new(Role::Guest)")]
+    async fn is_password_reset_token_valid(
+        &self,
+        ctx: &Context<'_>,
+        token: String,
+    ) -> Result<bool> {
+        common::is_password_reset_token_valid(&token, ctx).and(Ok(true))
+    }
+
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn me(&self, ctx: &Context<'_>) -> Result<User> {
         let conn = common::get_conn(ctx)?;

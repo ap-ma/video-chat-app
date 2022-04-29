@@ -44,6 +44,7 @@ export type SigninTemplateProps = {
    * サインアップ
    */
   signUp: {
+    result?: SignUpMutation['signUp']
     loading: MutaionLoading
     errors?: ValidationErrors
     reset: MutaionReset

@@ -1,4 +1,5 @@
 mod mail;
+mod misc;
 mod simple_broker;
 
 use crate::database::MySqlPool;
@@ -8,7 +9,8 @@ use diesel::r2d2::{ConnectionManager, PooledConnection};
 use diesel::result::QueryResult;
 use diesel::MysqlConnection;
 
-pub use mail::send_mail;
+pub use mail::{builder as mail_builder, send_mail};
+pub use misc::is_password_reset_token_valid;
 pub use simple_broker::SimpleBroker;
 
 #[derive(Enum, Eq, PartialEq, Copy, Clone)]

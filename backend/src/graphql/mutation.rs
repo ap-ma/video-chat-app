@@ -1,21 +1,27 @@
-use super::common::{self, MutationType, SimpleBroker};
+use super::common::{self, mail_builder, MutationType, SimpleBroker};
 use super::form::{
-    ChangePasswordInput, EditProfileInput, SendMessageInput, SignInInput, SignUpInput,
+    ChangePasswordInput, EditProfileInput, ResetPasswordInput, SendMessageInput, SignInInput,
+    SignUpInput,
 };
 use super::model::{Contact, Message, MessageChanged, User};
 use super::security::auth::{self, Role};
-use super::security::crypto::{hash, random};
-use super::security::{self, validator, RoleGuard};
+use super::security::{self, crypto::hash, validator, RoleGuard};
 use super::GraphqlError;
 use crate::constant::system::validation::USER_COMMENT_MAX_LEN;
-use crate::constant::{contact as contact_const, message as message_const, user as user_const};
+use crate::constant::system::{email_verification, password_reset};
+use crate::constant::{
+    contact as contact_const, email_verification_token as email_verification_token_const,
+    message as message_const, user as user_const,
+};
 use crate::database::entity::{
     ChangeContactEntity, ChangeMessageEntity, ChangeUserEntity, ContactEntity, NewContactEntity,
-    NewMessageEntity, NewUserEntity,
+    NewEmailVerificationTokenEntity, NewMessageEntity, NewPasswordResetTokenEntity, NewUserEntity,
 };
 use crate::database::service;
 use async_graphql::*;
+use chrono::Local;
 use diesel::connection::Connection;
+use fast_chemail::is_valid_email;
 
 pub struct Mutation;
 
@@ -25,7 +31,7 @@ impl Mutation {
     async fn sign_in(&self, ctx: &Context<'_>, input: SignInInput) -> Result<bool> {
         let conn = common::get_conn(ctx)?;
 
-        if let Ok(user) = service::find_user_by_email(&input.email, None, &conn) {
+        if let Ok(user) = service::find_user_by_email(&input.email, &conn) {
             let matching = security::password_verify(&user.password, &input.password);
             if matching.unwrap_or(false) {
                 auth::sign_in(&user, ctx)?;
@@ -49,9 +55,10 @@ impl Mutation {
     async fn sign_up(&self, ctx: &Context<'_>, input: SignUpInput) -> Result<bool> {
         let conn = common::get_conn(ctx)?;
 
+        let comment = &input.comment.as_deref().unwrap_or("");
         validator::code_validator("code", &input.code, None, &conn)?;
-        validator::email_validator("email", &input.email, None, &conn)?;
-        validator::max_length_validator("comment", &input.comment, USER_COMMENT_MAX_LEN)?;
+        validator::email_validator("email", &input.email, &conn)?;
+        validator::max_length_validator("comment", comment, USER_COMMENT_MAX_LEN)?;
         validator::password_validator(
             "password",
             "password_confirm",
@@ -75,18 +82,45 @@ impl Mutation {
             status: user_const::status::UNVERIFIED,
         };
 
-        let user = conn.transaction::<_, Error, _>(|| {
+        let (user, token) = conn.transaction::<_, Error, _>(|| {
             let user = common::convert_query_result(
                 service::create_user(new_user, &conn),
                 "Failed to create user",
             )?;
+
             // myself
             create_contact(user.id, user.id, ctx)?;
 
-            Ok(user)
+            // email verification token
+            let (token_digest, token) = security::create_verification_token(
+                user.id,
+                &email_verification::DIGEST_SECRET_KEY,
+                &email_verification::CIPHER_PASSWORD,
+            )?;
+
+            let email_verification_token = NewEmailVerificationTokenEntity {
+                user_id: user.id,
+                category: email_verification_token_const::category::CREATE,
+                email: user.email.to_owned(),
+                token: token_digest,
+                created_at: Local::now().naive_local(),
+            };
+
+            common::convert_query_result(
+                service::create_email_verification_token(email_verification_token, &conn),
+                "Failed to create email_verification_token",
+            )?;
+
+            Ok((user, token))
         })?;
 
-        auth::sign_in(&user, ctx)?;
+        // send email
+        let to_name = &user.name.unwrap_or("Anonymous".to_owned());
+        let (subject, body) = mail_builder::email_verification_at_create(to_name, &token)?;
+        common::send_mail(&user.email, to_name, &subject, body).map_err(|_| {
+            let m = "Failed to send email, please make sure your email address is correct";
+            GraphqlError::ValidationError(m.into(), "email").extend()
+        })?;
 
         Ok(true)
     }
@@ -97,14 +131,16 @@ impl Mutation {
         let identity = auth::get_identity(ctx)?.unwrap();
 
         validator::code_validator("code", &input.code, Some(identity.id), &conn)?;
-        validator::email_validator("email", &input.email, Some(identity.id), &conn)?;
-        validator::max_length_validator("comment", &input.comment, USER_COMMENT_MAX_LEN)?;
+        validator::max_length_validator(
+            "comment",
+            &input.comment.as_deref().unwrap_or(""),
+            USER_COMMENT_MAX_LEN,
+        )?;
 
         let change_user = ChangeUserEntity {
             id: identity.id,
             code: Some(input.code),
             name: Some(Some(input.name)),
-            email: Some(input.email),
             comment: Some(input.comment),
             avatar: Some(input.avatar),
             ..Default::default()
@@ -124,13 +160,123 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn change_email(&self, ctx: &Context<'_>, email: String) -> Result<bool> {
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?.unwrap();
+
+        let user = common::convert_query_result(
+            service::find_user_by_id(identity.id, &conn),
+            "Failed to get the user",
+        )?;
+
+        if user.email == email {
+            let m = "There is no change to your registration";
+            let e = GraphqlError::ValidationError(m.into(), "email");
+            return Err(e.extend());
+        }
+
+        validator::email_validator("email", &email, &conn)?;
+
+        let (token_digest, token) = security::create_verification_token(
+            identity.id,
+            &email_verification::DIGEST_SECRET_KEY,
+            &email_verification::CIPHER_PASSWORD,
+        )?;
+
+        let email_verification_token = NewEmailVerificationTokenEntity {
+            user_id: user.id,
+            category: email_verification_token_const::category::UPDATE,
+            email,
+            token: token_digest,
+            created_at: Local::now().naive_local(),
+        };
+
+        common::convert_query_result(
+            service::upsert_email_verification_token(email_verification_token, &conn),
+            "Failed to crate email_verification_token",
+        )?;
+
+        // send email
+        let to_name = &user.name.unwrap_or("Anonymous".to_owned());
+        let (subject, body) = mail_builder::email_verification_at_update(to_name, &token)?;
+        common::send_mail(&user.email, to_name, &subject, body).map_err(|_| {
+            let m = "Failed to send email, please make sure your email address is correct";
+            GraphqlError::ValidationError(m.into(), "email").extend()
+        })?;
+
+        Ok(true)
+    }
+
+    async fn verify_email(&self, ctx: &Context<'_>, token: String) -> Result<bool> {
+        let conn = common::get_conn(ctx)?;
+
+        let cipher_pass = &email_verification::CIPHER_PASSWORD;
+        let claims = security::decrypt_verification_token(&token, cipher_pass).map_err(|_| {
+            GraphqlError::ValidationError("Invalid token.".into(), "token").extend()
+        })?;
+
+        let user = common::convert_query_result(
+            service::find_user_by_id(claims.user_id, &conn),
+            "Failed to get the user with token",
+        )?;
+
+        let token_record = common::convert_query_result(
+            service::find_email_verification_token_by_user_id(user.id, &conn),
+            "Failed to get email_verification_token",
+        )?;
+
+        let now = Local::now().naive_local();
+        let duration = now - token_record.created_at;
+        if *email_verification::LINK_MAX_MINUTES < duration.num_minutes() {
+            let e = GraphqlError::ValidationError("Token has expired.".into(), "token");
+            return Err(e.extend());
+        }
+
+        let digest_secret = &email_verification::DIGEST_SECRET_KEY;
+        let token = token_record.token;
+        let matching = hash::verify(&token, &claims.token, digest_secret);
+        if matching.unwrap_or(false) {
+            let m = "Token does not match.";
+            let e = GraphqlError::ValidationError(m.into(), "token");
+            return Err(e.extend());
+        }
+
+        let change_user = ChangeUserEntity {
+            id: user.id,
+            email: Some(token_record.email),
+            status: Some(user_const::status::ACTIVE),
+            ..Default::default()
+        };
+
+        conn.transaction::<_, Error, _>(|| {
+            common::convert_query_result(
+                service::update_user(change_user, &conn),
+                "Failed to update user",
+            )?;
+
+            common::convert_query_result(
+                service::delete_email_verification_token(user.id, &conn),
+                "Failed to delete email_verification_token",
+            )?;
+
+            Ok(())
+        })?;
+
+        if auth::get_identity(ctx)?.is_none() {
+            auth::sign_in(&user, ctx)?;
+        };
+
+        Ok(true)
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn change_password(&self, ctx: &Context<'_>, input: ChangePasswordInput) -> Result<bool> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
 
         let user = common::convert_query_result(
             service::find_user_by_id(identity.id, &conn),
-            "Failed to get user",
+            "Failed to get the user",
         )?;
 
         let matching = security::password_verify(&user.password, &input.password);
@@ -161,6 +307,87 @@ impl Mutation {
             service::update_user(change_user, &conn),
             "Failed to update user",
         )?;
+
+        Ok(true)
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::Guest)")]
+    async fn forgot_password(&self, ctx: &Context<'_>, email: String) -> Result<bool> {
+        let conn = common::get_conn(ctx)?;
+
+        if !is_valid_email(&email) {
+            let e = GraphqlError::ValidationError("Invalid email address".into(), "email");
+            return Err(e.extend());
+        }
+
+        let user = service::find_user_by_email(&email, &conn);
+        if let Ok(user) = user {
+            let (token_digest, token) = security::create_verification_token(
+                user.id,
+                &password_reset::DIGEST_SECRET_KEY,
+                &password_reset::CIPHER_PASSWORD,
+            )?;
+
+            let password_reset_token = NewPasswordResetTokenEntity {
+                user_id: user.id,
+                token: token_digest,
+                created_at: Local::now().naive_local(),
+            };
+
+            common::convert_query_result(
+                service::upsert_password_reset_token(password_reset_token, &conn),
+                "Failed to crate password_reset_token",
+            )?;
+
+            // send email
+            let to_name = &user.name.unwrap_or("Anonymous".to_owned());
+            let (subject, body) = mail_builder::forgot_password(&token)?;
+            common::send_mail(&user.email, to_name, &subject, body).map_err(|e| {
+                let m = "Failed to send password reset email.";
+                GraphqlError::ServerError(m.into(), e.message).extend()
+            })?;
+        }
+
+        Ok(true)
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::Guest)")]
+    async fn reset_password(&self, ctx: &Context<'_>, input: ResetPasswordInput) -> Result<bool> {
+        let conn = common::get_conn(ctx)?;
+
+        let user = common::is_password_reset_token_valid(&input.token, ctx)?;
+
+        validator::password_validator(
+            "password",
+            "password_confirm",
+            &input.password,
+            &input.password_confirm,
+        )?;
+
+        let password = security::password_hash(input.password.as_str()).map_err(|e| {
+            let m = "Failed to create password hash";
+            GraphqlError::ServerError(m.into(), e.to_string()).extend()
+        })?;
+
+        let change_user = ChangeUserEntity {
+            id: user.id,
+            password: Some(password),
+            ..Default::default()
+        };
+
+        conn.transaction::<_, Error, _>(|| {
+            common::convert_query_result(
+                service::update_user(change_user, &conn),
+                "Failed to update user",
+            )?;
+
+            common::convert_query_result(
+                service::delete_password_reset_token(user.id, &conn),
+                "Failed to delete password_reset_token",
+            )?;
+
+            Ok(())
+        })?;
 
         Ok(true)
     }
@@ -535,10 +762,8 @@ impl Mutation {
         }
 
         if contact.blocked {
-            let e = GraphqlError::ValidationError(
-                "Contact has already been blocked".into(),
-                "contact_id",
-            );
+            let m = "Contact has already been blocked";
+            let e = GraphqlError::ValidationError(m.into(), "contact_id");
             return Err(e.extend());
         }
 

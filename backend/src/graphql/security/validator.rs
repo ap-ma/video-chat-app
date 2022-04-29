@@ -6,12 +6,8 @@ use diesel::mysql::MysqlConnection;
 use fancy_regex::Regex;
 use fast_chemail::is_valid_email;
 
-pub fn max_length_validator(
-    field_name: &'static str,
-    value: &Option<String>,
-    len: usize,
-) -> Result<()> {
-    if value.as_deref().unwrap_or("").len() <= len {
+pub fn max_length_validator(field_name: &'static str, value: &str, len: usize) -> Result<()> {
+    if value.len() <= len {
         return Ok(());
     }
 
@@ -23,20 +19,19 @@ pub fn max_length_validator(
 pub fn email_validator(
     field_name: &'static str,
     value: &str,
-    excluded_user_id: Option<u64>,
     conn: &MysqlConnection,
 ) -> Result<()> {
     if is_valid_email(value.as_ref()) {
-        let user = service::find_user_by_email(value, excluded_user_id, &conn);
+        let user = service::find_user_by_email(value, &conn);
         if user.is_ok() {
             let m = "Email has already been registered";
-            let e = GraphqlError::ValidationError(m.into(), "email");
+            let e = GraphqlError::ValidationError(m.into(), field_name);
             return Err(e.extend());
         }
         return Ok(());
     }
 
-    Err(GraphqlError::ValidationError(format!("invalid {}", field_name), field_name).extend())
+    Err(GraphqlError::ValidationError(format!("Invalid {}", field_name), field_name).extend())
 }
 
 pub fn password_validator(
@@ -71,7 +66,7 @@ pub fn code_validator(
         let user = service::find_user_by_code(value, excluded_user_id, &conn);
         if user.is_ok() {
             let m = "Code has already been registered";
-            let e = GraphqlError::ValidationError(m.into(), "code");
+            let e = GraphqlError::ValidationError(m.into(), field_name);
             return Err(e.extend());
         }
         return Ok(());

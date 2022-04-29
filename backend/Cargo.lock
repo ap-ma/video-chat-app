@@ -864,6 +864,7 @@ dependencies = [
  "serde_json",
  "slab",
  "thiserror",
+ "url 2.2.2",
 ]
 
 [[package]]

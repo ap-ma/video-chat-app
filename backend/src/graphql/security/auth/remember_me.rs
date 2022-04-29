@@ -1,19 +1,18 @@
 use super::Identity;
 use crate::claims::Claims;
-use crate::constant::system::{
-    remember::{CIPHER_PASSWORD, DIGEST_SECRET_KEY, MAX_DAYS, TOKEN_COOKIE_NAME, TOKEN_LEN},
-    APP_DOMAIN,
+use crate::constant::system::remember::{
+    CIPHER_PASSWORD, DIGEST_SECRET_KEY, MAX_DAYS, TOKEN_COOKIE_NAME,
 };
+use crate::constant::system::APP_DOMAIN;
 use crate::database::entity::{ChangeUserEntity, UserEntity};
 use crate::database::service;
 use crate::graphql::common;
-use crate::graphql::security::crypto::{cipher, hash, random};
-use crate::graphql::GraphqlError;
+use crate::graphql::security;
+use crate::graphql::security::crypto::hash;
 use crate::remember_token::RememberToken;
 use actix_web::cookie::{time::Duration, CookieBuilder, SameSite};
 use actix_web::http::header::SET_COOKIE;
-use async_graphql::{Context, ErrorExtensions, Result};
-use serde_json;
+use async_graphql::{Context, Result};
 
 pub fn remember(user_id: u64, remember_me: &Option<bool>, ctx: &Context<'_>) -> Result<()> {
     let conn = common::get_conn(ctx)?;
@@ -22,16 +21,12 @@ pub fn remember(user_id: u64, remember_me: &Option<bool>, ctx: &Context<'_>) -> 
         return Ok(());
     }
 
-    let token = random::gen(TOKEN_LEN);
-    let digest = hash::make(&token, &DIGEST_SECRET_KEY).map_err(|e| {
-        let m = "Failed to create remember token digest";
-        let e = GraphqlError::ServerError(m.into(), e.to_string());
-        e.extend()
-    })?;
+    let (token_digest, token) =
+        security::create_verification_token(user_id, &DIGEST_SECRET_KEY, &CIPHER_PASSWORD)?;
 
     let change_user = ChangeUserEntity {
         id: user_id,
-        remember_token: Some(Some(digest)),
+        remember_token: Some(Some(token_digest)),
         ..Default::default()
     };
 
@@ -40,20 +35,7 @@ pub fn remember(user_id: u64, remember_me: &Option<bool>, ctx: &Context<'_>) -> 
         "Failed to update user",
     )?;
 
-    let claims = Claims {
-        user_id,
-        token: token,
-    };
-
-    let claims_json = serde_json::to_string(&claims).unwrap();
-    let remember_token = cipher::str_encrypt(&claims_json, &CIPHER_PASSWORD).map_err(|e| {
-        let m = "Failed to encrypt remember token";
-        let d = e.message.clone();
-        let e = GraphqlError::ServerError(m.into(), d);
-        e.extend()
-    })?;
-
-    set_remember_token_cookie(&remember_token, Duration::days(*MAX_DAYS), ctx);
+    set_remember_token_cookie(&token, Duration::days(*MAX_DAYS), ctx);
 
     Ok(())
 }
@@ -98,18 +80,7 @@ fn get_user_by_remember_token(ctx: &Context<'_>) -> Result<Option<(Claims, UserE
 
     let remember_token = ctx.data::<RememberToken>();
     if let Some(remember_token) = remember_token.ok().and_then(|token| token.0.as_ref()) {
-        let claims_json = cipher::str_decrypt(remember_token, &CIPHER_PASSWORD).map_err(|e| {
-            let m = "Failed to composite remember token";
-            let e = GraphqlError::ServerError(m.into(), e.message.clone());
-            e.extend()
-        })?;
-
-        let claims = serde_json::from_str::<Claims>(&claims_json).map_err(|e| {
-            let m = "Invalid remember token";
-            let e = GraphqlError::ServerError(m.into(), e.to_string());
-            e.extend()
-        })?;
-
+        let claims = security::decrypt_verification_token(remember_token, &CIPHER_PASSWORD)?;
         let user = service::find_user_by_id(claims.user_id, &conn).ok();
         return Ok(user.map(|user| (claims, user)));
     }

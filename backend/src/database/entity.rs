@@ -182,6 +182,7 @@ pub struct NewEmailVerificationTokenEntity {
     pub category: i32,
     pub email: String,
     pub token: String,
+    pub created_at: NaiveDateTime,
 }
 
 #[derive(Identifiable, Queryable)]
@@ -198,4 +199,5 @@ pub struct PasswordResetTokenEntity {
 pub struct NewPasswordResetTokenEntity {
     pub user_id: u64,
     pub token: String,
+    pub created_at: NaiveDateTime,
 }
