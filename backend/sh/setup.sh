@@ -3,8 +3,9 @@
 # dotenv
 if [ -e .env.local ]; then
   cat .env.local <(echo -e "\n") .env.dev > .env
+  chmod 666 ./.env
 else
-  cp ./.env.dev ./.env
+  cp -p ./.env.dev ./.env
 fi
 
 # db migration

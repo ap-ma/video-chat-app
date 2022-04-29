@@ -47,8 +47,7 @@ impl Mutation {
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn sign_out(&self, ctx: &Context<'_>) -> Result<bool> {
-        auth::sign_out(ctx)?;
-        Ok(true)
+        auth::sign_out(ctx).and(Ok(true))
     }
 
     #[graphql(guard = "RoleGuard::new(Role::Guest)")]
@@ -82,7 +81,7 @@ impl Mutation {
             status: user_const::status::UNVERIFIED,
         };
 
-        let (user, token) = conn.transaction::<_, Error, _>(|| {
+        conn.transaction::<_, Error, _>(|| {
             let user = common::convert_query_result(
                 service::create_user(new_user, &conn),
                 "Failed to create user",
@@ -111,15 +110,15 @@ impl Mutation {
                 "Failed to create email_verification_token",
             )?;
 
-            Ok((user, token))
-        })?;
+            // send email
+            let to_name = &user.name.unwrap_or("Anonymous".to_owned());
+            let (subject, body) = mail_builder::email_verification_at_create(to_name, &token)?;
+            common::send_mail(&user.email, to_name, &subject, body).map_err(|_| {
+                let m = "Failed to send email, please make sure your email address is correct";
+                GraphqlError::ValidationError(m.into(), "email").extend()
+            })?;
 
-        // send email
-        let to_name = &user.name.unwrap_or("Anonymous".to_owned());
-        let (subject, body) = mail_builder::email_verification_at_create(to_name, &token)?;
-        common::send_mail(&user.email, to_name, &subject, body).map_err(|_| {
-            let m = "Failed to send email, please make sure your email address is correct";
-            GraphqlError::ValidationError(m.into(), "email").extend()
+            Ok(())
         })?;
 
         Ok(true)
@@ -216,7 +215,7 @@ impl Mutation {
         })?;
 
         let user = common::convert_query_result(
-            service::find_user_by_id(claims.user_id, &conn),
+            service::find_user_including_unverified(claims.user_id, &conn),
             "Failed to get the user with token",
         )?;
 
@@ -233,9 +232,9 @@ impl Mutation {
         }
 
         let digest_secret = &email_verification::DIGEST_SECRET_KEY;
-        let token = token_record.token;
-        let matching = hash::verify(&token, &claims.token, digest_secret);
-        if matching.unwrap_or(false) {
+        let token_digest = token_record.token;
+        let matching = hash::verify(&token_digest, &claims.token, digest_secret);
+        if !matching.unwrap_or(false) {
             let m = "Token does not match.";
             let e = GraphqlError::ValidationError(m.into(), "token");
             return Err(e.extend());
@@ -351,7 +350,6 @@ impl Mutation {
         Ok(true)
     }
 
-    #[graphql(guard = "RoleGuard::new(Role::Guest)")]
     async fn reset_password(&self, ctx: &Context<'_>, input: ResetPasswordInput) -> Result<bool> {
         let conn = common::get_conn(ctx)?;
 

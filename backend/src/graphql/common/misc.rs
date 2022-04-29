@@ -31,9 +31,9 @@ pub fn is_password_reset_token_valid(token: &str, ctx: &Context<'_>) -> Result<U
     }
 
     let digest_secret = &password_reset::DIGEST_SECRET_KEY;
-    let token = token_record.token;
-    let matching = hash::verify(&token, &claims.token, digest_secret);
-    if matching.unwrap_or(false) {
+    let token_digest = token_record.token;
+    let matching = hash::verify(&token_digest, &claims.token, digest_secret);
+    if !matching.unwrap_or(false) {
         let m = "Token does not match.";
         let e = GraphqlError::ValidationError(m.into(), "token");
         return Err(e.extend());

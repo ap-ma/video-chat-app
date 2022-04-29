@@ -26,6 +26,16 @@ pub fn find_user_by_id(user_id: u64, conn: &MysqlConnection) -> QueryResult<User
         .first(conn)
 }
 
+pub fn find_user_including_unverified(
+    user_id: u64,
+    conn: &MysqlConnection,
+) -> QueryResult<UserEntity> {
+    users::table
+        .find(user_id)
+        .filter(users::status.ne(user_const::status::DELETED))
+        .first(conn)
+}
+
 pub fn find_user_by_code(
     code: &str,
     excluded_user_id: Option<u64>,

@@ -13,6 +13,6 @@ CREATE TABLE `users` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時',
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新日時',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `users_code_unique` (`code`),
+  KEY `users_code_idx` (`code`),
   KEY `users_email_idx` (`email`)
 ) COMMENT = 'ユーザー';

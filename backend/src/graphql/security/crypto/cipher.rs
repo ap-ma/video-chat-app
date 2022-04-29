@@ -11,11 +11,11 @@ const SALT_LEN: usize = 32;
 
 pub fn str_encrypt(data: &str, password: &str) -> Result<String> {
     let encrypted_data = encrypt(data.as_bytes(), password)?;
-    Ok(base64::encode(&encrypted_data))
+    Ok(base64::encode_config(&encrypted_data, base64::URL_SAFE))
 }
 
 pub fn str_decrypt(encrypted_data: &str, password: &str) -> Result<String> {
-    let encrypted_data = base64::decode(encrypted_data)?;
+    let encrypted_data = base64::decode_config(encrypted_data, base64::URL_SAFE)?;
     let data = decrypt(encrypted_data.as_slice(), password)?;
     Ok(String::from_utf8(data)?)
 }
