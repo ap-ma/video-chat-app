@@ -13,11 +13,11 @@ use crypto::{cipher, hash, random};
 pub use guard::{ResourceGuard, RoleGuard};
 
 pub fn password_hash(password: &str) -> Result<String, Error> {
-    hash::make(password, SECRET_KEY.as_str())
+    hash::argon2_make(password, SECRET_KEY.as_str())
 }
 
 pub fn password_verify(hash: &str, password: &str) -> Result<bool, Error> {
-    hash::verify(hash, password, SECRET_KEY.as_str())
+    hash::argon2_verify(hash, password, SECRET_KEY.as_str())
 }
 
 pub fn create_verification_token(
@@ -28,7 +28,7 @@ pub fn create_verification_token(
     let token = random::gen(VERIFICATION_TOKEN_LEN);
     let token_digest = hash::make(&token, digest_secret).map_err(|e| {
         let m = "Failed to create verification token digest";
-        let e = GraphqlError::ServerError(m.into(), e.to_string());
+        let e = GraphqlError::ServerError(m.into(), e.message.to_string());
         e.extend()
     })?;
 

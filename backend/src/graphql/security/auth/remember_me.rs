@@ -70,7 +70,7 @@ pub fn purge_remember_token(ctx: &Context<'_>) -> Result<()> {
         )?;
     }
 
-    set_remember_token_cookie("", Duration::seconds(-1), ctx);
+    set_remember_token_cookie("", Duration::seconds(0), ctx);
 
     Ok(())
 }

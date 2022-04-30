@@ -231,8 +231,8 @@ impl Mutation {
             return Err(e.extend());
         }
 
-        let digest_secret = &email_verification::DIGEST_SECRET_KEY;
         let token_digest = token_record.token;
+        let digest_secret = &email_verification::DIGEST_SECRET_KEY;
         let matching = hash::verify(&token_digest, &claims.token, digest_secret);
         if !matching.unwrap_or(false) {
             let m = "Token does not match.";
