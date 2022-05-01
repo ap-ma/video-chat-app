@@ -8,4 +8,8 @@ fragment LatestMessageFields on LatestMessage {
   messageCategory
   message
   messageStatus
+  createdAt(format: $dateTimeFormat)
+  call {
+    ...CallFields
+  }
 }

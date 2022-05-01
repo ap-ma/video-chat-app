@@ -20,6 +20,16 @@ pub enum MutationType {
     Deleted,
 }
 
+#[derive(Enum, Eq, PartialEq, Copy, Clone)]
+pub enum CallEventType {
+    Cast,
+    Call,
+    Offer,
+    Answer,
+    Candidate,
+    End,
+}
+
 pub fn get_conn(ctx: &Context<'_>) -> Result<PooledConnection<ConnectionManager<MysqlConnection>>> {
     ctx.data_unchecked::<MySqlPool>().get().map_err(|e| {
         GraphqlError::ServerError("Unable to get DB connection".into(), e.to_string()).extend()

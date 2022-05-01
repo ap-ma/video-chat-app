@@ -80,7 +80,7 @@ impl Contact {
 
         let latest_message = service::get_latest_message(identity.id, contact_user.id, &conn).ok();
         let latest_message = latest_message
-            .map(|latest_message| LatestMessage::from(&(contact_user, latest_message)));
+            .map(|(message, call)| LatestMessage::from(&(contact_user, message, call)));
 
         Ok(latest_message)
     }

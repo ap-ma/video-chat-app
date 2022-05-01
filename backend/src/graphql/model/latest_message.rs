@@ -1,5 +1,8 @@
-use crate::database::entity::{LatestMessageEntity, MessageEntity, UserEntity};
+use super::Call;
+use crate::constant::system::DEFAULT_DATETIME_FORMAT;
+use crate::database::entity::{CallEntity, LatestMessageEntity, MessageEntity, UserEntity};
 use async_graphql::*;
+use chrono::NaiveDateTime;
 
 #[derive(Clone, Debug)]
 pub struct LatestMessage {
@@ -11,6 +14,8 @@ pub struct LatestMessage {
     pub message_category: i32,
     pub message: Option<String>,
     pub message_status: i32,
+    pub created_at: NaiveDateTime,
+    pub call: Option<Call>,
 }
 
 impl From<&LatestMessageEntity> for LatestMessage {
@@ -24,12 +29,22 @@ impl From<&LatestMessageEntity> for LatestMessage {
             message_category: entity.message_category,
             message: entity.message.clone(),
             message_status: entity.message_status,
+            created_at: entity.created_at.clone(),
+            call: entity.call_id.and_then(|id| {
+                Some(Call {
+                    id,
+                    message_id: entity.message_id,
+                    status: entity.call_status.unwrap(),
+                    started_at: entity.call_started_at,
+                    ended_at: entity.call_ended_at,
+                })
+            }),
         }
     }
 }
 
-impl From<&(UserEntity, MessageEntity)> for LatestMessage {
-    fn from((user, message): &(UserEntity, MessageEntity)) -> Self {
+impl From<&(UserEntity, MessageEntity, Option<CallEntity>)> for LatestMessage {
+    fn from((user, message, call): &(UserEntity, MessageEntity, Option<CallEntity>)) -> Self {
         Self {
             user_id: user.id,
             user_code: user.code.clone(),
@@ -39,6 +54,8 @@ impl From<&(UserEntity, MessageEntity)> for LatestMessage {
             message_category: message.category,
             message: message.message.clone(),
             message_status: message.status,
+            created_at: message.created_at.clone(),
+            call: call.as_ref().map(|entity| Call::from(entity)),
         }
     }
 }
@@ -75,5 +92,14 @@ impl LatestMessage {
 
     async fn message_status(&self) -> i32 {
         self.message_status
+    }
+
+    async fn created_at(&self, format: Option<String>) -> String {
+        let f = format.unwrap_or(DEFAULT_DATETIME_FORMAT.to_owned());
+        self.created_at.format(f.as_str()).to_string()
+    }
+
+    async fn call(&self) -> Option<Call> {
+        self.call.clone()
     }
 }

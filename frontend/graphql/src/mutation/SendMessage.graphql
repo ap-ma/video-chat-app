@@ -3,7 +3,7 @@ input SendMessageInput {
   message: String!
 }
 
-mutation SendMessage($input: SendMessageInput!, $chatTimeFormat: String) {
+mutation SendMessage($input: SendMessageInput!, $dateTimeFormat: String) {
   sendMessage(input: $input) {
     ...MessageChangedFields
   }

@@ -1,21 +1,23 @@
-use super::common::{self, mail_builder, MutationType, SimpleBroker};
+use super::common::{self, mail_builder, CallEventType, MutationType, SimpleBroker};
 use super::form::{
-    ChangePasswordInput, EditProfileInput, ResetPasswordInput, SendMessageInput, SignInInput,
-    SignUpInput,
+    CallOfferInput, ChangePasswordInput, EditProfileInput, ResetPasswordInput, SendMessageInput,
+    SignInInput, SignUpInput,
 };
-use super::model::{Contact, Message, MessageChanged, User};
+use super::model::{CallEvent, Contact, Message, MessageChanged, User};
 use super::security::auth::{self, Role};
 use super::security::{self, crypto::hash, validator, RoleGuard};
 use super::GraphqlError;
 use crate::constant::system::validation::USER_COMMENT_MAX_LEN;
 use crate::constant::system::{email_verification, password_reset};
 use crate::constant::{
-    contact as contact_const, email_verification_token as email_verification_token_const,
-    message as message_const, user as user_const,
+    call as call_const, contact as contact_const,
+    email_verification_token as email_verification_token_const, message as message_const,
+    user as user_const,
 };
 use crate::database::entity::{
-    ChangeContactEntity, ChangeMessageEntity, ChangeUserEntity, ContactEntity, NewContactEntity,
-    NewEmailVerificationTokenEntity, NewMessageEntity, NewPasswordResetTokenEntity, NewUserEntity,
+    ChangeContactEntity, ChangeMessageEntity, ChangeUserEntity, ContactEntity, NewCallEntity,
+    NewContactEntity, NewEmailVerificationTokenEntity, NewMessageEntity,
+    NewPasswordResetTokenEntity, NewUserEntity,
 };
 use crate::database::service;
 use async_graphql::*;
@@ -464,12 +466,95 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn call_offer(&self, ctx: &Context<'_>, input: CallOfferInput) -> Result<MessageChanged> {
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?.unwrap();
+
+        let contact = service::find_contact_by_id(common::convert_id(&input.contact_id)?, &conn);
+        let contact = contact.map_err(|_| {
+            GraphqlError::ValidationError("Unable to get contact.".into(), "contact_id").extend()
+        })?;
+
+        if contact.user_id != identity.id {
+            let e = GraphqlError::ValidationError("Invalid contact id".into(), "contact_id");
+            return Err(e.extend());
+        }
+
+        if contact_const::status::DELETED == contact.status {
+            let e = GraphqlError::ValidationError("Contact has been deleted.".into(), "contact_id");
+            return Err(e.extend());
+        }
+
+        if contact.blocked {
+            let e = GraphqlError::ValidationError("Cntact is blocked".into(), "contact_id");
+            return Err(e.extend());
+        }
+
+        let new_message = NewMessageEntity {
+            tx_user_id: identity.id,
+            rx_user_id: contact.contact_user_id,
+            category: message_const::category::CALLING,
+            message: None,
+            status: message_const::status::UNREAD,
+        };
+
+        let message = common::convert_query_result(
+            service::create_message(new_message, &conn),
+            "Failed to create message",
+        )?;
+
+        let new_call = NewCallEntity {
+            message_id: message.id,
+            status: call_const::status::OFFER,
+        };
+
+        let call = common::convert_query_result(
+            service::create_call(new_call, &conn),
+            "Failed to create call",
+        )?;
+
+        let call_event = CallEvent {
+            call_id: call.id,
+            tx_user_id: message.tx_user_id,
+            rx_user_id: message.rx_user_id,
+            data: input.data,
+            event_type: CallEventType::Offer,
+        };
+
+        let message = Message::from(&(message, Some(call)));
+        let message_changed = MessageChanged {
+            tx_user_id: message.tx_user_id,
+            rx_user_id: message.rx_user_id,
+            contact_id: Some(contact.id),
+            contact_status: Some(contact.status),
+            message: Some(message),
+            messages: None,
+            mutation_type: MutationType::Created,
+        };
+
+        let rx_user_contact = service::find_contact_with_user(
+            message_changed.rx_user_id,
+            message_changed.tx_user_id,
+            &conn,
+        );
+
+        if let Some(rx_user_contact) = rx_user_contact.ok() {
+            if !(rx_user_contact.0.blocked) {
+                publish_call_event(&call_event);
+                publish_message(&message_changed);
+            }
+        }
+
+        Ok(message_changed)
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn delete_message(&self, ctx: &Context<'_>, message_id: ID) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
 
         let message = service::find_message_by_id(common::convert_id(&message_id)?, &conn);
-        let message = message.map_err(|_| {
+        let (message, _) = message.map_err(|_| {
             GraphqlError::ValidationError("Unable to get message".into(), "message_id").extend()
         })?;
 
@@ -504,7 +589,7 @@ impl Mutation {
             "Failed to update message",
         )?;
 
-        let message = common::convert_query_result(
+        let (message, call) = common::convert_query_result(
             service::find_message_by_id(message.id, &conn),
             "Failed to get message",
         )?;
@@ -514,13 +599,16 @@ impl Mutation {
             rx_user_id: message.rx_user_id,
             contact_id,
             contact_status,
-            message: Some(Message::from(&message)),
+            message: Some(Message::from(&(message, call))),
             messages: None,
             mutation_type: MutationType::Deleted,
         };
 
-        let rx_user_contact =
-            service::find_contact_with_user(message.tx_user_id, message.rx_user_id, &conn);
+        let rx_user_contact = service::find_contact_with_user(
+            message_changed.tx_user_id,
+            message_changed.rx_user_id,
+            &conn,
+        );
 
         if let Some(rx_user_contact) = rx_user_contact.ok() {
             if !(rx_user_contact.0.blocked) {
@@ -573,8 +661,11 @@ impl Mutation {
             mutation_type: MutationType::Updated,
         };
 
-        let contact_user_contact =
-            service::find_contact_with_user(other_user_id, identity.id, &conn);
+        let contact_user_contact = service::find_contact_with_user(
+            message_changed.rx_user_id,
+            message_changed.tx_user_id,
+            &conn,
+        );
 
         if let Some(contact_user_contact) = contact_user_contact.ok() {
             if !(contact_user_contact.0.blocked) {
@@ -621,7 +712,7 @@ impl Mutation {
         let identity = auth::get_identity(ctx)?.unwrap();
 
         let message = service::find_message_by_id(common::convert_id(&message_id)?, &conn);
-        let message = message.map_err(|_| {
+        let (message, _) = message.map_err(|_| {
             let m = "Unable to get contact application message";
             let e = GraphqlError::ValidationError(m.into(), "message_id");
             e.extend()
@@ -867,20 +958,26 @@ fn create_message(
         "Failed to create message",
     )?;
 
+    let message = Message::from(&(message, None));
     let message_changed = MessageChanged {
         tx_user_id: message.tx_user_id,
         rx_user_id: message.rx_user_id,
         contact_id,
         contact_status,
-        message: Some(Message::from(&message)),
+        message: Some(message),
         messages: None,
         mutation_type: MutationType::Created,
     };
 
-    let rx_user_contact = service::find_contact_with_user(rx_user_id, identity.id, &conn).ok();
-    if let Some(rx_user_contact) = rx_user_contact {
+    let rx_user_contact = service::find_contact_with_user(
+        message_changed.rx_user_id,
+        message_changed.tx_user_id,
+        &conn,
+    );
+
+    if let Some(rx_user_contact) = rx_user_contact.ok() {
         if !(rx_user_contact.0.blocked) {
-            publish_message(&message_changed)
+            publish_message(&message_changed);
         }
     }
 
@@ -889,4 +986,8 @@ fn create_message(
 
 fn publish_message(message_changed: &MessageChanged) {
     SimpleBroker::publish(message_changed.clone());
+}
+
+fn publish_call_event(call_event: &CallEvent) {
+    SimpleBroker::publish(call_event.clone());
 }

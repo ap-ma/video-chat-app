@@ -1,4 +1,4 @@
-query LatestMessages {
+query LatestMessages($dateTimeFormat: String) {
   latestMessages {
     ...LatestMessageFields
   }

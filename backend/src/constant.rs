@@ -23,13 +23,22 @@ pub mod message {
         pub const CONTACT_APPLICATION: i32 = 1;
         pub const CONTACT_APPROVAL: i32 = 2;
         pub const MESSAGE: i32 = 3;
-        pub const _CALLING: i32 = 4;
+        pub const CALLING: i32 = 4;
         pub const _FILE_TRANSMISSION: i32 = 5;
     }
     pub mod status {
         pub const UNREAD: i32 = 1;
         pub const READ: i32 = 2;
         pub const DELETED: i32 = 3;
+    }
+}
+
+pub mod call {
+    pub mod status {
+        pub const OFFER: i32 = 1;
+        pub const _DURING: i32 = 2;
+        pub const _TERMINATED: i32 = 3;
+        pub const _CANCELED: i32 = 3;
     }
 }
 
@@ -71,7 +80,9 @@ pub mod system {
             .expect("CORS_MAX_AGE is invalid")
     });
 
-    pub const VERIFICATION_TOKEN_LEN: usize = 20;
+    pub const DEFAULT_DATETIME_FORMAT: &str = "%m/%d/%Y %H:%M:%S";
+
+    pub const VERIFICATION_TOKEN_LEN: usize = 50;
 
     pub mod session {
         pub const AUTHENTICATED_USER_KEY: &str = "___authenticated_user";

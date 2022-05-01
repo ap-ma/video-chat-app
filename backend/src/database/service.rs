@@ -155,8 +155,14 @@ pub fn update_message_to_read(
         .execute(conn)
 }
 
-pub fn find_message_by_id(message_id: u64, conn: &MysqlConnection) -> QueryResult<MessageEntity> {
-    messages::table.find(message_id).first(conn)
+pub fn find_message_by_id(
+    message_id: u64,
+    conn: &MysqlConnection,
+) -> QueryResult<(MessageEntity, Option<CallEntity>)> {
+    messages::table
+        .find(message_id)
+        .left_join(calls::table.on(calls::message_id.eq(messages::id)))
+        .first(conn)
 }
 
 pub fn get_messages(
@@ -165,8 +171,10 @@ pub fn get_messages(
     cursor: Option<u64>,
     limit: Option<i64>,
     conn: &MysqlConnection,
-) -> QueryResult<Vec<MessageEntity>> {
-    let mut query = messages::table.into_boxed();
+) -> QueryResult<Vec<(MessageEntity, Option<CallEntity>)>> {
+    let mut query = messages::table
+        .left_join(calls::table.on(calls::message_id.eq(messages::id)))
+        .into_boxed();
 
     if let Some(value) = cursor {
         query = query.filter(messages::id.lt(value));
@@ -197,8 +205,9 @@ pub fn get_unread_messages(
     user_id: u64,
     other_user_id: u64,
     conn: &MysqlConnection,
-) -> QueryResult<Vec<MessageEntity>> {
+) -> QueryResult<Vec<(MessageEntity, Option<CallEntity>)>> {
     messages::table
+        .left_join(calls::table.on(calls::message_id.eq(messages::id)))
         .filter(messages::tx_user_id.eq(user_id))
         .filter(messages::rx_user_id.eq(other_user_id))
         .filter(messages::status.eq(message_const::status::UNREAD))
@@ -209,8 +218,9 @@ pub fn get_latest_message(
     user_id: u64,
     other_user_id: u64,
     conn: &MysqlConnection,
-) -> QueryResult<MessageEntity> {
+) -> QueryResult<(MessageEntity, Option<CallEntity>)> {
     messages::table
+        .left_join(calls::table.on(calls::message_id.eq(messages::id)))
         .filter(
             messages::tx_user_id
                 .eq(user_id)
@@ -241,7 +251,7 @@ pub fn get_latest_messages_for_each_user(
         .load(conn)
 }
 
-pub fn _create_call(new_call: NewCallEntity, conn: &MysqlConnection) -> QueryResult<CallEntity> {
+pub fn create_call(new_call: NewCallEntity, conn: &MysqlConnection) -> QueryResult<CallEntity> {
     use super::schema::calls::dsl::*;
     diesel::insert_into(calls).values(new_call).execute(conn)?;
     let call_id: u64 = diesel::select(last_insert_id).first(conn)?;

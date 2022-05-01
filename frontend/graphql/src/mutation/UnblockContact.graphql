@@ -1,4 +1,4 @@
-mutation UnblockContact($contactId: ID!) {
+mutation UnblockContact($contactId: ID!, $dateTimeFormat: String) {
   unblockContact(contactId: $contactId) {
     ...ContactFieldsWithLatestMessage
   }

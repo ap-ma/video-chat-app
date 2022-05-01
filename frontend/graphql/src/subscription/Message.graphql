@@ -1,4 +1,4 @@
-subscription Message($chatTimeFormat: String) {
+subscription Message($dateTimeFormat: String) {
   messageSubscription {
     ...MessageChangedFields
   }

@@ -3,6 +3,7 @@ use super::schema::{
 };
 use chrono::NaiveDateTime;
 use diesel::dsl::SqlTypeOf;
+use diesel::sql_types::Nullable;
 
 #[derive(Identifiable, Queryable)]
 #[table_name = "users"]
@@ -133,6 +134,16 @@ pub struct LatestMessageEntity {
     pub message: Option<String>,
     #[sql_type = "SqlTypeOf<messages::status>"]
     pub message_status: i32,
+    #[sql_type = "SqlTypeOf<messages::created_at>"]
+    pub created_at: NaiveDateTime,
+    #[sql_type = "Nullable<SqlTypeOf<calls::id>>"]
+    pub call_id: Option<u64>,
+    #[sql_type = "Nullable<SqlTypeOf<calls::status>>"]
+    pub call_status: Option<i32>,
+    #[sql_type = "SqlTypeOf<calls::started_at>"]
+    pub call_started_at: Option<NaiveDateTime>,
+    #[sql_type = "SqlTypeOf<calls::ended_at>"]
+    pub call_ended_at: Option<NaiveDateTime>,
 }
 
 #[derive(Identifiable, Queryable)]

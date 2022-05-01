@@ -5,8 +5,13 @@ select
     users.avatar as user_avatar,
     messages.id as message_id,
     messages.category as message_category,
-    messages.message,
-    messages.status as message_status
+    messages.message as message,
+    messages.status as message_status,
+    messages.created_at as created_at,
+    calls.id as call_id,
+    calls.status as call_status,
+    calls.started_at as call_started_at,
+    calls.ended_at as call_ended_at
 from
     messages
     inner join
@@ -32,7 +37,10 @@ from
     left join
         contacts
     on  contacts.user_id = ?
-    and contact_user_id = users.id
+    and contacts.contact_user_id = users.id
+    left join
+        calls
+    on  calls.message_id = messages.id
 where
     users.status = ?
 and (

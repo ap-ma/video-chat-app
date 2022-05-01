@@ -1,4 +1,6 @@
-use crate::database::entity::MessageEntity;
+use super::Call;
+use crate::constant::system::DEFAULT_DATETIME_FORMAT;
+use crate::database::entity::{CallEntity, MessageEntity};
 use async_graphql::*;
 use chrono::NaiveDateTime;
 
@@ -11,18 +13,20 @@ pub struct Message {
     pub message: Option<String>,
     pub status: i32,
     pub created_at: NaiveDateTime,
+    pub call: Option<Call>,
 }
 
-impl From<&MessageEntity> for Message {
-    fn from(entity: &MessageEntity) -> Self {
+impl From<&(MessageEntity, Option<CallEntity>)> for Message {
+    fn from((message, call): &(MessageEntity, Option<CallEntity>)) -> Self {
         Self {
-            id: entity.id,
-            tx_user_id: entity.tx_user_id,
-            rx_user_id: entity.rx_user_id,
-            category: entity.category,
-            message: entity.message.clone(),
-            status: entity.status,
-            created_at: entity.created_at,
+            id: message.id,
+            tx_user_id: message.tx_user_id,
+            rx_user_id: message.rx_user_id,
+            category: message.category,
+            message: message.message.clone(),
+            status: message.status,
+            created_at: message.created_at,
+            call: call.as_ref().map(|entity| Call::from(entity)),
         }
     }
 }
@@ -54,7 +58,11 @@ impl Message {
     }
 
     async fn created_at(&self, format: Option<String>) -> String {
-        let format = format.unwrap_or("%m/%d/%Y %H:%M:%S".to_owned());
-        self.created_at.format(format.as_str()).to_string()
+        let f = format.unwrap_or(DEFAULT_DATETIME_FORMAT.to_owned());
+        self.created_at.format(f.as_str()).to_string()
+    }
+
+    async fn call(&self) -> Option<Call> {
+        self.call.clone()
     }
 }

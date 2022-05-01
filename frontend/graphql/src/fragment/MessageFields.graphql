@@ -6,5 +6,8 @@ fragment MessageFields on Message {
   category
   message
   status
-  createdAt(format: $chatTimeFormat)
+  createdAt(format: $dateTimeFormat)
+  call {
+    ...CallFields
+  }
 }

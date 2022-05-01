@@ -1,0 +1,10 @@
+input CallOfferInput {
+  contactId: ID!
+  data: String!
+}
+
+mutation CallOffer($input: CallOfferInput!, $dateTimeFormat: String) {
+  callOffer(input: $input) {
+    ...MessageChangedFields
+  }
+}

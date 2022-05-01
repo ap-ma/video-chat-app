@@ -15,6 +15,47 @@ export type Scalars = {
   Float: number
 }
 
+export type Call = {
+  __typename?: 'Call'
+  callTime?: Maybe<Scalars['Int']>
+  endedAt?: Maybe<Scalars['String']>
+  id: Scalars['ID']
+  messageId: Scalars['ID']
+  startedAt?: Maybe<Scalars['String']>
+  status: Scalars['Int']
+}
+
+export type CallEndedAtArgs = {
+  format?: InputMaybe<Scalars['String']>
+}
+
+export type CallStartedAtArgs = {
+  format?: InputMaybe<Scalars['String']>
+}
+
+export type CallEvent = {
+  __typename?: 'CallEvent'
+  callId: Scalars['ID']
+  data: Scalars['String']
+  eventType: CallEventType
+  rxUserId: Scalars['ID']
+  txUserId: Scalars['ID']
+}
+
+export enum CallEventType {
+  Answer = 'ANSWER',
+  Call = 'CALL',
+  Candidate = 'CANDIDATE',
+  Cast = 'CAST',
+  End = 'END',
+  Offer = 'OFFER'
+}
+
+export type CallOfferInput = {
+  contactId: Scalars['ID']
+  data: Scalars['String']
+}
+
 export type ChangePasswordInput = {
   newPassword: Scalars['String']
   newPasswordConfirm: Scalars['String']
@@ -48,6 +89,8 @@ export type EditProfileInput = {
 
 export type LatestMessage = {
   __typename?: 'LatestMessage'
+  call?: Maybe<Call>
+  createdAt: Scalars['String']
   message?: Maybe<Scalars['String']>
   messageCategory: Scalars['Int']
   messageId: Scalars['ID']
@@ -58,8 +101,13 @@ export type LatestMessage = {
   userName?: Maybe<Scalars['String']>
 }
 
+export type LatestMessageCreatedAtArgs = {
+  format?: InputMaybe<Scalars['String']>
+}
+
 export type Message = {
   __typename?: 'Message'
+  call?: Maybe<Call>
   category: Scalars['Int']
   createdAt: Scalars['String']
   id: Scalars['ID']
@@ -88,6 +136,7 @@ export type MessageChanged = {
 export type Mutation = {
   __typename?: 'Mutation'
   blockContact: Contact
+  callOffer: MessageChanged
   changeEmail: Scalars['Boolean']
   changePassword: Scalars['Boolean']
   contactApplication: MessageChanged
@@ -110,6 +159,10 @@ export type Mutation = {
 
 export type MutationBlockContactArgs = {
   contactId: Scalars['ID']
+}
+
+export type MutationCallOfferArgs = {
+  input: CallOfferInput
 }
 
 export type MutationChangeEmailArgs = {
@@ -234,6 +287,7 @@ export type SignUpInput = {
 
 export type Subscription = {
   __typename?: 'Subscription'
+  callEventSubscription: CallEvent
   messageSubscription: MessageChanged
 }
 
@@ -245,6 +299,25 @@ export type User = {
   email: Scalars['String']
   id: Scalars['ID']
   name?: Maybe<Scalars['String']>
+}
+
+export type CallEventFieldsFragment = {
+  __typename: 'CallEvent'
+  callId: string
+  txUserId: string
+  rxUserId: string
+  data: string
+  eventType: CallEventType
+}
+
+export type CallFieldsFragment = {
+  __typename: 'Call'
+  id: string
+  messageId: string
+  status: number
+  startedAt?: string | null
+  endedAt?: string | null
+  callTime?: number | null
 }
 
 export type ContactFieldsFragment = {
@@ -277,6 +350,16 @@ export type ContactFieldsWithLatestMessageFragment = {
     messageCategory: number
     message?: string | null
     messageStatus: number
+    createdAt: string
+    call?: {
+      __typename: 'Call'
+      id: string
+      messageId: string
+      status: number
+      startedAt?: string | null
+      endedAt?: string | null
+      callTime?: number | null
+    } | null
   } | null
 }
 
@@ -298,6 +381,15 @@ export type ContactFieldsWithChatFragment = {
     message?: string | null
     status: number
     createdAt: string
+    call?: {
+      __typename: 'Call'
+      id: string
+      messageId: string
+      status: number
+      startedAt?: string | null
+      endedAt?: string | null
+      callTime?: number | null
+    } | null
   }>
 }
 
@@ -311,6 +403,16 @@ export type LatestMessageFieldsFragment = {
   messageCategory: number
   message?: string | null
   messageStatus: number
+  createdAt: string
+  call?: {
+    __typename: 'Call'
+    id: string
+    messageId: string
+    status: number
+    startedAt?: string | null
+    endedAt?: string | null
+    callTime?: number | null
+  } | null
 }
 
 export type MessageChangedFieldsFragment = {
@@ -329,6 +431,15 @@ export type MessageChangedFieldsFragment = {
     message?: string | null
     status: number
     createdAt: string
+    call?: {
+      __typename: 'Call'
+      id: string
+      messageId: string
+      status: number
+      startedAt?: string | null
+      endedAt?: string | null
+      callTime?: number | null
+    } | null
   } | null
   messages?: Array<{
     __typename: 'Message'
@@ -339,6 +450,15 @@ export type MessageChangedFieldsFragment = {
     message?: string | null
     status: number
     createdAt: string
+    call?: {
+      __typename: 'Call'
+      id: string
+      messageId: string
+      status: number
+      startedAt?: string | null
+      endedAt?: string | null
+      callTime?: number | null
+    } | null
   }> | null
   latestMessage?: {
     __typename: 'LatestMessage'
@@ -350,6 +470,16 @@ export type MessageChangedFieldsFragment = {
     messageCategory: number
     message?: string | null
     messageStatus: number
+    createdAt: string
+    call?: {
+      __typename: 'Call'
+      id: string
+      messageId: string
+      status: number
+      startedAt?: string | null
+      endedAt?: string | null
+      callTime?: number | null
+    } | null
   } | null
 }
 
@@ -362,6 +492,15 @@ export type MessageFieldsFragment = {
   message?: string | null
   status: number
   createdAt: string
+  call?: {
+    __typename: 'Call'
+    id: string
+    messageId: string
+    status: number
+    startedAt?: string | null
+    endedAt?: string | null
+    callTime?: number | null
+  } | null
 }
 
 export type OtherUserFieldsFragment = {
@@ -401,6 +540,82 @@ export type BlockContactMutation = {
   }
 }
 
+export type CallOfferMutationVariables = Exact<{
+  input: CallOfferInput
+  dateTimeFormat?: InputMaybe<Scalars['String']>
+}>
+
+export type CallOfferMutation = {
+  __typename?: 'Mutation'
+  callOffer: {
+    __typename: 'MessageChanged'
+    txUserId: string
+    rxUserId: string
+    contactId?: string | null
+    contactStatus?: number | null
+    mutationType: MutationType
+    message?: {
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    } | null
+    messages?: Array<{
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    }> | null
+    latestMessage?: {
+      __typename: 'LatestMessage'
+      userId: string
+      userCode: string
+      userName?: string | null
+      userAvatar?: string | null
+      messageId: string
+      messageCategory: number
+      message?: string | null
+      messageStatus: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    } | null
+  }
+}
+
 export type ChangeEmailMutationVariables = Exact<{
   email: Scalars['String']
 }>
@@ -415,7 +630,7 @@ export type ChangePasswordMutation = { __typename?: 'Mutation'; changePassword: 
 
 export type ContactApplicationMutationVariables = Exact<{
   otherUserId: Scalars['ID']
-  chatTimeFormat?: InputMaybe<Scalars['String']>
+  dateTimeFormat?: InputMaybe<Scalars['String']>
 }>
 
 export type ContactApplicationMutation = {
@@ -436,6 +651,15 @@ export type ContactApplicationMutation = {
       message?: string | null
       status: number
       createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     } | null
     messages?: Array<{
       __typename: 'Message'
@@ -446,6 +670,15 @@ export type ContactApplicationMutation = {
       message?: string | null
       status: number
       createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     }> | null
     latestMessage?: {
       __typename: 'LatestMessage'
@@ -457,13 +690,23 @@ export type ContactApplicationMutation = {
       messageCategory: number
       message?: string | null
       messageStatus: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     } | null
   }
 }
 
 export type ContactApprovalMutationVariables = Exact<{
   messageId: Scalars['ID']
-  chatTimeFormat?: InputMaybe<Scalars['String']>
+  dateTimeFormat?: InputMaybe<Scalars['String']>
 }>
 
 export type ContactApprovalMutation = {
@@ -484,6 +727,15 @@ export type ContactApprovalMutation = {
       message?: string | null
       status: number
       createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     } | null
     messages?: Array<{
       __typename: 'Message'
@@ -494,6 +746,15 @@ export type ContactApprovalMutation = {
       message?: string | null
       status: number
       createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     }> | null
     latestMessage?: {
       __typename: 'LatestMessage'
@@ -505,6 +766,16 @@ export type ContactApprovalMutation = {
       messageCategory: number
       message?: string | null
       messageStatus: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     } | null
   }
 }
@@ -533,7 +804,7 @@ export type DeleteContactMutation = {
 
 export type DeleteMessageMutationVariables = Exact<{
   messageId: Scalars['ID']
-  chatTimeFormat?: InputMaybe<Scalars['String']>
+  dateTimeFormat?: InputMaybe<Scalars['String']>
 }>
 
 export type DeleteMessageMutation = {
@@ -554,6 +825,15 @@ export type DeleteMessageMutation = {
       message?: string | null
       status: number
       createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     } | null
     messages?: Array<{
       __typename: 'Message'
@@ -564,6 +844,15 @@ export type DeleteMessageMutation = {
       message?: string | null
       status: number
       createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     }> | null
     latestMessage?: {
       __typename: 'LatestMessage'
@@ -575,6 +864,16 @@ export type DeleteMessageMutation = {
       messageCategory: number
       message?: string | null
       messageStatus: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     } | null
   }
 }
@@ -604,7 +903,7 @@ export type ForgotPasswordMutation = { __typename?: 'Mutation'; forgotPassword: 
 
 export type ReadMessagesMutationVariables = Exact<{
   otherUserId: Scalars['ID']
-  chatTimeFormat?: InputMaybe<Scalars['String']>
+  dateTimeFormat?: InputMaybe<Scalars['String']>
 }>
 
 export type ReadMessagesMutation = {
@@ -625,6 +924,15 @@ export type ReadMessagesMutation = {
       message?: string | null
       status: number
       createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     } | null
     messages?: Array<{
       __typename: 'Message'
@@ -635,6 +943,15 @@ export type ReadMessagesMutation = {
       message?: string | null
       status: number
       createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     }> | null
     latestMessage?: {
       __typename: 'LatestMessage'
@@ -646,6 +963,16 @@ export type ReadMessagesMutation = {
       messageCategory: number
       message?: string | null
       messageStatus: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     } | null
   }
 }
@@ -658,7 +985,7 @@ export type ResetPasswordMutation = { __typename?: 'Mutation'; resetPassword: bo
 
 export type SendMessageMutationVariables = Exact<{
   input: SendMessageInput
-  chatTimeFormat?: InputMaybe<Scalars['String']>
+  dateTimeFormat?: InputMaybe<Scalars['String']>
 }>
 
 export type SendMessageMutation = {
@@ -679,6 +1006,15 @@ export type SendMessageMutation = {
       message?: string | null
       status: number
       createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     } | null
     messages?: Array<{
       __typename: 'Message'
@@ -689,6 +1025,15 @@ export type SendMessageMutation = {
       message?: string | null
       status: number
       createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     }> | null
     latestMessage?: {
       __typename: 'LatestMessage'
@@ -700,6 +1045,16 @@ export type SendMessageMutation = {
       messageCategory: number
       message?: string | null
       messageStatus: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     } | null
   }
 }
@@ -722,6 +1077,7 @@ export type SignUpMutation = { __typename?: 'Mutation'; signUp: boolean }
 
 export type UnblockContactMutationVariables = Exact<{
   contactId: Scalars['ID']
+  dateTimeFormat?: InputMaybe<Scalars['String']>
 }>
 
 export type UnblockContactMutation = {
@@ -745,6 +1101,16 @@ export type UnblockContactMutation = {
       messageCategory: number
       message?: string | null
       messageStatus: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     } | null
   }
 }
@@ -777,7 +1143,7 @@ export type InitQueryVariables = Exact<{
   contactUserId?: InputMaybe<Scalars['ID']>
   cursor?: InputMaybe<Scalars['Int']>
   limit?: InputMaybe<Scalars['Int']>
-  chatTimeFormat?: InputMaybe<Scalars['String']>
+  dateTimeFormat?: InputMaybe<Scalars['String']>
 }>
 
 export type InitQuery = {
@@ -811,6 +1177,16 @@ export type InitQuery = {
     messageCategory: number
     message?: string | null
     messageStatus: number
+    createdAt: string
+    call?: {
+      __typename: 'Call'
+      id: string
+      messageId: string
+      status: number
+      startedAt?: string | null
+      endedAt?: string | null
+      callTime?: number | null
+    } | null
   }>
   contactInfo: {
     __typename: 'Contact'
@@ -830,6 +1206,15 @@ export type InitQuery = {
       message?: string | null
       status: number
       createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     }>
   }
 }
@@ -838,7 +1223,7 @@ export type ContactInfoQueryVariables = Exact<{
   contactUserId?: InputMaybe<Scalars['ID']>
   cursor?: InputMaybe<Scalars['Int']>
   limit?: InputMaybe<Scalars['Int']>
-  chatTimeFormat?: InputMaybe<Scalars['String']>
+  dateTimeFormat?: InputMaybe<Scalars['String']>
 }>
 
 export type ContactInfoQuery = {
@@ -861,6 +1246,15 @@ export type ContactInfoQuery = {
       message?: string | null
       status: number
       createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     }>
   }
 }
@@ -894,7 +1288,9 @@ export type IsPasswordResetTokenValidQuery = {
   isPasswordResetTokenValid: boolean
 }
 
-export type LatestMessagesQueryVariables = Exact<{ [key: string]: never }>
+export type LatestMessagesQueryVariables = Exact<{
+  dateTimeFormat?: InputMaybe<Scalars['String']>
+}>
 
 export type LatestMessagesQuery = {
   __typename?: 'Query'
@@ -908,6 +1304,16 @@ export type LatestMessagesQuery = {
     messageCategory: number
     message?: string | null
     messageStatus: number
+    createdAt: string
+    call?: {
+      __typename: 'Call'
+      id: string
+      messageId: string
+      status: number
+      startedAt?: string | null
+      endedAt?: string | null
+      callTime?: number | null
+    } | null
   }>
 }
 
@@ -942,8 +1348,22 @@ export type SearchUserQuery = {
   }>
 }
 
+export type CallEventSubscriptionVariables = Exact<{ [key: string]: never }>
+
+export type CallEventSubscription = {
+  __typename?: 'Subscription'
+  callEventSubscription: {
+    __typename: 'CallEvent'
+    callId: string
+    txUserId: string
+    rxUserId: string
+    data: string
+    eventType: CallEventType
+  }
+}
+
 export type MessageSubscriptionVariables = Exact<{
-  chatTimeFormat?: InputMaybe<Scalars['String']>
+  dateTimeFormat?: InputMaybe<Scalars['String']>
 }>
 
 export type MessageSubscription = {
@@ -964,6 +1384,15 @@ export type MessageSubscription = {
       message?: string | null
       status: number
       createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     } | null
     messages?: Array<{
       __typename: 'Message'
@@ -974,6 +1403,15 @@ export type MessageSubscription = {
       message?: string | null
       status: number
       createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     }> | null
     latestMessage?: {
       __typename: 'LatestMessage'
@@ -985,10 +1423,30 @@ export type MessageSubscription = {
       messageCategory: number
       message?: string | null
       messageStatus: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
     } | null
   }
 }
 
+export const CallEventFieldsFragmentDoc = gql`
+  fragment CallEventFields on CallEvent {
+    __typename
+    callId
+    txUserId
+    rxUserId
+    data
+    eventType
+  }
+`
 export const ContactFieldsFragmentDoc = gql`
   fragment ContactFields on Contact {
     __typename
@@ -999,6 +1457,17 @@ export const ContactFieldsFragmentDoc = gql`
     userAvatar
     status
     blocked
+  }
+`
+export const CallFieldsFragmentDoc = gql`
+  fragment CallFields on Call {
+    __typename
+    id
+    messageId
+    status
+    startedAt(format: $dateTimeFormat)
+    endedAt(format: $dateTimeFormat)
+    callTime
   }
 `
 export const LatestMessageFieldsFragmentDoc = gql`
@@ -1012,7 +1481,12 @@ export const LatestMessageFieldsFragmentDoc = gql`
     messageCategory
     message
     messageStatus
+    createdAt(format: $dateTimeFormat)
+    call {
+      ...CallFields
+    }
   }
+  ${CallFieldsFragmentDoc}
 `
 export const ContactFieldsWithLatestMessageFragmentDoc = gql`
   fragment ContactFieldsWithLatestMessage on Contact {
@@ -1033,8 +1507,12 @@ export const MessageFieldsFragmentDoc = gql`
     category
     message
     status
-    createdAt(format: $chatTimeFormat)
+    createdAt(format: $dateTimeFormat)
+    call {
+      ...CallFields
+    }
   }
+  ${CallFieldsFragmentDoc}
 `
 export const ContactFieldsWithChatFragmentDoc = gql`
   fragment ContactFieldsWithChat on Contact {
@@ -1129,6 +1607,52 @@ export type BlockContactMutationOptions = Apollo.BaseMutationOptions<
   BlockContactMutation,
   BlockContactMutationVariables
 >
+export const CallOfferDocument = gql`
+  mutation CallOffer($input: CallOfferInput!, $dateTimeFormat: String) {
+    callOffer(input: $input) {
+      ...MessageChangedFields
+    }
+  }
+  ${MessageChangedFieldsFragmentDoc}
+`
+export type CallOfferMutationFn = Apollo.MutationFunction<
+  CallOfferMutation,
+  CallOfferMutationVariables
+>
+
+/**
+ * __useCallOfferMutation__
+ *
+ * To run a mutation, you first call `useCallOfferMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCallOfferMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [callOfferMutation, { data, loading, error }] = useCallOfferMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
+ *   },
+ * });
+ */
+export function useCallOfferMutation(
+  baseOptions?: Apollo.MutationHookOptions<CallOfferMutation, CallOfferMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<CallOfferMutation, CallOfferMutationVariables>(
+    CallOfferDocument,
+    options
+  )
+}
+export type CallOfferMutationHookResult = ReturnType<typeof useCallOfferMutation>
+export type CallOfferMutationResult = Apollo.MutationResult<CallOfferMutation>
+export type CallOfferMutationOptions = Apollo.BaseMutationOptions<
+  CallOfferMutation,
+  CallOfferMutationVariables
+>
 export const ChangeEmailDocument = gql`
   mutation ChangeEmail($email: String!) {
     changeEmail(email: $email)
@@ -1214,7 +1738,7 @@ export type ChangePasswordMutationOptions = Apollo.BaseMutationOptions<
   ChangePasswordMutationVariables
 >
 export const ContactApplicationDocument = gql`
-  mutation ContactApplication($otherUserId: ID!, $chatTimeFormat: String) {
+  mutation ContactApplication($otherUserId: ID!, $dateTimeFormat: String) {
     contactApplication(otherUserId: $otherUserId) {
       ...MessageChangedFields
     }
@@ -1240,7 +1764,7 @@ export type ContactApplicationMutationFn = Apollo.MutationFunction<
  * const [contactApplicationMutation, { data, loading, error }] = useContactApplicationMutation({
  *   variables: {
  *      otherUserId: // value for 'otherUserId'
- *      chatTimeFormat: // value for 'chatTimeFormat'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
  *   },
  * });
  */
@@ -1263,7 +1787,7 @@ export type ContactApplicationMutationOptions = Apollo.BaseMutationOptions<
   ContactApplicationMutationVariables
 >
 export const ContactApprovalDocument = gql`
-  mutation ContactApproval($messageId: ID!, $chatTimeFormat: String) {
+  mutation ContactApproval($messageId: ID!, $dateTimeFormat: String) {
     contactApproval(messageId: $messageId) {
       ...MessageChangedFields
     }
@@ -1289,7 +1813,7 @@ export type ContactApprovalMutationFn = Apollo.MutationFunction<
  * const [contactApprovalMutation, { data, loading, error }] = useContactApprovalMutation({
  *   variables: {
  *      messageId: // value for 'messageId'
- *      chatTimeFormat: // value for 'chatTimeFormat'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
  *   },
  * });
  */
@@ -1398,7 +1922,7 @@ export type DeleteContactMutationOptions = Apollo.BaseMutationOptions<
   DeleteContactMutationVariables
 >
 export const DeleteMessageDocument = gql`
-  mutation DeleteMessage($messageId: ID!, $chatTimeFormat: String) {
+  mutation DeleteMessage($messageId: ID!, $dateTimeFormat: String) {
     deleteMessage(messageId: $messageId) {
       ...MessageChangedFields
     }
@@ -1424,7 +1948,7 @@ export type DeleteMessageMutationFn = Apollo.MutationFunction<
  * const [deleteMessageMutation, { data, loading, error }] = useDeleteMessageMutation({
  *   variables: {
  *      messageId: // value for 'messageId'
- *      chatTimeFormat: // value for 'chatTimeFormat'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
  *   },
  * });
  */
@@ -1531,7 +2055,7 @@ export type ForgotPasswordMutationOptions = Apollo.BaseMutationOptions<
   ForgotPasswordMutationVariables
 >
 export const ReadMessagesDocument = gql`
-  mutation ReadMessages($otherUserId: ID!, $chatTimeFormat: String) {
+  mutation ReadMessages($otherUserId: ID!, $dateTimeFormat: String) {
     readMessages(otherUserId: $otherUserId) {
       ...MessageChangedFields
     }
@@ -1557,7 +2081,7 @@ export type ReadMessagesMutationFn = Apollo.MutationFunction<
  * const [readMessagesMutation, { data, loading, error }] = useReadMessagesMutation({
  *   variables: {
  *      otherUserId: // value for 'otherUserId'
- *      chatTimeFormat: // value for 'chatTimeFormat'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
  *   },
  * });
  */
@@ -1619,7 +2143,7 @@ export type ResetPasswordMutationOptions = Apollo.BaseMutationOptions<
   ResetPasswordMutationVariables
 >
 export const SendMessageDocument = gql`
-  mutation SendMessage($input: SendMessageInput!, $chatTimeFormat: String) {
+  mutation SendMessage($input: SendMessageInput!, $dateTimeFormat: String) {
     sendMessage(input: $input) {
       ...MessageChangedFields
     }
@@ -1645,7 +2169,7 @@ export type SendMessageMutationFn = Apollo.MutationFunction<
  * const [sendMessageMutation, { data, loading, error }] = useSendMessageMutation({
  *   variables: {
  *      input: // value for 'input'
- *      chatTimeFormat: // value for 'chatTimeFormat'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
  *   },
  * });
  */
@@ -1772,7 +2296,7 @@ export type SignUpMutationOptions = Apollo.BaseMutationOptions<
   SignUpMutationVariables
 >
 export const UnblockContactDocument = gql`
-  mutation UnblockContact($contactId: ID!) {
+  mutation UnblockContact($contactId: ID!, $dateTimeFormat: String) {
     unblockContact(contactId: $contactId) {
       ...ContactFieldsWithLatestMessage
     }
@@ -1798,6 +2322,7 @@ export type UnblockContactMutationFn = Apollo.MutationFunction<
  * const [unblockContactMutation, { data, loading, error }] = useUnblockContactMutation({
  *   variables: {
  *      contactId: // value for 'contactId'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
  *   },
  * });
  */
@@ -1907,7 +2432,7 @@ export type VerifyEmailMutationOptions = Apollo.BaseMutationOptions<
   VerifyEmailMutationVariables
 >
 export const InitDocument = gql`
-  query Init($contactUserId: ID, $cursor: Int, $limit: Int, $chatTimeFormat: String) {
+  query Init($contactUserId: ID, $cursor: Int, $limit: Int, $dateTimeFormat: String) {
     me {
       ...OwnUserFields
     }
@@ -1942,7 +2467,7 @@ export const InitDocument = gql`
  *      contactUserId: // value for 'contactUserId'
  *      cursor: // value for 'cursor'
  *      limit: // value for 'limit'
- *      chatTimeFormat: // value for 'chatTimeFormat'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
  *   },
  * });
  */
@@ -1960,7 +2485,7 @@ export type InitQueryHookResult = ReturnType<typeof useInitQuery>
 export type InitLazyQueryHookResult = ReturnType<typeof useInitLazyQuery>
 export type InitQueryResult = Apollo.QueryResult<InitQuery, InitQueryVariables>
 export const ContactInfoDocument = gql`
-  query ContactInfo($contactUserId: ID, $cursor: Int, $limit: Int, $chatTimeFormat: String) {
+  query ContactInfo($contactUserId: ID, $cursor: Int, $limit: Int, $dateTimeFormat: String) {
     contactInfo(contactUserId: $contactUserId) {
       ...ContactFieldsWithChat
     }
@@ -1983,7 +2508,7 @@ export const ContactInfoDocument = gql`
  *      contactUserId: // value for 'contactUserId'
  *      cursor: // value for 'cursor'
  *      limit: // value for 'limit'
- *      chatTimeFormat: // value for 'chatTimeFormat'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
  *   },
  * });
  */
@@ -2146,7 +2671,7 @@ export type IsPasswordResetTokenValidQueryResult = Apollo.QueryResult<
   IsPasswordResetTokenValidQueryVariables
 >
 export const LatestMessagesDocument = gql`
-  query LatestMessages {
+  query LatestMessages($dateTimeFormat: String) {
     latestMessages {
       ...LatestMessageFields
     }
@@ -2166,6 +2691,7 @@ export const LatestMessagesDocument = gql`
  * @example
  * const { data, loading, error } = useLatestMessagesQuery({
  *   variables: {
+ *      dateTimeFormat: // value for 'dateTimeFormat'
  *   },
  * });
  */
@@ -2270,8 +2796,46 @@ export function useSearchUserLazyQuery(
 export type SearchUserQueryHookResult = ReturnType<typeof useSearchUserQuery>
 export type SearchUserLazyQueryHookResult = ReturnType<typeof useSearchUserLazyQuery>
 export type SearchUserQueryResult = Apollo.QueryResult<SearchUserQuery, SearchUserQueryVariables>
+export const CallEventDocument = gql`
+  subscription CallEvent {
+    callEventSubscription {
+      ...CallEventFields
+    }
+  }
+  ${CallEventFieldsFragmentDoc}
+`
+
+/**
+ * __useCallEventSubscription__
+ *
+ * To run a query within a React component, call `useCallEventSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useCallEventSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCallEventSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCallEventSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<
+    CallEventSubscription,
+    CallEventSubscriptionVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useSubscription<CallEventSubscription, CallEventSubscriptionVariables>(
+    CallEventDocument,
+    options
+  )
+}
+export type CallEventSubscriptionHookResult = ReturnType<typeof useCallEventSubscription>
+export type CallEventSubscriptionResult = Apollo.SubscriptionResult<CallEventSubscription>
 export const MessageDocument = gql`
-  subscription Message($chatTimeFormat: String) {
+  subscription Message($dateTimeFormat: String) {
     messageSubscription {
       ...MessageChangedFields
     }
@@ -2291,7 +2855,7 @@ export const MessageDocument = gql`
  * @example
  * const { data, loading, error } = useMessageSubscription({
  *   variables: {
- *      chatTimeFormat: // value for 'chatTimeFormat'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
  *   },
  * });
  */

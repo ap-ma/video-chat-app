@@ -1,4 +1,4 @@
-mutation DeleteMessage($messageId: ID!, $chatTimeFormat: String) {
+mutation DeleteMessage($messageId: ID!, $dateTimeFormat: String) {
   deleteMessage(messageId: $messageId) {
     ...MessageChangedFields
   }

@@ -1,4 +1,4 @@
-mutation ContactApplication($otherUserId: ID!, $chatTimeFormat: String) {
+mutation ContactApplication($otherUserId: ID!, $dateTimeFormat: String) {
   contactApplication(otherUserId: $otherUserId) {
     ...MessageChangedFields
   }

@@ -68,7 +68,7 @@ impl MessageChanged {
 
         let latest_message = service::get_latest_message(identity.id, other_user.id, &conn).ok();
         let latest_message =
-            latest_message.map(|latest_message| LatestMessage::from(&(other_user, latest_message)));
+            latest_message.map(|(message, call)| LatestMessage::from(&(other_user, message, call)));
 
         Ok(latest_message)
     }

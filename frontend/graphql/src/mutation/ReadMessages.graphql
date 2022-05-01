@@ -1,4 +1,4 @@
-mutation ReadMessages($otherUserId: ID!, $chatTimeFormat: String) {
+mutation ReadMessages($otherUserId: ID!, $dateTimeFormat: String) {
   readMessages(otherUserId: $otherUserId) {
     ...MessageChangedFields
   }
