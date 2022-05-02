@@ -6,6 +6,7 @@ import {
   IsAuthenticatedDocument,
   IsAuthenticatedQuery,
   IsAuthenticatedQueryVariables,
+  useForgotPasswordMutation,
   useSignInMutation,
   useSignUpMutation
 } from 'graphql/generated'
@@ -38,8 +39,12 @@ const Signin: NextPage = () => {
   const [signUp, signUpMutation] = useSignUpMutation()
   const signUpResult = handle(signUpMutation.error, handler)
 
+  // パスワード忘れ
+  const [forgotPassword, forgotPasswordMutation] = useForgotPasswordMutation()
+  const forgotPasswordResult = handle(forgotPasswordMutation.error, handler)
+
   // SigninTemplate Props
-  const props: SigninTemplateProps = {
+  const templateProps: SigninTemplateProps = {
     signIn: {
       loading: signInMutation.loading,
       errors: isValidationErrors(signInResult) ? signInResult : undefined,
@@ -52,10 +57,17 @@ const Signin: NextPage = () => {
       errors: isValidationErrors(signUpResult) ? signUpResult : undefined,
       reset: signUpMutation.reset,
       signUp
+    },
+    forgotPassword: {
+      result: forgotPasswordMutation.data?.forgotPassword,
+      loading: forgotPasswordMutation.loading,
+      errors: isValidationErrors(forgotPasswordResult) ? forgotPasswordResult : undefined,
+      reset: forgotPasswordMutation.reset,
+      forgotPassword
     }
   }
 
-  return <SigninTemplate {...props} />
+  return <SigninTemplate {...templateProps} />
 }
 
 /**

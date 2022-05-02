@@ -208,13 +208,16 @@ impl Mutation {
         Ok(true)
     }
 
-    async fn verify_email(&self, ctx: &Context<'_>, token: String) -> Result<bool> {
+    async fn verify_email(&self, ctx: &Context<'_>, token: Option<String>) -> Result<bool> {
         let conn = common::get_conn(ctx)?;
 
-        let cipher_pass = &email_verification::CIPHER_PASSWORD;
-        let claims = security::decrypt_verification_token(&token, cipher_pass).map_err(|_| {
-            GraphqlError::ValidationError("Invalid token.".into(), "token").extend()
+        let token = token.ok_or_else(|| {
+            GraphqlError::ValidationError("No token entered".into(), "token").extend()
         })?;
+
+        let cipher_pass = &email_verification::CIPHER_PASSWORD;
+        let claims = security::decrypt_verification_token(&token, cipher_pass)
+            .map_err(|_| GraphqlError::ValidationError("Invalid token".into(), "token").extend())?;
 
         let user = common::convert_query_result(
             service::find_user_including_unverified(claims.user_id, &conn),

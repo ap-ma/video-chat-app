@@ -2,6 +2,7 @@ use super::common;
 use super::model::{Contact, LatestMessage, User};
 use super::security::auth::{self, Role};
 use super::security::guard::RoleGuard;
+use super::GraphqlError;
 use crate::constant::contact as contact_const;
 use crate::database::service;
 use async_graphql::*;
@@ -21,8 +22,12 @@ impl Query {
     async fn is_password_reset_token_valid(
         &self,
         ctx: &Context<'_>,
-        token: String,
+        token: Option<String>,
     ) -> Result<bool> {
+        let token = token.ok_or_else(|| {
+            GraphqlError::ValidationError("No token entered".into(), "token").extend()
+        })?;
+
         common::is_password_reset_token_valid(&token, ctx).and(Ok(true))
     }
 

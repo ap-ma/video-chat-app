@@ -15,6 +15,8 @@ import Wave from 'components/01_atoms/Wave'
 import Layout, { Title } from 'components/05_layouts/Layout'
 import { connect } from 'components/hoc'
 import {
+  ForgotPasswordMutation,
+  ForgotPasswordMutationVariables,
   SignInMutation,
   SignInMutationVariables,
   SignUpMutation,
@@ -50,6 +52,16 @@ export type SigninTemplateProps = {
     reset: MutaionReset
     signUp: MutateFunction<SignUpMutation, SignUpMutationVariables>
   }
+  /**
+   * パスワード忘れ
+   */
+  forgotPassword: {
+    result?: ForgotPasswordMutation['forgotPassword']
+    loading: MutaionLoading
+    errors?: ValidationErrors
+    reset: MutaionReset
+    forgotPassword: MutateFunction<ForgotPasswordMutation, ForgotPasswordMutationVariables>
+  }
 }
 /** Presenter Props */
 type PresenterProps = SigninTemplateProps
@@ -57,7 +69,7 @@ type PresenterProps = SigninTemplateProps
 /** Presenter Component */
 const Presenter: React.VFC<PresenterProps> = () => (
   <Layout>
-    <Title>signin</Title>
+    <Title>Signin</Title>
     <Box h='100vh'>
       <Flex align='center' justify='center'>
         <Stack spacing={8} mx='auto' maxW='lg' py={12} px={6}>

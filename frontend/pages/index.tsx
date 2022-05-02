@@ -8,6 +8,7 @@ import {
   InitQuery,
   InitQueryVariables,
   useBlockContactMutation,
+  useChangeEmailMutation,
   useChangePasswordMutation,
   useContactApplicationMutation,
   useContactApprovalMutation,
@@ -105,6 +106,10 @@ const Index: NextPage = () => {
   const [editProfile, editProfileMutation] = useEditProfileMutation()
   const editProfileResult = handle(editProfileMutation.error, handler)
 
+  // メールアドレス変更
+  const [changeEmail, changeEmailMutation] = useChangeEmailMutation()
+  const changeEmailResult = handle(changeEmailMutation.error, handler)
+
   // パスワード変更
   const [changePassword, changePasswordMutation] = useChangePasswordMutation()
   const changePasswordResult = handle(changePasswordMutation.error, handler)
@@ -200,7 +205,7 @@ const Index: NextPage = () => {
   //  ----------------------------------------------------------------------------
 
   // IndexTemplate Props
-  const props: IndexTemplateProps = {
+  const templateProps: IndexTemplateProps = {
     query: {
       me: meQuery.data?.me,
       contacts: contactsQuery.data?.contacts,
@@ -225,6 +230,12 @@ const Index: NextPage = () => {
         errors: isValidationErrors(editProfileResult) ? editProfileResult : undefined,
         reset: editProfileMutation.reset,
         editProfile
+      },
+      changeEmail: {
+        loading: changeEmailMutation.loading,
+        errors: isValidationErrors(changeEmailResult) ? changeEmailResult : undefined,
+        reset: changeEmailMutation.reset,
+        changeEmail
       },
       changePassword: {
         loading: changePasswordMutation.loading,
@@ -293,7 +304,7 @@ const Index: NextPage = () => {
     }
   }
 
-  return <IndexTemplate {...props} />
+  return <IndexTemplate {...templateProps} />
 }
 
 /**
@@ -308,9 +319,9 @@ const Index: NextPage = () => {
  * @param context
  * @returns
  */
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const apolloClient = initializeApollo()
-  const cookie = ctx.req.headers.cookie
+  const cookie = req.headers.cookie
   const context = { headers: { cookie } }
 
   const { error } = await apolloClient

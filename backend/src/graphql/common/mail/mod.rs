@@ -19,11 +19,8 @@ pub fn send_mail(to_address: &str, to_name: &str, subject: &str, body: String) -
         .body(body)?;
 
     let creds = Credentials::new(USERNAME.clone(), PASSWORD.clone());
-
-    // Open a remote connection to gmail
     let mailer = SmtpTransport::relay(&HOST)?.credentials(creds).build();
-
-    // Send the email
     let response = mailer.send(&email)?;
+
     Ok(response)
 }

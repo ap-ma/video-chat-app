@@ -226,7 +226,7 @@ export type MutationUndeleteContactArgs = {
 }
 
 export type MutationVerifyEmailArgs = {
-  token: Scalars['String']
+  token?: InputMaybe<Scalars['String']>
 }
 
 export enum MutationType {
@@ -251,7 +251,7 @@ export type QueryContactInfoArgs = {
 }
 
 export type QueryIsPasswordResetTokenValidArgs = {
-  token: Scalars['String']
+  token?: InputMaybe<Scalars['String']>
 }
 
 export type QuerySearchUserArgs = {
@@ -1134,7 +1134,7 @@ export type UndeleteContactMutation = {
 }
 
 export type VerifyEmailMutationVariables = Exact<{
-  token: Scalars['String']
+  token?: InputMaybe<Scalars['String']>
 }>
 
 export type VerifyEmailMutation = { __typename?: 'Mutation'; verifyEmail: boolean }
@@ -1280,7 +1280,7 @@ export type IsAuthenticatedQueryVariables = Exact<{ [key: string]: never }>
 export type IsAuthenticatedQuery = { __typename?: 'Query'; isAuthenticated: boolean }
 
 export type IsPasswordResetTokenValidQueryVariables = Exact<{
-  token: Scalars['String']
+  token?: InputMaybe<Scalars['String']>
 }>
 
 export type IsPasswordResetTokenValidQuery = {
@@ -2390,7 +2390,7 @@ export type UndeleteContactMutationOptions = Apollo.BaseMutationOptions<
   UndeleteContactMutationVariables
 >
 export const VerifyEmailDocument = gql`
-  mutation VerifyEmail($token: String!) {
+  mutation VerifyEmail($token: String) {
     verifyEmail(token: $token)
   }
 `
@@ -2615,7 +2615,7 @@ export type IsAuthenticatedQueryResult = Apollo.QueryResult<
   IsAuthenticatedQueryVariables
 >
 export const IsPasswordResetTokenValidDocument = gql`
-  query IsPasswordResetTokenValid($token: String!) {
+  query IsPasswordResetTokenValid($token: String) {
     isPasswordResetTokenValid(token: $token)
   }
 `
@@ -2637,7 +2637,7 @@ export const IsPasswordResetTokenValidDocument = gql`
  * });
  */
 export function useIsPasswordResetTokenValidQuery(
-  baseOptions: Apollo.QueryHookOptions<
+  baseOptions?: Apollo.QueryHookOptions<
     IsPasswordResetTokenValidQuery,
     IsPasswordResetTokenValidQueryVariables
   >

@@ -23,8 +23,8 @@ pub mod message {
         pub const CONTACT_APPLICATION: i32 = 1;
         pub const CONTACT_APPROVAL: i32 = 2;
         pub const MESSAGE: i32 = 3;
-        pub const CALLING: i32 = 4;
-        pub const _FILE_TRANSMISSION: i32 = 5;
+        pub const _IMAGE_TRANSMISSION: i32 = 4;
+        pub const CALLING: i32 = 5;
     }
     pub mod status {
         pub const UNREAD: i32 = 1;

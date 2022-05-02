@@ -112,10 +112,10 @@ export const MESSAGE = {
     CONTACT_APPROVAL: 2,
     /** メッセージ */
     MESSAGE: 3,
+    /** 画像送信 */
+    IMAGE_TRANSMISSION: 4,
     /** 通話 */
-    CALLING: 4,
-    /** ファイル送信 */
-    FILE_TRANSMISSION: 5
+    CALLING: 5
   },
   /** ステータス */
   STATUS: {
@@ -125,5 +125,31 @@ export const MESSAGE = {
     READ: 2,
     /** 削除済 */
     DELETED: 3
+  }
+} as const
+
+/** App const CALL */
+export const CALL = {
+  /** ステータス */
+  STATUS: {
+    /** 呼出 */
+    OFFER: 1,
+    /** 通話中 */
+    DURING: 1,
+    /** 通話終了 */
+    TERMINATED: 1,
+    /** キャンセル */
+    CANCELED: 1
+  }
+} as const
+
+/** App const EMAIL_VERIFICATION_TOKEN */
+export const EMAIL_VERIFICATION_TOKEN = {
+  /** 分類 */
+  CATEGORY: {
+    /** 作成 */
+    CREATE: 1,
+    /** 更新 */
+    UPDATE: 2
   }
 } as const

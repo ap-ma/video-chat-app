@@ -3,6 +3,8 @@ import { connect } from 'components/hoc'
 import {
   BlockContactMutation,
   BlockContactMutationVariables,
+  ChangeEmailMutation,
+  ChangeEmailMutationVariables,
   ChangePasswordMutation,
   ChangePasswordMutationVariables,
   ContactApplicationMutation,
@@ -104,6 +106,15 @@ export type IndexTemplateProps = {
       errors?: ValidationErrors
       reset: MutaionReset
       editProfile: MutateFunction<EditProfileMutation, EditProfileMutationVariables>
+    }
+    /**
+     * メールアドレス変更
+     */
+    changeEmail: {
+      loading: MutaionLoading
+      errors?: ValidationErrors
+      reset: MutaionReset
+      changeEmail: MutateFunction<ChangeEmailMutation, ChangeEmailMutationVariables>
     }
     /**
      * パスワード変更

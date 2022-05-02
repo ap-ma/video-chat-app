@@ -2,7 +2,7 @@ import { GraphQLErrors, NetworkError } from '@apollo/client/errors'
 import { ErrorResponse } from '@apollo/client/link/error'
 import { API_ERROR_TYPE } from 'const'
 import { isArray } from 'lodash'
-import { ValidationErrors } from 'types'
+import { AuthenticationErrors, AuthorizationErrors, ServerErrors, ValidationErrors } from 'types'
 import { hasProperty, isNonEmptyArray as isNotBlank, isNullish } from 'utils/impl/object'
 
 /**
@@ -11,10 +11,10 @@ import { hasProperty, isNonEmptyArray as isNotBlank, isNullish } from 'utils/imp
  */
 export type Handler<R> = Partial<{
   noError: () => R
-  internalServerError: (errors: GraphQLErrors) => R
-  authenticationError: (errors: GraphQLErrors) => R
-  authorizationError: (errors: GraphQLErrors) => R
-  validationError: (errors: GraphQLErrors) => R
+  internalServerError: (errors: ServerErrors) => R
+  authenticationError: (errors: AuthenticationErrors) => R
+  authorizationError: (errors: AuthorizationErrors) => R
+  validationError: (errors: ValidationErrors) => R
   networkError: (error: Exclude<NetworkError, null>) => R
 }> & {
   _default: () => R
@@ -45,16 +45,28 @@ export const handle = <R>(
 
       let errors: GraphQLErrors
       if (isNotBlank((errors = filterGqlError(gqlErrors, API_ERROR_TYPE.INTERNAL_SERVER_ERROR)))) {
-        if (!isNullish(handler.internalServerError)) return handler.internalServerError(errors)
+        if (!isNullish(handler.internalServerError)) {
+          const serverErrors = errors as unknown as ServerErrors
+          return handler.internalServerError(serverErrors)
+        }
       }
       if (isNotBlank((errors = filterGqlError(gqlErrors, API_ERROR_TYPE.AUTHENTICATION_ERROR)))) {
-        if (!isNullish(handler.authenticationError)) return handler.authenticationError(errors)
+        if (!isNullish(handler.authenticationError)) {
+          const authenticationErrors = errors as unknown as AuthenticationErrors
+          return handler.authenticationError(authenticationErrors)
+        }
       }
       if (isNotBlank((errors = filterGqlError(gqlErrors, API_ERROR_TYPE.AUTHORIZATION_ERROR)))) {
-        if (!isNullish(handler.authorizationError)) return handler.authorizationError(errors)
+        if (!isNullish(handler.authorizationError)) {
+          const authorizationErrors = errors as unknown as AuthorizationErrors
+          return handler.authorizationError(authorizationErrors)
+        }
       }
       if (isNotBlank((errors = filterGqlError(gqlErrors, API_ERROR_TYPE.VALIDATION_ERROR)))) {
-        if (!isNullish(handler.validationError)) return handler.validationError(errors)
+        if (!isNullish(handler.validationError)) {
+          const validationErrors = errors as unknown as ValidationErrors
+          return handler.validationError(validationErrors)
+        }
       }
       return handler._default()
     }
