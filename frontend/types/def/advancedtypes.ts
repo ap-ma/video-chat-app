@@ -68,6 +68,9 @@ export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 /** 型引数に指定されたオブジェクトの指定プロパティに対し、Required変換を行った型 */
 export type NonOptional<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>
 
+/** 型引数に指定されたオブジェクト型から、第二型引数に指定されたオブジェクト型のプロパティと名前が重複するプロパティを除外した型 */
+export type ExcludeProperties<T, U> = Pick<T, Exclude<keyof T, keyof U>>
+
 /** 型引数に指定されたオブジェクト型のプロパティに対し、再帰的にReadonly変換を行った型 */
 export type DeepReadonly<T> = {
   readonly [P in keyof T]: T[P] extends Primitive<T[P]> ? T[P] : DeepReadonly<T[P]>

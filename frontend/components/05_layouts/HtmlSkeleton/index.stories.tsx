@@ -1,17 +1,17 @@
 import { Meta, Story } from '@storybook/react'
 import React from 'react'
-import Layout, { LayoutProps, Title } from './index'
+import HtmlSkeleton, { HtmlSkeletonProps, Title } from './index'
 
 export default {
-  title: '05_layouts/Layout',
-  component: Layout
+  title: '05_layouts/HtmlSkeleton',
+  component: HtmlSkeleton
 } as Meta
 
-const Template: Story<LayoutProps> = ({ children }) => (
-  <Layout>
+const Template: Story<HtmlSkeletonProps> = ({ children }) => (
+  <HtmlSkeleton>
     <Title>Title</Title>
     {children}
-  </Layout>
+  </HtmlSkeleton>
 )
 
 export const Primary = Template.bind({})

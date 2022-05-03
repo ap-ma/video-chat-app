@@ -1,4 +1,4 @@
-import Layout, { Title } from 'components/05_layouts/Layout'
+import HtmlSkeleton, { Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
 import {
   IsPasswordResetTokenValidQuery,
@@ -47,9 +47,9 @@ type PresenterProps = ResetPasswordTemplateProps
 
 /** Presenter Component */
 const Presenter: React.VFC<PresenterProps> = () => (
-  <Layout>
+  <HtmlSkeleton>
     <Title>Reset Password</Title>
-  </Layout>
+  </HtmlSkeleton>
 )
 
 /** Container Component */

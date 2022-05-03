@@ -5,7 +5,8 @@ WebRTCを用いたビデオチャットアプリです。
 APIランタイムにGraphQLを用いています。
 
 ### 動作確認
-`backend`ディレクトリ内の`.env.dev`ファイルに、メール送信時に使用するSMTPサーバーの以下情報を設定します。
+`backend`ディレクトリ内の`.env.dev`ファイルに、  
+メール送信時に使用するSMTPサーバーの以下情報を設定します。
   * MAIL_HOST … SMTPホスト名
   * MAIL_USERNAME … SMTPユーザー名
   * MAIL_PASSWORD … SMTPパスワード

@@ -1,4 +1,4 @@
-import Layout, { Title } from 'components/05_layouts/Layout'
+import HtmlSkeleton, { Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
 import {
   BlockContactMutation,
@@ -223,10 +223,10 @@ type PresenterProps = IndexTemplateProps
 
 /** Presenter Component */
 const Presenter: React.VFC<PresenterProps> = ({ ...props }) => (
-  <Layout>
+  <HtmlSkeleton>
     <Title>Home</Title>
     こんにちは, {props.query.me?.name}
-  </Layout>
+  </HtmlSkeleton>
 )
 
 /** Container Component */

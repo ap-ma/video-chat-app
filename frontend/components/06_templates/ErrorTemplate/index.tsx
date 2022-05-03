@@ -1,26 +1,32 @@
-import { Box, Heading, Square, Text } from '@chakra-ui/react'
-import Layout, { Title } from 'components/05_layouts/Layout'
+import { Heading, Icon, Text } from '@chakra-ui/react'
+import HtmlSkeleton, { HtmlSkeletonProps, Title } from 'components/05_layouts/HtmlSkeleton'
+import ResultIndication, { Body, Head } from 'components/05_layouts/ResultIndication'
 import { connect } from 'components/hoc'
 import React from 'react'
+import { RiErrorWarningLine } from 'react-icons/ri'
 import { ContainerProps } from 'types'
+import * as styles from './styles'
 
 /** ErrorTemplate Props */
-export type ErrorTemplateProps = Record<string, unknown>
+export type ErrorTemplateProps = Omit<HtmlSkeletonProps, 'children'>
 /** Presenter Props */
 type PresenterProps = ErrorTemplateProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = () => (
-  <Layout>
-    <Title>error</Title>
-    <Square>
-      <Box p={5} shadow='md' borderWidth='1px'>
-        <Heading fontSize='xl'>Error</Heading>
-        <Text mt={3}>A server error has occurred. </Text>
-        <Text>Please wait a moment and try again.</Text>
-      </Box>
-    </Square>
-  </Layout>
+const Presenter: React.VFC<PresenterProps> = (props) => (
+  <HtmlSkeleton {...props}>
+    <Title>Error</Title>
+    <ResultIndication>
+      <Head>
+        <Icon as={RiErrorWarningLine} {...styles.icon} />
+        <Heading {...styles.head}>SYSTEM ERROR</Heading>
+      </Head>
+      <Body>
+        <Text {...styles.text}>A system error has occurred.</Text>
+        <Text {...styles.text}>Please wait a moment and try again.</Text>
+      </Body>
+    </ResultIndication>
+  </HtmlSkeleton>
 )
 
 /** Container Component */

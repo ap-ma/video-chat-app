@@ -36,7 +36,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
   return handle(error, {
     noError: () => addApolloState(apolloClient, { props: { result: data?.verifyEmail } }),
-    validationError: (errors) => addApolloState(apolloClient, { props: { errors } }),
+    validationError: () => addApolloState(apolloClient, { props: { result: false } }),
     _default: () => ({ redirect: { permanent: false, destination: ERROR_PAGE } })
   })
 }

@@ -12,7 +12,7 @@ import {
   Text
 } from '@chakra-ui/react'
 import Wave from 'components/01_atoms/Wave'
-import Layout, { Title } from 'components/05_layouts/Layout'
+import HtmlSkeleton, { Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
 import {
   ForgotPasswordMutation,
@@ -68,7 +68,7 @@ type PresenterProps = SigninTemplateProps
 
 /** Presenter Component */
 const Presenter: React.VFC<PresenterProps> = () => (
-  <Layout>
+  <HtmlSkeleton>
     <Title>Signin</Title>
     <Box h='100vh'>
       <Flex align='center' justify='center'>
@@ -120,7 +120,7 @@ const Presenter: React.VFC<PresenterProps> = () => (
       <Box h='400px' bg='gray.100' />
       <Wave topColor='gray.100' bottomColor='gray.50' animationNegativeDelay={2} />
     </Box>
-  </Layout>
+  </HtmlSkeleton>
 )
 
 /** Container Component */

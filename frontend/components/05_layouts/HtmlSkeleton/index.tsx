@@ -7,10 +7,10 @@ import { ContainerProps, WithChildren } from 'types'
 import { isNullish, isReactElement } from 'utils/impl/object'
 import Title, { TitleProps } from './Title'
 
-/** Layout Props */
-export type LayoutProps = WithChildren & BoxProps
+/** HtmlSkeleton Props */
+export type HtmlSkeletonProps = WithChildren & BoxProps
 /** Presenter Props */
-type PresenterProps = LayoutProps & { title?: TitleProps['children']; description: string }
+type PresenterProps = HtmlSkeletonProps & { title?: TitleProps['children']; description: string }
 
 /** Presenter Component */
 const Presenter: React.VFC<PresenterProps> = ({ title, description, children, ...props }) => (
@@ -42,7 +42,7 @@ const Presenter: React.VFC<PresenterProps> = ({ title, description, children, ..
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<LayoutProps, PresenterProps>> = ({
+const Container: React.VFC<ContainerProps<HtmlSkeletonProps, PresenterProps>> = ({
   presenter,
   children,
   ...props
@@ -58,8 +58,8 @@ const Container: React.VFC<ContainerProps<LayoutProps, PresenterProps>> = ({
   return presenter({ title, description, children, ...props })
 }
 
-/** Layout */
-export default connect<LayoutProps, PresenterProps>('Layout', Presenter, Container)
+/** HtmlSkeleton */
+export default connect<HtmlSkeletonProps, PresenterProps>('HtmlSkeleton', Presenter, Container)
 
 // Sub Component
 export type { TitleProps }

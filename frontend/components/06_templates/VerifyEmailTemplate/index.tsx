@@ -1,50 +1,38 @@
-import Layout, { Title } from 'components/05_layouts/Layout'
+import HtmlSkeleton, { HtmlSkeletonProps, Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
-import { INDEX_PAGE } from 'const'
 import { VerifyEmailMutation } from 'graphql/generated'
-import Link from 'next/link'
-import React from 'react'
-import { ContainerProps, ValidationErrors } from 'types'
+import React, { ReactNode } from 'react'
+import { ContainerProps } from 'types'
+import Failure from './Failure'
+import Success from './Success'
 
 /** VerifyEmailTemplate Props */
-export type VerifyEmailTemplateProps = Partial<{
-  /**
-   * メール検証結果
-   */
-  result: VerifyEmailMutation['verifyEmail']
-  /**
-   * メール検証エラー
-   */
-  errors: ValidationErrors
-}>
+export type VerifyEmailTemplateProps = Omit<HtmlSkeletonProps, 'children'> &
+  Partial<{
+    /**
+     * メール検証結果
+     */
+    result: VerifyEmailMutation['verifyEmail']
+  }>
 /** Presenter Props */
-type PresenterProps = VerifyEmailTemplateProps
+type PresenterProps = { contents: ReactNode }
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ result, errors }) => (
-  <Layout>
+const Presenter: React.VFC<PresenterProps> = ({ contents, ...props }) => (
+  <HtmlSkeleton {...props}>
     <Title>Verify Email</Title>
-    Eメール検証
-    {errors?.map((e, i) => (
-      <div key={i}>{e.message}</div>
-    ))}
-    {result && (
-      <div>
-        メール検証完了した。以下リンクでトップページへ
-        <Link href={INDEX_PAGE}>
-          <a>Home</a>
-        </Link>
-      </div>
-    )}
-  </Layout>
+    {contents}
+  </HtmlSkeleton>
 )
 
 /** Container Component */
 const Container: React.VFC<ContainerProps<VerifyEmailTemplateProps, PresenterProps>> = ({
   presenter,
+  result,
   ...props
 }) => {
-  return presenter({ ...props })
+  const contents: PresenterProps['contents'] = result ? <Success /> : <Failure />
+  return presenter({ contents, ...props })
 }
 
 /** VerifyEmailTemplate */
