@@ -1,4 +1,5 @@
 export const root = {
+  overflow: 'hidden',
   minH: '100vh',
   align: 'center',
   justify: 'center',
@@ -7,13 +8,13 @@ export const root = {
 } as const
 
 export const segment = {
-  minW: [null, '80vw', '680px'],
+  minW: { base: '80vw', md: '680px' },
   spacing: 10,
   align: 'center',
-  boxShadow: '2xl',
+  boxShadow: { base: 'md', md: '2xl' },
   rounded: 'xl',
   p: 10,
   pt: 7,
-  mt: '-20vh',
+  mt: '-10%',
   bg: 'white'
 }

@@ -17,25 +17,23 @@ use async_graphql::{Context, Result};
 pub fn remember(user_id: u64, remember_me: &Option<bool>, ctx: &Context<'_>) -> Result<()> {
     let conn = common::get_conn(ctx)?;
 
-    if !remember_me.unwrap_or(false) {
-        return Ok(());
+    if remember_me.unwrap_or(false) {
+        let (token_digest, token) =
+            security::create_verification_token(user_id, &DIGEST_SECRET_KEY, &CIPHER_PASSWORD)?;
+
+        let change_user = ChangeUserEntity {
+            id: user_id,
+            remember_token: Some(Some(token_digest)),
+            ..Default::default()
+        };
+
+        common::convert_query_result(
+            service::update_user(change_user, &conn),
+            "Failed to update user",
+        )?;
+
+        set_remember_token_cookie(&token, Duration::days(*MAX_DAYS), ctx);
     }
-
-    let (token_digest, token) =
-        security::create_verification_token(user_id, &DIGEST_SECRET_KEY, &CIPHER_PASSWORD)?;
-
-    let change_user = ChangeUserEntity {
-        id: user_id,
-        remember_token: Some(Some(token_digest)),
-        ..Default::default()
-    };
-
-    common::convert_query_result(
-        service::update_user(change_user, &conn),
-        "Failed to update user",
-    )?;
-
-    set_remember_token_cookie(&token, Duration::days(*MAX_DAYS), ctx);
 
     Ok(())
 }

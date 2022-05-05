@@ -4,6 +4,7 @@ use super::security::auth::{self, Role};
 use super::security::guard::RoleGuard;
 use super::GraphqlError;
 use crate::constant::contact as contact_const;
+use crate::constant::error;
 use crate::database::service;
 use async_graphql::*;
 
@@ -25,7 +26,7 @@ impl Query {
         token: Option<String>,
     ) -> Result<bool> {
         let token = token.ok_or_else(|| {
-            GraphqlError::ValidationError("No token entered".into(), "token").extend()
+            GraphqlError::ValidationError(error::V_TOKEN_NOT_ENTERED.into(), "token").extend()
         })?;
 
         common::is_password_reset_token_valid(&token, ctx).and(Ok(true))

@@ -1,39 +1,36 @@
-import { Box, Flex, Heading, Icon, Stack, Text } from '@chakra-ui/react'
-import Link from 'components/01_atoms/Link'
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Heading,
+  Input,
+  Stack
+} from '@chakra-ui/react'
 import React from 'react'
-import { RiErrorWarningLine } from 'react-icons/ri'
 
-export default function Test(): React.ReactElement {
+export default function ResetPasswordForm(): JSX.Element {
   return (
-    <Flex minH='100vh' align='center' justify='center' py={12} bg='gray.50'>
-      <Stack
-        minW={[null, '80vw', '680px']}
-        boxShadow='2xl'
-        bg='white'
-        rounded='xl'
-        p={10}
-        pt={7}
-        mt='-20vh'
-        spacing={10}
-        align='center'
-      >
-        <Stack align='center'>
-          <Icon as={RiErrorWarningLine} w={16} h={16} color='red.500' />
-          <Heading fontSize='3xl' color='gray.800'>
-            Email Verified
-          </Heading>
-        </Stack>
-        <Stack align='center' spacing={1}>
-          <Text fontSize='xl' color='gray.500'>
-            Email verification has been completed.
-          </Text>
-          <Text fontSize='xl' color='gray.500'>
-            Click the link below to go to the home page.
-          </Text>
-          <Box p='1.5' />
-          <Link color='blue.400' href='/error'>
-            Go to Home
-          </Link>
+    <Flex minH='100vh' align='center' justify='center' bg='gray.50'>
+      <Stack spacing={4} w='full' maxW='md' bg='white' rounded='xl' boxShadow='lg' p={6} my={12}>
+        <Heading lineHeight={1.1} fontSize={{ base: '2xl', md: '3xl' }}>
+          Enter new password
+        </Heading>
+        <FormControl id='password' isRequired isInvalid={true}>
+          <FormLabel>Password</FormLabel>
+          <Input type='password' _invalid={{ backgroundColor: 'red.100' }} />
+          <FormErrorMessage>エラーメッセージ</FormErrorMessage>
+        </FormControl>
+        <FormControl id='password' isRequired isInvalid={true}>
+          <FormLabel>Password Confirm</FormLabel>
+          <Input type='password' />
+          <FormErrorMessage>エラーメッセージ</FormErrorMessage>
+        </FormControl>
+        <Stack spacing={6}>
+          <Button bg='blue.400' color='white' _hover={{ bg: 'blue.500' }}>
+            Submit
+          </Button>
         </Stack>
       </Stack>
     </Flex>

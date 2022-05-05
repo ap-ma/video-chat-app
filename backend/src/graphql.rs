@@ -16,7 +16,7 @@ pub type AppSchema = Schema<Query, Mutation, Subscription>;
 
 #[derive(Debug, Error)]
 pub enum GraphqlError {
-    // バリデーション (message, field_name)
+    // バリデーション (error_code, field_name)
     #[error("ValidationError")]
     ValidationError(String, &'static str),
 
@@ -36,7 +36,7 @@ pub enum GraphqlError {
 impl ErrorExtensions for GraphqlError {
     fn extend(&self) -> Error {
         let message = match self {
-            GraphqlError::ValidationError(message, _) => message,
+            GraphqlError::ValidationError(error_code, _) => error_code,
             GraphqlError::AuthenticationError => "Not authenticated.",
             GraphqlError::AuthorizationError(message) => message,
             GraphqlError::ServerError(message, _) => message,

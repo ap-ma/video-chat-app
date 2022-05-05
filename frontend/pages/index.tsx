@@ -205,7 +205,7 @@ const Index: NextPage = () => {
   //  ----------------------------------------------------------------------------
 
   // IndexTemplate Props
-  const templateProps: IndexTemplateProps = {
+  const props: IndexTemplateProps = {
     query: {
       me: meQuery.data?.me,
       contacts: contactsQuery.data?.contacts,
@@ -304,7 +304,7 @@ const Index: NextPage = () => {
     }
   }
 
-  return <IndexTemplate {...templateProps} />
+  return <IndexTemplate {...props} />
 }
 
 /**

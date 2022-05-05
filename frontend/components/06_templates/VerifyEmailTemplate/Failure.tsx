@@ -18,7 +18,7 @@ const Presenter: React.VFC<PresenterProps> = () => (
       <Heading {...styles.head}>Verification Failure</Heading>
     </Head>
     <Body>
-      <Text {...styles.text}>URL is incorrect or link has expired.</Text>
+      <Text {...styles.text}>URL is incorrect or expired.</Text>
       <Text {...styles.text}>Please try the operation again.</Text>
     </Body>
   </ResultIndication>

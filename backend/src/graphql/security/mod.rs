@@ -25,9 +25,9 @@ pub fn create_verification_token(
     digest_secret: &str,
     cipher_password: &str,
 ) -> Result<(String, String)> {
-    let token = random::gen(VERIFICATION_TOKEN_LEN);
+    let token = random::gen(*VERIFICATION_TOKEN_LEN);
     let token_digest = hash::make(&token, digest_secret).map_err(|e| {
-        let m = "Failed to create verification token digest";
+        let m = "Failed to create verification token digest.";
         let e = GraphqlError::ServerError(m.into(), e.message.to_string());
         e.extend()
     })?;
@@ -39,7 +39,7 @@ pub fn create_verification_token(
 
     let claims_json = serde_json::to_string(&claims).unwrap();
     let encrypted_token = cipher::str_encrypt(&claims_json, cipher_password).map_err(|e| {
-        let m = "Failed to encrypt verification token";
+        let m = "Failed to encrypt verification token.";
         let d = e.message.clone();
         let e = GraphqlError::ServerError(m.into(), d);
         e.extend()
@@ -50,13 +50,13 @@ pub fn create_verification_token(
 
 pub fn decrypt_verification_token(encrypted_token: &str, cipher_password: &str) -> Result<Claims> {
     let claims_json = cipher::str_decrypt(encrypted_token, cipher_password).map_err(|e| {
-        let m = "Failed to decrypt verification token";
+        let m = "Failed to decrypt verification token.";
         let e = GraphqlError::ServerError(m.into(), e.message.clone());
         e.extend()
     })?;
 
     let claims = serde_json::from_str::<Claims>(&claims_json).map_err(|e| {
-        let m = "Invalid verification token";
+        let m = "Invalid verification token.";
         let e = GraphqlError::ServerError(m.into(), e.to_string());
         e.extend()
     })?;

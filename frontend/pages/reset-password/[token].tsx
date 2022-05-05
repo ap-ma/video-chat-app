@@ -20,10 +20,9 @@ import { Unbox, ValidationErrors } from 'types'
 const ResetPassword: NextPage<
   Partial<{
     token: ResetPasswordInput['token']
-    result: IsPasswordResetTokenValidQuery['isPasswordResetTokenValid']
     errors: ValidationErrors
   }>
-> = (props) => {
+> = ({ token, errors }) => {
   const router = useRouter()
 
   // Redirect
@@ -47,8 +46,9 @@ const ResetPassword: NextPage<
   //  ----------------------------------------------------------------------------
 
   // ResetPasswordTemplate Props
-  const templateProps: ResetPasswordTemplateProps = {
-    ...props,
+  const props: ResetPasswordTemplateProps = {
+    token,
+    errors,
     mutation: {
       resetPassword: {
         loading: resetPasswordMutation.loading,
@@ -59,23 +59,22 @@ const ResetPassword: NextPage<
     }
   }
 
-  return <ResetPasswordTemplate {...templateProps} />
+  return <ResetPasswordTemplate {...props} />
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const apolloClient = initializeApollo()
 
   const token = params?.roken as Exclude<Unbox<GetServerSidePropsContext['params']>, string[]>
-  const { data, error } = await apolloClient
+  const { error } = await apolloClient
     .query<IsPasswordResetTokenValidQuery, IsPasswordResetTokenValidQueryVariables>({
       query: IsPasswordResetTokenValidDocument,
       variables: { token }
     })
-    .catch((error) => ({ data: undefined, error: error as ApolloError }))
+    .catch((error) => ({ error: error as ApolloError }))
 
   return handle(error, {
-    noError: () =>
-      addApolloState(apolloClient, { props: { token, result: data?.isPasswordResetTokenValid } }),
+    noError: () => addApolloState(apolloClient, { props: { token } }),
     validationError: (errors) => addApolloState(apolloClient, { props: { errors } }),
     _default: () => ({ redirect: { permanent: false, destination: ERROR_PAGE } })
   })

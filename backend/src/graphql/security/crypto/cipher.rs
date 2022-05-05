@@ -1,13 +1,11 @@
 use super::random;
+use crate::constant::system::cipher::{NONCE_LEN, SALT_LEN};
 use aes_gcm::aead::{generic_array::GenericArray, Aead, NewAead};
 use aes_gcm::Aes256Gcm;
 use async_graphql::Result;
 use base64;
 use pbkdf2::{password_hash::PasswordHasher, Pbkdf2};
 use std::str;
-
-const NONCE_LEN: usize = 12;
-const SALT_LEN: usize = 32;
 
 pub fn str_encrypt(data: &str, password: &str) -> Result<String> {
     let encrypted_data = encrypt(data.as_bytes(), password)?;
@@ -21,9 +19,9 @@ pub fn str_decrypt(encrypted_data: &str, password: &str) -> Result<String> {
 }
 
 pub fn encrypt(data: &[u8], password: &str) -> Result<Vec<u8>> {
-    let salt = random::alphanumeric(SALT_LEN);
+    let salt = random::alphanumeric(*SALT_LEN);
     let (key, _) = pbkdf2(password.as_bytes(), &salt)?;
-    let nonce = random::alphanumeric(NONCE_LEN);
+    let nonce = random::alphanumeric(*NONCE_LEN);
 
     let mut encrypted_data = Aes256Gcm::new(GenericArray::from_slice(&key))
         .encrypt(GenericArray::from_slice(nonce.as_bytes()), data)?;
@@ -36,8 +34,8 @@ pub fn encrypt(data: &[u8], password: &str) -> Result<Vec<u8>> {
 
 pub fn decrypt(encrypted_data: &[u8], password: &str) -> Result<Vec<u8>> {
     let (encrypted_data, appended_data) =
-        encrypted_data.split_at(encrypted_data.len() - (SALT_LEN + NONCE_LEN));
-    let (nonce, salt) = appended_data.split_at(appended_data.len() - SALT_LEN);
+        encrypted_data.split_at(encrypted_data.len() - (*SALT_LEN + *NONCE_LEN));
+    let (nonce, salt) = appended_data.split_at(appended_data.len() - *SALT_LEN);
     let salt = str::from_utf8(&salt).unwrap();
     let (key, _) = pbkdf2(password.as_bytes(), &salt)?;
 

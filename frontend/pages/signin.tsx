@@ -44,7 +44,7 @@ const Signin: NextPage = () => {
   const forgotPasswordResult = handle(forgotPasswordMutation.error, handler)
 
   // SigninTemplate Props
-  const templateProps: SigninTemplateProps = {
+  const props: SigninTemplateProps = {
     signIn: {
       loading: signInMutation.loading,
       errors: isValidationErrors(signInResult) ? signInResult : undefined,
@@ -67,7 +67,7 @@ const Signin: NextPage = () => {
     }
   }
 
-  return <SigninTemplate {...templateProps} />
+  return <SigninTemplate {...props} />
 }
 
 /**

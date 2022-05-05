@@ -6,20 +6,21 @@ import { hashCode } from 'utils/impl/helper'
 import * as styles from './styles'
 
 /** Wave Props */
-export type WaveProps = BoxProps & {
-  /**
-   * 上段の色
-   */
-  topColor: ChakraColors
-  /**
-   * 下段の色
-   */
-  bottomColor: ChakraColors
-  /**
-   * 開始後何秒後周期のアニメーション状態でアニメーションを開始するかを指定
-   */
-  animationNegativeDelay: number
-}
+export type WaveProps = BoxProps &
+  Partial<{
+    /**
+     * 上段の色
+     */
+    topColor: ChakraColors
+    /**
+     * 下段の色
+     */
+    bottomColor: ChakraColors
+    /**
+     * 開始後何秒後周期のアニメーション状態でアニメーションを開始するかを指定
+     */
+    animationNegativeDelay: number
+  }>
 /** Presenter Props */
 type PresenterProps = WaveProps & { id: string }
 
@@ -51,10 +52,11 @@ const Container: React.VFC<ContainerProps<WaveProps, PresenterProps>> = ({
   presenter,
   topColor = '#4829B2',
   bottomColor = '#FFFFFF',
+  animationNegativeDelay = 0,
   ...props
 }) => {
   const id = `wave-${hashCode(props)}`
-  return presenter({ id, topColor, bottomColor, ...props })
+  return presenter({ id, topColor, bottomColor, animationNegativeDelay, ...props })
 }
 
 /** Wave */

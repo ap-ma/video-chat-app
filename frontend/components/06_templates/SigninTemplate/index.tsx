@@ -1,125 +1,37 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  Flex,
-  FormControl,
-  FormLabel,
-  Heading,
-  Input,
-  Link,
-  Stack,
-  Text
-} from '@chakra-ui/react'
-import Wave from 'components/01_atoms/Wave'
-import HtmlSkeleton, { Title } from 'components/05_layouts/HtmlSkeleton'
+import { Heading, Stack, Text } from '@chakra-ui/react'
+import Link from 'components/01_atoms/Link'
+import BackgroundWave from 'components/03_molecules/BackgroundWave'
+import SigninForm, { SigninFormProps } from 'components/04_organisms/forms/SigninForm'
+import AuthForm from 'components/05_layouts/AuthForm'
+import HtmlSkeleton, { HtmlSkeletonProps, Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
-import {
-  ForgotPasswordMutation,
-  ForgotPasswordMutationVariables,
-  SignInMutation,
-  SignInMutationVariables,
-  SignUpMutation,
-  SignUpMutationVariables
-} from 'graphql/generated'
 import React from 'react'
-import {
-  ContainerProps,
-  MutaionLoading,
-  MutaionReset,
-  MutateFunction,
-  ValidationErrors
-} from 'types'
+import { ContainerProps } from 'types'
+import * as styles from './styles'
 
 /** SigninTemplate Props */
-export type SigninTemplateProps = {
-  /**
-   * サインイン
-   */
-  signIn: {
-    loading: MutaionLoading
-    errors?: ValidationErrors
-    reset: MutaionReset
-    signIn: MutateFunction<SignInMutation, SignInMutationVariables>
-  }
-  /**
-   * サインアップ
-   */
-  signUp: {
-    result?: SignUpMutation['signUp']
-    loading: MutaionLoading
-    errors?: ValidationErrors
-    reset: MutaionReset
-    signUp: MutateFunction<SignUpMutation, SignUpMutationVariables>
-  }
-  /**
-   * パスワード忘れ
-   */
-  forgotPassword: {
-    result?: ForgotPasswordMutation['forgotPassword']
-    loading: MutaionLoading
-    errors?: ValidationErrors
-    reset: MutaionReset
-    forgotPassword: MutateFunction<ForgotPasswordMutation, ForgotPasswordMutationVariables>
-  }
-}
+export type SigninTemplateProps = Omit<HtmlSkeletonProps, 'children'> & SigninFormProps
 /** Presenter Props */
 type PresenterProps = SigninTemplateProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = () => (
-  <HtmlSkeleton>
+const Presenter: React.VFC<PresenterProps> = ({ signIn, signUp, forgotPassword, ...props }) => (
+  <HtmlSkeleton {...props}>
     <Title>Signin</Title>
-    <Box h='100vh'>
-      <Flex align='center' justify='center'>
-        <Stack spacing={8} mx='auto' maxW='lg' py={12} px={6}>
-          <Stack align='center'>
-            <Heading fontSize='4xl'>Sign in to your account</Heading>
-            <Text fontSize='lg' color='gray.600'>
-              New to this app?
-              <Link color='blue.400' ml={2}>
-                Create an account.
-              </Link>
-            </Text>
-          </Stack>
-          <Box rounded='lg' bg='white' boxShadow='lg' p={8}>
-            <Stack spacing={4}>
-              <FormControl id='email'>
-                <FormLabel>Email address</FormLabel>
-                <Input type='email' />
-              </FormControl>
-              <FormControl id='password'>
-                <FormLabel>Password</FormLabel>
-                <Input type='password' />
-              </FormControl>
-              <Stack spacing={10}>
-                <Stack
-                  direction={{ base: 'column', sm: 'row' }}
-                  align='start'
-                  justify='space-between'
-                >
-                  <Checkbox>Remember me</Checkbox>
-                  <Link color='blue.400'>Forgot password?</Link>
-                </Stack>
-                <Button
-                  bg='blue.400'
-                  color='white'
-                  _hover={{
-                    bg: 'blue.500'
-                  }}
-                >
-                  Sign in
-                </Button>
-              </Stack>
-            </Stack>
-          </Box>
+    <BackgroundWave {...styles.wave}>
+      <AuthForm bg='inherit'>
+        <Stack align='center'>
+          <Heading {...styles.head}>Sign in to your account</Heading>
+          <Text {...styles.linkLabel}>
+            New to this app?
+            <Link ml={3} href='#'>
+              Create an account.
+            </Link>
+          </Text>
         </Stack>
-      </Flex>
-    </Box>
-    <Box h='100vh' mt='-100vh' pos='relative' zIndex={-1} bg='gray.50'>
-      <Box h='400px' bg='gray.100' />
-      <Wave topColor='gray.100' bottomColor='gray.50' animationNegativeDelay={2} />
-    </Box>
+        <SigninForm {...{ signIn, signUp, forgotPassword }} />
+      </AuthForm>
+    </BackgroundWave>
   </HtmlSkeleton>
 )
 

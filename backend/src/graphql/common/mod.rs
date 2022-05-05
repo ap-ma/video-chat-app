@@ -42,6 +42,6 @@ pub fn convert_query_result<T>(result: QueryResult<T>, message: &str) -> Result<
 
 pub fn convert_id(id: &ID) -> Result<u64> {
     id.to_string().parse::<u64>().map_err(|e| {
-        GraphqlError::ServerError("Failed to convert id".into(), e.to_string()).extend()
+        GraphqlError::ServerError("Failed to convert id.".into(), e.to_string()).extend()
     })
 }

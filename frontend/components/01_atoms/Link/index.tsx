@@ -20,7 +20,7 @@ type PresenterProps = LinkProps
 
 /** Presenter Component */
 const Presenter: React.VFC<PresenterProps> = ({ href, nextLinkProps, children, ...props }) => (
-  <NextLink href={href} {...nextLinkProps} passHref>
+  <NextLink passHref href={href} {...nextLinkProps}>
     <ChakraLink {...props}>{children}</ChakraLink>
   </NextLink>
 )
@@ -28,9 +28,10 @@ const Presenter: React.VFC<PresenterProps> = ({ href, nextLinkProps, children, .
 /** Container Component */
 const Container: React.VFC<ContainerProps<LinkProps, PresenterProps>> = ({
   presenter,
+  color = 'blue.400',
   ...props
 }) => {
-  return presenter({ ...props })
+  return presenter({ color, ...props })
 }
 
 /** Link */

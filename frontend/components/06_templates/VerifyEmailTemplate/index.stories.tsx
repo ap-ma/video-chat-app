@@ -4,6 +4,10 @@ import VerifyEmailTemplate, { VerifyEmailTemplateProps } from './index'
 
 export default {
   title: '06_templates/VerifyEmailTemplate',
+  argTypes: {
+    result: { control: 'boolean' },
+    onClick: { action: 'clicked' }
+  },
   component: VerifyEmailTemplate
 } as Meta
 
@@ -11,5 +15,8 @@ const Template: Story<VerifyEmailTemplateProps> = (props) => <VerifyEmailTemplat
 
 export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'
-Primary.argTypes = { result: { control: 'boolean' } }
 Primary.args = { result: true }
+
+export const Failure = Template.bind({})
+Failure.storyName = '検証失敗'
+Failure.args = { result: false }

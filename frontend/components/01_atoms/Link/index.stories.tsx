@@ -26,10 +26,10 @@ Primary.args = {
   children: 'Next.jsのContextでのみ遷移が発生'
 }
 
-export const Colored = Template.bind({})
-Colored.storyName = '色付け'
-Colored.argTypes = { color: { control: { type: 'select' }, options: chakraColors } }
-Colored.args = {
+export const ChakraColors = Template.bind({})
+ChakraColors.storyName = 'Chakra UI Colors'
+ChakraColors.argTypes = { color: { control: { type: 'select' }, options: chakraColors } }
+ChakraColors.args = {
   href: '#',
   children: 'Next.jsのContextでのみ遷移が発生',
   color: 'blue.400'
