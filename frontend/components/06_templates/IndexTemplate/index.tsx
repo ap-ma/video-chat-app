@@ -96,7 +96,7 @@ export type IndexTemplateProps = {
      */
     signOut: {
       loading: MutaionLoading
-      signOut: MutateFunction<SignOutMutation, SignOutMutationVariables>
+      mutate: MutateFunction<SignOutMutation, SignOutMutationVariables>
     }
     /**
      * プロフィール編集
@@ -105,7 +105,7 @@ export type IndexTemplateProps = {
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      editProfile: MutateFunction<EditProfileMutation, EditProfileMutationVariables>
+      mutate: MutateFunction<EditProfileMutation, EditProfileMutationVariables>
     }
     /**
      * メールアドレス変更
@@ -114,7 +114,7 @@ export type IndexTemplateProps = {
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      changeEmail: MutateFunction<ChangeEmailMutation, ChangeEmailMutationVariables>
+      mutate: MutateFunction<ChangeEmailMutation, ChangeEmailMutationVariables>
     }
     /**
      * パスワード変更
@@ -123,14 +123,14 @@ export type IndexTemplateProps = {
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      changePassword: MutateFunction<ChangePasswordMutation, ChangePasswordMutationVariables>
+      mutate: MutateFunction<ChangePasswordMutation, ChangePasswordMutationVariables>
     }
     /**
      * アカウント削除
      */
     deleteAccount: {
       loading: MutaionLoading
-      deleteAccount: MutateFunction<DeleteAccountMutation, DeleteAccountMutationVariables>
+      mutate: MutateFunction<DeleteAccountMutation, DeleteAccountMutationVariables>
     }
     /**
      * メッセージ送信
@@ -139,7 +139,7 @@ export type IndexTemplateProps = {
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      sendMessage: MutateFunction<SendMessageMutation, SendMessageMutationVariables>
+      mutate: MutateFunction<SendMessageMutation, SendMessageMutationVariables>
     }
     /**
      * メッセージ削除
@@ -148,7 +148,7 @@ export type IndexTemplateProps = {
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      deleteMessage: MutateFunction<DeleteMessageMutation, DeleteMessageMutationVariables>
+      mutate: MutateFunction<DeleteMessageMutation, DeleteMessageMutationVariables>
     }
     /**
      * メッセージ既読
@@ -157,7 +157,7 @@ export type IndexTemplateProps = {
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      readMessages: MutateFunction<ReadMessagesMutation, ReadMessagesMutationVariables>
+      mutate: MutateFunction<ReadMessagesMutation, ReadMessagesMutationVariables>
     }
     /**
      * コンタクト申請
@@ -166,10 +166,7 @@ export type IndexTemplateProps = {
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      contactApplication: MutateFunction<
-        ContactApplicationMutation,
-        ContactApplicationMutationVariables
-      >
+      mutate: MutateFunction<ContactApplicationMutation, ContactApplicationMutationVariables>
     }
     /**
      * コンタクト承認
@@ -178,7 +175,7 @@ export type IndexTemplateProps = {
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      contactApproval: MutateFunction<ContactApprovalMutation, ContactApprovalMutationVariables>
+      mutate: MutateFunction<ContactApprovalMutation, ContactApprovalMutationVariables>
     }
     /**
      * コンタクト削除
@@ -187,7 +184,7 @@ export type IndexTemplateProps = {
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      deleteContact: MutateFunction<DeleteContactMutation, DeleteContactMutationVariables>
+      mutate: MutateFunction<DeleteContactMutation, DeleteContactMutationVariables>
     }
     /**
      * コンタクト削除取消
@@ -196,7 +193,7 @@ export type IndexTemplateProps = {
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      undeleteContact: MutateFunction<UndeleteContactMutation, UndeleteContactMutationVariables>
+      mutate: MutateFunction<UndeleteContactMutation, UndeleteContactMutationVariables>
     }
     /**
      * コンタクトブロック
@@ -205,7 +202,7 @@ export type IndexTemplateProps = {
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      blockContact: MutateFunction<BlockContactMutation, BlockContactMutationVariables>
+      mutate: MutateFunction<BlockContactMutation, BlockContactMutationVariables>
     }
     /**
      * コンタクトブロック解除
@@ -214,7 +211,7 @@ export type IndexTemplateProps = {
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      unblockContact: MutateFunction<UnblockContactMutation, UnblockContactMutationVariables>
+      mutate: MutateFunction<UnblockContactMutation, UnblockContactMutationVariables>
     }
   }
 }
@@ -230,10 +227,7 @@ const Presenter: React.VFC<PresenterProps> = ({ ...props }) => (
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<IndexTemplateProps, PresenterProps>> = ({
-  presenter,
-  ...props
-}) => {
+const Container: React.VFC<ContainerProps<IndexTemplateProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 

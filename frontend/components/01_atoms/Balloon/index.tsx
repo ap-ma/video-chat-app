@@ -17,10 +17,7 @@ const Presenter: React.VFC<PresenterProps> = ({ children, className, ...props })
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<BalloonProps, PresenterProps>> = ({
-  presenter,
-  ...props
-}) => {
+const Container: React.VFC<ContainerProps<BalloonProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 

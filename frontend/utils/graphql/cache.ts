@@ -17,7 +17,7 @@ import {
   MutationType
 } from 'graphql/generated'
 import { Optional, ReadFieldParam } from 'types'
-import { isNullish } from 'utils/impl/object'
+import { isNullish } from 'utils/general/object'
 import { isContactApproval } from './utils'
 
 /**
@@ -27,10 +27,7 @@ import { isContactApproval } from './utils'
  * @param messageChanged - メッセージ変更オブジェクト
  * @returns void
  */
-export function updateMessageCache(
-  cache: ApolloCache<unknown>,
-  messageChanged: MessageChanged
-): void {
+export function updateMessageCache(cache: ApolloCache<unknown>, messageChanged: MessageChanged): void {
   // ユーザー情報
   const meQuery = cache.readQuery<MeQuery, MeQueryVariables>({ query: MeDocument })
   if (isNullish(meQuery)) return
@@ -49,8 +46,7 @@ export function updateMessageCache(
         // メッセージ新規作成
         if (MutationType.Created === messageChanged.mutationType) {
           const included = existingLatestMessages.some(
-            (latestMessageRef: ReadFieldParam) =>
-              readField('userId', latestMessageRef) === otherUserId
+            (latestMessageRef: ReadFieldParam) => readField('userId', latestMessageRef) === otherUserId
           )
 
           // メッセージ一覧のキャッシュに対象ユーザーのデータが存在しない場合
@@ -126,19 +122,16 @@ export function updateMessageCache(
         // メッセージ削除
         if (MutationType.Deleted === messageChanged.mutationType) {
           existingChat = existingChat.filter(
-            (messageRef: ReadFieldParam) =>
-              readField('id', messageRef) !== messageChanged.message?.id
+            (messageRef: ReadFieldParam) => readField('id', messageRef) !== messageChanged.message?.id
           )
         }
 
         // IDの降順でソート
-        const newChat = existingChat
-          .filter(Boolean)
-          .sort((x: ReadFieldParam, y: ReadFieldParam) => {
-            const xId = Number(readField('id', x))
-            const yId = Number(readField('id', y))
-            return yId - xId
-          })
+        const newChat = existingChat.filter(Boolean).sort((x: ReadFieldParam, y: ReadFieldParam) => {
+          const xId = Number(readField('id', x))
+          const yId = Number(readField('id', y))
+          return yId - xId
+        })
 
         return newChat
       }
@@ -165,9 +158,7 @@ export function updateContactCache(
       contacts(existingContacts = [], { readField }) {
         // コンタクト一覧から削除
         if (operation === 'DELETE') {
-          return existingContacts.filter(
-            (contactRef: ReadFieldParam) => readField('id', contactRef) !== contact.id
-          )
+          return existingContacts.filter((contactRef: ReadFieldParam) => readField('id', contactRef) !== contact.id)
         }
 
         // コンタクト一覧に追加
@@ -178,15 +169,13 @@ export function updateContactCache(
           })
 
           // ユーザー名の昇順でソート
-          const newContacts = [newContactRef, ...existingContacts].sort(
-            (x: ReadFieldParam, y: ReadFieldParam) => {
-              const xUserName = readField('userName', x) as string
-              const yUserName = readField('userName', y) as string
-              if (yUserName > xUserName) return -1
-              if (xUserName < yUserName) return 1
-              return 0
-            }
-          )
+          const newContacts = [newContactRef, ...existingContacts].sort((x: ReadFieldParam, y: ReadFieldParam) => {
+            const xUserName = readField('userName', x) as string
+            const yUserName = readField('userName', y) as string
+            if (yUserName > xUserName) return -1
+            if (xUserName < yUserName) return 1
+            return 0
+          })
 
           return newContacts
         }
@@ -210,8 +199,7 @@ export function updateContactCache(
 
         // メッセージ一覧のキャッシュに対象ユーザーのデータが存在するか
         const included = existingLatestMessages.some(
-          (latestMessageRef: ReadFieldParam) =>
-            readField('userId', latestMessageRef) === contact.userId
+          (latestMessageRef: ReadFieldParam) => readField('userId', latestMessageRef) === contact.userId
         )
 
         // メッセージ一覧内に対象ユーザーのデータがない場合

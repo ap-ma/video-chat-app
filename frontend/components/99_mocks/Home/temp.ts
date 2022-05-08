@@ -1,8 +1,6 @@
 import { ContactListProps } from 'components/99_mocks/Home/ContactList'
 
-export const contactList = (
-  descGen: (i: number) => string | undefined
-): ContactListProps['contacts'] => {
+export const contactList = (descGen: (i: number) => string | undefined): ContactListProps['contacts'] => {
   const result: ContactListProps['contacts'] = []
   for (let i = 1; i <= 100; i++) {
     const r = Math.floor(Math.random() * Math.floor(2)) % 2

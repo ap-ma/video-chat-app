@@ -15,7 +15,7 @@ pub struct SignUpInput {
     pub password: String,
     pub password_confirm: String,
     pub comment: Option<String>,
-    pub avatar: Option<String>,
+    pub avatar: Option<Upload>,
 }
 
 #[derive(InputObject)]
@@ -23,7 +23,7 @@ pub struct EditProfileInput {
     pub code: String,
     pub name: String,
     pub comment: Option<String>,
-    pub avatar: Option<String>,
+    pub avatar: Option<Upload>,
 }
 
 #[derive(InputObject)]

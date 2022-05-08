@@ -10,7 +10,7 @@ const ContactList: React.VFC<ContactListProps> = ({ contacts, ...props }) => (
   <Box
     overflowY='scroll'
     sx={{
-      'scrollbarWidth': 'thin',
+      scrollbarWidth: 'thin',
       '&::-webkit-scrollbar': {
         width: '5px'
       },

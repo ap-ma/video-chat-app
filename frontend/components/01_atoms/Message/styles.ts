@@ -4,10 +4,7 @@ export const root = ({
   triangleMarkPosition,
   bgColor,
   autoSizing
-}: Pick<MessageProps, 'triangleMarkPosition' | 'bgColor' | 'autoSizing'>): Record<
-  string,
-  unknown
-> =>
+}: Pick<MessageProps, 'triangleMarkPosition' | 'bgColor' | 'autoSizing'>): Record<string, unknown> =>
   ({
     pos: 'relative',
     p: 4,
@@ -28,10 +25,7 @@ export const root = ({
     }
   } as const)
 
-const triangle = ({
-  triangleMarkPosition,
-  bgColor
-}: Pick<MessageProps, 'triangleMarkPosition' | 'bgColor'>) => {
+const triangle = ({ triangleMarkPosition, bgColor }: Pick<MessageProps, 'triangleMarkPosition' | 'bgColor'>) => {
   if (triangleMarkPosition === 'left') {
     return {
       left: -13,

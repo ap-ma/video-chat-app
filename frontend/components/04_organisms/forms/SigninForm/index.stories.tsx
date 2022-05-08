@@ -1,6 +1,4 @@
-/* eslint-disable import/no-unresolved */
-import { container } from '.storybook/decorators'
-/* eslint-enable import/no-unresolved  */
+import { Flex, Stack } from '@chakra-ui/react'
 import { Meta, Story } from '@storybook/react'
 import React from 'react'
 import SigninForm, { SigninFormProps } from './index'
@@ -9,10 +7,13 @@ export default {
   title: '04_organisms/forms/SigninForm',
   component: SigninForm,
   decorators: [
-    (Story) =>
-      container({ height: '100vh', overflow: 'hidden', background: '#f5f5f5' })(
-        container({ maxWidth: '500px', margin: '50px' })(Story())
-      )
+    (Story) => (
+      <Flex overflow='hidden' align='center' justify='center' minH='100vh' bg='gray.50'>
+        <Stack spacing={8} minW={{ base: 'full', sm: 'md' }} maxW='lg' mt='-10%' mx='auto' py={12} px={6}>
+          {Story()}
+        </Stack>
+      </Flex>
+    )
   ]
 } as Meta
 

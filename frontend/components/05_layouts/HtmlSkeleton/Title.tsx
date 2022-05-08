@@ -10,10 +10,7 @@ type PresenterProps = TitleProps
 const Presenter: React.VFC<PresenterProps> = ({ children }) => <Fragment>{children}</Fragment>
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<TitleProps, PresenterProps>> = ({
-  presenter,
-  ...props
-}) => {
+const Container: React.VFC<ContainerProps<TitleProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 

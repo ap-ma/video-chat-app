@@ -1,18 +1,12 @@
 import { ApolloError } from '@apollo/client/errors'
-import VerifyEmailTemplate, {
-  VerifyEmailTemplateProps
-} from 'components/06_templates/VerifyEmailTemplate'
+import VerifyEmailTemplate, { VerifyEmailTemplateProps } from 'components/06_templates/VerifyEmailTemplate'
 import { ERROR_PAGE } from 'const'
 import { addApolloState, initializeApollo } from 'graphql/apollo'
-import {
-  VerifyEmailDocument,
-  VerifyEmailMutation,
-  VerifyEmailMutationVariables
-} from 'graphql/generated'
-import { handle } from 'graphql/lib'
+import { VerifyEmailDocument, VerifyEmailMutation, VerifyEmailMutationVariables } from 'graphql/generated'
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next'
 import React from 'react'
 import { Unbox } from 'types'
+import { handle } from 'utils/graphql'
 
 const VerifyEmail: NextPage<VerifyEmailTemplateProps> = (props) => {
   return <VerifyEmailTemplate {...props} />
@@ -21,7 +15,7 @@ const VerifyEmail: NextPage<VerifyEmailTemplateProps> = (props) => {
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const apolloClient = initializeApollo()
 
-  let error: ApolloError | undefined = undefined
+  let error: ApolloError | undefined
   const { data } = await apolloClient
     .mutate<VerifyEmailMutation, VerifyEmailMutationVariables>({
       mutation: VerifyEmailDocument,

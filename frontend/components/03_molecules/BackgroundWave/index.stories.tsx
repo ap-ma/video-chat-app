@@ -23,16 +23,8 @@ export default {
   component: BackgroundWave
 } as Meta
 
-export const Primary: Story<BackgroundWaveProps> = ({
-  topColor,
-  bottomColor,
-  animationNegativeDelay
-}) => (
-  <BackgroundWave
-    topColor={topColor}
-    bottomColor={bottomColor}
-    animationNegativeDelay={animationNegativeDelay}
-  >
+export const Primary: Story<BackgroundWaveProps> = ({ topColor, bottomColor, animationNegativeDelay }) => (
+  <BackgroundWave topColor={topColor} bottomColor={bottomColor} animationNegativeDelay={animationNegativeDelay}>
     <Flex align='center' justify='center' minH='100vh'>
       <Stack spacing={8} mt='-10%' mx='auto' maxW='lg' py={12} px={6}>
         <Stack align='center'>
@@ -55,11 +47,7 @@ export const Primary: Story<BackgroundWaveProps> = ({
               <Input type='password' />
             </FormControl>
             <Stack spacing={10}>
-              <Stack
-                direction={{ base: 'column', sm: 'row' }}
-                align='start'
-                justify='space-between'
-              >
+              <Stack direction={{ base: 'column', sm: 'row' }} align='start' justify='space-between'>
                 <Checkbox>Remember me</Checkbox>
                 <Link color='blue.400'>Forgot password?</Link>
               </Stack>

@@ -10,11 +10,11 @@ import {
   useSignInMutation,
   useSignUpMutation
 } from 'graphql/generated'
-import { handle, Handler, isValidationErrors } from 'graphql/lib'
 import { NextPage } from 'next'
 import { default as Router, useRouter } from 'next/router'
 import React from 'react'
 import { isBrowser, isNode, isNullish } from 'utils'
+import { handle, Handler, isValidationErrors } from 'utils/graphql'
 
 const Signin: NextPage = () => {
   const router = useRouter()
@@ -45,25 +45,27 @@ const Signin: NextPage = () => {
 
   // SigninTemplate Props
   const props: SigninTemplateProps = {
-    signIn: {
-      loading: signInMutation.loading,
-      errors: isValidationErrors(signInResult) ? signInResult : undefined,
-      reset: signInMutation.reset,
-      signIn
-    },
-    signUp: {
-      result: signUpMutation.data?.signUp,
-      loading: signUpMutation.loading,
-      errors: isValidationErrors(signUpResult) ? signUpResult : undefined,
-      reset: signUpMutation.reset,
-      signUp
-    },
-    forgotPassword: {
-      result: forgotPasswordMutation.data?.forgotPassword,
-      loading: forgotPasswordMutation.loading,
-      errors: isValidationErrors(forgotPasswordResult) ? forgotPasswordResult : undefined,
-      reset: forgotPasswordMutation.reset,
-      forgotPassword
+    mutation: {
+      signIn: {
+        loading: signInMutation.loading,
+        errors: isValidationErrors(signInResult) ? signInResult : undefined,
+        reset: signInMutation.reset,
+        mutate: signIn
+      },
+      signUp: {
+        result: signUpMutation.data?.signUp,
+        loading: signUpMutation.loading,
+        errors: isValidationErrors(signUpResult) ? signUpResult : undefined,
+        reset: signUpMutation.reset,
+        mutate: signUp
+      },
+      forgotPassword: {
+        result: forgotPasswordMutation.data?.forgotPassword,
+        loading: forgotPasswordMutation.loading,
+        errors: isValidationErrors(forgotPasswordResult) ? forgotPasswordResult : undefined,
+        reset: forgotPasswordMutation.reset,
+        mutate: forgotPassword
+      }
     }
   }
 

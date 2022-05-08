@@ -34,7 +34,6 @@ Active.args = {
   image:
     'https://1.bp.blogspot.com/-gTf4sWnRdDw/X0B4RSQQLrI/AAAAAAABarI/MJ9DW90dSVwtMjuUoErxemnN4nPXBnXUwCNcBGAsYHQ/s1600/otaku_girl_fashion.png',
   name: '佐藤亜美',
-  content:
-    '本日プロジェクトについての打ち合わせを行いたいです。何時ごろお時間都合がよいでしょうか？',
+  content: '本日プロジェクトについての打ち合わせを行いたいです。何時ごろお時間都合がよいでしょうか？',
   active: true
 }

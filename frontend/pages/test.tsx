@@ -1,13 +1,4 @@
-import {
-  Button,
-  Flex,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Heading,
-  Input,
-  Stack
-} from '@chakra-ui/react'
+import { Button, Flex, FormControl, FormErrorMessage, FormLabel, Heading, Input, Stack } from '@chakra-ui/react'
 import React from 'react'
 
 export default function ResetPasswordForm(): JSX.Element {

@@ -93,7 +93,5 @@ export type DeepNullable<T> = {
 
 /** 型引数に指定されたオブジェクト型のプロパティに対し、再帰的にNonNullable変換を行った型 */
 export type DeepNonNullable<T> = {
-  [P in keyof T]-?: T[P] extends Primitive<T[P]>
-    ? Exclude<T[P], null | undefined>
-    : DeepNullable<T[P]>
+  [P in keyof T]-?: T[P] extends Primitive<T[P]> ? Exclude<T[P], null | undefined> : DeepNullable<T[P]>
 }

@@ -5,7 +5,7 @@ input SignUpInput {
   password: String!
   passwordConfirm: String!
   comment: String
-  avatar: String
+  avatar: Upload
 }
 
 mutation SignUp($input: SignUpInput!) {

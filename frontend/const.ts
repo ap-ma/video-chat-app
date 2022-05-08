@@ -27,6 +27,19 @@ export const API_URL = (
 export const API_WS_URL = process.env.NEXT_PUBLIC_API_WS_URL as string
 
 //  ----------------------------------------------------------------------------
+//  Validation const value
+//  ----------------------------------------------------------------------------
+
+/** Validation comment 最大長 */
+export const VALIDATION_USER_COMMENT_MAX_LEN = 50
+
+/** Validation code パターン 最低4文字 最大8文字 半角英数字 */
+export const VALIDATION_CODE_PATTERN = /^[a-zA-Z0-9]{4,8}$/
+
+/** Validation password パターン 最低8文字 最大24文字 大文字、小文字、数字をそれぞれ1文字以上含む半角英数字 */
+export const VALIDATION_PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{8,24}$/
+
+//  ----------------------------------------------------------------------------
 //  API Error type
 //  ----------------------------------------------------------------------------
 
@@ -58,6 +71,9 @@ export const ERROR_PAGE = '/error'
 //  ----------------------------------------------------------------------------
 //  General const values
 //  ----------------------------------------------------------------------------
+
+/** 画像ファイルとして許可するファイル拡張子 */
+export const ALLOWED_IMAGE_EXTS = ['jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'png']
 
 /** Dateオブジェクト 文字列表現デフォルトフォーマット */
 export const DATE_FORMAT = 'PP'

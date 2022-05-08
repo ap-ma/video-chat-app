@@ -1,5 +1,6 @@
 /* eslint-disable import/no-unresolved */
 import { chakraColors } from '.storybook/const'
+/* eslint-enable import/no-unresolved  */
 import { Meta, Story } from '@storybook/react/types-6-0'
 import React from 'react'
 import Wave, { WaveProps } from './index'
@@ -10,11 +11,7 @@ export default {
 } as Meta
 
 const Template: Story<WaveProps> = ({ topColor, bottomColor, animationNegativeDelay }) => (
-  <Wave
-    topColor={topColor}
-    bottomColor={bottomColor}
-    animationNegativeDelay={animationNegativeDelay}
-  />
+  <Wave topColor={topColor} bottomColor={bottomColor} animationNegativeDelay={animationNegativeDelay} />
 )
 
 export const Primary = Template.bind({})

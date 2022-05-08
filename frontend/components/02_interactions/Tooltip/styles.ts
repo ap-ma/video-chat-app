@@ -15,10 +15,7 @@ export const tip = ({ rootClassName }: Pick<TipProps, 'rootClassName'>): string 
     display: inline-block;
   }
 `
-export const marker = ({
-  rootClassName,
-  mkColor
-}: Pick<MarkerProps, 'mkColor' | 'rootClassName'>): string => css`
+export const marker = ({ rootClassName, mkColor }: Pick<MarkerProps, 'mkColor' | 'rootClassName'>): string => css`
   ${'.' + rootClassName}:hover & {
     background: linear-gradient(transparent 70%, ${mkColor} 0%);
   }

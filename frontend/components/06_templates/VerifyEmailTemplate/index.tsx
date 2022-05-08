@@ -36,8 +36,4 @@ const Container: React.VFC<ContainerProps<VerifyEmailTemplateProps, PresenterPro
 }
 
 /** VerifyEmailTemplate */
-export default connect<VerifyEmailTemplateProps, PresenterProps>(
-  'VerifyEmailTemplate',
-  Presenter,
-  Container
-)
+export default connect<VerifyEmailTemplateProps, PresenterProps>('VerifyEmailTemplate', Presenter, Container)

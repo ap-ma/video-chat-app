@@ -4,7 +4,7 @@ import { APP_NAME, APP_URL } from 'const'
 import Head from 'next/head'
 import React, { Children } from 'react'
 import { ContainerProps, WithChildren } from 'types'
-import { isNullish, isReactElement } from 'utils/impl/object'
+import { isNullish, isReactElement } from 'utils/general/object'
 import Title, { TitleProps } from './Title'
 
 /** HtmlSkeleton Props */
@@ -42,11 +42,7 @@ const Presenter: React.VFC<PresenterProps> = ({ title, description, children, ..
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<HtmlSkeletonProps, PresenterProps>> = ({
-  presenter,
-  children,
-  ...props
-}) => {
+const Container: React.VFC<ContainerProps<HtmlSkeletonProps, PresenterProps>> = ({ presenter, children, ...props }) => {
   let title: TitleProps['children'] | undefined = undefined
   children = Children.map(children, (child) =>
     isReactElement(child) && child.type === Title

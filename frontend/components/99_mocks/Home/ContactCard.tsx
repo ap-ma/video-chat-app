@@ -27,13 +27,7 @@ const ContactCard: React.VFC<ContactCardProps> = ({ image, name, desc, ...props 
         <Text fontWeight='bold' overflow='hidden' whiteSpace='nowrap' textOverflow='ellipsis'>
           {name}
         </Text>
-        <Text
-          fontSize='sm'
-          color='gray.600'
-          overflow='hidden'
-          whiteSpace='nowrap'
-          textOverflow='ellipsis'
-        >
+        <Text fontSize='sm' color='gray.600' overflow='hidden' whiteSpace='nowrap' textOverflow='ellipsis'>
           {desc}
         </Text>
       </Box>

@@ -1,7 +1,5 @@
 import { ApolloError, GraphQLErrors } from '@apollo/client/errors'
-import ResetPasswordTemplate, {
-  ResetPasswordTemplateProps
-} from 'components/06_templates/ResetPasswordTemplate'
+import ResetPasswordTemplate, { ResetPasswordTemplateProps } from 'components/06_templates/ResetPasswordTemplate'
 import { ERROR_PAGE } from 'const'
 import { addApolloState, initializeApollo } from 'graphql/apollo'
 import {
@@ -11,18 +9,18 @@ import {
   ResetPasswordInput,
   useResetPasswordMutation
 } from 'graphql/generated'
-import { handle, Handler, isValidationErrors } from 'graphql/lib'
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import React from 'react'
 import { Unbox, ValidationErrors } from 'types'
+import { handle, Handler, isValidationErrors } from 'utils/graphql'
 
 const ResetPassword: NextPage<
   Partial<{
     token: ResetPasswordInput['token']
-    errors: ValidationErrors
+    tokenErrors: ValidationErrors
   }>
-> = ({ token, errors }) => {
+> = ({ token, tokenErrors }) => {
   const router = useRouter()
 
   // Redirect
@@ -48,13 +46,13 @@ const ResetPassword: NextPage<
   // ResetPasswordTemplate Props
   const props: ResetPasswordTemplateProps = {
     token,
-    errors,
+    tokenErrors,
     mutation: {
       resetPassword: {
         loading: resetPasswordMutation.loading,
         errors: isValidationErrors(resetPasswordResult) ? resetPasswordResult : undefined,
         reset: resetPasswordMutation.reset,
-        resetPassword
+        mutate: resetPassword
       }
     }
   }
@@ -65,7 +63,7 @@ const ResetPassword: NextPage<
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const apolloClient = initializeApollo()
 
-  const token = params?.roken as Exclude<Unbox<GetServerSidePropsContext['params']>, string[]>
+  const token = params?.token as Exclude<Unbox<GetServerSidePropsContext['params']>, string[]>
   const { error } = await apolloClient
     .query<IsPasswordResetTokenValidQuery, IsPasswordResetTokenValidQueryVariables>({
       query: IsPasswordResetTokenValidDocument,
@@ -75,7 +73,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
   return handle(error, {
     noError: () => addApolloState(apolloClient, { props: { token } }),
-    validationError: (errors) => addApolloState(apolloClient, { props: { errors } }),
+    validationError: (errors) => addApolloState(apolloClient, { props: { tokenErrors: errors } }),
     _default: () => ({ redirect: { permanent: false, destination: ERROR_PAGE } })
   })
 }

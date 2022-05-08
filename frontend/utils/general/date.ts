@@ -17,11 +17,7 @@ type LocaleMapKey = keyof typeof localeMap
  * @param locale - ロケール文字列
  * @returns フォーマットされた日付文字列
  */
-export const dateFormat = (
-  date: Date,
-  formatStr: string = DATE_FORMAT,
-  locale: LocaleMapKey = LOCALE
-): string =>
+export const dateFormat = (date: Date, formatStr: string = DATE_FORMAT, locale: LocaleMapKey = LOCALE): string =>
   format(date, formatStr, {
     locale: localeMap[locale]
   })

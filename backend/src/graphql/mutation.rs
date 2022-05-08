@@ -62,7 +62,7 @@ impl Mutation {
         validator::max_length_validator("comment", comment, USER_COMMENT_MAX_LEN)?;
         validator::password_validator(
             "password",
-            "password_confirm",
+            "passwordConfirm",
             &input.password,
             &input.password_confirm,
         )?;
@@ -78,7 +78,7 @@ impl Mutation {
             email: input.email,
             password,
             comment: input.comment,
-            avatar: input.avatar,
+            avatar: None,
             role: user_const::role::USER,
             status: user_const::status::UNVERIFIED,
         };
@@ -143,7 +143,7 @@ impl Mutation {
             code: Some(input.code),
             name: Some(Some(input.name)),
             comment: Some(input.comment),
-            avatar: Some(input.avatar),
+            avatar: None,
             ..Default::default()
         };
 
@@ -289,8 +289,8 @@ impl Mutation {
         }
 
         validator::password_validator(
-            "new_password",
-            "new_password_confirm",
+            "newPassword",
+            "newPasswordConfirm",
             &input.new_password,
             &input.new_password_confirm,
         )?;
@@ -361,7 +361,7 @@ impl Mutation {
 
         validator::password_validator(
             "password",
-            "password_confirm",
+            "passwordConfirm",
             &input.password,
             &input.password_confirm,
         )?;
@@ -437,21 +437,21 @@ impl Mutation {
 
         let contact = service::find_contact_by_id(common::convert_id(&input.contact_id)?, &conn);
         let contact = contact.map_err(|_| {
-            GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contact_id").extend()
+            GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId").extend()
         })?;
 
         if contact.user_id != identity.id {
-            let e = GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contact_id");
+            let e = GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId");
             return Err(e.extend());
         }
 
         if contact_const::status::DELETED == contact.status {
-            let e = GraphqlError::ValidationError(error::V_CONTACT_DELETED.into(), "contact_id");
+            let e = GraphqlError::ValidationError(error::V_CONTACT_DELETED.into(), "contactId");
             return Err(e.extend());
         }
 
         if contact.blocked {
-            let e = GraphqlError::ValidationError(error::V_CONTACT_BLOCKED.into(), "contact_id");
+            let e = GraphqlError::ValidationError(error::V_CONTACT_BLOCKED.into(), "contactId");
             return Err(e.extend());
         }
 
@@ -474,21 +474,21 @@ impl Mutation {
 
         let contact = service::find_contact_by_id(common::convert_id(&input.contact_id)?, &conn);
         let contact = contact.map_err(|_| {
-            GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contact_id").extend()
+            GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId").extend()
         })?;
 
         if contact.user_id != identity.id {
-            let e = GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contact_id");
+            let e = GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId");
             return Err(e.extend());
         }
 
         if contact_const::status::DELETED == contact.status {
-            let e = GraphqlError::ValidationError(error::V_CONTACT_DELETED.into(), "contact_id");
+            let e = GraphqlError::ValidationError(error::V_CONTACT_DELETED.into(), "contactId");
             return Err(e.extend());
         }
 
         if contact.blocked {
-            let e = GraphqlError::ValidationError(error::V_CONTACT_BLOCKED.into(), "contact_id");
+            let e = GraphqlError::ValidationError(error::V_CONTACT_BLOCKED.into(), "contactId");
             return Err(e.extend());
         }
 
@@ -557,16 +557,16 @@ impl Mutation {
 
         let message = service::find_message_by_id(common::convert_id(&message_id)?, &conn);
         let (message, _) = message.map_err(|_| {
-            GraphqlError::ValidationError(error::V_MESSAGE_ID_INVALID.into(), "message_id").extend()
+            GraphqlError::ValidationError(error::V_MESSAGE_ID_INVALID.into(), "messageId").extend()
         })?;
 
         if message.tx_user_id != identity.id {
-            let e = GraphqlError::ValidationError(error::V_MESSAGE_ID_INVALID.into(), "message_id");
+            let e = GraphqlError::ValidationError(error::V_MESSAGE_ID_INVALID.into(), "messageId");
             return Err(e.extend());
         }
 
         if message_const::status::DELETED == message.status {
-            let e = GraphqlError::ValidationError(error::V_MESSAGE_DELETED.into(), "contact_id");
+            let e = GraphqlError::ValidationError(error::V_MESSAGE_DELETED.into(), "contactId");
             return Err(e.extend());
         }
 
@@ -634,7 +634,7 @@ impl Mutation {
         if let Ok((contact, _)) = contact {
             if contact.blocked {
                 let m = error::V_CONTACT_BLOCKED;
-                let e = GraphqlError::ValidationError(m.into(), "other_user_id");
+                let e = GraphqlError::ValidationError(m.into(), "otherUserId");
                 return Err(e.extend());
             }
 
@@ -692,7 +692,7 @@ impl Mutation {
         let contact = service::find_contact_with_user(identity.id, other_user_id, &conn);
         if contact.is_ok() {
             let m = error::V_CONTACT_REGISTERED;
-            let e = GraphqlError::ValidationError(m.into(), "other_user_id");
+            let e = GraphqlError::ValidationError(m.into(), "otherUserId");
             return Err(e.extend());
         }
 
@@ -715,24 +715,24 @@ impl Mutation {
 
         let message = service::find_message_by_id(common::convert_id(&message_id)?, &conn);
         let (message, _) = message.map_err(|_| {
-            let e = GraphqlError::ValidationError(error::V_MESSAGE_ID_INVALID.into(), "message_id");
+            let e = GraphqlError::ValidationError(error::V_MESSAGE_ID_INVALID.into(), "messageId");
             e.extend()
         })?;
 
         if message_const::category::CONTACT_APPLICATION != message.category {
             let m = error::V_MESSAGE_NOT_APPLICATION;
-            let e = GraphqlError::ValidationError(m.into(), "message_id");
+            let e = GraphqlError::ValidationError(m.into(), "messageId");
             return Err(e.extend());
         }
 
         if message.rx_user_id != identity.id {
-            let e = GraphqlError::ValidationError(error::V_MESSAGE_ID_INVALID.into(), "message_id");
+            let e = GraphqlError::ValidationError(error::V_MESSAGE_ID_INVALID.into(), "messageId");
             return Err(e.extend());
         }
 
         let contact = service::find_contact_with_user(identity.id, message.tx_user_id, &conn);
         if contact.is_ok() {
-            let e = GraphqlError::ValidationError(error::V_CONTACT_REGISTERED.into(), "message_id");
+            let e = GraphqlError::ValidationError(error::V_CONTACT_REGISTERED.into(), "messageId");
             return Err(e.extend());
         }
 
@@ -761,16 +761,16 @@ impl Mutation {
 
         let contact = service::find_contact_by_id(common::convert_id(&contact_id)?, &conn);
         let contact = contact.map_err(|_| {
-            GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contact_id").extend()
+            GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId").extend()
         })?;
 
         if contact.user_id != identity.id {
-            let e = GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contact_id");
+            let e = GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId");
             return Err(e.extend());
         }
 
         if contact_const::status::DELETED == contact.status {
-            let e = GraphqlError::ValidationError(error::V_CONTACT_DELETED.into(), "contact_id");
+            let e = GraphqlError::ValidationError(error::V_CONTACT_DELETED.into(), "contactId");
             return Err(e.extend());
         }
 
@@ -800,17 +800,17 @@ impl Mutation {
 
         let contact = service::find_contact_by_id(common::convert_id(&contact_id)?, &conn);
         let contact = contact.map_err(|_| {
-            GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contact_id").extend()
+            GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId").extend()
         })?;
 
         if contact.user_id != identity.id {
-            let e = GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contact_id");
+            let e = GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId");
             return Err(e.extend());
         }
 
         if contact_const::status::DELETED != contact.status {
             let m = error::V_CONTACT_NOT_DELETED;
-            let e = GraphqlError::ValidationError(m.into(), "contact_id");
+            let e = GraphqlError::ValidationError(m.into(), "contactId");
             return Err(e.extend());
         }
 
@@ -840,16 +840,16 @@ impl Mutation {
 
         let contact = service::find_contact_by_id(common::convert_id(&contact_id)?, &conn);
         let contact = contact.map_err(|_| {
-            GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contact_id").extend()
+            GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId").extend()
         })?;
 
         if contact.user_id != identity.id {
-            let e = GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contact_id");
+            let e = GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId");
             return Err(e.extend());
         }
 
         if contact.blocked {
-            let e = GraphqlError::ValidationError(error::V_CONTACT_BLOCKED.into(), "contact_id");
+            let e = GraphqlError::ValidationError(error::V_CONTACT_BLOCKED.into(), "contactId");
             return Err(e.extend());
         }
 
@@ -879,17 +879,17 @@ impl Mutation {
 
         let contact = service::find_contact_by_id(common::convert_id(&contact_id)?, &conn);
         let contact = contact.map_err(|_| {
-            GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contact_id").extend()
+            GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId").extend()
         })?;
 
         if contact.user_id != identity.id {
-            let e = GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contact_id");
+            let e = GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId");
             return Err(e.extend());
         }
 
         if !contact.blocked {
             let m = error::V_CONTACT_NOT_BLOCKED;
-            let e = GraphqlError::ValidationError(m.into(), "contact_id");
+            let e = GraphqlError::ValidationError(m.into(), "contactId");
             return Err(e.extend());
         }
 

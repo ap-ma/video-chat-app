@@ -2,8 +2,8 @@ import classnames from 'classnames'
 import { connect } from 'components/hoc'
 import React, { Children, cloneElement, useMemo } from 'react'
 import { ContainerProps } from 'types'
-import { hashCode } from 'utils/impl/helper'
-import { includes, isReactElement } from 'utils/impl/object'
+import { hashCode } from 'utils/general/helper'
+import { includes, isReactElement } from 'utils/general/object'
 import Marker from './Marker'
 import * as styles from './styles'
 import Tip from './Tip'
@@ -29,9 +29,7 @@ const Container: React.VFC<ContainerProps<TooltipProps, PresenterProps>> = ({
 }) => {
   const rootClassName = useMemo(() => `tooltip-${hashCode(props)}`, [props])
   children = Children.map(children, (child) =>
-    isReactElement(child) && includes(child.type, Tip, Marker)
-      ? cloneElement(child, { rootClassName })
-      : child
+    isReactElement(child) && includes(child.type, Tip, Marker) ? cloneElement(child, { rootClassName }) : child
   )
   className = classnames(rootClassName, className)
   return presenter({ children, className, ...props })

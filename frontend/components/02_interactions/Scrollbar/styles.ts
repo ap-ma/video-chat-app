@@ -1,7 +1,7 @@
 export const root = {
   overflowY: 'scroll',
   sx: {
-    'scrollbarWidth': 'thin',
+    scrollbarWidth: 'thin',
     '&::-webkit-scrollbar': {
       width: '5px'
     },

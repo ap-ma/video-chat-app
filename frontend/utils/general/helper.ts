@@ -1,4 +1,4 @@
-import { isArray, isNullish } from './object'
+import { includes, isArray, isNullish } from './object'
 
 /**
  * 値を文字列表現に変換して返す
@@ -33,8 +33,7 @@ export const zf = (target: string | number, digit = 0): string => {
  * @param digit - 最終的な文字列の長さ
  * @returns 延長した文字列
  */
-export const padStr = (target: string, padStr: string, digit: number): string =>
-  target.padStart(digit, padStr)
+export const padStr = (target: string, padStr: string, digit: number): string => target.padStart(digit, padStr)
 
 /**
  * 指定した範囲の各数値を要素にもつ配列を返す
@@ -75,6 +74,35 @@ export const hashCode = (target: unknown): number => {
 }
 
 /**
+ * FileをBase64エンコードし、DataURL文字列に変換する
+ *
+ * @param file - 変換するFileオブジェクト
+ * @returns 処理成功時ファイルのデータを表すDataURL文字列で解決されるPromiseオブジェクト
+ */
+export const fileToDataURL = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(file)
+  })
+}
+
+/**
+ * 指定のファイル名の拡張子が第2引数以降の値に含まれているか否かを示す真偽値を返す
+ *
+ * @param filename - 判定対象のファイル名
+ * @param exts - 検索先となる値
+ * @returns ファイル名の拡張子が第2引数以降の値に含まれているか否かを示す真偽値
+ */
+export const isExtIncluded = (filename: string | undefined, ...exts: readonly string[]): boolean => {
+  if (isNullish(filename)) return false
+  const pos = filename.lastIndexOf('.')
+  const ext = pos === -1 ? '' : filename.slice(pos + 1).toLowerCase()
+  return includes(ext, exts)
+}
+
+/**
  * 指定誕生年月日の満年齢を返す
  *
  * @param year - 誕生年
@@ -82,11 +110,7 @@ export const hashCode = (target: unknown): number => {
  * @param date - 誕生日
  * @returns 年齢を示すNumber
  */
-export const age = (
-  year: string | number,
-  month: string | number,
-  date: string | number
-): number => {
+export const age = (year: string | number, month: string | number, date: string | number): number => {
   const today = new Date()
   const tDate = Number(today.getFullYear() + zf(today.getMonth() + 1, 2) + zf(today.getDate(), 2))
   const bDate = Number(year + zf(month, 2) + zf(date, 2))

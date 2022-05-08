@@ -2,7 +2,7 @@ import { Flex, FlexProps, Stack } from '@chakra-ui/react'
 import { connect } from 'components/hoc'
 import React, { Children } from 'react'
 import { ContainerProps, WithChildren } from 'types'
-import { isReactElement } from 'utils/impl/object'
+import { isReactElement } from 'utils/general/object'
 import Body, { BodyProps } from './Body'
 import Head, { HeadProps } from './Head'
 import * as styles from './styles'
@@ -44,11 +44,7 @@ const Container: React.VFC<ContainerProps<ResultIndicationProps, PresenterProps>
 }
 
 /** ResultIndication */
-export default connect<ResultIndicationProps, PresenterProps>(
-  'ResultIndication',
-  Presenter,
-  Container
-)
+export default connect<ResultIndicationProps, PresenterProps>('ResultIndication', Presenter, Container)
 
 // Sub Component
 export { Body, Head }

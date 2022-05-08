@@ -68,7 +68,7 @@ module.exports = {
       typescript: { project: './' }
     },
     // React設定
-    'react': {
+    react: {
       // バージョン: 自動検出
       version: 'detect'
     }

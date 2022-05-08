@@ -40,10 +40,7 @@ const Presenter: React.VFC<PresenterProps> = ({ image, name, content, active, ..
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<UserCardProps, PresenterProps>> = ({
-  presenter,
-  ...props
-}) => {
+const Container: React.VFC<ContainerProps<UserCardProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 

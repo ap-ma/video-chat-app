@@ -15,11 +15,7 @@ Primary.args = {
 
 export const AbsolutePosition: Story<BalloonProps & { position: number }> = ({ position }) => {
   const content = `左上から ${position}px`
-  return (
-    <Balloon style={{ position: 'absolute', top: `${position}px`, left: `${position}px` }}>
-      {content}
-    </Balloon>
-  )
+  return <Balloon style={{ position: 'absolute', top: `${position}px`, left: `${position}px` }}>{content}</Balloon>
 }
 AbsolutePosition.storyName = '絶対位置指定配置'
 AbsolutePosition.argTypes = { position: { control: 'number' } }

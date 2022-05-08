@@ -2,7 +2,7 @@ input EditProfileInput {
   code: String!
   name: String!
   comment: String
-  avatar: String
+  avatar: Upload
 }
 
 mutation EditProfile($input: EditProfileInput!) {

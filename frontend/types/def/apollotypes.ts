@@ -1,11 +1,4 @@
-import {
-  MutationResult,
-  MutationTuple,
-  QueryResult,
-  QueryTuple,
-  Reference,
-  StoreObject
-} from '@apollo/client'
+import { MutationResult, MutationTuple, QueryResult, QueryTuple, Reference, StoreObject } from '@apollo/client'
 import { GraphQLError } from 'graphql'
 
 //  ----------------------------------------------------------------------------

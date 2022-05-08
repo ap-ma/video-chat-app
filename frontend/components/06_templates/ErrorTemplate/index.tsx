@@ -30,10 +30,7 @@ const Presenter: React.VFC<PresenterProps> = (props) => (
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<ErrorTemplateProps, PresenterProps>> = ({
-  presenter,
-  ...props
-}) => {
+const Container: React.VFC<ContainerProps<ErrorTemplateProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 

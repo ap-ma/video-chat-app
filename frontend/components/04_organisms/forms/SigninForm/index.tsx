@@ -4,18 +4,10 @@ import {
   ForgotPasswordMutation,
   ForgotPasswordMutationVariables,
   SignInMutation,
-  SignInMutationVariables,
-  SignUpMutation,
-  SignUpMutationVariables
+  SignInMutationVariables
 } from 'graphql/generated'
 import React from 'react'
-import {
-  ContainerProps,
-  MutaionLoading,
-  MutaionReset,
-  MutateFunction,
-  ValidationErrors
-} from 'types'
+import { ContainerProps, MutaionLoading, MutaionReset, MutateFunction, ValidationErrors } from 'types'
 
 /** SigninForm Props */
 export type SigninFormProps = {
@@ -26,17 +18,7 @@ export type SigninFormProps = {
     loading: MutaionLoading
     errors?: ValidationErrors
     reset: MutaionReset
-    signIn: MutateFunction<SignInMutation, SignInMutationVariables>
-  }
-  /**
-   * サインアップ
-   */
-  signUp: {
-    result?: SignUpMutation['signUp']
-    loading: MutaionLoading
-    errors?: ValidationErrors
-    reset: MutaionReset
-    signUp: MutateFunction<SignUpMutation, SignUpMutationVariables>
+    mutate: MutateFunction<SignInMutation, SignInMutationVariables>
   }
   /**
    * パスワード忘れ
@@ -46,7 +28,7 @@ export type SigninFormProps = {
     loading: MutaionLoading
     errors?: ValidationErrors
     reset: MutaionReset
-    forgotPassword: MutateFunction<ForgotPasswordMutation, ForgotPasswordMutationVariables>
+    mutate: MutateFunction<ForgotPasswordMutation, ForgotPasswordMutationVariables>
   }
 }
 /** Presenter Props */
@@ -82,10 +64,7 @@ const Presenter: React.VFC<PresenterProps> = () => (
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<SigninFormProps, PresenterProps>> = ({
-  presenter,
-  ...props
-}) => {
+const Container: React.VFC<ContainerProps<SigninFormProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 

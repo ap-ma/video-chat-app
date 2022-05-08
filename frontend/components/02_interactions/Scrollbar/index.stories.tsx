@@ -26,9 +26,7 @@ const children = (
   </Fragment>
 )
 
-export const Primary: Story<ScrollbarProps> = ({ children, ...props }) => (
-  <Scrollbar {...props}>{children}</Scrollbar>
-)
+export const Primary: Story<ScrollbarProps> = ({ children, ...props }) => <Scrollbar {...props}>{children}</Scrollbar>
 Primary.storyName = 'プライマリ'
 Primary.args = {
   height: '70vh',

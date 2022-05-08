@@ -13,15 +13,9 @@ export default {
   decorators: [(Story) => container({ margin: '50px' })(Story())]
 } as Meta
 
-const triangleMarkPositions: NonEmptyArray<MessageProps['triangleMarkPosition']> = [
-  'left',
-  'right',
-  'none'
-]
+const triangleMarkPositions: NonEmptyArray<MessageProps['triangleMarkPosition']> = ['left', 'right', 'none']
 
-const Template: Story<MessageProps> = ({ children, ...props }) => (
-  <Message {...props}>{children}</Message>
-)
+const Template: Story<MessageProps> = ({ children, ...props }) => <Message {...props}>{children}</Message>
 
 export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'

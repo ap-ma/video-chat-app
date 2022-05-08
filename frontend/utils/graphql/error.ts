@@ -3,7 +3,7 @@ import { ErrorResponse } from '@apollo/client/link/error'
 import { API_ERROR_TYPE } from 'const'
 import { isArray } from 'lodash'
 import { AuthenticationErrors, AuthorizationErrors, ServerErrors, ValidationErrors } from 'types'
-import { hasProperty, isNonEmptyArray as isNotBlank, isNullish } from 'utils/impl/object'
+import { hasProperty, isNonEmptyArray as isNotBlank, isNullish } from 'utils/general/object'
 
 /**
  * Operation Handler
@@ -35,9 +35,7 @@ export const handle = <R>(
   if (!isNullish(error)) {
     // Network Error
     if (!isNullish(error.networkError)) {
-      return !isNullish(handler.networkError)
-        ? handler.networkError(error.networkError)
-        : handler._default()
+      return !isNullish(handler.networkError) ? handler.networkError(error.networkError) : handler._default()
     }
     // GraphQL Errors
     if (!isNullish(error.graphQLErrors) && isNotBlank(error.graphQLErrors)) {
@@ -140,7 +138,5 @@ export const isValidationErrors = (target: unknown): target is ValidationErrors 
  * @param type - 抽出対象のエラー種別
  * @returns extensions.typeに指定typeを持つエラーの配列
  */
-const filterGqlError = (
-  errors: GraphQLErrors,
-  type: typeof API_ERROR_TYPE[keyof typeof API_ERROR_TYPE]
-) => errors.filter((e) => e.extensions?.type === type)
+const filterGqlError = (errors: GraphQLErrors, type: typeof API_ERROR_TYPE[keyof typeof API_ERROR_TYPE]) =>
+  errors.filter((e) => e.extensions?.type === type)

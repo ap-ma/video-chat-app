@@ -13,6 +13,7 @@ export type Scalars = {
   Boolean: boolean
   Int: number
   Float: number
+  Upload: any
 }
 
 export type Call = {
@@ -81,7 +82,7 @@ export type ContactChatArgs = {
 }
 
 export type EditProfileInput = {
-  avatar?: InputMaybe<Scalars['String']>
+  avatar?: InputMaybe<Scalars['Upload']>
   code: Scalars['String']
   comment?: InputMaybe<Scalars['String']>
   name: Scalars['String']
@@ -276,7 +277,7 @@ export type SignInInput = {
 }
 
 export type SignUpInput = {
-  avatar?: InputMaybe<Scalars['String']>
+  avatar?: InputMaybe<Scalars['Upload']>
   code: Scalars['String']
   comment?: InputMaybe<Scalars['String']>
   email: Scalars['String']
@@ -1570,10 +1571,7 @@ export const BlockContactDocument = gql`
   }
   ${ContactFieldsFragmentDoc}
 `
-export type BlockContactMutationFn = Apollo.MutationFunction<
-  BlockContactMutation,
-  BlockContactMutationVariables
->
+export type BlockContactMutationFn = Apollo.MutationFunction<BlockContactMutation, BlockContactMutationVariables>
 
 /**
  * __useBlockContactMutation__
@@ -1596,10 +1594,7 @@ export function useBlockContactMutation(
   baseOptions?: Apollo.MutationHookOptions<BlockContactMutation, BlockContactMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<BlockContactMutation, BlockContactMutationVariables>(
-    BlockContactDocument,
-    options
-  )
+  return Apollo.useMutation<BlockContactMutation, BlockContactMutationVariables>(BlockContactDocument, options)
 }
 export type BlockContactMutationHookResult = ReturnType<typeof useBlockContactMutation>
 export type BlockContactMutationResult = Apollo.MutationResult<BlockContactMutation>
@@ -1615,10 +1610,7 @@ export const CallOfferDocument = gql`
   }
   ${MessageChangedFieldsFragmentDoc}
 `
-export type CallOfferMutationFn = Apollo.MutationFunction<
-  CallOfferMutation,
-  CallOfferMutationVariables
->
+export type CallOfferMutationFn = Apollo.MutationFunction<CallOfferMutation, CallOfferMutationVariables>
 
 /**
  * __useCallOfferMutation__
@@ -1642,26 +1634,17 @@ export function useCallOfferMutation(
   baseOptions?: Apollo.MutationHookOptions<CallOfferMutation, CallOfferMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<CallOfferMutation, CallOfferMutationVariables>(
-    CallOfferDocument,
-    options
-  )
+  return Apollo.useMutation<CallOfferMutation, CallOfferMutationVariables>(CallOfferDocument, options)
 }
 export type CallOfferMutationHookResult = ReturnType<typeof useCallOfferMutation>
 export type CallOfferMutationResult = Apollo.MutationResult<CallOfferMutation>
-export type CallOfferMutationOptions = Apollo.BaseMutationOptions<
-  CallOfferMutation,
-  CallOfferMutationVariables
->
+export type CallOfferMutationOptions = Apollo.BaseMutationOptions<CallOfferMutation, CallOfferMutationVariables>
 export const ChangeEmailDocument = gql`
   mutation ChangeEmail($email: String!) {
     changeEmail(email: $email)
   }
 `
-export type ChangeEmailMutationFn = Apollo.MutationFunction<
-  ChangeEmailMutation,
-  ChangeEmailMutationVariables
->
+export type ChangeEmailMutationFn = Apollo.MutationFunction<ChangeEmailMutation, ChangeEmailMutationVariables>
 
 /**
  * __useChangeEmailMutation__
@@ -1684,26 +1667,17 @@ export function useChangeEmailMutation(
   baseOptions?: Apollo.MutationHookOptions<ChangeEmailMutation, ChangeEmailMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<ChangeEmailMutation, ChangeEmailMutationVariables>(
-    ChangeEmailDocument,
-    options
-  )
+  return Apollo.useMutation<ChangeEmailMutation, ChangeEmailMutationVariables>(ChangeEmailDocument, options)
 }
 export type ChangeEmailMutationHookResult = ReturnType<typeof useChangeEmailMutation>
 export type ChangeEmailMutationResult = Apollo.MutationResult<ChangeEmailMutation>
-export type ChangeEmailMutationOptions = Apollo.BaseMutationOptions<
-  ChangeEmailMutation,
-  ChangeEmailMutationVariables
->
+export type ChangeEmailMutationOptions = Apollo.BaseMutationOptions<ChangeEmailMutation, ChangeEmailMutationVariables>
 export const ChangePasswordDocument = gql`
   mutation ChangePassword($input: ChangePasswordInput!) {
     changePassword(input: $input)
   }
 `
-export type ChangePasswordMutationFn = Apollo.MutationFunction<
-  ChangePasswordMutation,
-  ChangePasswordMutationVariables
->
+export type ChangePasswordMutationFn = Apollo.MutationFunction<ChangePasswordMutation, ChangePasswordMutationVariables>
 
 /**
  * __useChangePasswordMutation__
@@ -1726,10 +1700,7 @@ export function useChangePasswordMutation(
   baseOptions?: Apollo.MutationHookOptions<ChangePasswordMutation, ChangePasswordMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(
-    ChangePasswordDocument,
-    options
-  )
+  return Apollo.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument, options)
 }
 export type ChangePasswordMutationHookResult = ReturnType<typeof useChangePasswordMutation>
 export type ChangePasswordMutationResult = Apollo.MutationResult<ChangePasswordMutation>
@@ -1769,10 +1740,7 @@ export type ContactApplicationMutationFn = Apollo.MutationFunction<
  * });
  */
 export function useContactApplicationMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    ContactApplicationMutation,
-    ContactApplicationMutationVariables
-  >
+  baseOptions?: Apollo.MutationHookOptions<ContactApplicationMutation, ContactApplicationMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
   return Apollo.useMutation<ContactApplicationMutation, ContactApplicationMutationVariables>(
@@ -1818,16 +1786,10 @@ export type ContactApprovalMutationFn = Apollo.MutationFunction<
  * });
  */
 export function useContactApprovalMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    ContactApprovalMutation,
-    ContactApprovalMutationVariables
-  >
+  baseOptions?: Apollo.MutationHookOptions<ContactApprovalMutation, ContactApprovalMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<ContactApprovalMutation, ContactApprovalMutationVariables>(
-    ContactApprovalDocument,
-    options
-  )
+  return Apollo.useMutation<ContactApprovalMutation, ContactApprovalMutationVariables>(ContactApprovalDocument, options)
 }
 export type ContactApprovalMutationHookResult = ReturnType<typeof useContactApprovalMutation>
 export type ContactApprovalMutationResult = Apollo.MutationResult<ContactApprovalMutation>
@@ -1840,10 +1802,7 @@ export const DeleteAccountDocument = gql`
     deleteAccount
   }
 `
-export type DeleteAccountMutationFn = Apollo.MutationFunction<
-  DeleteAccountMutation,
-  DeleteAccountMutationVariables
->
+export type DeleteAccountMutationFn = Apollo.MutationFunction<DeleteAccountMutation, DeleteAccountMutationVariables>
 
 /**
  * __useDeleteAccountMutation__
@@ -1865,10 +1824,7 @@ export function useDeleteAccountMutation(
   baseOptions?: Apollo.MutationHookOptions<DeleteAccountMutation, DeleteAccountMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<DeleteAccountMutation, DeleteAccountMutationVariables>(
-    DeleteAccountDocument,
-    options
-  )
+  return Apollo.useMutation<DeleteAccountMutation, DeleteAccountMutationVariables>(DeleteAccountDocument, options)
 }
 export type DeleteAccountMutationHookResult = ReturnType<typeof useDeleteAccountMutation>
 export type DeleteAccountMutationResult = Apollo.MutationResult<DeleteAccountMutation>
@@ -1884,10 +1840,7 @@ export const DeleteContactDocument = gql`
   }
   ${ContactFieldsFragmentDoc}
 `
-export type DeleteContactMutationFn = Apollo.MutationFunction<
-  DeleteContactMutation,
-  DeleteContactMutationVariables
->
+export type DeleteContactMutationFn = Apollo.MutationFunction<DeleteContactMutation, DeleteContactMutationVariables>
 
 /**
  * __useDeleteContactMutation__
@@ -1910,10 +1863,7 @@ export function useDeleteContactMutation(
   baseOptions?: Apollo.MutationHookOptions<DeleteContactMutation, DeleteContactMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<DeleteContactMutation, DeleteContactMutationVariables>(
-    DeleteContactDocument,
-    options
-  )
+  return Apollo.useMutation<DeleteContactMutation, DeleteContactMutationVariables>(DeleteContactDocument, options)
 }
 export type DeleteContactMutationHookResult = ReturnType<typeof useDeleteContactMutation>
 export type DeleteContactMutationResult = Apollo.MutationResult<DeleteContactMutation>
@@ -1929,10 +1879,7 @@ export const DeleteMessageDocument = gql`
   }
   ${MessageChangedFieldsFragmentDoc}
 `
-export type DeleteMessageMutationFn = Apollo.MutationFunction<
-  DeleteMessageMutation,
-  DeleteMessageMutationVariables
->
+export type DeleteMessageMutationFn = Apollo.MutationFunction<DeleteMessageMutation, DeleteMessageMutationVariables>
 
 /**
  * __useDeleteMessageMutation__
@@ -1956,10 +1903,7 @@ export function useDeleteMessageMutation(
   baseOptions?: Apollo.MutationHookOptions<DeleteMessageMutation, DeleteMessageMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<DeleteMessageMutation, DeleteMessageMutationVariables>(
-    DeleteMessageDocument,
-    options
-  )
+  return Apollo.useMutation<DeleteMessageMutation, DeleteMessageMutationVariables>(DeleteMessageDocument, options)
 }
 export type DeleteMessageMutationHookResult = ReturnType<typeof useDeleteMessageMutation>
 export type DeleteMessageMutationResult = Apollo.MutationResult<DeleteMessageMutation>
@@ -1975,10 +1919,7 @@ export const EditProfileDocument = gql`
   }
   ${OwnUserFieldsFragmentDoc}
 `
-export type EditProfileMutationFn = Apollo.MutationFunction<
-  EditProfileMutation,
-  EditProfileMutationVariables
->
+export type EditProfileMutationFn = Apollo.MutationFunction<EditProfileMutation, EditProfileMutationVariables>
 
 /**
  * __useEditProfileMutation__
@@ -2001,26 +1942,17 @@ export function useEditProfileMutation(
   baseOptions?: Apollo.MutationHookOptions<EditProfileMutation, EditProfileMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<EditProfileMutation, EditProfileMutationVariables>(
-    EditProfileDocument,
-    options
-  )
+  return Apollo.useMutation<EditProfileMutation, EditProfileMutationVariables>(EditProfileDocument, options)
 }
 export type EditProfileMutationHookResult = ReturnType<typeof useEditProfileMutation>
 export type EditProfileMutationResult = Apollo.MutationResult<EditProfileMutation>
-export type EditProfileMutationOptions = Apollo.BaseMutationOptions<
-  EditProfileMutation,
-  EditProfileMutationVariables
->
+export type EditProfileMutationOptions = Apollo.BaseMutationOptions<EditProfileMutation, EditProfileMutationVariables>
 export const ForgotPasswordDocument = gql`
   mutation ForgotPassword($email: String!) {
     forgotPassword(email: $email)
   }
 `
-export type ForgotPasswordMutationFn = Apollo.MutationFunction<
-  ForgotPasswordMutation,
-  ForgotPasswordMutationVariables
->
+export type ForgotPasswordMutationFn = Apollo.MutationFunction<ForgotPasswordMutation, ForgotPasswordMutationVariables>
 
 /**
  * __useForgotPasswordMutation__
@@ -2043,10 +1975,7 @@ export function useForgotPasswordMutation(
   baseOptions?: Apollo.MutationHookOptions<ForgotPasswordMutation, ForgotPasswordMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<ForgotPasswordMutation, ForgotPasswordMutationVariables>(
-    ForgotPasswordDocument,
-    options
-  )
+  return Apollo.useMutation<ForgotPasswordMutation, ForgotPasswordMutationVariables>(ForgotPasswordDocument, options)
 }
 export type ForgotPasswordMutationHookResult = ReturnType<typeof useForgotPasswordMutation>
 export type ForgotPasswordMutationResult = Apollo.MutationResult<ForgotPasswordMutation>
@@ -2062,10 +1991,7 @@ export const ReadMessagesDocument = gql`
   }
   ${MessageChangedFieldsFragmentDoc}
 `
-export type ReadMessagesMutationFn = Apollo.MutationFunction<
-  ReadMessagesMutation,
-  ReadMessagesMutationVariables
->
+export type ReadMessagesMutationFn = Apollo.MutationFunction<ReadMessagesMutation, ReadMessagesMutationVariables>
 
 /**
  * __useReadMessagesMutation__
@@ -2089,10 +2015,7 @@ export function useReadMessagesMutation(
   baseOptions?: Apollo.MutationHookOptions<ReadMessagesMutation, ReadMessagesMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<ReadMessagesMutation, ReadMessagesMutationVariables>(
-    ReadMessagesDocument,
-    options
-  )
+  return Apollo.useMutation<ReadMessagesMutation, ReadMessagesMutationVariables>(ReadMessagesDocument, options)
 }
 export type ReadMessagesMutationHookResult = ReturnType<typeof useReadMessagesMutation>
 export type ReadMessagesMutationResult = Apollo.MutationResult<ReadMessagesMutation>
@@ -2105,10 +2028,7 @@ export const ResetPasswordDocument = gql`
     resetPassword(input: $input)
   }
 `
-export type ResetPasswordMutationFn = Apollo.MutationFunction<
-  ResetPasswordMutation,
-  ResetPasswordMutationVariables
->
+export type ResetPasswordMutationFn = Apollo.MutationFunction<ResetPasswordMutation, ResetPasswordMutationVariables>
 
 /**
  * __useResetPasswordMutation__
@@ -2131,10 +2051,7 @@ export function useResetPasswordMutation(
   baseOptions?: Apollo.MutationHookOptions<ResetPasswordMutation, ResetPasswordMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<ResetPasswordMutation, ResetPasswordMutationVariables>(
-    ResetPasswordDocument,
-    options
-  )
+  return Apollo.useMutation<ResetPasswordMutation, ResetPasswordMutationVariables>(ResetPasswordDocument, options)
 }
 export type ResetPasswordMutationHookResult = ReturnType<typeof useResetPasswordMutation>
 export type ResetPasswordMutationResult = Apollo.MutationResult<ResetPasswordMutation>
@@ -2150,10 +2067,7 @@ export const SendMessageDocument = gql`
   }
   ${MessageChangedFieldsFragmentDoc}
 `
-export type SendMessageMutationFn = Apollo.MutationFunction<
-  SendMessageMutation,
-  SendMessageMutationVariables
->
+export type SendMessageMutationFn = Apollo.MutationFunction<SendMessageMutation, SendMessageMutationVariables>
 
 /**
  * __useSendMessageMutation__
@@ -2177,17 +2091,11 @@ export function useSendMessageMutation(
   baseOptions?: Apollo.MutationHookOptions<SendMessageMutation, SendMessageMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<SendMessageMutation, SendMessageMutationVariables>(
-    SendMessageDocument,
-    options
-  )
+  return Apollo.useMutation<SendMessageMutation, SendMessageMutationVariables>(SendMessageDocument, options)
 }
 export type SendMessageMutationHookResult = ReturnType<typeof useSendMessageMutation>
 export type SendMessageMutationResult = Apollo.MutationResult<SendMessageMutation>
-export type SendMessageMutationOptions = Apollo.BaseMutationOptions<
-  SendMessageMutation,
-  SendMessageMutationVariables
->
+export type SendMessageMutationOptions = Apollo.BaseMutationOptions<SendMessageMutation, SendMessageMutationVariables>
 export const SignInDocument = gql`
   mutation SignIn($input: SignInInput!) {
     signIn(input: $input)
@@ -2212,18 +2120,13 @@ export type SignInMutationFn = Apollo.MutationFunction<SignInMutation, SignInMut
  *   },
  * });
  */
-export function useSignInMutation(
-  baseOptions?: Apollo.MutationHookOptions<SignInMutation, SignInMutationVariables>
-) {
+export function useSignInMutation(baseOptions?: Apollo.MutationHookOptions<SignInMutation, SignInMutationVariables>) {
   const options = { ...defaultOptions, ...baseOptions }
   return Apollo.useMutation<SignInMutation, SignInMutationVariables>(SignInDocument, options)
 }
 export type SignInMutationHookResult = ReturnType<typeof useSignInMutation>
 export type SignInMutationResult = Apollo.MutationResult<SignInMutation>
-export type SignInMutationOptions = Apollo.BaseMutationOptions<
-  SignInMutation,
-  SignInMutationVariables
->
+export type SignInMutationOptions = Apollo.BaseMutationOptions<SignInMutation, SignInMutationVariables>
 export const SignOutDocument = gql`
   mutation SignOut {
     signOut
@@ -2255,10 +2158,7 @@ export function useSignOutMutation(
 }
 export type SignOutMutationHookResult = ReturnType<typeof useSignOutMutation>
 export type SignOutMutationResult = Apollo.MutationResult<SignOutMutation>
-export type SignOutMutationOptions = Apollo.BaseMutationOptions<
-  SignOutMutation,
-  SignOutMutationVariables
->
+export type SignOutMutationOptions = Apollo.BaseMutationOptions<SignOutMutation, SignOutMutationVariables>
 export const SignUpDocument = gql`
   mutation SignUp($input: SignUpInput!) {
     signUp(input: $input)
@@ -2283,18 +2183,13 @@ export type SignUpMutationFn = Apollo.MutationFunction<SignUpMutation, SignUpMut
  *   },
  * });
  */
-export function useSignUpMutation(
-  baseOptions?: Apollo.MutationHookOptions<SignUpMutation, SignUpMutationVariables>
-) {
+export function useSignUpMutation(baseOptions?: Apollo.MutationHookOptions<SignUpMutation, SignUpMutationVariables>) {
   const options = { ...defaultOptions, ...baseOptions }
   return Apollo.useMutation<SignUpMutation, SignUpMutationVariables>(SignUpDocument, options)
 }
 export type SignUpMutationHookResult = ReturnType<typeof useSignUpMutation>
 export type SignUpMutationResult = Apollo.MutationResult<SignUpMutation>
-export type SignUpMutationOptions = Apollo.BaseMutationOptions<
-  SignUpMutation,
-  SignUpMutationVariables
->
+export type SignUpMutationOptions = Apollo.BaseMutationOptions<SignUpMutation, SignUpMutationVariables>
 export const UnblockContactDocument = gql`
   mutation UnblockContact($contactId: ID!, $dateTimeFormat: String) {
     unblockContact(contactId: $contactId) {
@@ -2303,10 +2198,7 @@ export const UnblockContactDocument = gql`
   }
   ${ContactFieldsWithLatestMessageFragmentDoc}
 `
-export type UnblockContactMutationFn = Apollo.MutationFunction<
-  UnblockContactMutation,
-  UnblockContactMutationVariables
->
+export type UnblockContactMutationFn = Apollo.MutationFunction<UnblockContactMutation, UnblockContactMutationVariables>
 
 /**
  * __useUnblockContactMutation__
@@ -2330,10 +2222,7 @@ export function useUnblockContactMutation(
   baseOptions?: Apollo.MutationHookOptions<UnblockContactMutation, UnblockContactMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<UnblockContactMutation, UnblockContactMutationVariables>(
-    UnblockContactDocument,
-    options
-  )
+  return Apollo.useMutation<UnblockContactMutation, UnblockContactMutationVariables>(UnblockContactDocument, options)
 }
 export type UnblockContactMutationHookResult = ReturnType<typeof useUnblockContactMutation>
 export type UnblockContactMutationResult = Apollo.MutationResult<UnblockContactMutation>
@@ -2372,16 +2261,10 @@ export type UndeleteContactMutationFn = Apollo.MutationFunction<
  * });
  */
 export function useUndeleteContactMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UndeleteContactMutation,
-    UndeleteContactMutationVariables
-  >
+  baseOptions?: Apollo.MutationHookOptions<UndeleteContactMutation, UndeleteContactMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<UndeleteContactMutation, UndeleteContactMutationVariables>(
-    UndeleteContactDocument,
-    options
-  )
+  return Apollo.useMutation<UndeleteContactMutation, UndeleteContactMutationVariables>(UndeleteContactDocument, options)
 }
 export type UndeleteContactMutationHookResult = ReturnType<typeof useUndeleteContactMutation>
 export type UndeleteContactMutationResult = Apollo.MutationResult<UndeleteContactMutation>
@@ -2394,10 +2277,7 @@ export const VerifyEmailDocument = gql`
     verifyEmail(token: $token)
   }
 `
-export type VerifyEmailMutationFn = Apollo.MutationFunction<
-  VerifyEmailMutation,
-  VerifyEmailMutationVariables
->
+export type VerifyEmailMutationFn = Apollo.MutationFunction<VerifyEmailMutation, VerifyEmailMutationVariables>
 
 /**
  * __useVerifyEmailMutation__
@@ -2420,17 +2300,11 @@ export function useVerifyEmailMutation(
   baseOptions?: Apollo.MutationHookOptions<VerifyEmailMutation, VerifyEmailMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<VerifyEmailMutation, VerifyEmailMutationVariables>(
-    VerifyEmailDocument,
-    options
-  )
+  return Apollo.useMutation<VerifyEmailMutation, VerifyEmailMutationVariables>(VerifyEmailDocument, options)
 }
 export type VerifyEmailMutationHookResult = ReturnType<typeof useVerifyEmailMutation>
 export type VerifyEmailMutationResult = Apollo.MutationResult<VerifyEmailMutation>
-export type VerifyEmailMutationOptions = Apollo.BaseMutationOptions<
-  VerifyEmailMutation,
-  VerifyEmailMutationVariables
->
+export type VerifyEmailMutationOptions = Apollo.BaseMutationOptions<VerifyEmailMutation, VerifyEmailMutationVariables>
 export const InitDocument = gql`
   query Init($contactUserId: ID, $cursor: Int, $limit: Int, $dateTimeFormat: String) {
     me {
@@ -2475,9 +2349,7 @@ export function useInitQuery(baseOptions?: Apollo.QueryHookOptions<InitQuery, In
   const options = { ...defaultOptions, ...baseOptions }
   return Apollo.useQuery<InitQuery, InitQueryVariables>(InitDocument, options)
 }
-export function useInitLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<InitQuery, InitQueryVariables>
-) {
+export function useInitLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<InitQuery, InitQueryVariables>) {
   const options = { ...defaultOptions, ...baseOptions }
   return Apollo.useLazyQuery<InitQuery, InitQueryVariables>(InitDocument, options)
 }
@@ -2522,10 +2394,7 @@ export function useContactInfoLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<ContactInfoQuery, ContactInfoQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<ContactInfoQuery, ContactInfoQueryVariables>(
-    ContactInfoDocument,
-    options
-  )
+  return Apollo.useLazyQuery<ContactInfoQuery, ContactInfoQueryVariables>(ContactInfoDocument, options)
 }
 export type ContactInfoQueryHookResult = ReturnType<typeof useContactInfoQuery>
 export type ContactInfoLazyQueryHookResult = ReturnType<typeof useContactInfoLazyQuery>
@@ -2554,15 +2423,11 @@ export const ContactsDocument = gql`
  *   },
  * });
  */
-export function useContactsQuery(
-  baseOptions?: Apollo.QueryHookOptions<ContactsQuery, ContactsQueryVariables>
-) {
+export function useContactsQuery(baseOptions?: Apollo.QueryHookOptions<ContactsQuery, ContactsQueryVariables>) {
   const options = { ...defaultOptions, ...baseOptions }
   return Apollo.useQuery<ContactsQuery, ContactsQueryVariables>(ContactsDocument, options)
 }
-export function useContactsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<ContactsQuery, ContactsQueryVariables>
-) {
+export function useContactsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ContactsQuery, ContactsQueryVariables>) {
   const options = { ...defaultOptions, ...baseOptions }
   return Apollo.useLazyQuery<ContactsQuery, ContactsQueryVariables>(ContactsDocument, options)
 }
@@ -2594,26 +2459,17 @@ export function useIsAuthenticatedQuery(
   baseOptions?: Apollo.QueryHookOptions<IsAuthenticatedQuery, IsAuthenticatedQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<IsAuthenticatedQuery, IsAuthenticatedQueryVariables>(
-    IsAuthenticatedDocument,
-    options
-  )
+  return Apollo.useQuery<IsAuthenticatedQuery, IsAuthenticatedQueryVariables>(IsAuthenticatedDocument, options)
 }
 export function useIsAuthenticatedLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<IsAuthenticatedQuery, IsAuthenticatedQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<IsAuthenticatedQuery, IsAuthenticatedQueryVariables>(
-    IsAuthenticatedDocument,
-    options
-  )
+  return Apollo.useLazyQuery<IsAuthenticatedQuery, IsAuthenticatedQueryVariables>(IsAuthenticatedDocument, options)
 }
 export type IsAuthenticatedQueryHookResult = ReturnType<typeof useIsAuthenticatedQuery>
 export type IsAuthenticatedLazyQueryHookResult = ReturnType<typeof useIsAuthenticatedLazyQuery>
-export type IsAuthenticatedQueryResult = Apollo.QueryResult<
-  IsAuthenticatedQuery,
-  IsAuthenticatedQueryVariables
->
+export type IsAuthenticatedQueryResult = Apollo.QueryResult<IsAuthenticatedQuery, IsAuthenticatedQueryVariables>
 export const IsPasswordResetTokenValidDocument = gql`
   query IsPasswordResetTokenValid($token: String) {
     isPasswordResetTokenValid(token: $token)
@@ -2637,10 +2493,7 @@ export const IsPasswordResetTokenValidDocument = gql`
  * });
  */
 export function useIsPasswordResetTokenValidQuery(
-  baseOptions?: Apollo.QueryHookOptions<
-    IsPasswordResetTokenValidQuery,
-    IsPasswordResetTokenValidQueryVariables
-  >
+  baseOptions?: Apollo.QueryHookOptions<IsPasswordResetTokenValidQuery, IsPasswordResetTokenValidQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
   return Apollo.useQuery<IsPasswordResetTokenValidQuery, IsPasswordResetTokenValidQueryVariables>(
@@ -2649,23 +2502,16 @@ export function useIsPasswordResetTokenValidQuery(
   )
 }
 export function useIsPasswordResetTokenValidLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    IsPasswordResetTokenValidQuery,
-    IsPasswordResetTokenValidQueryVariables
-  >
+  baseOptions?: Apollo.LazyQueryHookOptions<IsPasswordResetTokenValidQuery, IsPasswordResetTokenValidQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<
-    IsPasswordResetTokenValidQuery,
-    IsPasswordResetTokenValidQueryVariables
-  >(IsPasswordResetTokenValidDocument, options)
+  return Apollo.useLazyQuery<IsPasswordResetTokenValidQuery, IsPasswordResetTokenValidQueryVariables>(
+    IsPasswordResetTokenValidDocument,
+    options
+  )
 }
-export type IsPasswordResetTokenValidQueryHookResult = ReturnType<
-  typeof useIsPasswordResetTokenValidQuery
->
-export type IsPasswordResetTokenValidLazyQueryHookResult = ReturnType<
-  typeof useIsPasswordResetTokenValidLazyQuery
->
+export type IsPasswordResetTokenValidQueryHookResult = ReturnType<typeof useIsPasswordResetTokenValidQuery>
+export type IsPasswordResetTokenValidLazyQueryHookResult = ReturnType<typeof useIsPasswordResetTokenValidLazyQuery>
 export type IsPasswordResetTokenValidQueryResult = Apollo.QueryResult<
   IsPasswordResetTokenValidQuery,
   IsPasswordResetTokenValidQueryVariables
@@ -2699,26 +2545,17 @@ export function useLatestMessagesQuery(
   baseOptions?: Apollo.QueryHookOptions<LatestMessagesQuery, LatestMessagesQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<LatestMessagesQuery, LatestMessagesQueryVariables>(
-    LatestMessagesDocument,
-    options
-  )
+  return Apollo.useQuery<LatestMessagesQuery, LatestMessagesQueryVariables>(LatestMessagesDocument, options)
 }
 export function useLatestMessagesLazyQuery(
   baseOptions?: Apollo.LazyQueryHookOptions<LatestMessagesQuery, LatestMessagesQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<LatestMessagesQuery, LatestMessagesQueryVariables>(
-    LatestMessagesDocument,
-    options
-  )
+  return Apollo.useLazyQuery<LatestMessagesQuery, LatestMessagesQueryVariables>(LatestMessagesDocument, options)
 }
 export type LatestMessagesQueryHookResult = ReturnType<typeof useLatestMessagesQuery>
 export type LatestMessagesLazyQueryHookResult = ReturnType<typeof useLatestMessagesLazyQuery>
-export type LatestMessagesQueryResult = Apollo.QueryResult<
-  LatestMessagesQuery,
-  LatestMessagesQueryVariables
->
+export type LatestMessagesQueryResult = Apollo.QueryResult<LatestMessagesQuery, LatestMessagesQueryVariables>
 export const MeDocument = gql`
   query Me {
     me {
@@ -2747,9 +2584,7 @@ export function useMeQuery(baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQuer
   const options = { ...defaultOptions, ...baseOptions }
   return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options)
 }
-export function useMeLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>
-) {
+export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
   const options = { ...defaultOptions, ...baseOptions }
   return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options)
 }
@@ -2781,9 +2616,7 @@ export const SearchUserDocument = gql`
  *   },
  * });
  */
-export function useSearchUserQuery(
-  baseOptions: Apollo.QueryHookOptions<SearchUserQuery, SearchUserQueryVariables>
-) {
+export function useSearchUserQuery(baseOptions: Apollo.QueryHookOptions<SearchUserQuery, SearchUserQueryVariables>) {
   const options = { ...defaultOptions, ...baseOptions }
   return Apollo.useQuery<SearchUserQuery, SearchUserQueryVariables>(SearchUserDocument, options)
 }
@@ -2821,16 +2654,10 @@ export const CallEventDocument = gql`
  * });
  */
 export function useCallEventSubscription(
-  baseOptions?: Apollo.SubscriptionHookOptions<
-    CallEventSubscription,
-    CallEventSubscriptionVariables
-  >
+  baseOptions?: Apollo.SubscriptionHookOptions<CallEventSubscription, CallEventSubscriptionVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useSubscription<CallEventSubscription, CallEventSubscriptionVariables>(
-    CallEventDocument,
-    options
-  )
+  return Apollo.useSubscription<CallEventSubscription, CallEventSubscriptionVariables>(CallEventDocument, options)
 }
 export type CallEventSubscriptionHookResult = ReturnType<typeof useCallEventSubscription>
 export type CallEventSubscriptionResult = Apollo.SubscriptionResult<CallEventSubscription>
@@ -2863,10 +2690,7 @@ export function useMessageSubscription(
   baseOptions?: Apollo.SubscriptionHookOptions<MessageSubscription, MessageSubscriptionVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useSubscription<MessageSubscription, MessageSubscriptionVariables>(
-    MessageDocument,
-    options
-  )
+  return Apollo.useSubscription<MessageSubscription, MessageSubscriptionVariables>(MessageDocument, options)
 }
 export type MessageSubscriptionHookResult = ReturnType<typeof useMessageSubscription>
 export type MessageSubscriptionResult = Apollo.SubscriptionResult<MessageSubscription>

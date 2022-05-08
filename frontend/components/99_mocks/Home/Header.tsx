@@ -43,12 +43,7 @@ const Header: React.VFC<HeaderProps> = ({ onOpen, ...rest }) => {
         icon={<FiMenu />}
       />
 
-      <Text
-        display={{ base: 'flex', md: 'none' }}
-        fontSize='2xl'
-        fontFamily='monospace'
-        fontWeight='bold'
-      >
+      <Text display={{ base: 'flex', md: 'none' }} fontSize='2xl' fontFamily='monospace' fontWeight='bold'>
         {APP_NAME}
       </Text>
       <HStack spacing={{ base: '0', md: '6' }}>
@@ -63,12 +58,7 @@ const Header: React.VFC<HeaderProps> = ({ onOpen, ...rest }) => {
                     'https://1.bp.blogspot.com/-DU9jll2ZQ38/XexqGlVzO9I/AAAAAAABWdQ/m0lQONbEfSgEjIN14h7iIfRh8WS5qwrFACNcBGAsYHQ/s1600/gal_o_man.png'
                   }
                 />
-                <VStack
-                  display={{ base: 'none', md: 'flex' }}
-                  alignItems='flex-start'
-                  spacing='1px'
-                  ml='2'
-                >
+                <VStack display={{ base: 'none', md: 'flex' }} alignItems='flex-start' spacing='1px' ml='2'>
                   <Text fontSize='sm'>名前 太郎</Text>
                   <Text fontSize='xs' color='gray.600'>
                     ID: sndsDas13D

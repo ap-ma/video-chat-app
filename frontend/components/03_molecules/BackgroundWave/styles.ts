@@ -1,8 +1,6 @@
 import { BackgroundWaveProps } from './index'
 
-export const container = ({
-  bottomColor
-}: Pick<BackgroundWaveProps, 'bottomColor'>): Record<string, unknown> =>
+export const container = ({ bottomColor }: Pick<BackgroundWaveProps, 'bottomColor'>): Record<string, unknown> =>
   ({
     h: '100vh',
     mt: '-100vh',

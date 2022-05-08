@@ -18,10 +18,7 @@ const Presenter: React.VFC<PresenterProps> = ({ children, ...props }) => (
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<TipProps, PresenterProps>> = ({
-  presenter,
-  ...props
-}) => {
+const Container: React.VFC<ContainerProps<TipProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 

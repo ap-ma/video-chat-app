@@ -568,7 +568,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "Upload",
               "ofType": null
             },
             "defaultValue": null,
@@ -2103,7 +2103,7 @@
             "description": null,
             "type": {
               "kind": "SCALAR",
-              "name": "String",
+              "name": "Upload",
               "ofType": null
             },
             "defaultValue": null,
@@ -2257,6 +2257,16 @@
         ],
         "inputFields": null,
         "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "SCALAR",
+        "name": "Upload",
+        "description": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
         "enumValues": null,
         "possibleTypes": null
       },
@@ -3268,12 +3278,7 @@
         "name": "deprecated",
         "description": "Marks an element of a GraphQL schema as no longer supported.",
         "isRepeatable": false,
-        "locations": [
-          "ARGUMENT_DEFINITION",
-          "ENUM_VALUE",
-          "FIELD_DEFINITION",
-          "INPUT_FIELD_DEFINITION"
-        ],
+        "locations": ["ARGUMENT_DEFINITION", "ENUM_VALUE", "FIELD_DEFINITION", "INPUT_FIELD_DEFINITION"],
         "args": [
           {
             "name": "reason",

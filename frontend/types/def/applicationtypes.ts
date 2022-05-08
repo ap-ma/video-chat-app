@@ -1,3 +1,5 @@
+import { ForwardRefExoticComponent, PropsWithoutRef, RefAttributes } from 'react'
+
 //  ----------------------------------------------------------------------------
 //  Application common types
 //  ----------------------------------------------------------------------------
@@ -8,7 +10,14 @@ export type ContainerProps<ComponentProps, PresenterProps> = ComponentProps & {
 }
 
 //  ----------------------------------------------------------------------------
-//  React props common types
+//  React common types
+//  ----------------------------------------------------------------------------
+
+/** React forwardRef Component */
+export type ForwardRefComponent<T, P> = ForwardRefExoticComponent<RefAttributes<T> & PropsWithoutRef<P>>
+
+//  ----------------------------------------------------------------------------
+//  React props types
 //  ----------------------------------------------------------------------------
 
 /** Attribute style */

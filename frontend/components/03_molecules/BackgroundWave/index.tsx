@@ -22,21 +22,13 @@ const Presenter: React.VFC<PresenterProps> = ({
     {children}
     <Box {...styles.container({ bottomColor })}>
       <Box {...styles.top({ topColor })} />
-      <Wave
-        topColor={topColor}
-        bottomColor={bottomColor}
-        animationNegativeDelay={animationNegativeDelay}
-        {...props}
-      />
+      <Wave topColor={topColor} bottomColor={bottomColor} animationNegativeDelay={animationNegativeDelay} {...props} />
     </Box>
   </Fragment>
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<BackgroundWaveProps, PresenterProps>> = ({
-  presenter,
-  ...props
-}) => {
+const Container: React.VFC<ContainerProps<BackgroundWaveProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 

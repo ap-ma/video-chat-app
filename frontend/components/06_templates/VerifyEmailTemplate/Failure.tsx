@@ -25,10 +25,7 @@ const Presenter: React.VFC<PresenterProps> = () => (
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<FailureProps, PresenterProps>> = ({
-  presenter,
-  ...props
-}) => {
+const Container: React.VFC<ContainerProps<FailureProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 

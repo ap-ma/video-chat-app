@@ -1,12 +1,11 @@
-// prettier-ignore
-
-export const VALIDATION_ERROR = {
+export const VALIDATION_ERRORS = {
   // 最大長
-  V_MAX_LENGTH: '{name} must be no more than {length} characters.',
+  V_MAX_LENGTH: '{v_max_length_name} must be no more than {v_max_length_length} characters.',
   // 認証失敗
   V_AUTH_FAILED: 'Incorrect Email address or Password.',
   // パスワード形式
-  V_PASS_FORMAT: 'Password must be {min} to {max} alphanumeric characters long, including at least one uppercase letter, one lowercase letter, and one number.',
+  V_PASS_FORMAT:
+    'Password must be {v_pass_format_min} to {v_pass_format_max} alphanumeric characters long, including at least one uppercase letter, one lowercase letter, and one number.',
   // パスワード確認不一致
   V_PASS_CONFIRMATION_NOT_MATCH: 'Password confirmation does not match password.',
   // パスワード誤り
@@ -18,17 +17,17 @@ export const VALIDATION_ERROR = {
   // メール変更なし
   V_EMAIL_NO_CHANGE: 'There is no change to your registration.',
   // コード形式
-  V_CODE_FORMAT: 'Code must be between {min} and {max} alphanumeric characters.',
+  V_CODE_FORMAT: 'Code must be between {v_code_format_min} and {v_code_format_max} alphanumeric characters.',
   // コード重複
   V_CODE_DUPLICATION: 'Code is already registered.',
   // トークン未入力
   V_TOKEN_NOT_ENTERED: 'No token entered.',
   // トークン不正
-  V_TOKEN_INVALID: 'Invalid token.',
+  V_TOKEN_INVALID: 'Invalid URL.',
   // トークン期限切れ
-  V_TOKEN_EXPIRED: 'Token has expired.',
+  V_TOKEN_EXPIRED: 'URL has expired.',
   // トークン不一致
-  V_TOKEN_NOT_MATCH: 'Token does not match.',
+  V_TOKEN_NOT_MATCH: 'Invalid URL.',
   // コンタクトID不正
   V_CONTACT_ID_INVALID: 'Invalid contact id.',
   // コンタクト登録済
@@ -47,4 +46,4 @@ export const VALIDATION_ERROR = {
   V_MESSAGE_DELETED: 'Message has already been deleted.',
   // メッセージがコンタクト申請でない
   V_MESSAGE_NOT_APPLICATION: 'Message is not a contact application message.'
-}
+} as const

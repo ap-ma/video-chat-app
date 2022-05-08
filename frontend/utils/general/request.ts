@@ -36,10 +36,7 @@ export const request = async (
   if (isNullish(url)) throw new TypeError('url is undefined.')
   const response = await fetch(url, {
     method,
-    headers:
-      contentType === ContentType.JSON
-        ? { 'Content-Type': 'application/json', ...headers }
-        : headers,
+    headers: contentType === ContentType.JSON ? { 'Content-Type': 'application/json', ...headers } : headers,
     body:
       method === Method.GET
         ? undefined
@@ -62,8 +59,7 @@ export const request = async (
 const createURLSearchParams = (data: Record<string, unknown>) => {
   const params = new URLSearchParams()
   Object.entries(data).forEach(([key, value]) => {
-    if (typeof key !== 'string' || typeof value !== 'string')
-      throw new TypeError('The parameter type is invalid.')
+    if (typeof key !== 'string' || typeof value !== 'string') throw new TypeError('The parameter type is invalid.')
     params.append(key, value)
   })
   return params

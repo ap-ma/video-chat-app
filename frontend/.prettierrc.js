@@ -1,6 +1,6 @@
 module.exports = {
   // 折り返す行の長さ
-  printWidth: 100,
+  printWidth: 120,
   // インデントレベルごとのスペースの数
   tabWidth: 2,
   // タブで行をインデント
@@ -9,8 +9,8 @@ module.exports = {
   semi: false,
   // ダブルクォートの代わりにシングルクォートを使用
   singleQuote: true,
-  // オブジェクトのプロパティの囲み文字 consistent: オブジェクト内の少なくとも1つのプロパティに引用符が必要な場合は、すべてのプロパティを引用符で囲む
-  quoteProps: 'consistent',
+  // オブジェクトのプロパティの囲み文字 as-needed: 必要な場合にのみ、オブジェクトのプロパティを引用符で囲む
+  quoteProps: 'as-needed',
   // JSXにおいてダブルクォートの代わりにシングルクォートを使用
   jsxSingleQuote: true,
   // 複数行のコンマ区切りの構文構造において、末尾のコンマを挿入

@@ -1,15 +1,9 @@
-import {
-  ApolloClient,
-  from,
-  HttpLink,
-  InMemoryCache,
-  NormalizedCacheObject,
-  split
-} from '@apollo/client'
+import { ApolloClient, from, InMemoryCache, NormalizedCacheObject, split } from '@apollo/client'
 import { onError } from '@apollo/client/link/error'
 import { RetryLink } from '@apollo/client/link/retry'
 import { WebSocketLink } from '@apollo/client/link/ws'
 import { getMainDefinition } from '@apollo/client/utilities'
+import { createUploadLink } from 'apollo-upload-client'
 import { API_URL, API_WS_URL } from 'const'
 import merge from 'deepmerge'
 import isEqual from 'lodash/isEqual'
@@ -17,7 +11,7 @@ import { AppProps } from 'next/app'
 import { useMemo } from 'react'
 import { SubscriptionClient } from 'subscriptions-transport-ws'
 import { isNode, isNullish } from 'utils'
-import { cursorPagination, report } from './lib'
+import { cursorPagination, report } from 'utils/graphql'
 
 /** props apollo state key */
 export const APOLLO_STATE_PROP_NAME = '__APOLLO_STATE__'
@@ -41,12 +35,12 @@ function createCache() {
 }
 
 /**
- * HttpLinkオブジェクトを生成する
+ * ApolloLinkオブジェクトを生成する
  *
- * @returns HttpLink
+ * @returns ApolloLink
  */
 function createLink() {
-  return new HttpLink({
+  return createUploadLink({
     uri: API_URL,
     // graphqlサーバー発行のcookieを含める
     credentials: 'include'
@@ -135,9 +129,7 @@ function createApolloClient() {
  * @param initialState - キャッシュの初期状態
  * @returns initialStateがマージされたApolloClient
  */
-export function initializeApollo(
-  initialState?: NormalizedCacheObject
-): ApolloClient<NormalizedCacheObject> {
+export function initializeApollo(initialState?: NormalizedCacheObject): ApolloClient<NormalizedCacheObject> {
   const _apolloClient = apolloClient ?? createApolloClient()
 
   // 初期状態が与えられた場合、ApolloClientに初期状態をマージする
