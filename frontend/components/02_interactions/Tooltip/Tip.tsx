@@ -10,17 +10,19 @@ export type TipProps = WithChildren & {
    */
   rootClassName?: string
 }
+
+/** Presenter Props */
 type PresenterProps = TipProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ children, ...props }) => (
+const TipPresenter: React.VFC<PresenterProps> = ({ children, ...props }) => (
   <span className={styles.tip(props)}>{children}</span>
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<TipProps, PresenterProps>> = ({ presenter, ...props }) => {
+const TipContainer: React.VFC<ContainerProps<TipProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 
 /** Tip */
-export default connect<TipProps, PresenterProps>('Tip', Presenter, Container)
+export default connect<TipProps, PresenterProps>('Tip', TipPresenter, TipContainer)

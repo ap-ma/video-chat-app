@@ -7,12 +7,12 @@ export type BodyProps = WithChildren
 type PresenterProps = BodyProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ children }) => <Fragment>{children}</Fragment>
+const BodyPresenter: React.VFC<PresenterProps> = ({ children }) => <Fragment>{children}</Fragment>
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<BodyProps, PresenterProps>> = ({ presenter, ...props }) => {
+const BodyContainer: React.VFC<ContainerProps<BodyProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 
 /** Body */
-export default connect<BodyProps, PresenterProps>('Body', Presenter, Container)
+export default connect<BodyProps, PresenterProps>('Body', BodyPresenter, BodyContainer)

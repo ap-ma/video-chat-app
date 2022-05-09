@@ -11,7 +11,7 @@ export type BackgroundWaveProps = WaveProps & WithChildren
 type PresenterProps = BackgroundWaveProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({
+const BackgroundWavePresenter: React.VFC<PresenterProps> = ({
   topColor,
   bottomColor,
   animationNegativeDelay,
@@ -28,9 +28,16 @@ const Presenter: React.VFC<PresenterProps> = ({
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<BackgroundWaveProps, PresenterProps>> = ({ presenter, ...props }) => {
+const BackgroundWaveContainer: React.VFC<ContainerProps<BackgroundWaveProps, PresenterProps>> = ({
+  presenter,
+  ...props
+}) => {
   return presenter({ ...props })
 }
 
 /** BackgroundWave */
-export default connect<BackgroundWaveProps, PresenterProps>('BackgroundWave', Presenter, Container)
+export default connect<BackgroundWaveProps, PresenterProps>(
+  'BackgroundWave',
+  BackgroundWavePresenter,
+  BackgroundWaveContainer
+)

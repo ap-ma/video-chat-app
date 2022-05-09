@@ -13,11 +13,12 @@ export type DeleteButtonProps = Optional<IconButtonProps, 'aria-label'> & {
    */
   tip?: string
 }
+
 /** Presenter Props */
 type PresenterProps = DeleteButtonProps
 
 /** Presenter Component */
-const Presenter: React.VFC<DeleteButtonProps> = ({ tip, ...props }) => (
+const DeleteButtonPresenter: React.VFC<DeleteButtonProps> = ({ tip, ...props }) => (
   <Tooltip style={{ display: 'inline-block' }}>
     <IconButton icon={<FaTrash />} bg='transparent' aria-label='delete' {...props} />
     <Tip>
@@ -27,7 +28,7 @@ const Presenter: React.VFC<DeleteButtonProps> = ({ tip, ...props }) => (
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<DeleteButtonProps, PresenterProps>> = ({
+const DeleteButtonContainer: React.VFC<ContainerProps<DeleteButtonProps, PresenterProps>> = ({
   presenter,
   tip = 'Delete',
   ...props
@@ -36,4 +37,4 @@ const Container: React.VFC<ContainerProps<DeleteButtonProps, PresenterProps>> = 
 }
 
 /** DeleteButton */
-export default connect<DeleteButtonProps, PresenterProps>('DeleteButton', Presenter, Container)
+export default connect<DeleteButtonProps, PresenterProps>('DeleteButton', DeleteButtonPresenter, DeleteButtonContainer)

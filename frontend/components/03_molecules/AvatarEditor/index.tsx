@@ -33,6 +33,7 @@ export type AvatarEditorProps = Omit<InputProps, 'isDisabled'> &
     isInvalid: FormControlProps['isInvalid']
     errorMessage: FormErrorMessageProps['children']
   }>
+
 /** Presenter Props */
 type PresenterProps = Omit<AvatarEditorProps, 'value'> & {
   ref: Ref<HTMLInputElement>
@@ -41,7 +42,7 @@ type PresenterProps = Omit<AvatarEditorProps, 'value'> & {
 }
 
 /** Presenter Component */
-const Presenter = forwardRef<HTMLInputElement, PresenterProps>(
+const AvatarEditorPresenter = forwardRef<HTMLInputElement, PresenterProps>(
   ({ avatar, onAvatarChangeButtonClick, clearAvatar, isDisabled, isInvalid, errorMessage, ...props }, ref) => (
     <FormControl id='avatar' isInvalid={isInvalid}>
       <Stack {...styles.container}>
@@ -69,13 +70,13 @@ const Presenter = forwardRef<HTMLInputElement, PresenterProps>(
 )
 
 /** Container Component */
-const Container = forwardRef<HTMLInputElement, ContainerProps<AvatarEditorProps, PresenterProps>>(
+const AvatarEditorContainer = forwardRef<HTMLInputElement, ContainerProps<AvatarEditorProps, PresenterProps>>(
   ({ presenter, avatar, onChange, ...props }, ref) => {
     const fileInputRef = useRef<HTMLInputElement>(null)
     const onAvatarChangeButtonClick = () => fileInputRef.current?.click()
     const [avatarSrc, setAvatarSrc] = useState<AvatarEditorProps['avatar']>(avatar)
 
-    const onAvatarEditor: AvatarEditorProps['onChange'] = (event) => {
+    const onChangeAvatar: AvatarEditorProps['onChange'] = (event) => {
       if (!isNullish(onChange)) onChange(event)
 
       const image = event.target.files?.item(0)
@@ -100,7 +101,7 @@ const Container = forwardRef<HTMLInputElement, ContainerProps<AvatarEditorProps,
       ref: composeRefs<HTMLInputElement>(ref, fileInputRef),
       avatar: avatarSrc,
       onAvatarChangeButtonClick,
-      onChange: onAvatarEditor,
+      onChange: onChangeAvatar,
       clearAvatar,
       ...props
     })
@@ -108,8 +109,12 @@ const Container = forwardRef<HTMLInputElement, ContainerProps<AvatarEditorProps,
 )
 
 // display name
-Presenter.displayName = 'Presenter'
-Container.displayName = 'Container'
+AvatarEditorPresenter.displayName = 'AvatarEditorPresenter'
+AvatarEditorContainer.displayName = 'AvatarEditorContainer'
 
 /** AvatarEditor */
-export default connectRef<HTMLInputElement, AvatarEditorProps, PresenterProps>('AvatarEditor', Presenter, Container)
+export default connectRef<HTMLInputElement, AvatarEditorProps, PresenterProps>(
+  'AvatarEditor',
+  AvatarEditorPresenter,
+  AvatarEditorContainer
+)

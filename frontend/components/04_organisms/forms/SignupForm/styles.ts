@@ -1,15 +1,3 @@
-export const root = {
-  size: 'md',
-  closeOnOverlayClick: false
-} as const
-
-export const overlay = {
-  bg: 'none',
-  backdropFilter: 'auto',
-  backdropInvert: '80%',
-  backdropBlur: '2px'
-} as const
-
 export const head = {
   lineHeight: 1.1,
   pb: 1,

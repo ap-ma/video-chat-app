@@ -13,7 +13,7 @@ export type HtmlSkeletonProps = WithChildren & BoxProps
 type PresenterProps = HtmlSkeletonProps & { title?: TitleProps['children']; description: string }
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ title, description, children, ...props }) => (
+const HtmlSkeletonPresenter: React.VFC<PresenterProps> = ({ title, description, children, ...props }) => (
   <Box {...props}>
     <Head>
       {/* タイトル */}
@@ -42,7 +42,11 @@ const Presenter: React.VFC<PresenterProps> = ({ title, description, children, ..
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<HtmlSkeletonProps, PresenterProps>> = ({ presenter, children, ...props }) => {
+const HtmlSkeletonContainer: React.VFC<ContainerProps<HtmlSkeletonProps, PresenterProps>> = ({
+  presenter,
+  children,
+  ...props
+}) => {
   let title: TitleProps['children'] | undefined = undefined
   children = Children.map(children, (child) =>
     isReactElement(child) && child.type === Title
@@ -55,7 +59,7 @@ const Container: React.VFC<ContainerProps<HtmlSkeletonProps, PresenterProps>> = 
 }
 
 /** HtmlSkeleton */
-export default connect<HtmlSkeletonProps, PresenterProps>('HtmlSkeleton', Presenter, Container)
+export default connect<HtmlSkeletonProps, PresenterProps>('HtmlSkeleton', HtmlSkeletonPresenter, HtmlSkeletonContainer)
 
 // Sub Component
 export type { TitleProps }

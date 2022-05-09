@@ -31,11 +31,12 @@ export type SigninFormProps = {
     mutate: MutateFunction<ForgotPasswordMutation, ForgotPasswordMutationVariables>
   }
 }
+
 /** Presenter Props */
 type PresenterProps = SigninFormProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = () => (
+const SigninFormPresenter: React.VFC<PresenterProps> = () => (
   <Stack spacing={4} rounded='lg' bg='white' boxShadow='lg' p={8}>
     <FormControl id='email'>
       <FormLabel>Email address</FormLabel>
@@ -64,9 +65,9 @@ const Presenter: React.VFC<PresenterProps> = () => (
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<SigninFormProps, PresenterProps>> = ({ presenter, ...props }) => {
+const SigninFormContainer: React.VFC<ContainerProps<SigninFormProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 
 /** SigninForm */
-export default connect<SigninFormProps, PresenterProps>('SigninForm', Presenter, Container)
+export default connect<SigninFormProps, PresenterProps>('SigninForm', SigninFormPresenter, SigninFormContainer)

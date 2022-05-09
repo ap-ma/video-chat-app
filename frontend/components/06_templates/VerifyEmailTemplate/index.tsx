@@ -14,11 +14,12 @@ export type VerifyEmailTemplateProps = Omit<HtmlSkeletonProps, 'children'> &
      */
     result: VerifyEmailMutation['verifyEmail']
   }>
+
 /** Presenter Props */
 type PresenterProps = Omit<VerifyEmailTemplateProps, 'result'> & { contents: ReactNode }
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ contents, ...props }) => (
+const VerifyEmailTemplatePresenter: React.VFC<PresenterProps> = ({ contents, ...props }) => (
   <HtmlSkeleton {...props}>
     <Title>Verify Email</Title>
     {contents}
@@ -26,7 +27,7 @@ const Presenter: React.VFC<PresenterProps> = ({ contents, ...props }) => (
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<VerifyEmailTemplateProps, PresenterProps>> = ({
+const VerifyEmailTemplateContainer: React.VFC<ContainerProps<VerifyEmailTemplateProps, PresenterProps>> = ({
   presenter,
   result,
   ...props
@@ -36,4 +37,8 @@ const Container: React.VFC<ContainerProps<VerifyEmailTemplateProps, PresenterPro
 }
 
 /** VerifyEmailTemplate */
-export default connect<VerifyEmailTemplateProps, PresenterProps>('VerifyEmailTemplate', Presenter, Container)
+export default connect<VerifyEmailTemplateProps, PresenterProps>(
+  'VerifyEmailTemplate',
+  VerifyEmailTemplatePresenter,
+  VerifyEmailTemplateContainer
+)

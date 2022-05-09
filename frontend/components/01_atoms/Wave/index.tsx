@@ -21,11 +21,12 @@ export type WaveProps = BoxProps &
      */
     animationNegativeDelay: number
   }>
+
 /** Presenter Props */
 type PresenterProps = WaveProps & { id: string }
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ id, topColor, bottomColor, animationNegativeDelay, ...props }) => (
+const WavePresenter: React.VFC<PresenterProps> = ({ id, topColor, bottomColor, animationNegativeDelay, ...props }) => (
   <Box bg={topColor} {...props}>
     <Icon {...styles.waveBorder({ bottomColor })}>
       <defs>
@@ -39,7 +40,7 @@ const Presenter: React.VFC<PresenterProps> = ({ id, topColor, bottomColor, anima
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<WaveProps, PresenterProps>> = ({
+const WaveContainer: React.VFC<ContainerProps<WaveProps, PresenterProps>> = ({
   presenter,
   topColor = '#4829B2',
   bottomColor = '#FFFFFF',
@@ -51,4 +52,4 @@ const Container: React.VFC<ContainerProps<WaveProps, PresenterProps>> = ({
 }
 
 /** Wave */
-export default connect<WaveProps, PresenterProps>('Wave', Presenter, Container)
+export default connect<WaveProps, PresenterProps>('Wave', WavePresenter, WaveContainer)

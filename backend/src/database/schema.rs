@@ -61,7 +61,7 @@ table! {
         email -> Varchar,
         password -> Varchar,
         remember_token -> Nullable<Varchar>,
-        comment -> Nullable<Varchar>,
+        comment -> Nullable<Text>,
         avatar -> Nullable<Varchar>,
         role -> Integer,
         status -> Integer,

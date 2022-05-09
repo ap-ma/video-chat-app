@@ -13,7 +13,7 @@ export type SuccessProps = Record<string, unknown>
 type PresenterProps = SuccessProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = () => (
+const SuccessPresenter: React.VFC<PresenterProps> = () => (
   <ResultIndication>
     <Head>
       <Icon as={RiCheckboxCircleLine} {...styles.successIcon} />
@@ -31,9 +31,9 @@ const Presenter: React.VFC<PresenterProps> = () => (
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<SuccessProps, PresenterProps>> = ({ presenter, ...props }) => {
+const SuccessContainer: React.VFC<ContainerProps<SuccessProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 
 /** Success */
-export default connect<SuccessProps, PresenterProps>('Success', Presenter, Container)
+export default connect<SuccessProps, PresenterProps>('Success', SuccessPresenter, SuccessContainer)

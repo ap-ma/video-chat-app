@@ -1,10 +1,13 @@
 import { Alert, AlertIcon, Button, FormControl, FormLabel, Input, Stack } from '@chakra-ui/react'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { connect } from 'components/hoc'
 import { ResetPasswordInput, ResetPasswordMutation, ResetPasswordMutationVariables } from 'graphql/generated'
 import React from 'react'
+import { useForm } from 'react-hook-form'
 import { ContainerProps, MutaionLoading, MutaionReset, MutateFunction, ValidationErrors } from 'types'
 import { isBlank } from 'utils/general/object'
 import { getErrMsg } from 'utils/helper'
+import { FormSchema, schema } from './validation'
 
 /** ResetPasswordForm Props */
 export type ResetPasswordFormProps = {
@@ -31,6 +34,7 @@ export type ResetPasswordFormProps = {
     }
   }
 }
+
 /** Presenter Props */
 type PresenterProps = {
   disabled: boolean
@@ -38,10 +42,10 @@ type PresenterProps = {
 }
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ disabled, tokenErrMsgs, ...props }) => (
+const ResetPasswordFormPresenter: React.VFC<PresenterProps> = ({ disabled, tokenErrMsgs, ...props }) => (
   <Stack spacing={4} bg='white' rounded='lg' boxShadow='lg' p={6}>
     {tokenErrMsgs?.map((msg, i) => (
-      <Alert status='error' key={i} rounded='lg'>
+      <Alert status='error' rounded='lg' key={i}>
         <AlertIcon />
         {msg}
       </Alert>
@@ -63,18 +67,26 @@ const Presenter: React.VFC<PresenterProps> = ({ disabled, tokenErrMsgs, ...props
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<ResetPasswordFormProps, PresenterProps>> = ({
+const ResetPasswordFormContainer: React.VFC<ContainerProps<ResetPasswordFormProps, PresenterProps>> = ({
   presenter,
   tokenErrors,
-  mutation,
+  mutation: { resetPassword },
   ...props
 }) => {
-  const tokenErr = !isBlank(tokenErrors)
+  // react hook form
+  const { register, handleSubmit, setError, reset, formState } = useForm<FormSchema>({
+    resolver: zodResolver(schema)
+  })
+
   const tokenErrMsgs = tokenErrors?.map((error) => getErrMsg(error.message))
 
-  const disabled = tokenErr
+  const disabled = !isBlank(tokenErrors) || resetPassword.loading
   return presenter({ disabled, tokenErrMsgs, ...props })
 }
 
 /** ResetPasswordForm */
-export default connect<ResetPasswordFormProps, PresenterProps>('ResetPasswordForm', Presenter, Container)
+export default connect<ResetPasswordFormProps, PresenterProps>(
+  'ResetPasswordForm',
+  ResetPasswordFormPresenter,
+  ResetPasswordFormContainer
+)

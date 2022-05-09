@@ -11,7 +11,7 @@ export type FailureProps = Record<string, unknown>
 type PresenterProps = FailureProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = () => (
+const FailurePresenter: React.VFC<PresenterProps> = () => (
   <ResultIndication>
     <Head>
       <Icon as={RiErrorWarningLine} {...styles.failureIcon} />
@@ -25,9 +25,9 @@ const Presenter: React.VFC<PresenterProps> = () => (
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<FailureProps, PresenterProps>> = ({ presenter, ...props }) => {
+const FailureContainer: React.VFC<ContainerProps<FailureProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 
 /** Failure */
-export default connect<FailureProps, PresenterProps>('Failure', Presenter, Container)
+export default connect<FailureProps, PresenterProps>('Failure', FailurePresenter, FailureContainer)

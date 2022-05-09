@@ -10,16 +10,16 @@ export type BalloonProps = JSX.IntrinsicElements['span']
 type PresenterProps = BalloonProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ children, className, ...props }) => (
+const BalloonPresenter: React.VFC<PresenterProps> = ({ children, className, ...props }) => (
   <span className={classnames(styles.root, className)} {...props}>
     {children}
   </span>
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<BalloonProps, PresenterProps>> = ({ presenter, ...props }) => {
+const BalloonContainer: React.VFC<ContainerProps<BalloonProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 
 /** Balloon */
-export default connect<BalloonProps, PresenterProps>('Balloon', Presenter, Container)
+export default connect<BalloonProps, PresenterProps>('Balloon', BalloonPresenter, BalloonContainer)

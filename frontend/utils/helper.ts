@@ -3,7 +3,6 @@ import { VALIDATION_ERRORS } from 'messages/error'
 import { ValidationErrors } from 'types'
 import { isExtIncluded, toStr } from 'utils/general/helper'
 import { hasProperty, isNullish } from 'utils/general/object'
-import { ZodRawShape } from 'zod'
 
 /**
  * 指定エラーコードのエラーメッセージを返す
@@ -27,24 +26,27 @@ export const getErrMsg = (code: string, values?: Record<string, string | number>
 
 /**
  * GraphQLErrors(ValidationErrors)をReact hook formのFieldErrorsにセットする
- * FormのSchemaに存在しないキーを持つエラーが含まれる場合、エラーメッセージを格納した配列を返す
+ * Formのフィールドに存在しないキーを持つエラーが含まれる場合、対象エラーのメッセージを配列に格納して返す
  *
- * @param shape - ZodRawShape
- * @param errors - ValidationErrors
+ * @param formFields - form内のフィールド名の配列
  * @param setError - setError関数
- * @returns FormのSchemaに存在しないキーを持つエラーのメッセージを格納した配列
+ * @param errors - ValidationErrors
+ * @param values - プレースホルダーにセットする値を持つオブジェクトをフィールド毎に格納したオブジェクト
+ * @returns FormのFieldに存在しないキーを持つエラーのメッセージを格納した配列
  */
 export const setGqlErrorsToFieldErrors = <T>(
-  shape: ZodRawShape,
+  formFields: Array<string | number>,
+  setError: (fieldName: keyof T, error: { type: string; message: string }) => void,
   errors: ValidationErrors | undefined,
-  setError: (fieldName: keyof T, error: { type: string; message: string }) => void
-): string[] => {
+  values?: Record<string, Parameters<typeof getErrMsg>[1]>
+): Array<string> => {
   const characteristic: Array<string> = []
   errors?.forEach((error) => {
     const field = error.extensions.field
-    const message = getErrMsg(error.message)
-    if (Object.prototype.hasOwnProperty.call(shape, field)) {
-      setError(field as keyof T, { type: 'server', message })
+    const message = getErrMsg(error.message, !isNullish(values) ? values[field] : undefined)
+
+    if (formFields.includes(field)) {
+      setError(field as keyof T, { type: 'custom', message })
     } else {
       characteristic.push(message)
     }

@@ -1,32 +1,32 @@
+/* eslint-disable import/no-unresolved */
+import { dummyMutation } from '.storybook/dummies'
+/* eslint-enable import/no-unresolved  */
 import { Meta, Story } from '@storybook/react'
+import { SignUpMutation, SignUpMutationVariables } from 'graphql/generated'
 import React from 'react'
+import { MutaionLoading } from 'types'
 import SignupForm, { SignupFormProps } from './index'
 
 export default {
   title: '04_organisms/forms/SignupForm',
-  component: SignupForm,
-  argTypes: { signUp: { signUp: { action: 'clicked' } } }
+  component: SignupForm
 } as Meta
 
 type SignupFormStoryProps = SignupFormProps & {
-  loading: SignupFormProps['signUp']['loading']
+  loading: MutaionLoading
 }
 
 const Template: Story<SignupFormStoryProps> = ({ loading, ...props }) => {
-  const signUp = {
-    loading,
-    reset: () => alert('reset'),
-    mutate: () => {
-      alert('SignUp')
-      return Promise.resolve({ data: undefined, extensions: undefined, context: undefined })
-    }
-  }
+  const signUp = dummyMutation<SignUpMutation['signUp'], SignUpMutation, SignUpMutationVariables>(
+    'SignUp',
+    undefined,
+    loading
+  )
   return <SignupForm {...{ ...props, signUp }} />
 }
 
 export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'
-Primary.argTypes = { onClick: { action: 'clicked' } }
 Primary.args = {
   isOpen: true,
   loading: false

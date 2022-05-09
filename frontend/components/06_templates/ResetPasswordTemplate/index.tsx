@@ -12,7 +12,7 @@ export type ResetPasswordTemplateProps = Omit<HtmlSkeletonProps, 'children'> & R
 type PresenterProps = ResetPasswordTemplateProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ token, tokenErrors, mutation, ...props }) => (
+const ResetPasswordTemplatePresenter: React.VFC<PresenterProps> = ({ token, tokenErrors, mutation, ...props }) => (
   <HtmlSkeleton {...props}>
     <Title>Reset Password</Title>
     <Flex {...styles.container} {...props}>
@@ -25,9 +25,16 @@ const Presenter: React.VFC<PresenterProps> = ({ token, tokenErrors, mutation, ..
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<ResetPasswordTemplateProps, PresenterProps>> = ({ presenter, ...props }) => {
+const ResetPasswordTemplateContainer: React.VFC<ContainerProps<ResetPasswordTemplateProps, PresenterProps>> = ({
+  presenter,
+  ...props
+}) => {
   return presenter({ ...props })
 }
 
 /** ResetPasswordTemplate */
-export default connect<ResetPasswordTemplateProps, PresenterProps>('ResetPasswordTemplate', Presenter, Container)
+export default connect<ResetPasswordTemplateProps, PresenterProps>(
+  'ResetPasswordTemplate',
+  ResetPasswordTemplatePresenter,
+  ResetPasswordTemplateContainer
+)

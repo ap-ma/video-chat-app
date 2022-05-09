@@ -24,11 +24,12 @@ export type MessageProps = Omit<BoxProps, 'children' | 'bgColor'> &
      */
     autoSizing?: boolean
   }
+
 /** Presenter Props */
 type PresenterProps = MessageProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({
+const MessagePresenter: React.VFC<PresenterProps> = ({
   triangleMarkPosition,
   bgColor,
   textColor,
@@ -42,7 +43,7 @@ const Presenter: React.VFC<PresenterProps> = ({
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<MessageProps, PresenterProps>> = ({
+const MessageContainer: React.VFC<ContainerProps<MessageProps, PresenterProps>> = ({
   presenter,
   bgColor = 'gray.50',
   textColor = 'black',
@@ -52,4 +53,4 @@ const Container: React.VFC<ContainerProps<MessageProps, PresenterProps>> = ({
 }
 
 /** Message */
-export default connect<MessageProps, PresenterProps>('Message', Presenter, Container)
+export default connect<MessageProps, PresenterProps>('Message', MessagePresenter, MessageContainer)

@@ -3,6 +3,11 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { useApollo } from 'graphql/apollo'
 import type { AppProps } from 'next/app'
 import React from 'react'
+import { zodCustomErrorMap } from 'utils/lib/zod'
+import { z } from 'zod'
+
+// customize zod messages
+z.setErrorMap(zodCustomErrorMap)
 
 const App: React.VFC<AppProps> = ({ Component, pageProps }) => {
   const apolloClient = useApollo(pageProps)

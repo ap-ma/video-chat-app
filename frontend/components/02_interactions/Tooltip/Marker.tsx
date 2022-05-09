@@ -14,15 +14,16 @@ export type MarkerProps = WithChildren & {
    */
   rootClassName?: string
 }
+
 type PresenterProps = MarkerProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ children, ...props }) => (
+const MarkerPresenter: React.VFC<PresenterProps> = ({ children, ...props }) => (
   <span className={styles.marker(props)}>{children}</span>
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<MarkerProps, PresenterProps>> = ({
+const MarkerContainer: React.VFC<ContainerProps<MarkerProps, PresenterProps>> = ({
   presenter,
   mkColor = '#9DECF9',
   ...props
@@ -31,4 +32,4 @@ const Container: React.VFC<ContainerProps<MarkerProps, PresenterProps>> = ({
 }
 
 /** Marker */
-export default connect<MarkerProps, PresenterProps>('Marker', Presenter, Container)
+export default connect<MarkerProps, PresenterProps>('Marker', MarkerPresenter, MarkerContainer)

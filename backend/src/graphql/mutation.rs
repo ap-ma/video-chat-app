@@ -356,7 +356,6 @@ impl Mutation {
 
     async fn reset_password(&self, ctx: &Context<'_>, input: ResetPasswordInput) -> Result<bool> {
         let conn = common::get_conn(ctx)?;
-
         let user = common::is_password_reset_token_valid(&input.token, ctx)?;
 
         validator::password_validator(

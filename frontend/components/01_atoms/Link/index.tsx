@@ -15,18 +15,19 @@ export type LinkProps = Omit<ChakraLinkProps, 'href'> & {
    */
   nextLinkProps?: Omit<ExcludeProperties<NextLinkProps, ChakraLinkProps>, 'href' | 'passHref'>
 }
+
 /** Presenter Props */
 type PresenterProps = LinkProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ href, nextLinkProps, children, ...props }) => (
+const LinkPresenter: React.VFC<PresenterProps> = ({ href, nextLinkProps, children, ...props }) => (
   <NextLink passHref href={href} {...nextLinkProps}>
     <ChakraLink {...props}>{children}</ChakraLink>
   </NextLink>
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<LinkProps, PresenterProps>> = ({
+const LinkContainer: React.VFC<ContainerProps<LinkProps, PresenterProps>> = ({
   presenter,
   color = 'blue.400',
   ...props
@@ -35,4 +36,4 @@ const Container: React.VFC<ContainerProps<LinkProps, PresenterProps>> = ({
 }
 
 /** Link */
-export default connect<LinkProps, PresenterProps>('Link', Presenter, Container)
+export default connect<LinkProps, PresenterProps>('Link', LinkPresenter, LinkContainer)

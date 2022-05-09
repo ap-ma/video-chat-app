@@ -6,7 +6,7 @@ import React from 'react'
 import UserCard, { UserCardProps } from './index'
 
 export default {
-  title: '03_molecules/UserCard',
+  title: '04_organisms/UserCard',
   argTypes: { onClick: { action: 'clicked' } },
   component: UserCard
 } as Meta

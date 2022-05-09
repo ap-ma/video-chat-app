@@ -13,7 +13,7 @@ export type ErrorTemplateProps = Omit<HtmlSkeletonProps, 'children'>
 type PresenterProps = ErrorTemplateProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = (props) => (
+const ErrorTemplatePresenter: React.VFC<PresenterProps> = (props) => (
   <HtmlSkeleton {...props}>
     <Title>Error</Title>
     <ResultIndication>
@@ -30,9 +30,16 @@ const Presenter: React.VFC<PresenterProps> = (props) => (
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<ErrorTemplateProps, PresenterProps>> = ({ presenter, ...props }) => {
+const ErrorTemplateContainer: React.VFC<ContainerProps<ErrorTemplateProps, PresenterProps>> = ({
+  presenter,
+  ...props
+}) => {
   return presenter({ ...props })
 }
 
 /** ErrorTemplate */
-export default connect<ErrorTemplateProps, PresenterProps>('ErrorTemplate', Presenter, Container)
+export default connect<ErrorTemplateProps, PresenterProps>(
+  'ErrorTemplate',
+  ErrorTemplatePresenter,
+  ErrorTemplateContainer
+)

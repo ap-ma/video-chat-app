@@ -14,14 +14,14 @@ export type TooltipProps = JSX.IntrinsicElements['span']
 type PresenterProps = TooltipProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ children, className, ...props }) => (
+const TooltipPresenter: React.VFC<PresenterProps> = ({ children, className, ...props }) => (
   <span className={classnames(styles.root, className)} {...props}>
     {children}
   </span>
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<TooltipProps, PresenterProps>> = ({
+const TooltipContainer: React.VFC<ContainerProps<TooltipProps, PresenterProps>> = ({
   presenter,
   children,
   className,
@@ -36,7 +36,7 @@ const Container: React.VFC<ContainerProps<TooltipProps, PresenterProps>> = ({
 }
 
 /** Tooltip */
-export default connect<TooltipProps, PresenterProps>('Tooltip', Presenter, Container)
+export default connect<TooltipProps, PresenterProps>('Tooltip', TooltipPresenter, TooltipContainer)
 
 // Sub Component
 export type { MarkerProps } from './Marker'

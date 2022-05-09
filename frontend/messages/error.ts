@@ -1,49 +1,53 @@
 export const VALIDATION_ERRORS = {
+  // 必須
+  V_REQUIRED: 'required.',
   // 最大長
-  V_MAX_LENGTH: '{v_max_length_name} must be no more than {v_max_length_length} characters.',
+  V_MAX_LENGTH: 'must be {vml_length} characters or less.',
+  // 画像ファイル形式
+  V_IMAGE_FORMAT: 'must be jpg or png files.',
   // 認証失敗
-  V_AUTH_FAILED: 'Incorrect Email address or Password.',
+  V_AUTH_FAILED: 'incorrect Email address or Password.',
   // パスワード形式
   V_PASS_FORMAT:
-    'Password must be {v_pass_format_min} to {v_pass_format_max} alphanumeric characters long, including at least one uppercase letter, one lowercase letter, and one number.',
+    'must be {vpf_min} to {vpf_max} alphanumeric characters long, including at least one uppercase letter, one lowercase letter, and one number.',
   // パスワード確認不一致
-  V_PASS_CONFIRMATION_NOT_MATCH: 'Password confirmation does not match password.',
+  V_PASS_CONFIRMATION_NOT_MATCH: 'does not match password.',
   // パスワード誤り
-  V_PASS_INCORRECT: 'Password is incorrect.',
+  V_PASS_INCORRECT: 'not correct.',
   // メール形式
-  V_EMAIL_FORMAT: 'Email address format is invalid.',
+  V_EMAIL_FORMAT: 'invalid format.',
   // メール重複
-  V_EMAIL_DUPLICATION: 'This email address is already registered.',
+  V_EMAIL_DUPLICATION: 'this email address is already registered.',
   // メール変更なし
-  V_EMAIL_NO_CHANGE: 'There is no change to your registration.',
+  V_EMAIL_NO_CHANGE: 'there is no change to your registration.',
   // コード形式
-  V_CODE_FORMAT: 'Code must be between {v_code_format_min} and {v_code_format_max} alphanumeric characters.',
+  V_CODE_FORMAT: 'must be between {vcf_min} and {vcf_max} alphanumeric characters.',
   // コード重複
-  V_CODE_DUPLICATION: 'Code is already registered.',
+  V_CODE_DUPLICATION: 'this code is already registered.',
   // トークン未入力
-  V_TOKEN_NOT_ENTERED: 'No token entered.',
+  V_TOKEN_NOT_ENTERED: 'no token entered.',
   // トークン不正
-  V_TOKEN_INVALID: 'Invalid URL.',
+  V_TOKEN_INVALID: 'invalid URL.',
   // トークン期限切れ
   V_TOKEN_EXPIRED: 'URL has expired.',
   // トークン不一致
-  V_TOKEN_NOT_MATCH: 'Invalid URL.',
+  V_TOKEN_NOT_MATCH: 'invalid URL.',
   // コンタクトID不正
-  V_CONTACT_ID_INVALID: 'Invalid contact id.',
+  V_CONTACT_ID_INVALID: 'invalid contact id.',
   // コンタクト登録済
-  V_CONTACT_REGISTERED: 'Contact is already registered.',
+  V_CONTACT_REGISTERED: 'contact is already registered.',
   // コンタクト削除済
-  V_CONTACT_DELETED: 'Contact has been deleted.',
+  V_CONTACT_DELETED: 'contact has been deleted.',
   // コンタクト未削除
-  V_CONTACT_NOT_DELETED: 'Contacts have not been deleted.',
+  V_CONTACT_NOT_DELETED: 'contacts have not been deleted.',
   // コンタクトブロック済
-  V_CONTACT_BLOCKED: 'Cntact is blocked.',
+  V_CONTACT_BLOCKED: 'cntact is blocked.',
   // コンタクト未ブロック
-  V_CONTACT_NOT_BLOCKED: 'Contact is not blocked.',
+  V_CONTACT_NOT_BLOCKED: 'contact is not blocked.',
   // メッセージID不正
-  V_MESSAGE_ID_INVALID: 'Invalid message id.',
+  V_MESSAGE_ID_INVALID: 'invalid message id.',
   // メッセージ削除済
-  V_MESSAGE_DELETED: 'Message has already been deleted.',
+  V_MESSAGE_DELETED: 'message has already been deleted.',
   // メッセージがコンタクト申請でない
-  V_MESSAGE_NOT_APPLICATION: 'Message is not a contact application message.'
+  V_MESSAGE_NOT_APPLICATION: 'message is not a contact application message.'
 } as const

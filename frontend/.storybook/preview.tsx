@@ -1,6 +1,11 @@
 import { ChakraProvider, extendTheme } from '@chakra-ui/react'
 import { StoryContext } from '@storybook/react'
 import * as React from 'react'
+import { z } from 'zod'
+import { zodCustomErrorMap } from '../utils/lib/zod'
+
+// customize zod messages
+z.setErrorMap(zodCustomErrorMap)
 
 /** Global Parameters */
 export const parameters = {

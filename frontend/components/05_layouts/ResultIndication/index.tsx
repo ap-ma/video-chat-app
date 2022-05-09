@@ -9,6 +9,7 @@ import * as styles from './styles'
 
 /** ResultIndication Props */
 export type ResultIndicationProps = FlexProps & WithChildren
+
 /** Presenter Props */
 type PresenterProps = Omit<ResultIndicationProps, 'children'> & {
   head: HeadProps['children']
@@ -16,7 +17,7 @@ type PresenterProps = Omit<ResultIndicationProps, 'children'> & {
 }
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ head, body, ...props }) => (
+const ResultIndicationPresenter: React.VFC<PresenterProps> = ({ head, body, ...props }) => (
   <Flex {...styles.root} {...props}>
     <Stack {...styles.segment}>
       <Stack align='center'>{head}</Stack>
@@ -28,7 +29,7 @@ const Presenter: React.VFC<PresenterProps> = ({ head, body, ...props }) => (
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<ResultIndicationProps, PresenterProps>> = ({
+const ResultIndicationContainer: React.VFC<ContainerProps<ResultIndicationProps, PresenterProps>> = ({
   presenter,
   children,
   ...props
@@ -44,7 +45,11 @@ const Container: React.VFC<ContainerProps<ResultIndicationProps, PresenterProps>
 }
 
 /** ResultIndication */
-export default connect<ResultIndicationProps, PresenterProps>('ResultIndication', Presenter, Container)
+export default connect<ResultIndicationProps, PresenterProps>(
+  'ResultIndication',
+  ResultIndicationPresenter,
+  ResultIndicationContainer
+)
 
 // Sub Component
 export { Body, Head }

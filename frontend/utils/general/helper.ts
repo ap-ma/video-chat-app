@@ -1,3 +1,4 @@
+import { default as browserImageCompression } from 'browser-image-compression'
 import { includes, isArray, isNullish } from './object'
 
 /**
@@ -89,7 +90,17 @@ export const fileToDataURL = (file: File): Promise<string> => {
 }
 
 /**
- * 指定のファイル名の拡張子が第2引数以降の値に含まれているか否かを示す真偽値を返す
+ * 画像ファイル(jpeg, png)を圧縮する
+ *
+ * @param image - 圧縮する画像ファイル
+ * @param maxSizeMB - 圧縮後の最大サイズ
+ * @returns 圧縮済みのファイルで解決されるPromiseオブジェクト
+ */
+export const imageCompression = (image: File, maxSizeMB = 2): Promise<File> =>
+  browserImageCompression(image, { maxSizeMB })
+
+/**
+ * 指定ファイル名の拡張子が第2引数以降の値に含まれているか否かを示す真偽値を返す
  *
  * @param filename - 判定対象のファイル名
  * @param exts - 検索先となる値
@@ -99,7 +110,7 @@ export const isExtIncluded = (filename: string | undefined, ...exts: readonly st
   if (isNullish(filename)) return false
   const pos = filename.lastIndexOf('.')
   const ext = pos === -1 ? '' : filename.slice(pos + 1).toLowerCase()
-  return includes(ext, exts)
+  return includes(ext, ...exts)
 }
 
 /**

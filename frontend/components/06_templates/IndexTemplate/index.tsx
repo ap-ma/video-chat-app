@@ -215,11 +215,12 @@ export type IndexTemplateProps = {
     }
   }
 }
+
 /** Presenter Props */
 type PresenterProps = IndexTemplateProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ ...props }) => (
+const IndexTemplatePresenter: React.VFC<PresenterProps> = ({ ...props }) => (
   <HtmlSkeleton>
     <Title>Home</Title>
     こんにちは, {props.query.me?.name}
@@ -227,9 +228,16 @@ const Presenter: React.VFC<PresenterProps> = ({ ...props }) => (
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<IndexTemplateProps, PresenterProps>> = ({ presenter, ...props }) => {
+const IndexTemplateContainer: React.VFC<ContainerProps<IndexTemplateProps, PresenterProps>> = ({
+  presenter,
+  ...props
+}) => {
   return presenter({ ...props })
 }
 
 /** IndexTemplate */
-export default connect<IndexTemplateProps, PresenterProps>('IndexTemplate', Presenter, Container)
+export default connect<IndexTemplateProps, PresenterProps>(
+  'IndexTemplate',
+  IndexTemplatePresenter,
+  IndexTemplateContainer
+)

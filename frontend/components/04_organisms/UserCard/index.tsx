@@ -23,11 +23,12 @@ export type UserCardProps = FlexProps & {
    */
   active?: boolean
 }
+
 /** Presenter Props */
 type PresenterProps = UserCardProps
 
 /** Presenter Component */
-const Presenter: React.VFC<PresenterProps> = ({ image, name, content, active, ...props }) => (
+const UserCardPresenter: React.VFC<PresenterProps> = ({ image, name, content, active, ...props }) => (
   <Link {...styles.root({ active })}>
     <Flex {...styles.box({ active })} {...props}>
       <Avatar size='md' src={image} />
@@ -40,9 +41,9 @@ const Presenter: React.VFC<PresenterProps> = ({ image, name, content, active, ..
 )
 
 /** Container Component */
-const Container: React.VFC<ContainerProps<UserCardProps, PresenterProps>> = ({ presenter, ...props }) => {
+const UserCardContainer: React.VFC<ContainerProps<UserCardProps, PresenterProps>> = ({ presenter, ...props }) => {
   return presenter({ ...props })
 }
 
 /** UserCard */
-export default connect<UserCardProps, PresenterProps>('UserCard', Presenter, Container)
+export default connect<UserCardProps, PresenterProps>('UserCard', UserCardPresenter, UserCardContainer)
