@@ -1,6 +1,8 @@
 import { Flex, Heading, Link, Stack, Text, useDisclosure } from '@chakra-ui/react'
 import BackgroundWave from 'components/03_molecules/BackgroundWave'
+import ForgotPasswordCompleteDialog from 'components/04_organisms/dialogs/ForgotPasswordCompleteDialog'
 import SignupCompleteDialog from 'components/04_organisms/dialogs/SignupCompleteDialog'
+import ForgotPasswordForm, { ForgotPasswordFormProps } from 'components/04_organisms/forms/ForgotPasswordForm'
 import SigninForm, { SigninFormProps } from 'components/04_organisms/forms/SigninForm'
 import SignupForm, { SignupFormProps } from 'components/04_organisms/forms/SignupForm'
 import HtmlSkeleton, { HtmlSkeletonProps, Title } from 'components/05_layouts/HtmlSkeleton'
@@ -14,30 +16,40 @@ export type SigninTemplateProps = Omit<HtmlSkeletonProps, 'children'> & {
   /**
    * Mutation
    */
-  mutation: {
-    signUp: SignupFormProps['signUp']
-    signIn: SigninFormProps['signIn']
-    forgotPassword: SigninFormProps['forgotPassword']
-  }
+  mutation: SignupFormProps['mutation'] & SigninFormProps['mutation'] & ForgotPasswordFormProps['mutation']
 }
 
 /** Presenter Props */
 type PresenterProps = SigninTemplateProps & {
+  // sign up
   isSufOpen: IsOpen
   onSufOpen: OnOpen
   onSufClose: OnClose
   isSucdOpen: IsOpen
   onSucdClose: OnClose
+  // forgot pass
+  isFpfOpen: IsOpen
+  onFpfOpen: OnOpen
+  onFpfClose: OnClose
+  isFpcdOpen: IsOpen
+  onFpcdClose: OnClose
 }
 
 /** Presenter Component */
 const SigninTemplatePresenter: React.VFC<PresenterProps> = ({
   mutation: { signIn, forgotPassword, signUp },
+  // sign up
   isSufOpen,
   onSufOpen,
   onSufClose,
   isSucdOpen,
   onSucdClose,
+  // forgot pass
+  isFpfOpen,
+  onFpfOpen,
+  onFpfClose,
+  isFpcdOpen,
+  onFpcdClose,
   ...props
 }) => (
   <HtmlSkeleton {...props}>
@@ -49,17 +61,19 @@ const SigninTemplatePresenter: React.VFC<PresenterProps> = ({
             <Heading {...styles.head}>Sign in to your account</Heading>
             <Text {...styles.linkLabel}>
               New to this app?
-              <Link {...styles.link} onClick={onSufOpen}>
+              <Link {...styles.link(signIn.loading)} onClick={onSufOpen}>
                 Create an account.
               </Link>
             </Text>
           </Stack>
-          <SigninForm {...{ signIn, forgotPassword }} />
+          <SigninForm mutation={{ signIn }} onFpfOpen={onFpfOpen} />
         </Stack>
       </Flex>
     </BackgroundWave>
-    <SignupForm signUp={signUp} isOpen={isSufOpen} onClose={onSufClose} />
+    <SignupForm mutation={{ signUp }} isOpen={isSufOpen} onClose={onSufClose} />
     <SignupCompleteDialog isOpen={isSucdOpen} onClose={onSucdClose} />
+    <ForgotPasswordForm mutation={{ forgotPassword }} isOpen={isFpfOpen} onClose={onFpfClose} />
+    <ForgotPasswordCompleteDialog isOpen={isFpcdOpen} onClose={onFpcdClose} />
   </HtmlSkeleton>
 )
 
@@ -78,16 +92,37 @@ const SigninTemplateContainer: React.VFC<ContainerProps<SigninTemplateProps, Pre
     if (mutation.signUp.result) {
       onSufClose()
       onSucdOpen()
+      mutation.signUp.reset()
     }
   }, [onSufClose, onSucdOpen, mutation.signUp])
 
+  // ForgotPasswordForm
+  const { isOpen: isFpfOpen, onOpen: onFpfOpen, onClose: onFpfClose } = useDisclosure()
+  // ForgotPassworCompleteDialog
+  const { isOpen: isFpcdOpen, onOpen: onFpcdOpen, onClose: onFpcdClose } = useDisclosure()
+  // forgot password 完了時
+  useMemo(() => {
+    if (mutation.forgotPassword.result) {
+      onFpfClose()
+      onFpcdOpen()
+      mutation.forgotPassword.reset()
+    }
+  }, [onFpfClose, onFpcdOpen, mutation.forgotPassword])
+
   return presenter({
     mutation,
+    // sign up
     isSufOpen,
     onSufOpen,
     onSufClose,
     isSucdOpen,
     onSucdClose,
+    // forgot pass
+    isFpfOpen,
+    onFpfOpen,
+    onFpfClose,
+    isFpcdOpen,
+    onFpcdClose,
     ...props
   })
 }

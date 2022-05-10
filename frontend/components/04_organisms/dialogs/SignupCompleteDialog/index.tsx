@@ -1,7 +1,7 @@
 import { Button, ModalBody, ModalContent, ModalFooter, ModalHeader, Text } from '@chakra-ui/react'
 import Modal, { ModalProps } from 'components/03_molecules/Modal'
 import { connect } from 'components/hoc'
-import { VERIFICATION_LINK_EXPIRATION_MINUTES } from 'const'
+import { EMAIL_VERIFICATION_LINK_EXPIRATION_MINUTES } from 'const'
 import React from 'react'
 import { ContainerProps } from 'types'
 import { toStr } from 'utils/general/helper'
@@ -21,11 +21,13 @@ const SignupCompleteDialogPresenter: React.VFC<PresenterProps> = ({ expirationMi
     <ModalContent>
       <ModalHeader {...styles.head}>Verification email sent</ModalHeader>
       <ModalBody>
-        <Text>A verification email had been sent to your email address.</Text>
-        <Text>The verification link will expire after {expirationMinutes} minutes.</Text>
-        <Text>After verifying your email address, your account will be activated and you will be able to sign in.</Text>
+        <Text {...styles.text}>A verification email had been sent to your email address.</Text>
+        <Text {...styles.text}>The verification link will expire after {expirationMinutes} minutes.</Text>
+        <Text {...styles.text}>
+          After verifying your email address, your account will be activated and you will be able to sign in.
+        </Text>
       </ModalBody>
-      <ModalFooter mt='-10px'>
+      <ModalFooter mt='-5px'>
         <Button {...styles.button} onClick={onClose}>
           OK
         </Button>
@@ -39,7 +41,7 @@ const SignupCompleteDialogContainer: React.VFC<ContainerProps<SignupCompleteDial
   presenter,
   ...props
 }) => {
-  const expirationMinutes = toStr(VERIFICATION_LINK_EXPIRATION_MINUTES)
+  const expirationMinutes = toStr(EMAIL_VERIFICATION_LINK_EXPIRATION_MINUTES)
   return presenter({ expirationMinutes, ...props })
 }
 

@@ -1,6 +1,11 @@
+/* eslint-disable import/no-unresolved */
+import { dummyMutation } from '.storybook/dummies'
+/* eslint-enable import/no-unresolved  */
 import { Flex, Stack } from '@chakra-ui/react'
 import { Meta, Story } from '@storybook/react'
+import { SignInMutation, SignInMutationVariables } from 'graphql/generated'
 import React from 'react'
+import { MutaionLoading } from 'types'
 import SigninForm, { SigninFormProps } from './index'
 
 export default {
@@ -17,7 +22,22 @@ export default {
   ]
 } as Meta
 
-const Template: Story<SigninFormProps> = (props) => <SigninForm {...props} />
+type SigninFormStoryFormProps = SigninFormProps & {
+  loading: MutaionLoading
+}
+
+const Template: Story<SigninFormStoryFormProps> = ({ loading, ...props }) => {
+  const signIn = dummyMutation<SignInMutation['signIn'], SignInMutation, SignInMutationVariables>(
+    'SignIn',
+    undefined,
+    loading
+  )
+  const mutation = { signIn }
+  return <SigninForm {...{ ...props, mutation }} />
+}
 
 export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'
+Primary.args = {
+  loading: false
+}

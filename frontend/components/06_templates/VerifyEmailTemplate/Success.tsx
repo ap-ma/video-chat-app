@@ -2,7 +2,7 @@ import { Box as Spacer, Heading, Icon, Text } from '@chakra-ui/react'
 import Link from 'components/01_atoms/Link'
 import ResultIndication, { Body, Head } from 'components/05_layouts/ResultIndication'
 import { connect } from 'components/hoc'
-import { INDEX_PAGE } from 'const'
+import { SIGNIN_PAGE } from 'const'
 import React from 'react'
 import { RiCheckboxCircleLine } from 'react-icons/ri'
 import { ContainerProps } from 'types'
@@ -21,10 +21,10 @@ const SuccessPresenter: React.VFC<PresenterProps> = () => (
     </Head>
     <Body>
       <Text {...styles.text}>Email verification has been completed.</Text>
-      <Text {...styles.text}>Click the link below to go to the home page.</Text>
+      <Text {...styles.text}>Click the link below to go to the sign in page.</Text>
       <Spacer p='1.5' />
-      <Link href={INDEX_PAGE} color='blue.400'>
-        Go to Home
+      <Link href={SIGNIN_PAGE} color='blue.400'>
+        Sign in
       </Link>
     </Body>
   </ResultIndication>

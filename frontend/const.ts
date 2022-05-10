@@ -72,8 +72,11 @@ export const ERROR_PAGE = '/error'
 //  General const values
 //  ----------------------------------------------------------------------------
 
-/** 検証リンク 有効期限(分) */
-export const VERIFICATION_LINK_EXPIRATION_MINUTES = 30
+/** Email検証リンク 有効期限(分) */
+export const EMAIL_VERIFICATION_LINK_EXPIRATION_MINUTES = 30
+
+/** パスワードリセットリンク 有効期限(分) */
+export const PASSWORD_RESET_LINK_EXPIRATION_MINUTES = 30
 
 /** 画像ファイルとして許可するファイル拡張子 */
 export const ALLOWED_IMAGE_EXTS = ['jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'png']

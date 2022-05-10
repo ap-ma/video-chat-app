@@ -22,7 +22,8 @@ const Template: Story<SignupFormStoryProps> = ({ loading, ...props }) => {
     undefined,
     loading
   )
-  return <SignupForm {...{ ...props, signUp }} />
+  const mutation = { signUp }
+  return <SignupForm {...{ ...props, mutation }} />
 }
 
 export const Primary = Template.bind({})

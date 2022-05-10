@@ -1,16 +1,21 @@
-import { Alert, AlertIcon, Button, FormControl, FormLabel, Input, Stack } from '@chakra-ui/react'
+import { Button, FormControl, FormErrorMessage, FormLabel, Input, Stack, StackProps } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import AlertMessage from 'components/01_atoms/AlertMessage'
+import ErrorMessage from 'components/01_atoms/ErrorMessage'
 import { connect } from 'components/hoc'
+import { useSetError } from 'components/hooks'
 import { ResetPasswordInput, ResetPasswordMutation, ResetPasswordMutationVariables } from 'graphql/generated'
 import React from 'react'
-import { useForm } from 'react-hook-form'
+import { FieldErrors, SubmitHandler, useForm, UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
 import { ContainerProps, MutaionLoading, MutaionReset, MutateFunction, ValidationErrors } from 'types'
-import { isBlank } from 'utils/general/object'
+import { toStr } from 'utils/general/helper'
+import { hasValue, isBlank } from 'utils/general/object'
 import { getErrMsg } from 'utils/helper'
+import * as styles from './styles'
 import { FormSchema, schema } from './validation'
 
 /** ResetPasswordForm Props */
-export type ResetPasswordFormProps = {
+export type ResetPasswordFormProps = StackProps & {
   /**
    * トークン
    */
@@ -27,6 +32,7 @@ export type ResetPasswordFormProps = {
      * パスワードリセット
      */
     resetPassword: {
+      result?: ResetPasswordMutation['resetPassword']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
@@ -36,30 +42,47 @@ export type ResetPasswordFormProps = {
 }
 
 /** Presenter Props */
-type PresenterProps = {
+type PresenterProps = Omit<ResetPasswordFormProps, 'token' | 'tokenErrors' | 'mutation'> & {
   disabled: boolean
-  tokenErrMsgs?: string[]
+  loading: MutaionLoading
+  errors: string[]
+  fieldErrors: FieldErrors<FormSchema>
+  tokenErrorMsgs: string[] | undefined
+  register: UseFormRegister<FormSchema>
+  onSubmitButtonClick: ReturnType<UseFormHandleSubmit<FormSchema>>
 }
 
 /** Presenter Component */
-const ResetPasswordFormPresenter: React.VFC<PresenterProps> = ({ disabled, tokenErrMsgs, ...props }) => (
-  <Stack spacing={4} bg='white' rounded='lg' boxShadow='lg' p={6}>
-    {tokenErrMsgs?.map((msg, i) => (
-      <Alert status='error' rounded='lg' key={i}>
-        <AlertIcon />
-        {msg}
-      </Alert>
-    ))}
-    <FormControl id='password' isRequired isDisabled={disabled}>
+const ResetPasswordFormPresenter: React.VFC<PresenterProps> = ({
+  disabled,
+  loading,
+  errors,
+  fieldErrors,
+  tokenErrorMsgs,
+  register,
+  onSubmitButtonClick,
+  ...props
+}) => (
+  <Stack {...styles.root} {...props}>
+    <AlertMessage error={tokenErrorMsgs} />
+    <ErrorMessage error={errors} />
+    <FormControl id='password' isRequired isDisabled={disabled} isInvalid={hasValue(fieldErrors.password)}>
       <FormLabel>Password</FormLabel>
-      <Input type='password' />
+      <Input placeholder='password' type='password' {...styles.input} {...register('password')} />
+      <FormErrorMessage>{fieldErrors.password?.message}</FormErrorMessage>
     </FormControl>
-    <FormControl id='password' isRequired isDisabled={disabled}>
+    <FormControl
+      id='passwordConfirm'
+      isRequired
+      isDisabled={disabled}
+      isInvalid={hasValue(fieldErrors.passwordConfirm)}
+    >
       <FormLabel>Password Confirm</FormLabel>
-      <Input type='password' disabled={disabled} />
+      <Input placeholder='password' type='password' {...styles.input} {...register('passwordConfirm')} />
+      <FormErrorMessage>{fieldErrors.passwordConfirm?.message}</FormErrorMessage>
     </FormControl>
     <Stack>
-      <Button bg='blue.400' color='white' _hover={{ bg: 'blue.500' }} disabled={disabled}>
+      <Button {...styles.button} isLoading={loading} disabled={disabled} onClick={onSubmitButtonClick}>
         Submit
       </Button>
     </Stack>
@@ -69,19 +92,41 @@ const ResetPasswordFormPresenter: React.VFC<PresenterProps> = ({ disabled, token
 /** Container Component */
 const ResetPasswordFormContainer: React.VFC<ContainerProps<ResetPasswordFormProps, PresenterProps>> = ({
   presenter,
+  token,
   tokenErrors,
   mutation: { resetPassword },
   ...props
 }) => {
   // react hook form
-  const { register, handleSubmit, setError, reset, formState } = useForm<FormSchema>({
+  const { register, handleSubmit, setError, formState } = useForm<FormSchema>({
     resolver: zodResolver(schema)
   })
 
-  const tokenErrMsgs = tokenErrors?.map((error) => getErrMsg(error.message))
+  // status
+  const loading = resetPassword.loading
+  const disabled = !isBlank(tokenErrors) || loading
+  const fieldErrors = formState.errors
+  const fields = Object.keys(schema.innerType().shape)
+  const errors = useSetError<FormSchema>(fields, setError, resetPassword.errors)
+  const tokenErrorMsgs = tokenErrors?.map((error) => getErrMsg(error.message))
 
-  const disabled = !isBlank(tokenErrors) || resetPassword.loading
-  return presenter({ disabled, tokenErrMsgs, ...props })
+  // mutate
+  const resetPasswordMutation: SubmitHandler<FormSchema> = (input) => {
+    resetPassword.reset()
+    resetPassword.mutate({ variables: { input: { token: toStr(token), ...input } } }).catch(console.log)
+  }
+  const onSubmitButtonClick = handleSubmit(resetPasswordMutation)
+
+  return presenter({
+    disabled,
+    loading,
+    errors,
+    fieldErrors,
+    tokenErrorMsgs,
+    register,
+    onSubmitButtonClick,
+    ...props
+  })
 }
 
 /** ResetPasswordForm */

@@ -6,7 +6,7 @@ export const VALIDATION_ERRORS = {
   // 画像ファイル形式
   V_IMAGE_FORMAT: 'must be jpg or png files.',
   // 認証失敗
-  V_AUTH_FAILED: 'incorrect Email address or Password.',
+  V_AUTH_FAILED: 'Incorrect Email address or Password.',
   // パスワード形式
   V_PASS_FORMAT:
     'must be {vpf_min} to {vpf_max} alphanumeric characters long, including at least one uppercase letter, one lowercase letter, and one number.',
@@ -25,29 +25,29 @@ export const VALIDATION_ERRORS = {
   // コード重複
   V_CODE_DUPLICATION: 'this code is already registered.',
   // トークン未入力
-  V_TOKEN_NOT_ENTERED: 'no token entered.',
+  V_TOKEN_NOT_ENTERED: 'No token entered.',
   // トークン不正
-  V_TOKEN_INVALID: 'invalid URL.',
+  V_TOKEN_INVALID: 'Invalid URL.',
   // トークン期限切れ
   V_TOKEN_EXPIRED: 'URL has expired.',
   // トークン不一致
-  V_TOKEN_NOT_MATCH: 'invalid URL.',
+  V_TOKEN_NOT_MATCH: 'Invalid URL.',
   // コンタクトID不正
-  V_CONTACT_ID_INVALID: 'invalid contact id.',
+  V_CONTACT_ID_INVALID: 'Invalid contact id.',
   // コンタクト登録済
-  V_CONTACT_REGISTERED: 'contact is already registered.',
+  V_CONTACT_REGISTERED: 'Contact is already registered.',
   // コンタクト削除済
-  V_CONTACT_DELETED: 'contact has been deleted.',
+  V_CONTACT_DELETED: 'Contact has been deleted.',
   // コンタクト未削除
-  V_CONTACT_NOT_DELETED: 'contacts have not been deleted.',
+  V_CONTACT_NOT_DELETED: 'Contact have not been deleted.',
   // コンタクトブロック済
-  V_CONTACT_BLOCKED: 'cntact is blocked.',
+  V_CONTACT_BLOCKED: 'Contact is blocked.',
   // コンタクト未ブロック
-  V_CONTACT_NOT_BLOCKED: 'contact is not blocked.',
+  V_CONTACT_NOT_BLOCKED: 'Contact is not blocked.',
   // メッセージID不正
-  V_MESSAGE_ID_INVALID: 'invalid message id.',
+  V_MESSAGE_ID_INVALID: 'Invalid message id.',
   // メッセージ削除済
-  V_MESSAGE_DELETED: 'message has already been deleted.',
+  V_MESSAGE_DELETED: 'Message has already been deleted.',
   // メッセージがコンタクト申請でない
-  V_MESSAGE_NOT_APPLICATION: 'message is not a contact application message.'
+  V_MESSAGE_NOT_APPLICATION: 'Message is not a contact application message.'
 } as const

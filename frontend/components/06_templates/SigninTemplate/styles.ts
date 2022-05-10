@@ -1,3 +1,5 @@
+import { MutaionLoading } from 'types'
+
 export const container = {
   overflow: 'hidden',
   align: 'center',
@@ -30,7 +32,9 @@ export const linkLabel = {
   color: 'gray.600'
 }
 
-export const link = {
-  ml: '3',
-  color: 'blue.400'
-}
+export const link = (loading: MutaionLoading): Record<string, unknown> =>
+  ({
+    ml: '3',
+    color: loading ? 'gray.300' : 'blue.400',
+    pointerEvents: loading ? 'none' : 'auto'
+  } as const)

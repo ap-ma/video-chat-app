@@ -1,6 +1,4 @@
 import {
-  Alert,
-  AlertIcon,
   Box,
   Button,
   FormControl,
@@ -15,9 +13,11 @@ import {
   Tooltip
 } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import AlertMessage from 'components/01_atoms/AlertMessage'
 import AvatarEditor from 'components/03_molecules/AvatarEditor'
 import Modal, { ModalProps } from 'components/03_molecules/Modal'
 import { connect } from 'components/hoc'
+import { useSetError } from 'components/hooks'
 import { VALIDATION_USER_COMMENT_MAX_LEN } from 'const'
 import { SignUpMutation, SignUpMutationVariables } from 'graphql/generated'
 import React, { useCallback, useMemo } from 'react'
@@ -25,40 +25,44 @@ import { FieldErrors, SubmitHandler, useForm, UseFormHandleSubmit, UseFormRegist
 import { ContainerProps, MutaionLoading, MutaionReset, MutateFunction, ValidationErrors } from 'types'
 import { imageCompression } from 'utils/general/helper'
 import { hasValue, isNullish } from 'utils/general/object'
-import { setGqlErrorsToFieldErrors } from 'utils/helper'
 import * as styles from './styles'
 import { FormSchema, schema } from './validation'
 
 /** SignupForm Props */
 export type SignupFormProps = Omit<ModalProps, 'children'> & {
   /**
-   * サインアップ
+   * Mutation
    */
-  signUp: {
-    result?: SignUpMutation['signUp']
-    loading: MutaionLoading
-    errors?: ValidationErrors
-    reset: MutaionReset
-    mutate: MutateFunction<SignUpMutation, SignUpMutationVariables>
+  mutation: {
+    /**
+     * サインアップ
+     */
+    signUp: {
+      result?: SignUpMutation['signUp']
+      loading: MutaionLoading
+      errors?: ValidationErrors
+      reset: MutaionReset
+      mutate: MutateFunction<SignUpMutation, SignUpMutationVariables>
+    }
   }
 }
 
 /** Presenter Props */
-type PresenterProps = Omit<SignupFormProps, 'signUp'> & {
-  register: UseFormRegister<FormSchema>
-  onSignUpButtonClick: ReturnType<UseFormHandleSubmit<FormSchema>>
+type PresenterProps = Omit<SignupFormProps, 'mutation'> & {
   loading: MutaionLoading
   errors: string[]
   fieldErrors: FieldErrors<FormSchema>
+  register: UseFormRegister<FormSchema>
+  onSignUpButtonClick: ReturnType<UseFormHandleSubmit<FormSchema>>
 }
 
 /** Presenter Component */
 const SignupFormPresenter: React.VFC<PresenterProps> = ({
-  register,
-  onSignUpButtonClick,
   loading,
   errors,
   fieldErrors,
+  register,
+  onSignUpButtonClick,
   ...props
 }) => (
   <Modal {...props}>
@@ -67,11 +71,7 @@ const SignupFormPresenter: React.VFC<PresenterProps> = ({
       <ModalBody pt='5' pb='8'>
         <Stack spacing='4'>
           <Heading {...styles.head}>Sign up</Heading>
-          {errors?.map((msg, i) => (
-            <Alert status='error' rounded='lg' key={i}>
-              <AlertIcon /> {msg}
-            </Alert>
-          ))}
+          <AlertMessage error={errors} />
           <AvatarEditor
             {...register('avatar')}
             isDisabled={loading}
@@ -145,9 +145,9 @@ const SignupFormPresenter: React.VFC<PresenterProps> = ({
 /** Container Component */
 const SignupFormContainer: React.VFC<ContainerProps<SignupFormProps, PresenterProps>> = ({
   presenter,
-  signUp,
   isOpen,
   onClose: onSufClose,
+  mutation: { signUp },
   ...props
 }) => {
   // react hook form
@@ -159,7 +159,7 @@ const SignupFormContainer: React.VFC<ContainerProps<SignupFormProps, PresenterPr
   const loading = signUp.loading
   const fieldErrors = formState.errors
   const fields = Object.keys(schema.innerType().shape)
-  const errors = setGqlErrorsToFieldErrors<FormSchema>(fields, setError, signUp.errors, {
+  const errors = useSetError<FormSchema>(fields, setError, signUp.errors, {
     comment: { vml_length: VALIDATION_USER_COMMENT_MAX_LEN }
   })
 
@@ -168,9 +168,9 @@ const SignupFormContainer: React.VFC<ContainerProps<SignupFormProps, PresenterPr
     signUp.reset()
     const avatar = (input.avatar as FileList).item(0)
     const compressed = isNullish(avatar) ? Promise.resolve(undefined) : imageCompression(avatar)
-    compressed
-      .then((avatar) => signUp.mutate({ variables: { input: { ...input, avatar } } }))
-      .catch(() => signUp.mutate({ variables: { input: { ...input, avatar: undefined } } }))
+    const mutate = (avatar?: unknown) =>
+      signUp.mutate({ variables: { input: { ...input, avatar: avatar instanceof File ? avatar : undefined } } })
+    compressed.then(mutate, mutate).catch(console.log)
   }
   const onSignUpButtonClick = handleSubmit(signUpMutation)
 
@@ -186,13 +186,13 @@ const SignupFormContainer: React.VFC<ContainerProps<SignupFormProps, PresenterPr
   }, [isOpen, reset])
 
   return presenter({
-    register,
-    onSignUpButtonClick,
+    isOpen,
+    onClose,
     loading,
     errors,
     fieldErrors,
-    isOpen,
-    onClose,
+    register,
+    onSignUpButtonClick,
     ...props
   })
 }

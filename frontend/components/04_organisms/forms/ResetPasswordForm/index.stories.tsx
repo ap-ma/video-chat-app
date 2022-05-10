@@ -1,6 +1,11 @@
+/* eslint-disable import/no-unresolved */
+import { dummyMutation } from '.storybook/dummies'
+/* eslint-enable import/no-unresolved  */
 import { Flex, Stack } from '@chakra-ui/react'
 import { Meta, Story } from '@storybook/react'
+import { ResetPasswordMutation, ResetPasswordMutationVariables } from 'graphql/generated'
 import React from 'react'
+import { MutaionLoading } from 'types'
 import ResetPasswordForm, { ResetPasswordFormProps } from './index'
 
 export default {
@@ -17,7 +22,22 @@ export default {
   ]
 } as Meta
 
-const Template: Story<ResetPasswordFormProps> = (props) => <ResetPasswordForm {...props} />
+type ResetPasswordStoryFormProps = ResetPasswordFormProps & {
+  loading: MutaionLoading
+}
+
+const Template: Story<ResetPasswordStoryFormProps> = ({ loading, ...props }) => {
+  const resetPassword = dummyMutation<
+    ResetPasswordMutation['resetPassword'],
+    ResetPasswordMutation,
+    ResetPasswordMutationVariables
+  >('ResetPassword', undefined, loading)
+  const mutation = { resetPassword }
+  return <ResetPasswordForm {...{ ...props, mutation }} />
+}
 
 export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'
+Primary.args = {
+  loading: false
+}

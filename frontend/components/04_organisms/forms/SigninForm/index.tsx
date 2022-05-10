@@ -1,63 +1,89 @@
-import { Button, Checkbox, FormControl, FormLabel, Input, Link, Stack } from '@chakra-ui/react'
-import { connect } from 'components/hoc'
 import {
-  ForgotPasswordMutation,
-  ForgotPasswordMutationVariables,
-  SignInMutation,
-  SignInMutationVariables
-} from 'graphql/generated'
+  Button,
+  Checkbox,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
+  Link,
+  Stack,
+  StackProps
+} from '@chakra-ui/react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import ErrorMessage from 'components/01_atoms/ErrorMessage'
+import { connect } from 'components/hoc'
+import { useSetError } from 'components/hooks'
+import { SignInMutation, SignInMutationVariables } from 'graphql/generated'
 import React from 'react'
-import { ContainerProps, MutaionLoading, MutaionReset, MutateFunction, ValidationErrors } from 'types'
+import { FieldErrors, SubmitHandler, useForm, UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
+import { ContainerProps, MutaionLoading, MutaionReset, MutateFunction, OnOpen, ValidationErrors } from 'types'
+import { hasValue } from 'utils/general/object'
+import * as styles from './styles'
+import { FormSchema, schema } from './validation'
 
 /** SigninForm Props */
-export type SigninFormProps = {
+export type SigninFormProps = StackProps & {
   /**
-   * サインイン
+   * パスワード忘れモーダル onOpen
    */
-  signIn: {
-    loading: MutaionLoading
-    errors?: ValidationErrors
-    reset: MutaionReset
-    mutate: MutateFunction<SignInMutation, SignInMutationVariables>
-  }
+  onFpfOpen: OnOpen
   /**
-   * パスワード忘れ
+   * Mutation
    */
-  forgotPassword: {
-    result?: ForgotPasswordMutation['forgotPassword']
-    loading: MutaionLoading
-    errors?: ValidationErrors
-    reset: MutaionReset
-    mutate: MutateFunction<ForgotPasswordMutation, ForgotPasswordMutationVariables>
+  mutation: {
+    /**
+     * サインイン
+     */
+    signIn: {
+      loading: MutaionLoading
+      errors?: ValidationErrors
+      reset: MutaionReset
+      mutate: MutateFunction<SignInMutation, SignInMutationVariables>
+    }
   }
 }
 
 /** Presenter Props */
-type PresenterProps = SigninFormProps
+type PresenterProps = Omit<SigninFormProps, 'mutation'> & {
+  loading: MutaionLoading
+  errors: string[]
+  fieldErrors: FieldErrors<FormSchema>
+  register: UseFormRegister<FormSchema>
+  onSignInButtonClick: ReturnType<UseFormHandleSubmit<FormSchema>>
+}
 
 /** Presenter Component */
-const SigninFormPresenter: React.VFC<PresenterProps> = () => (
-  <Stack spacing={4} rounded='lg' bg='white' boxShadow='lg' p={8}>
-    <FormControl id='email'>
+const SigninFormPresenter: React.VFC<PresenterProps> = ({
+  onFpfOpen,
+  loading,
+  errors,
+  fieldErrors,
+  register,
+  onSignInButtonClick,
+  ...props
+}) => (
+  <Stack {...styles.root} {...props}>
+    <ErrorMessage error={errors} />
+    <FormControl id='email' isDisabled={loading} isInvalid={hasValue(fieldErrors.email)}>
       <FormLabel>Email address</FormLabel>
-      <Input type='email' />
+      <Input type='email' {...styles.input} {...register('email')} />
+      <FormErrorMessage>{fieldErrors.email?.message}</FormErrorMessage>
     </FormControl>
-    <FormControl id='password'>
+    <FormControl id='password' isDisabled={loading} isInvalid={hasValue(fieldErrors.password)}>
       <FormLabel>Password</FormLabel>
-      <Input type='password' />
+      <Input type='password' {...styles.input} {...register('password')} />
+      <FormErrorMessage>{fieldErrors.password?.message}</FormErrorMessage>
     </FormControl>
-    <Stack spacing={10}>
-      <Stack direction={{ base: 'column', sm: 'row' }} align='start' justify='space-between'>
-        <Checkbox>Remember me</Checkbox>
-        <Link color='blue.400'>Forgot password?</Link>
+    <Stack spacing='10'>
+      <Stack {...styles.options}>
+        <Checkbox isDisabled={loading} {...register('rememberMe')}>
+          Remember me
+        </Checkbox>
+        <Link {...styles.link(loading)} onClick={onFpfOpen}>
+          Forgot password?
+        </Link>
       </Stack>
-      <Button
-        bg='blue.400'
-        color='white'
-        _hover={{
-          bg: 'blue.500'
-        }}
-      >
+      <Button {...styles.signinButton} isLoading={loading} onClick={onSignInButtonClick}>
         Sign in
       </Button>
     </Stack>
@@ -65,8 +91,37 @@ const SigninFormPresenter: React.VFC<PresenterProps> = () => (
 )
 
 /** Container Component */
-const SigninFormContainer: React.VFC<ContainerProps<SigninFormProps, PresenterProps>> = ({ presenter, ...props }) => {
-  return presenter({ ...props })
+const SigninFormContainer: React.VFC<ContainerProps<SigninFormProps, PresenterProps>> = ({
+  presenter,
+  mutation: { signIn },
+  ...props
+}) => {
+  // react hook form
+  const { register, handleSubmit, setError, formState } = useForm<FormSchema>({
+    resolver: zodResolver(schema)
+  })
+
+  // status
+  const loading = signIn.loading
+  const fieldErrors = formState.errors
+  const fields = Object.keys(schema.shape)
+  const errors = useSetError<FormSchema>(fields, setError, signIn.errors)
+
+  // mutate
+  const signInMutation: SubmitHandler<FormSchema> = (input) => {
+    signIn.reset()
+    signIn.mutate({ variables: { input } }).catch(console.log)
+  }
+  const onSignInButtonClick = handleSubmit(signInMutation)
+
+  return presenter({
+    loading,
+    errors,
+    fieldErrors,
+    register,
+    onSignInButtonClick,
+    ...props
+  })
 }
 
 /** SigninForm */

@@ -265,10 +265,6 @@ impl Mutation {
             Ok(())
         })?;
 
-        if auth::get_identity(ctx)?.is_none() {
-            auth::sign_in(&user, ctx)?;
-        };
-
         Ok(true)
     }
 

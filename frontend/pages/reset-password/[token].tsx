@@ -49,6 +49,7 @@ const ResetPassword: NextPage<
     tokenErrors,
     mutation: {
       resetPassword: {
+        result: resetPasswordMutation.data?.resetPassword,
         loading: resetPasswordMutation.loading,
         errors: isValidationErrors(resetPasswordResult) ? resetPasswordResult : undefined,
         reset: resetPasswordMutation.reset,
