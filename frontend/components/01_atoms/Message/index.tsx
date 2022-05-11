@@ -26,7 +26,7 @@ export type MessageProps = Omit<BoxProps, 'children' | 'bgColor'> &
   }
 
 /** Presenter Props */
-type PresenterProps = MessageProps
+export type PresenterProps = MessageProps
 
 /** Presenter Component */
 const MessagePresenter: React.VFC<PresenterProps> = ({

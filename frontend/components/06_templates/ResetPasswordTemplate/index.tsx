@@ -11,7 +11,7 @@ import * as styles from './styles'
 export type ResetPasswordTemplateProps = Omit<HtmlSkeletonProps, 'children'> & ResetPasswordFormProps
 
 /** Presenter Props */
-type PresenterProps = ResetPasswordTemplateProps & {
+export type PresenterProps = ResetPasswordTemplateProps & {
   isRpcdOpen: IsOpen
   onRpcdClose: OnClose
 }

@@ -43,7 +43,7 @@ export type ForgotPasswordFormProps = Omit<ModalProps, 'children'> & {
 }
 
 /** Presenter Props */
-type PresenterProps = Omit<ForgotPasswordFormProps, 'mutation'> & {
+export type PresenterProps = Omit<ForgotPasswordFormProps, 'mutation'> & {
   loading: MutaionLoading
   errors: string[]
   fieldErrors: FieldErrors<FormSchema>

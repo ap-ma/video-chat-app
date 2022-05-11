@@ -12,7 +12,7 @@ export type TipProps = WithChildren & {
 }
 
 /** Presenter Props */
-type PresenterProps = TipProps
+export type PresenterProps = TipProps
 
 /** Presenter Component */
 const TipPresenter: React.VFC<PresenterProps> = ({ children, ...props }) => (

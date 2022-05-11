@@ -42,7 +42,7 @@ export type ResetPasswordFormProps = StackProps & {
 }
 
 /** Presenter Props */
-type PresenterProps = Omit<ResetPasswordFormProps, 'token' | 'tokenErrors' | 'mutation'> & {
+export type PresenterProps = Omit<ResetPasswordFormProps, 'token' | 'tokenErrors' | 'mutation'> & {
   disabled: boolean
   loading: MutaionLoading
   errors: string[]

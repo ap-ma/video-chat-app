@@ -25,7 +25,7 @@ export type UserCardProps = FlexProps & {
 }
 
 /** Presenter Props */
-type PresenterProps = UserCardProps
+export type PresenterProps = UserCardProps
 
 /** Presenter Component */
 const UserCardPresenter: React.VFC<PresenterProps> = ({ image, name, content, active, ...props }) => (

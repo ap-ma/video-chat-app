@@ -11,7 +11,7 @@ import Tip from './Tip'
 /** Tooltip Props */
 export type TooltipProps = JSX.IntrinsicElements['span']
 /** Presenter Props */
-type PresenterProps = TooltipProps
+export type PresenterProps = TooltipProps
 
 /** Presenter Component */
 const TooltipPresenter: React.VFC<PresenterProps> = ({ children, className, ...props }) => (

@@ -11,7 +11,7 @@ import * as styles from './styles'
 /** Modal Props */
 export type ModalProps = ChakraModalProps
 /** Presenter Props */
-type PresenterProps = ModalProps
+export type PresenterProps = ModalProps
 
 /** Presenter Component */
 const ModalPresenter: React.VFC<PresenterProps> = ({ children, ...props }) => (

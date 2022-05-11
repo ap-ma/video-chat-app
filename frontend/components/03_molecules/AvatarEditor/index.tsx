@@ -35,7 +35,7 @@ export type AvatarEditorProps = Omit<InputProps, 'isDisabled'> &
   }>
 
 /** Presenter Props */
-type PresenterProps = Omit<AvatarEditorProps, 'value'> & {
+export type PresenterProps = Omit<AvatarEditorProps, 'value'> & {
   ref: Ref<HTMLInputElement>
   onAvatarChangeButtonClick: ButtonProps['onClick']
   clearAvatar: AvatarBadgeProps['onClick']

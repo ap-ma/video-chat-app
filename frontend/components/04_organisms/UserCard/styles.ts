@@ -1,12 +1,12 @@
-import { UserCardProps } from './index'
+import { PresenterProps } from './index'
 
-export const root = ({ active }: Pick<UserCardProps, 'active'>): Record<string, unknown> =>
+export const root = ({ active }: Pick<PresenterProps, 'active'>): Record<string, unknown> =>
   ({
     style: { textDecoration: 'none' },
     pointerEvents: active ? 'none' : 'auto'
   } as const)
 
-export const box = ({ active }: Pick<UserCardProps, 'active'>): Record<string, unknown> =>
+export const box = ({ active }: Pick<PresenterProps, 'active'>): Record<string, unknown> =>
   ({
     bgColor: active ? 'gray.200' : 'white',
     align: 'center',

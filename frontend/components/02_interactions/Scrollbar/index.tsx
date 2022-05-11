@@ -7,7 +7,7 @@ import * as styles from './styles'
 /** Scrollbar Props */
 export type ScrollbarProps = BoxProps
 /** Presenter Props */
-type PresenterProps = ScrollbarProps
+export type PresenterProps = ScrollbarProps
 
 /** Presenter Component */
 const ScrollbarPresenter: React.VFC<PresenterProps> = ({ children, ...props }) => (

@@ -4,7 +4,7 @@ import { ContainerProps, WithChildren } from 'types'
 
 /** Head Props */
 export type HeadProps = WithChildren
-type PresenterProps = HeadProps
+export type PresenterProps = HeadProps
 
 /** Presenter Component */
 const HeadPresenter: React.VFC<PresenterProps> = ({ children }) => <Fragment>{children}</Fragment>

@@ -10,7 +10,7 @@ import Title, { TitleProps } from './Title'
 /** HtmlSkeleton Props */
 export type HtmlSkeletonProps = WithChildren & BoxProps
 /** Presenter Props */
-type PresenterProps = HtmlSkeletonProps & { title?: TitleProps['children']; description: string }
+export type PresenterProps = HtmlSkeletonProps & { title?: TitleProps['children']; description: string }
 
 /** Presenter Component */
 const HtmlSkeletonPresenter: React.VFC<PresenterProps> = ({ title, description, children, ...props }) => (

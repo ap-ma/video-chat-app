@@ -11,7 +11,7 @@ import * as styles from './styles'
 export type ForgotPasswordCompleteDialogProps = Omit<ModalProps, 'children'>
 
 /** Presenter Props */
-type PresenterProps = ForgotPasswordCompleteDialogProps & {
+export type PresenterProps = ForgotPasswordCompleteDialogProps & {
   expirationMinutes: string
 }
 

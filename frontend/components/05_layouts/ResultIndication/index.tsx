@@ -11,7 +11,7 @@ import * as styles from './styles'
 export type ResultIndicationProps = FlexProps & WithChildren
 
 /** Presenter Props */
-type PresenterProps = Omit<ResultIndicationProps, 'children'> & {
+export type PresenterProps = Omit<ResultIndicationProps, 'children'> & {
   head: HeadProps['children']
   body: BodyProps['children']
 }

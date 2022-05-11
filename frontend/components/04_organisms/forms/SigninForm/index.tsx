@@ -35,6 +35,7 @@ export type SigninFormProps = StackProps & {
      * サインイン
      */
     signIn: {
+      result?: SignInMutation['signIn']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
@@ -44,8 +45,8 @@ export type SigninFormProps = StackProps & {
 }
 
 /** Presenter Props */
-type PresenterProps = Omit<SigninFormProps, 'mutation'> & {
-  loading: MutaionLoading
+export type PresenterProps = Omit<SigninFormProps, 'mutation'> & {
+  disabled: boolean
   errors: string[]
   fieldErrors: FieldErrors<FormSchema>
   register: UseFormRegister<FormSchema>
@@ -55,7 +56,7 @@ type PresenterProps = Omit<SigninFormProps, 'mutation'> & {
 /** Presenter Component */
 const SigninFormPresenter: React.VFC<PresenterProps> = ({
   onFpfOpen,
-  loading,
+  disabled,
   errors,
   fieldErrors,
   register,
@@ -64,26 +65,26 @@ const SigninFormPresenter: React.VFC<PresenterProps> = ({
 }) => (
   <Stack {...styles.root} {...props}>
     <ErrorMessage error={errors} />
-    <FormControl id='email' isDisabled={loading} isInvalid={hasValue(fieldErrors.email)}>
+    <FormControl id='email' isDisabled={disabled} isInvalid={hasValue(fieldErrors.email)}>
       <FormLabel>Email address</FormLabel>
       <Input type='email' {...styles.input} {...register('email')} />
       <FormErrorMessage>{fieldErrors.email?.message}</FormErrorMessage>
     </FormControl>
-    <FormControl id='password' isDisabled={loading} isInvalid={hasValue(fieldErrors.password)}>
+    <FormControl id='password' isDisabled={disabled} isInvalid={hasValue(fieldErrors.password)}>
       <FormLabel>Password</FormLabel>
       <Input type='password' {...styles.input} {...register('password')} />
       <FormErrorMessage>{fieldErrors.password?.message}</FormErrorMessage>
     </FormControl>
     <Stack spacing='10'>
       <Stack {...styles.options}>
-        <Checkbox isDisabled={loading} {...register('rememberMe')}>
+        <Checkbox isDisabled={disabled} {...register('rememberMe')}>
           Remember me
         </Checkbox>
-        <Link {...styles.link(loading)} onClick={onFpfOpen}>
+        <Link {...styles.link({ disabled })} onClick={onFpfOpen}>
           Forgot password?
         </Link>
       </Stack>
-      <Button {...styles.signinButton} isLoading={loading} onClick={onSignInButtonClick}>
+      <Button {...styles.signinButton} isLoading={disabled} onClick={onSignInButtonClick}>
         Sign in
       </Button>
     </Stack>
@@ -102,7 +103,7 @@ const SigninFormContainer: React.VFC<ContainerProps<SigninFormProps, PresenterPr
   })
 
   // status
-  const loading = signIn.loading
+  const disabled = signIn.loading || !!signIn.result
   const fieldErrors = formState.errors
   const fields = Object.keys(schema.shape)
   const errors = useSetError<FormSchema>(fields, setError, signIn.errors)
@@ -115,7 +116,7 @@ const SigninFormContainer: React.VFC<ContainerProps<SigninFormProps, PresenterPr
   const onSignInButtonClick = handleSubmit(signInMutation)
 
   return presenter({
-    loading,
+    disabled,
     errors,
     fieldErrors,
     register,

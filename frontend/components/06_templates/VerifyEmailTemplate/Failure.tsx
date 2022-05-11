@@ -8,7 +8,7 @@ import * as styles from './styles'
 
 /** Failure Props */
 export type FailureProps = Record<string, unknown>
-type PresenterProps = FailureProps
+export type PresenterProps = FailureProps
 
 /** Presenter Component */
 const FailurePresenter: React.VFC<PresenterProps> = () => (

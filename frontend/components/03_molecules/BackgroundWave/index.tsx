@@ -8,7 +8,7 @@ import * as styles from './styles'
 /** BackgroundWave Props */
 export type BackgroundWaveProps = WaveProps & WithChildren
 /** Presenter Props */
-type PresenterProps = BackgroundWaveProps
+export type PresenterProps = BackgroundWaveProps
 
 /** Presenter Component */
 const BackgroundWavePresenter: React.VFC<PresenterProps> = ({

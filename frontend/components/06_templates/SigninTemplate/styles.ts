@@ -1,4 +1,4 @@
-import { MutaionLoading } from 'types'
+import { PresenterProps } from './index'
 
 export const container = {
   overflow: 'hidden',
@@ -32,9 +32,9 @@ export const linkLabel = {
   color: 'gray.600'
 }
 
-export const link = (loading: MutaionLoading): Record<string, unknown> =>
+export const link = ({ disabled }: Pick<PresenterProps, 'disabled'>): Record<string, unknown> =>
   ({
     ml: '3',
-    color: loading ? 'gray.300' : 'blue.400',
-    pointerEvents: loading ? 'none' : 'auto'
+    color: disabled ? 'gray.300' : 'blue.400',
+    pointerEvents: disabled ? 'none' : 'auto'
   } as const)

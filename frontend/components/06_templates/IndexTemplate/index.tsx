@@ -217,7 +217,7 @@ export type IndexTemplateProps = {
 }
 
 /** Presenter Props */
-type PresenterProps = IndexTemplateProps
+export type PresenterProps = IndexTemplateProps
 
 /** Presenter Component */
 const IndexTemplatePresenter: React.VFC<PresenterProps> = ({ ...props }) => (

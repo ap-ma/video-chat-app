@@ -16,7 +16,7 @@ export type VerifyEmailTemplateProps = Omit<HtmlSkeletonProps, 'children'> &
   }>
 
 /** Presenter Props */
-type PresenterProps = Omit<VerifyEmailTemplateProps, 'result'> & { contents: ReactNode }
+export type PresenterProps = Omit<VerifyEmailTemplateProps, 'result'> & { contents: ReactNode }
 
 /** Presenter Component */
 const VerifyEmailTemplatePresenter: React.VFC<PresenterProps> = ({ contents, ...props }) => (

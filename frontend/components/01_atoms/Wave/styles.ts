@@ -1,7 +1,7 @@
 import { css, keyframes } from '@emotion/css'
-import { WaveProps } from './index'
+import { PresenterProps } from './index'
 
-export const waveBorder = ({ bottomColor }: Pick<WaveProps, 'bottomColor'>): Record<string, unknown> =>
+export const waveBorder = ({ bottomColor }: Pick<PresenterProps, 'bottomColor'>): Record<string, unknown> =>
   ({
     xmlns: 'http://www.w3.org/2000/svg',
     xmlnsXlink: 'http://www.w3.org/1999/xlink',
@@ -25,7 +25,7 @@ const moveForever = keyframes`
   to { transform: translate3d(85px, 0, 0) }
 `
 
-export const parallax = ({ animationNegativeDelay }: Pick<WaveProps, 'animationNegativeDelay'>): string => css`
+export const parallax = ({ animationNegativeDelay }: Pick<PresenterProps, 'animationNegativeDelay'>): string => css`
   & > use {
     animation: ${moveForever} 4s cubic-bezier(0.62, 0.5, 0.38, 0.5) infinite;
     animation-delay: -${animationNegativeDelay}s;

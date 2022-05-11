@@ -4,7 +4,7 @@ import { ContainerProps, WithChildren } from 'types'
 
 /** Body Props */
 export type BodyProps = WithChildren
-type PresenterProps = BodyProps
+export type PresenterProps = BodyProps
 
 /** Presenter Component */
 const BodyPresenter: React.VFC<PresenterProps> = ({ children }) => <Fragment>{children}</Fragment>

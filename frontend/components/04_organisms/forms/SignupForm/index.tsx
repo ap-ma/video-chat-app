@@ -48,7 +48,7 @@ export type SignupFormProps = Omit<ModalProps, 'children'> & {
 }
 
 /** Presenter Props */
-type PresenterProps = Omit<SignupFormProps, 'mutation'> & {
+export type PresenterProps = Omit<SignupFormProps, 'mutation'> & {
   loading: MutaionLoading
   errors: string[]
   fieldErrors: FieldErrors<FormSchema>

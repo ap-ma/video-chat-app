@@ -23,7 +23,7 @@ export type WaveProps = BoxProps &
   }>
 
 /** Presenter Props */
-type PresenterProps = WaveProps & { id: string }
+export type PresenterProps = WaveProps & { id: string }
 
 /** Presenter Component */
 const WavePresenter: React.VFC<PresenterProps> = ({ id, topColor, bottomColor, animationNegativeDelay, ...props }) => (

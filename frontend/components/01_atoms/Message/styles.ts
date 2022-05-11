@@ -1,10 +1,10 @@
-import { MessageProps } from './index'
+import { PresenterProps } from './index'
 
 export const root = ({
   triangleMarkPosition,
   bgColor,
   autoSizing
-}: Pick<MessageProps, 'triangleMarkPosition' | 'bgColor' | 'autoSizing'>): Record<string, unknown> =>
+}: Pick<PresenterProps, 'triangleMarkPosition' | 'bgColor' | 'autoSizing'>): Record<string, unknown> =>
   ({
     pos: 'relative',
     p: 4,
@@ -25,7 +25,7 @@ export const root = ({
     }
   } as const)
 
-const triangle = ({ triangleMarkPosition, bgColor }: Pick<MessageProps, 'triangleMarkPosition' | 'bgColor'>) => {
+const triangle = ({ triangleMarkPosition, bgColor }: Pick<PresenterProps, 'triangleMarkPosition' | 'bgColor'>) => {
   if (triangleMarkPosition === 'left') {
     return {
       left: -13,
@@ -46,7 +46,7 @@ const triangle = ({ triangleMarkPosition, bgColor }: Pick<MessageProps, 'triangl
   }
 }
 
-export const content = ({ textColor: color }: Pick<MessageProps, 'textColor'>) =>
+export const content = ({ textColor: color }: Pick<PresenterProps, 'textColor'>) =>
   ({
     color,
     fontSize: 'sm',

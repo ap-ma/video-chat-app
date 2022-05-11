@@ -20,7 +20,8 @@ export type SigninTemplateProps = Omit<HtmlSkeletonProps, 'children'> & {
 }
 
 /** Presenter Props */
-type PresenterProps = SigninTemplateProps & {
+export type PresenterProps = SigninTemplateProps & {
+  disabled: boolean
   // sign up
   isSufOpen: IsOpen
   onSufOpen: OnOpen
@@ -38,6 +39,7 @@ type PresenterProps = SigninTemplateProps & {
 /** Presenter Component */
 const SigninTemplatePresenter: React.VFC<PresenterProps> = ({
   mutation: { signIn, forgotPassword, signUp },
+  disabled,
   // sign up
   isSufOpen,
   onSufOpen,
@@ -61,7 +63,7 @@ const SigninTemplatePresenter: React.VFC<PresenterProps> = ({
             <Heading {...styles.head}>Sign in to your account</Heading>
             <Text {...styles.linkLabel}>
               New to this app?
-              <Link {...styles.link(signIn.loading)} onClick={onSufOpen}>
+              <Link {...styles.link({ disabled })} onClick={onSufOpen}>
                 Create an account.
               </Link>
             </Text>
@@ -109,8 +111,12 @@ const SigninTemplateContainer: React.VFC<ContainerProps<SigninTemplateProps, Pre
     }
   }, [onFpfClose, onFpcdOpen, mutation.forgotPassword])
 
+  // status
+  const disabled = mutation.signIn.loading || !!mutation.signIn.result
+
   return presenter({
     mutation,
+    disabled,
     // sign up
     isSufOpen,
     onSufOpen,

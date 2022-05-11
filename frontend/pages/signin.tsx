@@ -47,6 +47,7 @@ const Signin: NextPage = () => {
   const props: SigninTemplateProps = {
     mutation: {
       signIn: {
+        result: signInMutation.data?.signIn,
         loading: signInMutation.loading,
         errors: isValidationErrors(signInResult) ? signInResult : undefined,
         reset: signInMutation.reset,

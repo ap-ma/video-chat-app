@@ -15,7 +15,7 @@ export type MarkerProps = WithChildren & {
   rootClassName?: string
 }
 
-type PresenterProps = MarkerProps
+export type PresenterProps = MarkerProps
 
 /** Presenter Component */
 const MarkerPresenter: React.VFC<PresenterProps> = ({ children, ...props }) => (

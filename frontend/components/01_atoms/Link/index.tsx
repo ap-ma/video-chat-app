@@ -17,7 +17,7 @@ export type LinkProps = Omit<ChakraLinkProps, 'href'> & {
 }
 
 /** Presenter Props */
-type PresenterProps = LinkProps
+export type PresenterProps = LinkProps
 
 /** Presenter Component */
 const LinkPresenter: React.VFC<PresenterProps> = ({ href, nextLinkProps, children, ...props }) => (

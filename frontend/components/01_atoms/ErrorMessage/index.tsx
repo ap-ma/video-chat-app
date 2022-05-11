@@ -11,7 +11,7 @@ export type ErrorMessageProps = TextProps & {
 }
 
 /** Presenter Props */
-type PresenterProps = Omit<ErrorMessageProps, 'error'> & {
+export type PresenterProps = Omit<ErrorMessageProps, 'error'> & {
   errors: string[] | undefined
 }
 

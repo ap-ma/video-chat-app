@@ -1,10 +1,11 @@
 import { css } from '@emotion/css'
-import { MarkerProps, TipProps } from './index'
+import { PresenterProps as MarkerPresenterProps } from './Marker'
+import { PresenterProps as TipPresenterProps } from './Tip'
 
 export const root = css`
   position: relative;
 `
-export const tip = ({ rootClassName }: Pick<TipProps, 'rootClassName'>): string => css`
+export const tip = ({ rootClassName }: Pick<TipPresenterProps, 'rootClassName'>): string => css`
   display: none;
   position: absolute;
   top: 0;
@@ -15,7 +16,10 @@ export const tip = ({ rootClassName }: Pick<TipProps, 'rootClassName'>): string 
     display: inline-block;
   }
 `
-export const marker = ({ rootClassName, mkColor }: Pick<MarkerProps, 'mkColor' | 'rootClassName'>): string => css`
+export const marker = ({
+  rootClassName,
+  mkColor
+}: Pick<MarkerPresenterProps, 'mkColor' | 'rootClassName'>): string => css`
   ${'.' + rootClassName}:hover & {
     background: linear-gradient(transparent 70%, ${mkColor} 0%);
   }

@@ -15,7 +15,7 @@ export type DeleteButtonProps = Optional<IconButtonProps, 'aria-label'> & {
 }
 
 /** Presenter Props */
-type PresenterProps = DeleteButtonProps
+export type PresenterProps = DeleteButtonProps
 
 /** Presenter Component */
 const DeleteButtonPresenter: React.VFC<DeleteButtonProps> = ({ tip, ...props }) => (

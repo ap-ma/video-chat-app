@@ -7,7 +7,7 @@ import * as styles from './styles'
 /** Balloon Props */
 export type BalloonProps = JSX.IntrinsicElements['span']
 /** Presenter Props */
-type PresenterProps = BalloonProps
+export type PresenterProps = BalloonProps
 
 /** Presenter Component */
 const BalloonPresenter: React.VFC<PresenterProps> = ({ children, className, ...props }) => (

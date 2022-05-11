@@ -11,7 +11,7 @@ import * as styles from './styles'
 export type ResetPasswordCompleteDialogProps = Omit<ModalProps, 'children'>
 
 /** Presenter Props */
-type PresenterProps = ResetPasswordCompleteDialogProps
+export type PresenterProps = ResetPasswordCompleteDialogProps
 
 /** Presenter Component */
 const ResetPasswordCompleteDialogPresenter: React.VFC<PresenterProps> = ({ ...props }) => (

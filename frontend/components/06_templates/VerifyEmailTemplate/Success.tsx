@@ -10,7 +10,7 @@ import * as styles from './styles'
 
 /** Success Props */
 export type SuccessProps = Record<string, unknown>
-type PresenterProps = SuccessProps
+export type PresenterProps = SuccessProps
 
 /** Presenter Component */
 const SuccessPresenter: React.VFC<PresenterProps> = () => (

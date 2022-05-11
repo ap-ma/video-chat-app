@@ -4,7 +4,7 @@ import { ContainerProps } from 'types'
 
 /** Title Props */
 export type TitleProps = { children: ReactText }
-type PresenterProps = TitleProps
+export type PresenterProps = TitleProps
 
 /** Presenter Component */
 const Presenter: React.VFC<PresenterProps> = ({ children }) => <Fragment>{children}</Fragment>

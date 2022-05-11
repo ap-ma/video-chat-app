@@ -11,7 +11,7 @@ import * as styles from './styles'
 export type SignupCompleteDialogProps = Omit<ModalProps, 'children'>
 
 /** Presenter Props */
-type PresenterProps = SignupCompleteDialogProps & {
+export type PresenterProps = SignupCompleteDialogProps & {
   expirationMinutes: string
 }
 

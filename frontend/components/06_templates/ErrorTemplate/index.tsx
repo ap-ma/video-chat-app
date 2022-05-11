@@ -10,7 +10,7 @@ import * as styles from './styles'
 /** ErrorTemplate Props */
 export type ErrorTemplateProps = Omit<HtmlSkeletonProps, 'children'>
 /** Presenter Props */
-type PresenterProps = ErrorTemplateProps
+export type PresenterProps = ErrorTemplateProps
 
 /** Presenter Component */
 const ErrorTemplatePresenter: React.VFC<PresenterProps> = (props) => (

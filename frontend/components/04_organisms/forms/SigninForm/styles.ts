@@ -1,4 +1,4 @@
-import { MutaionLoading } from 'types'
+import { PresenterProps } from './index'
 
 export const root = {
   spacing: 4,
@@ -19,10 +19,10 @@ export const options = {
   justify: 'space-between'
 } as const
 
-export const link = (loading: MutaionLoading): Record<string, unknown> =>
+export const link = ({ disabled }: Pick<PresenterProps, 'disabled'>): Record<string, unknown> =>
   ({
-    color: loading ? 'gray.300' : 'blue.400',
-    pointerEvents: loading ? 'none' : 'auto'
+    color: disabled ? 'gray.300' : 'blue.400',
+    pointerEvents: disabled ? 'none' : 'auto'
   } as const)
 
 export const signinButton = {
