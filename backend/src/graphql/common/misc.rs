@@ -8,7 +8,7 @@ use crate::graphql::GraphqlError;
 use async_graphql::{Context, ErrorExtensions, Result};
 use chrono::Local;
 
-pub fn is_password_reset_token_valid(token: &str, ctx: &Context<'_>) -> Result<UserEntity> {
+pub fn get_user_by_password_reset_token(token: &str, ctx: &Context<'_>) -> Result<UserEntity> {
     let conn = common::get_conn(ctx)?;
 
     let cipher_pass = &password_reset::CIPHER_PASSWORD;

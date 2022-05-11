@@ -72,6 +72,7 @@ export type Contact = {
   status: Scalars['Int']
   userAvatar?: Maybe<Scalars['String']>
   userCode: Scalars['String']
+  userComment?: Maybe<Scalars['String']>
   userId: Scalars['ID']
   userName?: Maybe<Scalars['String']>
 }
@@ -327,6 +328,7 @@ export type ContactFieldsFragment = {
   userId: string
   userCode: string
   userName?: string | null
+  userComment?: string | null
   userAvatar?: string | null
   status: number
   blocked: boolean
@@ -338,6 +340,7 @@ export type ContactFieldsWithLatestMessageFragment = {
   userId: string
   userCode: string
   userName?: string | null
+  userComment?: string | null
   userAvatar?: string | null
   status: number
   blocked: boolean
@@ -370,6 +373,7 @@ export type ContactFieldsWithChatFragment = {
   userId: string
   userCode: string
   userName?: string | null
+  userComment?: string | null
   userAvatar?: string | null
   status: number
   blocked: boolean
@@ -535,6 +539,7 @@ export type BlockContactMutation = {
     userId: string
     userCode: string
     userName?: string | null
+    userComment?: string | null
     userAvatar?: string | null
     status: number
     blocked: boolean
@@ -797,6 +802,7 @@ export type DeleteContactMutation = {
     userId: string
     userCode: string
     userName?: string | null
+    userComment?: string | null
     userAvatar?: string | null
     status: number
     blocked: boolean
@@ -1089,6 +1095,7 @@ export type UnblockContactMutation = {
     userId: string
     userCode: string
     userName?: string | null
+    userComment?: string | null
     userAvatar?: string | null
     status: number
     blocked: boolean
@@ -1128,6 +1135,7 @@ export type UndeleteContactMutation = {
     userId: string
     userCode: string
     userName?: string | null
+    userComment?: string | null
     userAvatar?: string | null
     status: number
     blocked: boolean
@@ -1164,6 +1172,7 @@ export type InitQuery = {
     userId: string
     userCode: string
     userName?: string | null
+    userComment?: string | null
     userAvatar?: string | null
     status: number
     blocked: boolean
@@ -1195,6 +1204,7 @@ export type InitQuery = {
     userId: string
     userCode: string
     userName?: string | null
+    userComment?: string | null
     userAvatar?: string | null
     status: number
     blocked: boolean
@@ -1235,6 +1245,7 @@ export type ContactInfoQuery = {
     userId: string
     userCode: string
     userName?: string | null
+    userComment?: string | null
     userAvatar?: string | null
     status: number
     blocked: boolean
@@ -1270,6 +1281,7 @@ export type ContactsQuery = {
     userId: string
     userCode: string
     userName?: string | null
+    userComment?: string | null
     userAvatar?: string | null
     status: number
     blocked: boolean
@@ -1284,10 +1296,7 @@ export type IsPasswordResetTokenValidQueryVariables = Exact<{
   token?: InputMaybe<Scalars['String']>
 }>
 
-export type IsPasswordResetTokenValidQuery = {
-  __typename?: 'Query'
-  isPasswordResetTokenValid: boolean
-}
+export type IsPasswordResetTokenValidQuery = { __typename?: 'Query'; isPasswordResetTokenValid: boolean }
 
 export type LatestMessagesQueryVariables = Exact<{
   dateTimeFormat?: InputMaybe<Scalars['String']>
@@ -1455,6 +1464,7 @@ export const ContactFieldsFragmentDoc = gql`
     userId
     userCode
     userName
+    userComment
     userAvatar
     status
     blocked

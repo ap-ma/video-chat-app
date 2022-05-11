@@ -1,4 +1,4 @@
-import { ContactListProps } from 'components/99_mocks/Home/ContactList'
+import { ContactListProps } from './ContactList'
 
 export const contactList = (descGen: (i: number) => string | undefined): ContactListProps['contacts'] => {
   const result: ContactListProps['contacts'] = []

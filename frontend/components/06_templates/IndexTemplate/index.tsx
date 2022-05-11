@@ -1,3 +1,4 @@
+import { Box, Drawer, DrawerContent, useColorModeValue, useDisclosure } from '@chakra-ui/react'
 import HtmlSkeleton, { Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
 import {
@@ -49,6 +50,8 @@ import {
   QueryRefetch,
   ValidationErrors
 } from 'types'
+import Header from './Header'
+import Sidebar from './Sidebar'
 
 /** IndexTemplate Props */
 export type IndexTemplateProps = {
@@ -95,6 +98,7 @@ export type IndexTemplateProps = {
      * サインアウト
      */
     signOut: {
+      result?: SignOutMutation['signOut']
       loading: MutaionLoading
       mutate: MutateFunction<SignOutMutation, SignOutMutationVariables>
     }
@@ -220,12 +224,35 @@ export type IndexTemplateProps = {
 export type PresenterProps = IndexTemplateProps
 
 /** Presenter Component */
-const IndexTemplatePresenter: React.VFC<PresenterProps> = ({ ...props }) => (
-  <HtmlSkeleton>
-    <Title>Home</Title>
-    こんにちは, {props.query.me?.name}
-  </HtmlSkeleton>
-)
+const IndexTemplatePresenter: React.VFC<PresenterProps> = ({ ...props }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  return (
+    <HtmlSkeleton>
+      <Title>Home</Title>
+      <Box minH='100vh' bg={useColorModeValue('gray.100', 'gray.900')}>
+        <Sidebar onClose={onClose} display={{ base: 'none', md: 'block' }} />
+        <Drawer
+          autoFocus={false}
+          isOpen={isOpen}
+          placement='left'
+          onClose={onClose}
+          returnFocusOnClose={false}
+          onOverlayClick={onClose}
+          size='full'
+        >
+          <DrawerContent>
+            <Sidebar onClose={onClose} />
+          </DrawerContent>
+        </Drawer>
+        {/* mobilenav */}
+        <Header onOpen={onOpen} />
+        <Box ml={{ base: 0, md: 72 }} p='4'>
+          HOME
+        </Box>
+      </Box>
+    </HtmlSkeleton>
+  )
+}
 
 /** Container Component */
 const IndexTemplateContainer: React.VFC<ContainerProps<IndexTemplateProps, PresenterProps>> = ({

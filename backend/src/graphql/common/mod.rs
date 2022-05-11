@@ -10,7 +10,7 @@ use diesel::result::QueryResult;
 use diesel::MysqlConnection;
 
 pub use mail::{builder as mail_builder, send_mail};
-pub use misc::is_password_reset_token_valid;
+pub use misc::get_user_by_password_reset_token;
 pub use simple_broker::SimpleBroker;
 
 #[derive(Enum, Eq, PartialEq, Copy, Clone)]

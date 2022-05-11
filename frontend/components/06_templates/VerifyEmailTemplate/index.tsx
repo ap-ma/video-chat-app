@@ -1,10 +1,11 @@
+import { useDisclosure } from '@chakra-ui/react'
+import EmailVerificationFailureDialog from 'components/04_organisms/dialogs/EmailVerificationFailureDialog'
+import EmailVerificationSuccessDialog from 'components/04_organisms/dialogs/EmailVerificationSuccessDialog'
 import HtmlSkeleton, { HtmlSkeletonProps, Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
 import { VerifyEmailMutation } from 'graphql/generated'
-import React, { ReactNode } from 'react'
-import { ContainerProps } from 'types'
-import Failure from './Failure'
-import Success from './Success'
+import React from 'react'
+import { ContainerProps, IsOpen, OnClose } from 'types'
 
 /** VerifyEmailTemplate Props */
 export type VerifyEmailTemplateProps = Omit<HtmlSkeletonProps, 'children'> &
@@ -16,13 +17,25 @@ export type VerifyEmailTemplateProps = Omit<HtmlSkeletonProps, 'children'> &
   }>
 
 /** Presenter Props */
-export type PresenterProps = Omit<VerifyEmailTemplateProps, 'result'> & { contents: ReactNode }
+export type PresenterProps = Omit<VerifyEmailTemplateProps, 'result'> & {
+  isEvsdOpen: IsOpen
+  onEvsdClose: OnClose
+  isEvfdOpen: IsOpen
+  onEvfdClose: OnClose
+}
 
 /** Presenter Component */
-const VerifyEmailTemplatePresenter: React.VFC<PresenterProps> = ({ contents, ...props }) => (
+const VerifyEmailTemplatePresenter: React.VFC<PresenterProps> = ({
+  isEvsdOpen,
+  onEvsdClose,
+  isEvfdOpen,
+  onEvfdClose,
+  ...props
+}) => (
   <HtmlSkeleton {...props}>
     <Title>Verify Email</Title>
-    {contents}
+    <EmailVerificationSuccessDialog isOpen={isEvsdOpen} onClose={onEvsdClose} />
+    <EmailVerificationFailureDialog isOpen={isEvfdOpen} onClose={onEvfdClose} />
   </HtmlSkeleton>
 )
 
@@ -32,8 +45,16 @@ const VerifyEmailTemplateContainer: React.VFC<ContainerProps<VerifyEmailTemplate
   result,
   ...props
 }) => {
-  const contents: PresenterProps['contents'] = result ? <Success /> : <Failure />
-  return presenter({ contents, ...props })
+  const { isOpen: isEvsdOpen, onClose: onEvsdClose } = useDisclosure({ isOpen: result })
+  const { isOpen: isEvfdOpen, onClose: onEvfdClose } = useDisclosure({ isOpen: !result })
+
+  return presenter({
+    isEvsdOpen,
+    onEvsdClose,
+    isEvfdOpen,
+    onEvfdClose,
+    ...props
+  })
 }
 
 /** VerifyEmailTemplate */

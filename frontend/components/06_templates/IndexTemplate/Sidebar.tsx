@@ -12,10 +12,10 @@ import {
   Text,
   useColorModeValue
 } from '@chakra-ui/react'
-import ContactList from 'components/99_mocks/Home/ContactList'
-import { contactList } from 'components/99_mocks/Home/temp'
 import { APP_NAME } from 'const'
 import React from 'react'
+import ContactList from './ContactList'
+import { contactList } from './temp'
 
 export type SidebarProps = BoxProps & {
   onClose: () => void

@@ -7,6 +7,7 @@ import SigninForm, { SigninFormProps } from 'components/04_organisms/forms/Signi
 import SignupForm, { SignupFormProps } from 'components/04_organisms/forms/SignupForm'
 import HtmlSkeleton, { HtmlSkeletonProps, Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
+import { APP_NAME } from 'const'
 import React, { useMemo } from 'react'
 import { ContainerProps, IsOpen, OnClose, OnOpen } from 'types'
 import * as styles from './styles'
@@ -60,6 +61,7 @@ const SigninTemplatePresenter: React.VFC<PresenterProps> = ({
       <Flex {...styles.container} {...props}>
         <Stack {...styles.contents}>
           <Stack align='center'>
+            <Heading {...styles.title}>{APP_NAME}</Heading>
             <Heading {...styles.head}>Sign in to your account</Heading>
             <Text {...styles.linkLabel}>
               New to this app?

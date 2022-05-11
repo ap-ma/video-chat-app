@@ -216,6 +216,7 @@ const Index: NextPage = () => {
     },
     mutation: {
       signOut: {
+        result: signOutMutation.data?.signOut,
         loading: signOutMutation.loading,
         mutate: signOut
       },

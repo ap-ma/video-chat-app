@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
 export const schema = z.object({
-  email: z.string(),
-  password: z.string(),
+  email: z.string().nonempty(),
+  password: z.string().nonempty(),
   rememberMe: z.boolean().optional()
 })
 

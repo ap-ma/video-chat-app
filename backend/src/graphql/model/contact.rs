@@ -11,6 +11,7 @@ pub struct Contact {
     pub user_id: u64,
     pub user_code: String,
     pub user_name: Option<String>,
+    pub user_comment: Option<String>,
     pub user_avatar: Option<String>,
     pub status: i32,
     pub blocked: bool,
@@ -23,6 +24,7 @@ impl From<&(ContactEntity, UserEntity)> for Contact {
             user_id: user.id,
             user_code: user.code.clone(),
             user_name: user.name.clone(),
+            user_comment: user.comment.clone(),
             user_avatar: user.avatar.clone(),
             status: contact.status,
             blocked: contact.blocked,
@@ -55,6 +57,10 @@ impl Contact {
         }
 
         Ok(self.user_name.clone())
+    }
+
+    async fn user_comment(&self) -> Option<&str> {
+        self.user_comment.as_deref()
     }
 
     async fn user_avatar(&self) -> Option<&str> {

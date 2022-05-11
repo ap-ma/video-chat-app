@@ -1,6 +1,7 @@
 export const root = {
   size: 'md',
-  closeOnOverlayClick: false
+  closeOnOverlayClick: false,
+  trapFocus: false
 } as const
 
 export const overlay = {

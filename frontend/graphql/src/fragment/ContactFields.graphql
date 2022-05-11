@@ -4,6 +4,7 @@ fragment ContactFields on Contact {
   userId
   userCode
   userName
+  userComment
   userAvatar
   status
   blocked

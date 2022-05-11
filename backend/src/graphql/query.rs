@@ -29,7 +29,7 @@ impl Query {
             GraphqlError::ValidationError(error::V_TOKEN_NOT_ENTERED.into(), "token").extend()
         })?;
 
-        common::is_password_reset_token_valid(&token, ctx).and(Ok(true))
+        common::get_user_by_password_reset_token(&token, ctx).and(Ok(true))
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
@@ -96,6 +96,7 @@ impl Query {
                     user_id: other_user.id,
                     user_code: other_user.code,
                     user_name: other_user.name,
+                    user_comment: other_user.comment,
                     user_avatar: other_user.avatar,
                     status: contact_const::status::UNAPPROVED,
                     blocked: false,

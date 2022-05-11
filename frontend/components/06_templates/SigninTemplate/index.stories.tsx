@@ -12,14 +12,14 @@ import {
 } from 'graphql/generated'
 import React from 'react'
 import { MutaionLoading } from 'types'
-import SigninTemplate from './index'
+import SigninTemplate, { SigninTemplateProps } from './index'
 
 export default {
   title: '06_templates/SigninTemplate',
   component: SigninTemplate
 } as Meta
 
-type SigninTemplateStoryProps = {
+type SigninTemplateStoryProps = SigninTemplateProps & {
   signUpResult: SignUpMutation['signUp']
   signUpLoading: MutaionLoading
   signInResult: SignInMutation['signIn']
@@ -59,7 +59,7 @@ const Template: Story<SigninTemplateStoryProps> = ({
     forgotPassword
   }
 
-  return <SigninTemplate {...{ mutation, ...props }} />
+  return <SigninTemplate {...{ ...props, mutation }} />
 }
 
 export const Primary = Template.bind({})

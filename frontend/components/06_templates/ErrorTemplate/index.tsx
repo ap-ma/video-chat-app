@@ -1,6 +1,5 @@
-import { Heading, Icon, Text } from '@chakra-ui/react'
+import { Flex, Heading, Icon, Stack, Text } from '@chakra-ui/react'
 import HtmlSkeleton, { HtmlSkeletonProps, Title } from 'components/05_layouts/HtmlSkeleton'
-import ResultIndication, { Body, Head } from 'components/05_layouts/ResultIndication'
 import { connect } from 'components/hoc'
 import React from 'react'
 import { RiErrorWarningLine } from 'react-icons/ri'
@@ -16,16 +15,18 @@ export type PresenterProps = ErrorTemplateProps
 const ErrorTemplatePresenter: React.VFC<PresenterProps> = (props) => (
   <HtmlSkeleton {...props}>
     <Title>Error</Title>
-    <ResultIndication>
-      <Head>
-        <Icon as={RiErrorWarningLine} {...styles.icon} />
-        <Heading {...styles.head}>SYSTEM ERROR</Heading>
-      </Head>
-      <Body>
-        <Text {...styles.text}>A system error has occurred.</Text>
-        <Text {...styles.text}>Please wait a moment and try again.</Text>
-      </Body>
-    </ResultIndication>
+    <Flex {...styles.container} {...props}>
+      <Stack {...styles.segment}>
+        <Stack align='center'>
+          <Icon as={RiErrorWarningLine} {...styles.icon} />
+          <Heading {...styles.head}>SYSTEM ERROR</Heading>
+        </Stack>
+        <Stack align='center' spacing={1}>
+          <Text {...styles.text}>A system error has occurred.</Text>
+          <Text {...styles.text}>Please wait a moment and try again.</Text>
+        </Stack>
+      </Stack>
+    </Flex>
   </HtmlSkeleton>
 )
 
