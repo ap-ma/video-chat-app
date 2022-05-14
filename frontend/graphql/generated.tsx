@@ -97,6 +97,7 @@ export type LatestMessage = {
   messageCategory: Scalars['Int']
   messageId: Scalars['ID']
   messageStatus: Scalars['Int']
+  unreadMessageCount: Scalars['Int']
   userAvatar?: Maybe<Scalars['String']>
   userCode: Scalars['String']
   userId: Scalars['ID']
@@ -355,6 +356,7 @@ export type ContactFieldsWithLatestMessageFragment = {
     message?: string | null
     messageStatus: number
     createdAt: string
+    unreadMessageCount: number
     call?: {
       __typename: 'Call'
       id: string
@@ -409,6 +411,7 @@ export type LatestMessageFieldsFragment = {
   message?: string | null
   messageStatus: number
   createdAt: string
+  unreadMessageCount: number
   call?: {
     __typename: 'Call'
     id: string
@@ -476,6 +479,7 @@ export type MessageChangedFieldsFragment = {
     message?: string | null
     messageStatus: number
     createdAt: string
+    unreadMessageCount: number
     call?: {
       __typename: 'Call'
       id: string
@@ -609,6 +613,7 @@ export type CallOfferMutation = {
       message?: string | null
       messageStatus: number
       createdAt: string
+      unreadMessageCount: number
       call?: {
         __typename: 'Call'
         id: string
@@ -697,6 +702,7 @@ export type ContactApplicationMutation = {
       message?: string | null
       messageStatus: number
       createdAt: string
+      unreadMessageCount: number
       call?: {
         __typename: 'Call'
         id: string
@@ -773,6 +779,7 @@ export type ContactApprovalMutation = {
       message?: string | null
       messageStatus: number
       createdAt: string
+      unreadMessageCount: number
       call?: {
         __typename: 'Call'
         id: string
@@ -872,6 +879,7 @@ export type DeleteMessageMutation = {
       message?: string | null
       messageStatus: number
       createdAt: string
+      unreadMessageCount: number
       call?: {
         __typename: 'Call'
         id: string
@@ -971,6 +979,7 @@ export type ReadMessagesMutation = {
       message?: string | null
       messageStatus: number
       createdAt: string
+      unreadMessageCount: number
       call?: {
         __typename: 'Call'
         id: string
@@ -1053,6 +1062,7 @@ export type SendMessageMutation = {
       message?: string | null
       messageStatus: number
       createdAt: string
+      unreadMessageCount: number
       call?: {
         __typename: 'Call'
         id: string
@@ -1110,6 +1120,7 @@ export type UnblockContactMutation = {
       message?: string | null
       messageStatus: number
       createdAt: string
+      unreadMessageCount: number
       call?: {
         __typename: 'Call'
         id: string
@@ -1188,6 +1199,7 @@ export type InitQuery = {
     message?: string | null
     messageStatus: number
     createdAt: string
+    unreadMessageCount: number
     call?: {
       __typename: 'Call'
       id: string
@@ -1315,6 +1327,7 @@ export type LatestMessagesQuery = {
     message?: string | null
     messageStatus: number
     createdAt: string
+    unreadMessageCount: number
     call?: {
       __typename: 'Call'
       id: string
@@ -1434,6 +1447,7 @@ export type MessageSubscription = {
       message?: string | null
       messageStatus: number
       createdAt: string
+      unreadMessageCount: number
       call?: {
         __typename: 'Call'
         id: string
@@ -1493,6 +1507,7 @@ export const LatestMessageFieldsFragmentDoc = gql`
     message
     messageStatus
     createdAt(format: $dateTimeFormat)
+    unreadMessageCount
     call {
       ...CallFields
     }

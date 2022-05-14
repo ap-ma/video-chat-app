@@ -1,6 +1,7 @@
 export const root = {
-  spacing: 4,
+  w: 'md',
   p: 6,
+  spacing: 4,
   bg: 'white',
   rounded: 'lg',
   boxShadow: 'lg'

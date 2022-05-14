@@ -144,7 +144,7 @@ const Index: NextPage = () => {
   // コンタクト承認
   const [contactApproval, contactApprovalMutation] = useContactApprovalMutation({
     update: (cache, { data }) => !isNullish(data) && updateMessageCache(cache, data.contactApproval),
-    onCompleted: () => contactsQuery.refetch()
+    onCompleted: () => contactsQuery.refetch().catch((error) => handle(error as ApolloError, handler) && undefined)
   })
   const contactApprovalResult = handle(contactApprovalMutation.error, handler)
 
@@ -171,7 +171,7 @@ const Index: NextPage = () => {
     update: (cache, { data }) => !isNullish(data) && updateContactCache(cache, data.unblockContact, 'ADD'),
     onCompleted: ({ unblockContact }) => {
       if (contactInfoQuery.data?.contactInfo.userId === unblockContact.userId) {
-        readMessages({ variables: { otherUserId: unblockContact.userId } })
+        readMessages({ variables: { otherUserId: unblockContact.userId } }).catch(console.log)
       }
     }
   })
@@ -188,9 +188,11 @@ const Index: NextPage = () => {
       if (isNullish(data)) return
       const messageChanged = data.messageSubscription
       updateMessageCache(client.cache, messageChanged)
-      if (isContactApproval(messageChanged)) contactsQuery.refetch()
+      if (isContactApproval(messageChanged)) {
+        contactsQuery.refetch().catch((error) => handle(error as ApolloError, handler) && undefined)
+      }
       if (contactInfoQuery.data?.contactInfo.userId === messageChanged.txUserId) {
-        readMessages({ variables: { otherUserId: messageChanged.txUserId } })
+        readMessages({ variables: { otherUserId: messageChanged.txUserId } }).catch(console.log)
       }
     }
   })
@@ -200,10 +202,10 @@ const Index: NextPage = () => {
 
   // IndexTemplate Props
   const props: IndexTemplateProps = {
+    me: meQuery.data?.me,
+    contacts: contactsQuery.data?.contacts,
+    latestMessages: latestMessagesQuery.data?.latestMessages,
     query: {
-      me: meQuery.data?.me,
-      contacts: contactsQuery.data?.contacts,
-      latestMessages: latestMessagesQuery.data?.latestMessages,
       contactInfo: {
         contactInfo: contactInfoQuery.data?.contactInfo,
         ...contactInfoQuery
@@ -307,7 +309,7 @@ const Index: NextPage = () => {
  *
  * SSR時のみAPIアクセスを行うクエリを実行し、キャッシュを作成する
  * 各コンポーネントにてuseQueryを用いて対象となるqueryが実行される場合、
- * SSR, CSR問わずこの関数にて作成されたキャッシュを参照することができる
+ * SSR, CSR問わずこの関数にて作成されたキャッシュが参照可能となる
  * CSRにおいて、頻繁に更新されることのないデータのqueryについてはこちらでキャッシュを作成し、
  * useQueryのFetchPoliciesをcache-first|cache-onlyとすることで不要なAPIアクセスを削減できる
  *

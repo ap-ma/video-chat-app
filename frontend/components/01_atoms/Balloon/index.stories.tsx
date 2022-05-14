@@ -3,7 +3,7 @@ import React from 'react'
 import Balloon, { BalloonProps } from './index'
 
 export default {
-  title: '01_atoms/Ballon',
+  title: '01_atoms/Balloon',
   component: Balloon
 } as Meta
 

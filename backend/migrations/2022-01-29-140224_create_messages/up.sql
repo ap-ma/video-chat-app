@@ -10,5 +10,7 @@ CREATE TABLE messages (
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新日時',
   PRIMARY KEY (`id`),
   KEY `messages_tx_user_id_idx` (`tx_user_id`),
-  KEY `messages_rx_user_id_idx` (`rx_user_id`)
+  KEY `messages_rx_user_id_idx` (`rx_user_id`),
+  KEY `messages_tx_user_id_rx_user_id_idx` (`tx_user_id`, `rx_user_id`),
+  KEY `messages_rx_user_id_tx_user_id_idx` (`rx_user_id`, `tx_user_id`)
 ) COMMENT = 'メッセージ';

@@ -52,10 +52,10 @@ export type QueryLoading = QueryResult['loading']
 export type QueryNetworkStatus = QueryResult['networkStatus']
 
 /** Apollo Client Query refetch  */
-export type QueryRefetch = QueryResult['refetch']
+export type QueryRefetch<TData, TVariables> = QueryResult<TData, TVariables>['refetch']
 
 /** Apollo Client Query fetchMore  */
-export type QueryFetchMore = QueryResult['fetchMore']
+export type QueryFetchMore<TData, TVariables> = QueryResult<TData, TVariables>['fetchMore']
 
 /** Apollo Client LazyQuery query function */
 export type LazyQueryFunction<TData, TVariables> = QueryTuple<TData, TVariables>[0]

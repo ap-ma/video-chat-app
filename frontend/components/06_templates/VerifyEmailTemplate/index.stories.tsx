@@ -4,10 +4,6 @@ import VerifyEmailTemplate, { VerifyEmailTemplateProps } from './index'
 
 export default {
   title: '06_templates/VerifyEmailTemplate',
-  argTypes: {
-    result: { control: 'boolean' },
-    onClick: { action: 'clicked' }
-  },
   component: VerifyEmailTemplate
 } as Meta
 

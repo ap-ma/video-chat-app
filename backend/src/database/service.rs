@@ -147,8 +147,8 @@ pub fn update_message_to_read(
 ) -> QueryResult<usize> {
     use super::schema::messages::dsl::*;
     let target = messages
-        .filter(tx_user_id.eq(user_id))
-        .filter(rx_user_id.eq(other_user_id))
+        .filter(tx_user_id.eq(other_user_id))
+        .filter(rx_user_id.eq(user_id))
         .filter(status.eq(message_const::status::UNREAD));
     diesel::update(target)
         .set(status.eq(message_const::status::READ))
@@ -201,6 +201,19 @@ pub fn get_messages(
     query.load(conn)
 }
 
+pub fn get_unread_message_count(
+    user_id: u64,
+    other_user_id: u64,
+    conn: &MysqlConnection,
+) -> QueryResult<i64> {
+    messages::table
+        .filter(messages::tx_user_id.eq(other_user_id))
+        .filter(messages::rx_user_id.eq(user_id))
+        .filter(messages::status.eq(message_const::status::UNREAD))
+        .count()
+        .first(conn)
+}
+
 pub fn get_unread_messages(
     user_id: u64,
     other_user_id: u64,
@@ -208,8 +221,8 @@ pub fn get_unread_messages(
 ) -> QueryResult<Vec<(MessageEntity, Option<CallEntity>)>> {
     messages::table
         .left_join(calls::table.on(calls::message_id.eq(messages::id)))
-        .filter(messages::tx_user_id.eq(user_id))
-        .filter(messages::rx_user_id.eq(other_user_id))
+        .filter(messages::tx_user_id.eq(other_user_id))
+        .filter(messages::rx_user_id.eq(user_id))
         .filter(messages::status.eq(message_const::status::UNREAD))
         .load(conn)
 }

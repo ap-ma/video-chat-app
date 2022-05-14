@@ -80,7 +80,7 @@ const SignupFormPresenter: React.VFC<PresenterProps> = ({
           />
           <Stack {...styles.identifier}>
             <Box w='full'>
-              <FormControl id='code' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.code)}>
+              <FormControl id='su_code' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.code)}>
                 <FormLabel>Code</FormLabel>
                 <Tooltip label='Code for friends to find you.' {...styles.tooltip}>
                   <Input placeholder='code' type='text' {...styles.input} {...register('code')} />
@@ -89,7 +89,7 @@ const SignupFormPresenter: React.VFC<PresenterProps> = ({
               </FormControl>
             </Box>
             <Box w='full'>
-              <FormControl id='name' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.name)}>
+              <FormControl id='su_name' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.name)}>
                 <FormLabel>Nickname</FormLabel>
                 <Tooltip label='Your Nickname.' {...styles.tooltip}>
                   <Input placeholder='nickname' type='text' {...styles.input} {...register('name')} />
@@ -98,14 +98,14 @@ const SignupFormPresenter: React.VFC<PresenterProps> = ({
               </FormControl>
             </Box>
           </Stack>
-          <FormControl id='email' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.email)}>
+          <FormControl id='su_email' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.email)}>
             <FormLabel>Email address</FormLabel>
             <Tooltip label='Sign in Email Address.' {...styles.tooltip}>
               <Input placeholder='your-email@example.com' type='email' {...styles.input} {...register('email')} />
             </Tooltip>
             <FormErrorMessage>{fieldErrors.email?.message}</FormErrorMessage>
           </FormControl>
-          <FormControl id='password' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.password)}>
+          <FormControl id='su_password' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.password)}>
             <FormLabel>Password</FormLabel>
             <Tooltip label='Sign in Password.' {...styles.tooltip}>
               <Input placeholder='password' type='password' {...styles.input} {...register('password')} />
@@ -113,7 +113,7 @@ const SignupFormPresenter: React.VFC<PresenterProps> = ({
             <FormErrorMessage>{fieldErrors.password?.message}</FormErrorMessage>
           </FormControl>
           <FormControl
-            id='passwordConfirm'
+            id='su_passwordConfirm'
             isRequired
             isDisabled={loading}
             isInvalid={hasValue(fieldErrors.passwordConfirm)}
@@ -124,7 +124,7 @@ const SignupFormPresenter: React.VFC<PresenterProps> = ({
             </Tooltip>
             <FormErrorMessage>{fieldErrors.passwordConfirm?.message}</FormErrorMessage>
           </FormControl>
-          <FormControl id='comment' isDisabled={loading} isInvalid={hasValue(fieldErrors.comment)}>
+          <FormControl id='su_comment' isDisabled={loading} isInvalid={hasValue(fieldErrors.comment)}>
             <FormLabel>Comment</FormLabel>
             <Tooltip label='Status Message.' {...styles.tooltip}>
               <Input placeholder='comment...' type='input' {...styles.input} {...register('comment')} />

@@ -13,6 +13,7 @@ import {
   ContactApprovalMutation,
   ContactApprovalMutationVariables,
   ContactInfoQuery,
+  ContactInfoQueryVariables,
   ContactsQuery,
   DeleteAccountMutation,
   DeleteAccountMutationVariables,
@@ -56,21 +57,21 @@ import Sidebar from './Sidebar'
 /** IndexTemplate Props */
 export type IndexTemplateProps = {
   /**
+   * サインインユーザー情報
+   */
+  me?: MeQuery['me']
+  /**
+   * コンタクト一覧
+   */
+  contacts?: ContactsQuery['contacts']
+  /**
+   * メッセージ一覧
+   */
+  latestMessages?: LatestMessagesQuery['latestMessages']
+  /**
    * Query
    */
   query: {
-    /**
-     * サインインユーザー情報
-     */
-    me?: MeQuery['me']
-    /**
-     * コンタクト一覧
-     */
-    contacts?: ContactsQuery['contacts']
-    /**
-     * メッセージ一覧
-     */
-    latestMessages?: LatestMessagesQuery['latestMessages']
     /**
      *  コンタクト情報
      */
@@ -78,8 +79,8 @@ export type IndexTemplateProps = {
       contactInfo?: ContactInfoQuery['contactInfo']
       loading: QueryLoading
       networkStatus: QueryNetworkStatus
-      refetch: QueryRefetch
-      fetchMore: QueryFetchMore
+      refetch: QueryRefetch<ContactInfoQuery, ContactInfoQueryVariables>
+      fetchMore: QueryFetchMore<ContactInfoQuery, ContactInfoQueryVariables>
     }
     /**
      * ユーザー検索

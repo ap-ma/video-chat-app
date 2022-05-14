@@ -1,6 +1,7 @@
 import { CALL, CONTACT, MESSAGE } from 'const'
 import {
   ContactInfoQuery,
+  ContactInfoQueryVariables,
   ContactsQuery,
   LatestMessagesQuery,
   MeQuery,
@@ -94,6 +95,7 @@ export const dummyLatestMessages = (
       message: category === MESSAGE.CATEGORY.MESSAGE ? messageGen(i) : undefined,
       messageStatus: i % 6 != 0 ? MESSAGE.STATUS.UNREAD : MESSAGE.STATUS.READ,
       createdAt: '06/24/2022 18:10:14',
+      unreadMessageCount: i % 5 === 0 ? 3 : 0,
       call:
         category === MESSAGE.CATEGORY.CALLING
           ? {
@@ -124,8 +126,8 @@ export const dummyContactInfo = (
   contactInfo: ContactInfoQuery['contactInfo']
   loading: QueryLoading
   networkStatus: QueryNetworkStatus
-  refetch: QueryRefetch
-  fetchMore: QueryFetchMore
+  refetch: QueryRefetch<ContactInfoQuery, ContactInfoQueryVariables>
+  fetchMore: QueryFetchMore<ContactInfoQuery, ContactInfoQueryVariables>
 } => {
   const chat: ContactInfoQuery['contactInfo']['chat'] = []
   for (let i = 1; i <= chatLen; i++) {
@@ -170,11 +172,14 @@ export const dummyContactInfo = (
     chat
   }
 
-  const refetch = () => {
+  const refetch = (() => {
     alert('ContactInfo Query - refetch')
     return Promise.resolve({ data: undefined, loading: false, networkStatus: 7 })
-  }
-  const fetchMore = (() => alert('ContactInfo Query - fetchMore')) as unknown as QueryFetchMore
+  }) as unknown as QueryRefetch<ContactInfoQuery, ContactInfoQueryVariables>
+  const fetchMore = (() => alert('ContactInfo Query - fetchMore')) as unknown as QueryFetchMore<
+    ContactInfoQuery,
+    ContactInfoQueryVariables
+  >
 
   return {
     contactInfo: contactInfo,

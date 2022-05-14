@@ -1,15 +1,32 @@
-import { Flex, Heading, Link, Stack, Text, useDisclosure } from '@chakra-ui/react'
+import { Flex, Link, Stack, Text, useDisclosure } from '@chakra-ui/react'
+import AppLogo from 'components/01_atoms/AppLogo'
 import BackgroundWave from 'components/03_molecules/BackgroundWave'
 import ForgotPasswordCompleteDialog from 'components/04_organisms/dialogs/ForgotPasswordCompleteDialog'
 import SignupCompleteDialog from 'components/04_organisms/dialogs/SignupCompleteDialog'
-import ForgotPasswordForm, { ForgotPasswordFormProps } from 'components/04_organisms/forms/ForgotPasswordForm'
-import SigninForm, { SigninFormProps } from 'components/04_organisms/forms/SigninForm'
-import SignupForm, { SignupFormProps } from 'components/04_organisms/forms/SignupForm'
+import ForgotPasswordForm from 'components/04_organisms/forms/ForgotPasswordForm'
+import SigninForm from 'components/04_organisms/forms/SigninForm'
+import SignupForm from 'components/04_organisms/forms/SignupForm'
 import HtmlSkeleton, { HtmlSkeletonProps, Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
-import { APP_NAME } from 'const'
+import {
+  ForgotPasswordMutation,
+  ForgotPasswordMutationVariables,
+  SignInMutation,
+  SignInMutationVariables,
+  SignUpMutation,
+  SignUpMutationVariables
+} from 'graphql/generated'
 import React, { useMemo } from 'react'
-import { ContainerProps, IsOpen, OnClose, OnOpen } from 'types'
+import {
+  ContainerProps,
+  IsOpen,
+  MutaionLoading,
+  MutaionReset,
+  MutateFunction,
+  OnClose,
+  OnOpen,
+  ValidationErrors
+} from 'types'
 import * as styles from './styles'
 
 /** SigninTemplate Props */
@@ -17,7 +34,38 @@ export type SigninTemplateProps = Omit<HtmlSkeletonProps, 'children'> & {
   /**
    * Mutation
    */
-  mutation: SignupFormProps['mutation'] & SigninFormProps['mutation'] & ForgotPasswordFormProps['mutation']
+  mutation: {
+    /**
+     * サインアップ
+     */
+    signUp: {
+      result?: SignUpMutation['signUp']
+      loading: MutaionLoading
+      errors?: ValidationErrors
+      reset: MutaionReset
+      mutate: MutateFunction<SignUpMutation, SignUpMutationVariables>
+    }
+    /**
+     * サインイン
+     */
+    signIn: {
+      result?: SignInMutation['signIn']
+      loading: MutaionLoading
+      errors?: ValidationErrors
+      reset: MutaionReset
+      mutate: MutateFunction<SignInMutation, SignInMutationVariables>
+    }
+    /**
+     * パスワード忘れ
+     */
+    forgotPassword: {
+      result?: ForgotPasswordMutation['forgotPassword']
+      loading: MutaionLoading
+      errors?: ValidationErrors
+      reset: MutaionReset
+      mutate: MutateFunction<ForgotPasswordMutation, ForgotPasswordMutationVariables>
+    }
+  }
 }
 
 /** Presenter Props */
@@ -56,13 +104,12 @@ const SigninTemplatePresenter: React.VFC<PresenterProps> = ({
   ...props
 }) => (
   <HtmlSkeleton {...props}>
-    <Title>Signin</Title>
+    <Title>Sign in</Title>
     <BackgroundWave {...styles.wave}>
       <Flex {...styles.container} {...props}>
         <Stack {...styles.contents}>
           <Stack align='center'>
-            <Heading {...styles.title}>{APP_NAME}</Heading>
-            <Heading {...styles.head}>Sign in to your account</Heading>
+            <AppLogo {...styles.logo} />
             <Text {...styles.linkLabel}>
               New to this app?
               <Link {...styles.link({ disabled })} onClick={onSufOpen}>

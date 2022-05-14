@@ -23,15 +23,9 @@ export const wave = {
   animationNegativeDelay: 2
 } as const
 
-export const title = {
-  color: 'blue.400',
-  textShadow: '0.7px 0.7px 2px #384b6e',
-  fontSize: { base: '5xl', sm: '7xl' },
-  mb: { base: '1', sm: '3' }
-}
-
-export const head = {
-  fontSize: { base: '1.7rem', sm: '4xl' }
+export const logo = {
+  mb: 1,
+  fontSize: { base: '6xl', sm: '5rem' }
 }
 
 export const linkLabel = {

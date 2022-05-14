@@ -65,12 +65,12 @@ const SigninFormPresenter: React.VFC<PresenterProps> = ({
 }) => (
   <Stack {...styles.root} {...props}>
     <ErrorMessage error={errors} />
-    <FormControl id='email' isDisabled={disabled} isInvalid={hasValue(fieldErrors.email)}>
+    <FormControl id='si_email' isDisabled={disabled} isInvalid={hasValue(fieldErrors.email)}>
       <FormLabel>Email address</FormLabel>
       <Input type='email' {...styles.input} {...register('email')} />
       <FormErrorMessage>{fieldErrors.email?.message}</FormErrorMessage>
     </FormControl>
-    <FormControl id='password' isDisabled={disabled} isInvalid={hasValue(fieldErrors.password)}>
+    <FormControl id='si_password' isDisabled={disabled} isInvalid={hasValue(fieldErrors.password)}>
       <FormLabel>Password</FormLabel>
       <Input type='password' {...styles.input} {...register('password')} />
       <FormErrorMessage>{fieldErrors.password?.message}</FormErrorMessage>

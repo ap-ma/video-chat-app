@@ -66,13 +66,13 @@ const ResetPasswordFormPresenter: React.VFC<PresenterProps> = ({
   <Stack {...styles.root} {...props}>
     <AlertMessage error={tokenErrorMsgs} />
     <ErrorMessage error={errors} />
-    <FormControl id='password' isRequired isDisabled={disabled} isInvalid={hasValue(fieldErrors.password)}>
+    <FormControl id='rp_password' isRequired isDisabled={disabled} isInvalid={hasValue(fieldErrors.password)}>
       <FormLabel>Password</FormLabel>
       <Input placeholder='password' type='password' {...styles.input} {...register('password')} />
       <FormErrorMessage>{fieldErrors.password?.message}</FormErrorMessage>
     </FormControl>
     <FormControl
-      id='passwordConfirm'
+      id='rp_passwordConfirm'
       isRequired
       isDisabled={disabled}
       isInvalid={hasValue(fieldErrors.passwordConfirm)}

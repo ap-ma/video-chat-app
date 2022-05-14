@@ -98,10 +98,12 @@ const Template: Story<IndexTemplateStoryProps> = ({
   const userId = 1
   const otherUserId = 2
 
-  // query
+  // query result
   const me = dummyMe(userId)
   const contacts = dummyContacts(100, (i) => (i % 3 != 0 ? `status message${i}` : undefined))
   const latestMessages = dummyLatestMessages(100, (i) => `latest message${i}. I would like to reiterate`)
+
+  // query
   const contactInfo = dummyContactInfo(
     userId,
     otherUserId,
@@ -200,9 +202,6 @@ const Template: Story<IndexTemplateStoryProps> = ({
   >('UnblockContact', undefined, unblockContactLoading)
 
   const query = {
-    me,
-    contacts,
-    latestMessages,
     contactInfo,
     searchUser
   }
@@ -224,7 +223,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
     unblockContact
   }
 
-  return <IndexTemplate {...{ ...props, query, mutation }} />
+  return <IndexTemplate {...{ ...props, me, contacts, latestMessages, query, mutation }} />
 }
 
 const contactStatusLabels: Record<number, string> = {}

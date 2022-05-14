@@ -1,6 +1,9 @@
 use super::Call;
-use crate::constant::system::DEFAULT_DATETIME_FORMAT;
+use crate::constant::{message as message_const, system::DEFAULT_DATETIME_FORMAT};
 use crate::database::entity::{CallEntity, LatestMessageEntity, MessageEntity, UserEntity};
+use crate::database::service;
+use crate::graphql::common;
+use crate::graphql::security::auth;
 use async_graphql::*;
 use chrono::NaiveDateTime;
 
@@ -97,6 +100,21 @@ impl LatestMessage {
     async fn created_at(&self, format: Option<String>) -> String {
         let f = format.unwrap_or(DEFAULT_DATETIME_FORMAT.to_owned());
         self.created_at.format(f.as_str()).to_string()
+    }
+
+    async fn unread_message_count(&self, ctx: &Context<'_>) -> Result<i64> {
+        if message_const::status::READ == self.message_status {
+            return Ok(0);
+        }
+
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?.unwrap();
+        let unread_message_count = common::convert_query_result(
+            service::get_unread_message_count(identity.id, self.user_id, &conn),
+            "Failed to get unread message count",
+        )?;
+
+        Ok(unread_message_count)
     }
 
     async fn call(&self) -> Option<Call> {

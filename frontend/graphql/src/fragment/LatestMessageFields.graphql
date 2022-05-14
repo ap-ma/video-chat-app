@@ -9,6 +9,7 @@ fragment LatestMessageFields on LatestMessage {
   message
   messageStatus
   createdAt(format: $dateTimeFormat)
+  unreadMessageCount
   call {
     ...CallFields
   }
