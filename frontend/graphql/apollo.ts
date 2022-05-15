@@ -11,7 +11,7 @@ import { AppProps } from 'next/app'
 import { useMemo } from 'react'
 import { SubscriptionClient } from 'subscriptions-transport-ws'
 import { isNode, isNullish } from 'utils'
-import { cursorPagination, report } from 'utils/graphql'
+import { cursorPagination, report } from 'utils/apollo'
 
 /** props apollo state key */
 export const APOLLO_STATE_PROP_NAME = '__APOLLO_STATE__'

@@ -157,11 +157,11 @@ export const CALL = {
     /** 呼出 */
     OFFER: 1,
     /** 通話中 */
-    DURING: 1,
+    DURING: 2,
     /** 通話終了 */
-    TERMINATED: 1,
+    TERMINATED: 3,
     /** キャンセル */
-    CANCELED: 1
+    CANCELED: 4
   }
 } as const
 

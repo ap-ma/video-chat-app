@@ -6,7 +6,7 @@ import { VerifyEmailDocument, VerifyEmailMutation, VerifyEmailMutationVariables 
 import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next'
 import React from 'react'
 import { Unbox } from 'types'
-import { handle } from 'utils/graphql'
+import { handle } from 'utils/apollo'
 
 const VerifyEmail: NextPage<VerifyEmailTemplateProps> = (props) => {
   return <VerifyEmailTemplate {...props} />

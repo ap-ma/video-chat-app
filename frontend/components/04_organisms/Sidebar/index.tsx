@@ -2,72 +2,102 @@ import {
   Box,
   BoxProps,
   CloseButton,
+  CloseButtonProps,
   Flex,
-  Input,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
-  Tabs,
-  Text,
-  useColorModeValue
+  Tabs
 } from '@chakra-ui/react'
+import AppLogo from 'components/01_atoms/AppLogo'
+import ChatList from 'components/04_organisms/ChatList'
+import ContactList from 'components/04_organisms/ContactList'
 import { connect } from 'components/hoc'
-import { APP_NAME } from 'const'
+import {
+  ContactInfoQuery,
+  ContactInfoQueryVariables,
+  ContactsQuery,
+  LatestMessagesQuery,
+  MeQuery
+} from 'graphql/generated'
 import React from 'react'
-import { ContainerProps, OnClose } from 'types'
-import ContactList from './ContactList'
+import { ContainerProps, LocalStorageVariables, QueryRefetch } from 'types'
+import { SetContactInfoUserId } from 'utils/apollo/state'
+import * as styles from './styles'
 
-export type SidebarProps = BoxProps & {
+/** Sidebar Props */
+export type SidebarProps = Omit<BoxProps, 'me'> & {
+  /**
+   * サインインユーザー情報
+   */
+  me?: MeQuery['me']
+  /**
+   * コンタクト一覧
+   */
+  contacts?: ContactsQuery['contacts']
+  /**
+   * メッセージ一覧
+   */
+  latestMessages?: LatestMessagesQuery['latestMessages']
   /**
    * 閉じるボタン押下時処理
    */
-  onClose: OnClose
+  onCloseButtonClick: CloseButtonProps['onClick']
+  /**
+   * Local State
+   */
+  state: {
+    /**
+     *  コンタクト情報 ユーザーID
+     */
+    contactInfoUserId: {
+      state: LocalStorageVariables
+      setContactInfoUserId: SetContactInfoUserId
+    }
+  }
+  /**
+   * Query
+   */
+  query: {
+    /**
+     *  コンタクト情報
+     */
+    contactInfo: {
+      refetch: QueryRefetch<ContactInfoQuery, ContactInfoQueryVariables>
+    }
+  }
 }
 
 /** Presenter Props */
 export type PresenterProps = SidebarProps
 
 /** Presenter Component */
-const SidebarPresenter: React.VFC<PresenterProps> = ({ onClose, ...props }) => (
-  <Box
-    transition='3s ease'
-    bg={useColorModeValue('white', 'gray.900')}
-    borderRight='1px'
-    borderRightColor={useColorModeValue('gray.200', 'gray.700')}
-    w={{ base: 'full', md: 72 }}
-    pos='absolute'
-    h='full'
-    {...props}
-  >
-    <Flex h='20' ml='4' mr='8' alignItems='center' justifyContent='space-between'>
-      <Text fontSize='2xl' fontFamily='monospace' fontWeight='bold'>
-        {APP_NAME}
-      </Text>
-      <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
+const SidebarPresenter: React.VFC<PresenterProps> = ({
+  me,
+  contacts,
+  latestMessages,
+  state,
+  query,
+  onCloseButtonClick,
+  ...props
+}) => (
+  <Box {...styles.root} {...props}>
+    <Flex {...styles.head}>
+      <AppLogo />
+      <CloseButton {...styles.close} onClick={onCloseButtonClick} />
     </Flex>
-    <Tabs isFitted variant='enclosed-colored'>
+    <Tabs isFitted {...styles.tab}>
       <TabList>
         <Tab py='1'>Contacts</Tab>
         <Tab py='1'>Chats</Tab>
       </TabList>
       <TabPanels>
         <TabPanel p='0'>
-          <Input focusBorderColor='gray.200' placeholder='ユーザーを検索' />
-          <ContactList
-            /* 全体 - (ヘッダー部 + tabボタン部 + 検索部 + 余白部) */
-            h='calc(100vh - (var(--chakra-sizes-20) + 34px + 40px + 8px))'
-            contacts={contactList((i) => (i % 3 != 0 ? `ひとことのサンプル${i}` : undefined))}
-          />
+          <ContactList {...styles.contacts} {...{ contacts, state, query }} />
         </TabPanel>
-        <TabPanel p='0' mt='0.5em'>
-          <ContactList
-            /* 全体 - (ヘッダー部 + tabボタン部 + margin部 + 余白部) */
-            h='calc(100vh - (var(--chakra-sizes-20) + 34px + 8px + 8px))'
-            contacts={contactList((i) =>
-              i % 3 != 0 ? `メッセージのやり取りのサンプル${i}` : 'コンタクトに追加されました'
-            )}
-          />
+        <TabPanel p='0'>
+          <ChatList {...styles.chats} {...{ me, latestMessages, state, query }} />
         </TabPanel>
       </TabPanels>
     </Tabs>

@@ -42,6 +42,7 @@ import React from 'react'
 import {
   ContainerProps,
   LazyQueryFunction,
+  LocalStorageVariables,
   MutaionLoading,
   MutaionReset,
   MutateFunction,
@@ -51,6 +52,7 @@ import {
   QueryRefetch,
   ValidationErrors
 } from 'types'
+import { SetContactInfoUserId } from 'utils/apollo/state'
 import Header from './Header'
 import Sidebar from './Sidebar'
 
@@ -68,6 +70,18 @@ export type IndexTemplateProps = {
    * メッセージ一覧
    */
   latestMessages?: LatestMessagesQuery['latestMessages']
+  /**
+   * Local State
+   */
+  state: {
+    /**
+     *  コンタクト情報 ユーザーID
+     */
+    contactInfoUserId: {
+      state: LocalStorageVariables
+      setContactInfoUserId: SetContactInfoUserId
+    }
+  }
   /**
    * Query
    */

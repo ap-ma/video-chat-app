@@ -68,7 +68,7 @@ const ResetPasswordFormPresenter: React.VFC<PresenterProps> = ({
     <ErrorMessage error={errors} />
     <FormControl id='rp_password' isRequired isDisabled={disabled} isInvalid={hasValue(fieldErrors.password)}>
       <FormLabel>Password</FormLabel>
-      <Input placeholder='password' type='password' {...styles.input} {...register('password')} />
+      <Input type='password' placeholder='password' {...styles.input} {...register('password')} />
       <FormErrorMessage>{fieldErrors.password?.message}</FormErrorMessage>
     </FormControl>
     <FormControl
@@ -78,7 +78,7 @@ const ResetPasswordFormPresenter: React.VFC<PresenterProps> = ({
       isInvalid={hasValue(fieldErrors.passwordConfirm)}
     >
       <FormLabel>Password Confirm</FormLabel>
-      <Input placeholder='password' type='password' {...styles.input} {...register('passwordConfirm')} />
+      <Input type='password' placeholder='password' {...styles.input} {...register('passwordConfirm')} />
       <FormErrorMessage>{fieldErrors.passwordConfirm?.message}</FormErrorMessage>
     </FormControl>
     <Stack>

@@ -83,7 +83,7 @@ const SignupFormPresenter: React.VFC<PresenterProps> = ({
               <FormControl id='su_code' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.code)}>
                 <FormLabel>Code</FormLabel>
                 <Tooltip label='Code for friends to find you.' {...styles.tooltip}>
-                  <Input placeholder='code' type='text' {...styles.input} {...register('code')} />
+                  <Input type='text' placeholder='code' {...styles.input} {...register('code')} />
                 </Tooltip>
                 <FormErrorMessage>{fieldErrors.code?.message}</FormErrorMessage>
               </FormControl>
@@ -92,7 +92,7 @@ const SignupFormPresenter: React.VFC<PresenterProps> = ({
               <FormControl id='su_name' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.name)}>
                 <FormLabel>Nickname</FormLabel>
                 <Tooltip label='Your Nickname.' {...styles.tooltip}>
-                  <Input placeholder='nickname' type='text' {...styles.input} {...register('name')} />
+                  <Input type='text' placeholder='nickname' {...styles.input} {...register('name')} />
                 </Tooltip>
                 <FormErrorMessage>{fieldErrors.name?.message}</FormErrorMessage>
               </FormControl>
@@ -101,14 +101,14 @@ const SignupFormPresenter: React.VFC<PresenterProps> = ({
           <FormControl id='su_email' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.email)}>
             <FormLabel>Email address</FormLabel>
             <Tooltip label='Sign in Email Address.' {...styles.tooltip}>
-              <Input placeholder='your-email@example.com' type='email' {...styles.input} {...register('email')} />
+              <Input type='email' placeholder='your-email@example.com' {...styles.input} {...register('email')} />
             </Tooltip>
             <FormErrorMessage>{fieldErrors.email?.message}</FormErrorMessage>
           </FormControl>
           <FormControl id='su_password' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.password)}>
             <FormLabel>Password</FormLabel>
             <Tooltip label='Sign in Password.' {...styles.tooltip}>
-              <Input placeholder='password' type='password' {...styles.input} {...register('password')} />
+              <Input type='password' placeholder='password' {...styles.input} {...register('password')} />
             </Tooltip>
             <FormErrorMessage>{fieldErrors.password?.message}</FormErrorMessage>
           </FormControl>
@@ -120,14 +120,14 @@ const SignupFormPresenter: React.VFC<PresenterProps> = ({
           >
             <FormLabel>Confirm Password</FormLabel>
             <Tooltip label='Enter the Password again for confirmation.' {...styles.tooltip}>
-              <Input placeholder='password' type='password' {...styles.input} {...register('passwordConfirm')} />
+              <Input type='password' placeholder='password' {...styles.input} {...register('passwordConfirm')} />
             </Tooltip>
             <FormErrorMessage>{fieldErrors.passwordConfirm?.message}</FormErrorMessage>
           </FormControl>
           <FormControl id='su_comment' isDisabled={loading} isInvalid={hasValue(fieldErrors.comment)}>
             <FormLabel>Comment</FormLabel>
             <Tooltip label='Status Message.' {...styles.tooltip}>
-              <Input placeholder='comment...' type='input' {...styles.input} {...register('comment')} />
+              <Input type='text' placeholder='comment...' {...styles.input} {...register('comment')} />
             </Tooltip>
             <FormErrorMessage>{fieldErrors.comment?.message}</FormErrorMessage>
           </FormControl>

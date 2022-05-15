@@ -69,7 +69,7 @@ const ForgotPasswordFormPresenter: React.VFC<PresenterProps> = ({
           <Text {...styles.text}>You will get an email with a link to reset your password.</Text>
           <ErrorMessage error={errors} />
           <FormControl id='fp_email' isDisabled={loading} isInvalid={hasValue(fieldErrors.email)}>
-            <Input placeholder='your-email@example.com' type='email' {...styles.input} {...register('email')} />
+            <Input type='email' placeholder='your-email@example.com' {...styles.input} {...register('email')} />
             <FormErrorMessage>{fieldErrors.email?.message}</FormErrorMessage>
           </FormControl>
           <Button {...styles.button} isLoading={loading} onClick={onSubmitButtonClick}>

@@ -97,6 +97,7 @@ export type LatestMessage = {
   messageCategory: Scalars['Int']
   messageId: Scalars['ID']
   messageStatus: Scalars['Int']
+  txUserId: Scalars['ID']
   unreadMessageCount: Scalars['Int']
   userAvatar?: Maybe<Scalars['String']>
   userCode: Scalars['String']
@@ -352,6 +353,7 @@ export type ContactFieldsWithLatestMessageFragment = {
     userName?: string | null
     userAvatar?: string | null
     messageId: string
+    txUserId: string
     messageCategory: number
     message?: string | null
     messageStatus: number
@@ -407,6 +409,7 @@ export type LatestMessageFieldsFragment = {
   userName?: string | null
   userAvatar?: string | null
   messageId: string
+  txUserId: string
   messageCategory: number
   message?: string | null
   messageStatus: number
@@ -475,6 +478,7 @@ export type MessageChangedFieldsFragment = {
     userName?: string | null
     userAvatar?: string | null
     messageId: string
+    txUserId: string
     messageCategory: number
     message?: string | null
     messageStatus: number
@@ -609,6 +613,7 @@ export type CallOfferMutation = {
       userName?: string | null
       userAvatar?: string | null
       messageId: string
+      txUserId: string
       messageCategory: number
       message?: string | null
       messageStatus: number
@@ -698,6 +703,7 @@ export type ContactApplicationMutation = {
       userName?: string | null
       userAvatar?: string | null
       messageId: string
+      txUserId: string
       messageCategory: number
       message?: string | null
       messageStatus: number
@@ -775,6 +781,7 @@ export type ContactApprovalMutation = {
       userName?: string | null
       userAvatar?: string | null
       messageId: string
+      txUserId: string
       messageCategory: number
       message?: string | null
       messageStatus: number
@@ -875,6 +882,7 @@ export type DeleteMessageMutation = {
       userName?: string | null
       userAvatar?: string | null
       messageId: string
+      txUserId: string
       messageCategory: number
       message?: string | null
       messageStatus: number
@@ -975,6 +983,7 @@ export type ReadMessagesMutation = {
       userName?: string | null
       userAvatar?: string | null
       messageId: string
+      txUserId: string
       messageCategory: number
       message?: string | null
       messageStatus: number
@@ -1058,6 +1067,7 @@ export type SendMessageMutation = {
       userName?: string | null
       userAvatar?: string | null
       messageId: string
+      txUserId: string
       messageCategory: number
       message?: string | null
       messageStatus: number
@@ -1116,6 +1126,7 @@ export type UnblockContactMutation = {
       userName?: string | null
       userAvatar?: string | null
       messageId: string
+      txUserId: string
       messageCategory: number
       message?: string | null
       messageStatus: number
@@ -1195,6 +1206,7 @@ export type InitQuery = {
     userName?: string | null
     userAvatar?: string | null
     messageId: string
+    txUserId: string
     messageCategory: number
     message?: string | null
     messageStatus: number
@@ -1323,6 +1335,7 @@ export type LatestMessagesQuery = {
     userName?: string | null
     userAvatar?: string | null
     messageId: string
+    txUserId: string
     messageCategory: number
     message?: string | null
     messageStatus: number
@@ -1443,6 +1456,7 @@ export type MessageSubscription = {
       userName?: string | null
       userAvatar?: string | null
       messageId: string
+      txUserId: string
       messageCategory: number
       message?: string | null
       messageStatus: number
@@ -1503,6 +1517,7 @@ export const LatestMessageFieldsFragmentDoc = gql`
     userName
     userAvatar
     messageId
+    txUserId
     messageCategory
     message
     messageStatus

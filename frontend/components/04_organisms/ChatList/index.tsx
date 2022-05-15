@@ -1,17 +1,35 @@
 import Scrollbar, { ScrollbarProps } from 'components/02_interactions/Scrollbar'
 import UserCard, { UserCardProps } from 'components/04_organisms/UserCard'
 import { connect } from 'components/hoc'
-import { ContactInfoQuery, ContactInfoQueryVariables, LatestMessagesQuery } from 'graphql/generated'
+import { ContactInfoQuery, ContactInfoQueryVariables, LatestMessagesQuery, MeQuery } from 'graphql/generated'
 import React from 'react'
-import { ContainerProps, QueryRefetch } from 'types'
+import { ContainerProps, LocalStorageVariables, QueryRefetch } from 'types'
+import { SetContactInfoUserId } from 'utils/apollo/state'
 import { toStr } from 'utils/general/helper'
+import { getLatestMessage } from 'utils/helper'
 
 /** ChatList Props */
-export type ChatListProps = ScrollbarProps & {
+export type ChatListProps = Omit<ScrollbarProps, 'me'> & {
+  /**
+   * サインインユーザー情報
+   */
+  me?: MeQuery['me']
   /**
    * メッセージ一覧
    */
   latestMessages?: LatestMessagesQuery['latestMessages']
+  /**
+   * Local State
+   */
+  state: {
+    /**
+     *  コンタクト情報 ユーザーID
+     */
+    contactInfoUserId: {
+      state: LocalStorageVariables
+      setContactInfoUserId: SetContactInfoUserId
+    }
+  }
   /**
    * Query
    */
@@ -26,14 +44,14 @@ export type ChatListProps = ScrollbarProps & {
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<ChatListProps, 'query'> & {
-  chats?: UserCardProps[]
+export type PresenterProps = Omit<ChatListProps, 'me' | 'latestMessages' | 'state' | 'query'> & {
+  chatList?: UserCardProps[]
 }
 
 /** Presenter Component */
-const ChatListPresenter: React.VFC<PresenterProps> = ({ chats, ...props }) => (
-  <Scrollbar {...props}>
-    {chats?.map((chat, i) => (
+const ChatListPresenter: React.VFC<PresenterProps> = ({ chatList, ...props }) => (
+  <Scrollbar mt='0.4em' {...props}>
+    {chatList?.map((chat, i) => (
       <UserCard key={i} {...chat} />
     ))}
   </Scrollbar>
@@ -42,22 +60,25 @@ const ChatListPresenter: React.VFC<PresenterProps> = ({ chats, ...props }) => (
 /** Container Component */
 const ChatListContainer: React.VFC<ContainerProps<ChatListProps, PresenterProps>> = ({
   presenter,
+  me,
   latestMessages,
+  state: { contactInfoUserId },
   query: { contactInfo },
   ...props
 }) => {
-  const chats = latestMessages?.map((message) => {
-    return {
-      image: message.userAvatar ?? undefined,
-      name: toStr(message.userName),
-      content: message.message ?? undefined,
-      active: false,
-      unreadCount: message.unreadMessageCount,
-      onClick: () => contactInfo.refetch({ contactUserId: message.userId })
+  const chatList = latestMessages?.map((latestMessage) => ({
+    image: latestMessage.userAvatar ?? undefined,
+    name: toStr(latestMessage.userName),
+    content: getLatestMessage(latestMessage, toStr(me?.name)),
+    active: contactInfoUserId.state === latestMessage.userId,
+    unreadCount: latestMessage.unreadMessageCount,
+    onClick: () => {
+      contactInfoUserId.setContactInfoUserId(latestMessage.userId)
+      contactInfo.refetch({ contactUserId: latestMessage.userId })
     }
-  })
+  }))
 
-  return presenter({ chats, ...props })
+  return presenter({ chatList, ...props })
 }
 
 /** ChatList */

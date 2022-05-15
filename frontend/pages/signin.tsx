@@ -14,7 +14,7 @@ import { NextPage } from 'next'
 import { default as Router, useRouter } from 'next/router'
 import React from 'react'
 import { isBrowser, isNode, isNullish } from 'utils'
-import { handle, Handler, isValidationErrors } from 'utils/graphql'
+import { handle, Handler, isValidationErrors } from 'utils/apollo'
 
 const Signin: NextPage = () => {
   const router = useRouter()

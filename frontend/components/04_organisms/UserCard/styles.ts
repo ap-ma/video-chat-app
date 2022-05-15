@@ -37,7 +37,7 @@ export const count = ({ count }: Pick<PresenterProps, 'count'>) =>
     color: 'white',
     bg: 'blue.400',
     ml: 'auto',
-    mr: 0.5,
+    mr: '0.2rem',
     py: '1px',
     px: '7.5px',
     fontSize: 'sm',

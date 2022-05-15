@@ -39,7 +39,9 @@ import {
   isValidationErrors,
   updateContactCache,
   updateMessageCache
-} from 'utils/graphql'
+} from 'utils/apollo'
+import { contactInfoUserIdVar, setContactInfoUserId } from 'utils/apollo/state'
+import { toStr } from 'utils/general/helper'
 
 const Index: NextPage = () => {
   const router = useRouter()
@@ -64,12 +66,18 @@ const Index: NextPage = () => {
   }
 
   //  ----------------------------------------------------------------------------
+  //  Local State
+  //  ----------------------------------------------------------------------------
+  const contactInfoUserId = contactInfoUserIdVar()
+
+  //  ----------------------------------------------------------------------------
   //  Query
   //  ----------------------------------------------------------------------------
 
   // ユーザー情報
   const meQuery = useMeQuery({ fetchPolicy: 'cache-first' })
   handle(meQuery.error, handler)
+  if (isNullish(contactInfoUserId)) setContactInfoUserId(toStr(meQuery.data?.me.id))
 
   // コンタクト一覧
   const contactsQuery = useContactsQuery({
@@ -84,10 +92,13 @@ const Index: NextPage = () => {
 
   // コンタクト情報
   const contactInfoQuery = useContactInfoQuery({
-    variables: { limit: CHAT_LENGTH },
+    variables: { contactUserId: contactInfoUserId, limit: CHAT_LENGTH },
     notifyOnNetworkStatusChange: true
   })
-  handle(contactInfoQuery.error, handler)
+  handle(contactInfoQuery.error, {
+    noError: () => undefined,
+    _default: () => contactInfoQuery.refetch({ contactUserId: meQuery.data?.me.id })
+  })?.catch((error) => handle(error as ApolloError, handler) && undefined)
 
   // ユーザー検索
   const [getUsersByCode, searchUserQuery] = useSearchUserLazyQuery({ fetchPolicy: 'network-only' })
@@ -144,7 +155,7 @@ const Index: NextPage = () => {
   // コンタクト承認
   const [contactApproval, contactApprovalMutation] = useContactApprovalMutation({
     update: (cache, { data }) => !isNullish(data) && updateMessageCache(cache, data.contactApproval),
-    onCompleted: () => contactsQuery.refetch().catch((error) => handle(error as ApolloError, handler) && undefined)
+    onCompleted: () => contactsQuery.refetch()
   })
   const contactApprovalResult = handle(contactApprovalMutation.error, handler)
 
@@ -188,9 +199,7 @@ const Index: NextPage = () => {
       if (isNullish(data)) return
       const messageChanged = data.messageSubscription
       updateMessageCache(client.cache, messageChanged)
-      if (isContactApproval(messageChanged)) {
-        contactsQuery.refetch().catch((error) => handle(error as ApolloError, handler) && undefined)
-      }
+      if (isContactApproval(messageChanged)) contactsQuery.refetch()
       if (contactInfoQuery.data?.contactInfo.userId === messageChanged.txUserId) {
         readMessages({ variables: { otherUserId: messageChanged.txUserId } }).catch(console.log)
       }
@@ -205,6 +214,12 @@ const Index: NextPage = () => {
     me: meQuery.data?.me,
     contacts: contactsQuery.data?.contacts,
     latestMessages: latestMessagesQuery.data?.latestMessages,
+    state: {
+      contactInfoUserId: {
+        state: contactInfoUserId,
+        setContactInfoUserId
+      }
+    },
     query: {
       contactInfo: {
         contactInfo: contactInfoQuery.data?.contactInfo,

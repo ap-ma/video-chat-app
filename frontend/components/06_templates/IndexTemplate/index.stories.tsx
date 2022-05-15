@@ -1,11 +1,13 @@
 /* eslint-disable import/no-unresolved */
 import {
+  contacts,
   dummyContactInfo,
-  dummyContacts,
-  dummyLatestMessages,
-  dummyMe,
   dummyMutation,
-  dummySearchUser
+  dummySearchUser,
+  latestMessages,
+  me,
+  otherUserId,
+  userId
 } from '.storybook/dummies'
 /* eslint-enable import/no-unresolved  */
 import { Meta, Story } from '@storybook/react'
@@ -95,14 +97,6 @@ const Template: Story<IndexTemplateStoryProps> = ({
   unblockContactLoading,
   ...props
 }) => {
-  const userId = 1
-  const otherUserId = 2
-
-  // query result
-  const me = dummyMe(userId)
-  const contacts = dummyContacts(100, (i) => (i % 3 != 0 ? `status message${i}` : undefined))
-  const latestMessages = dummyLatestMessages(100, (i) => `latest message${i}. I would like to reiterate`)
-
   // query
   const contactInfo = dummyContactInfo(
     userId,
@@ -114,6 +108,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
     50,
     (i) => `chat message${i}`
   )
+
   const searchUser = dummySearchUser(searchUserLoading, 10, (i) => (i % 3 != 0 ? `status message${i}` : undefined))
 
   // mutation

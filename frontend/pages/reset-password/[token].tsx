@@ -13,7 +13,7 @@ import { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import React from 'react'
 import { Unbox, ValidationErrors } from 'types'
-import { handle, Handler, isValidationErrors } from 'utils/graphql'
+import { handle, Handler, isValidationErrors } from 'utils/apollo'
 
 const ResetPassword: NextPage<
   Partial<{

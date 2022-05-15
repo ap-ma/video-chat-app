@@ -5,6 +5,7 @@ fragment LatestMessageFields on LatestMessage {
   userName
   userAvatar
   messageId
+  txUserId
   messageCategory
   message
   messageStatus

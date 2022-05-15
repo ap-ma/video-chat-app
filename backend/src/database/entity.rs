@@ -128,6 +128,8 @@ pub struct LatestMessageEntity {
     pub user_avatar: Option<String>,
     #[sql_type = "SqlTypeOf<messages::id>"]
     pub message_id: u64,
+    #[sql_type = "SqlTypeOf<messages::tx_user_id>"]
+    pub tx_user_id: u64,
     #[sql_type = "SqlTypeOf<messages::category>"]
     pub message_category: i32,
     #[sql_type = "SqlTypeOf<messages::message>"]

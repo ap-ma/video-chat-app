@@ -4,6 +4,7 @@ select
     users.name as user_name,
     users.avatar as user_avatar,
     messages.id as message_id,
+    messages.tx_user_id as tx_user_id,
     messages.category as message_category,
     messages.message as message,
     messages.status as message_status,

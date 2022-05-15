@@ -1,37 +1,35 @@
-import { PresenterProps } from './index'
-
-export const root = ({ active }: Pick<PresenterProps, 'active'>): Record<string, unknown> =>
-  ({
-    style: { textDecoration: 'none' },
-    pointerEvents: active ? 'none' : 'auto'
-  } as const)
-
-export const box = ({ active }: Pick<PresenterProps, 'active'>): Record<string, unknown> =>
-  ({
-    bgColor: active ? 'gray.200' : 'white',
-    align: 'center',
-    py: '4',
-    px: '3',
-    marginStart: '1',
-    borderRadius: 'lg',
-    role: 'group',
-    cursor: 'pointer',
-    _hover: {
-      bg: 'gray.100'
-    }
-  } as const)
-
-export const name = {
-  fontWeight: 'bold',
-  overflow: 'hidden',
-  whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis'
+export const root = {
+  h: 'full',
+  w: { base: 'full', md: 72 },
+  bg: 'white',
+  pos: 'absolute',
+  transition: '3s ease',
+  borderRight: '1px',
+  borderRightColor: 'gray.200'
 } as const
 
-export const content = {
-  fontSize: 'sm',
-  color: 'gray.600',
-  overflow: 'hidden',
-  whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis'
+export const head = {
+  h: '20',
+  ml: '4',
+  mr: '8',
+  alignItems: 'center',
+  justifyContent: 'space-between'
+} as const
+
+export const close = {
+  d: { base: 'flex', md: 'none' }
+} as const
+
+export const tab = {
+  variant: 'enclosed-colored'
+} as const
+
+export const contacts = {
+  /* 全体 - (ヘッダー部 + tabボタン部 + 検索部 + 余白部) */
+  h: 'calc(100vh - (var(--chakra-sizes-20) + 34px + 40px + 8px))'
+} as const
+
+export const chats = {
+  /* 全体 - (ヘッダー部 + tabボタン部 + margin部 + 余白部) */
+  h: 'calc(100vh - (var(--chakra-sizes-20) + 34px + 8px + 8px))'
 } as const

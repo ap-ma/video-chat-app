@@ -20,7 +20,11 @@ import {
   QueryRefetch
 } from '../types'
 
-export const dummyMutation = <Result, TData, TVariables>(
+//  ----------------------------------------------------------------------------
+//  generator
+//  ----------------------------------------------------------------------------
+
+export function dummyMutation<Result, TData, TVariables>(
   name: string,
   result?: Result,
   loading?: MutaionLoading
@@ -29,17 +33,19 @@ export const dummyMutation = <Result, TData, TVariables>(
   loading: MutaionLoading
   reset: MutaionReset
   mutate: MutateFunction<TData, TVariables>
-} => ({
-  result,
-  loading: !!loading,
-  reset: () => alert(`${name} Mutation - Reset`),
-  mutate: () => {
-    alert(`${name} Mutation - Mutate`)
-    return Promise.resolve({ data: undefined, extensions: undefined, context: undefined })
+} {
+  return {
+    result,
+    loading: !!loading,
+    reset: () => alert(`${name} Mutation - Reset`),
+    mutate: () => {
+      alert(`${name} Mutation - Mutate`)
+      return Promise.resolve({ data: undefined, extensions: undefined, context: undefined })
+    }
   }
-})
+}
 
-export const dummyMe = (userId: number): MeQuery['me'] => {
+export function dummyMe(userId: number): MeQuery['me'] {
   return {
     __typename: 'User',
     email: 'test-email@example.com',
@@ -49,16 +55,13 @@ export const dummyMe = (userId: number): MeQuery['me'] => {
     comment: 'fine',
     avatar:
       'https://1.bp.blogspot.com/-GqIjU--SM-k/X9lJl-pkCjI/AAAAAAABc68/hEhMB_uG-xEPzhgaRjBhgX24-niyVZUnwCNcBGAsYHQ/s637/pose_reiwa_woman.png'
-  } as const
+  }
 }
 
-export const dummyContacts = (
-  len: number,
-  commentGen: (i: number) => string | undefined
-): ContactsQuery['contacts'] => {
+export function dummyContacts(len: number, commentGen: (i: number) => string | undefined): ContactsQuery['contacts'] {
   const contacts: ContactsQuery['contacts'] = []
   for (let i = 1; i <= len; i++) {
-    const r = Math.floor(Math.random() * Math.floor(2)) % 2
+    const r = Math.floor(Math.random() * Math.floor(2))
     contacts.push({
       __typename: 'Contact',
       id: toStr(i),
@@ -74,16 +77,18 @@ export const dummyContacts = (
   return contacts
 }
 
-export const dummyLatestMessages = (
+export function dummyLatestMessages(
+  userId: number,
   len: number,
   messageGen: (i: number) => string | undefined
-): LatestMessagesQuery['latestMessages'] => {
+): LatestMessagesQuery['latestMessages'] {
   const latestMessages: LatestMessagesQuery['latestMessages'] = []
   for (let i = 1; i <= len; i++) {
-    const r = Math.floor(Math.random() * Math.floor(2)) % 2
+    const r = Math.floor(Math.random() * Math.floor(2))
     const cateLen = Object.keys(MESSAGE.CATEGORY).length
-    const category = (i + cateLen) % cateLen
+    const category = (i % cateLen) + 1
     const callStaLen = Object.keys(CALL.STATUS).length
+    const callState = Math.floor(Math.random() * Math.floor(callStaLen)) + 1
     latestMessages.push({
       __typename: 'LatestMessage',
       userId: toStr(i),
@@ -91,18 +96,19 @@ export const dummyLatestMessages = (
       userName: `鈴木${i + (r ? '子' : '郎')}`,
       userAvatar: illustya[r],
       messageId: toStr(i),
+      txUserId: r ? toStr(userId) : toStr(i),
       messageCategory: category,
       message: category === MESSAGE.CATEGORY.MESSAGE ? messageGen(i) : undefined,
       messageStatus: i % 6 != 0 ? MESSAGE.STATUS.UNREAD : MESSAGE.STATUS.READ,
       createdAt: '06/24/2022 18:10:14',
-      unreadMessageCount: i % 5 === 0 ? 3 : 0,
+      unreadMessageCount: i % 3 === 0 ? 3 : 0,
       call:
         category === MESSAGE.CATEGORY.CALLING
           ? {
               __typename: 'Call',
               id: toStr(i),
               messageId: toStr(i),
-              status: Math.floor(Math.random() * Math.floor(callStaLen + 1)) % callStaLen,
+              status: callState,
               startedAt: '06/24/2022 18:10:14',
               endedAt: '06/24/2022 18:40:14',
               callTime: 30
@@ -113,7 +119,7 @@ export const dummyLatestMessages = (
   return latestMessages
 }
 
-export const dummyContactInfo = (
+export function dummyContactInfo(
   userId: number,
   otherUserId: number,
   loading: QueryLoading,
@@ -128,18 +134,19 @@ export const dummyContactInfo = (
   networkStatus: QueryNetworkStatus
   refetch: QueryRefetch<ContactInfoQuery, ContactInfoQueryVariables>
   fetchMore: QueryFetchMore<ContactInfoQuery, ContactInfoQueryVariables>
-} => {
+} {
   const chat: ContactInfoQuery['contactInfo']['chat'] = []
-  for (let i = 1; i <= chatLen; i++) {
-    const r = Math.floor(Math.random() * Math.floor(3)) % 2
+  for (let i = 0; i < chatLen; i++) {
+    const r = Math.floor(Math.random() * Math.floor(2))
     const cateLen = Object.keys(MESSAGE.CATEGORY).length
-    const category = (i + cateLen) % cateLen
+    const category = (i % cateLen) + 1
     const callStaLen = Object.keys(CALL.STATUS).length
+    const callState = Math.floor(Math.random() * Math.floor(callStaLen)) + 1
     chat.push({
       __typename: 'Message',
       id: toStr(i),
-      txUserId: r === 1 ? toStr(userId) : toStr(otherUserId),
-      rxUserId: r === 1 ? toStr(otherUserId) : toStr(userId),
+      txUserId: r ? toStr(userId) : toStr(otherUserId),
+      rxUserId: r ? toStr(otherUserId) : toStr(userId),
       category: category,
       message: category === MESSAGE.CATEGORY.MESSAGE ? messageGen(i) : undefined,
       status: MESSAGE.STATUS.READ,
@@ -150,7 +157,7 @@ export const dummyContactInfo = (
               __typename: 'Call',
               id: toStr(i),
               messageId: toStr(i),
-              status: Math.floor(Math.random() * Math.floor(callStaLen + 1)) % callStaLen,
+              status: callState,
               startedAt: '06/24/2022 18:10:14',
               endedAt: '06/24/2022 18:40:14',
               callTime: 30
@@ -190,7 +197,7 @@ export const dummyContactInfo = (
   }
 }
 
-export const dummySearchUser = (
+export function dummySearchUser(
   loading: QueryLoading,
   len: number,
   commentGen: (i: number) => string | undefined
@@ -198,10 +205,10 @@ export const dummySearchUser = (
   users: SearchUserQuery['searchUser']
   loading: QueryLoading
   getUsersByCode: LazyQueryFunction<SearchUserQuery, SearchUserQueryVariables>
-} => {
+} {
   const users: SearchUserQuery['searchUser'] = []
   for (let i = 1; i <= len; i++) {
-    const r = Math.floor(Math.random() * Math.floor(2)) % 2
+    const r = Math.floor(Math.random() * Math.floor(2))
     users.push({
       __typename: 'User',
       id: toStr(i),
@@ -231,3 +238,25 @@ const illustya = [
   // 女
   'https://1.bp.blogspot.com/-gTf4sWnRdDw/X0B4RSQQLrI/AAAAAAABarI/MJ9DW90dSVwtMjuUoErxemnN4nPXBnXUwCNcBGAsYHQ/s1600/otaku_girl_fashion.png'
 ]
+
+//  ----------------------------------------------------------------------------
+//  dummies
+//  ----------------------------------------------------------------------------
+
+/** Signed-in User ID */
+export const userId = 200
+
+/** Contact Info User ID */
+export const otherUserId = 3
+
+/** Me */
+export const me = dummyMe(userId)
+
+/** Contacts */
+export const contacts = dummyContacts(100, (i) => (i % 3 != 0 ? `status message${i}` : undefined))
+
+/** Latest Messages */
+export const latestMessages = dummyLatestMessages(userId, 100, (i) => `I would like to reiterate${i}`)
+
+/** Contact Info */
+export const contactInfo = dummyContactInfo(userId, otherUserId, false, 7, 2, false, 50, (i) => `chat message${i}`)

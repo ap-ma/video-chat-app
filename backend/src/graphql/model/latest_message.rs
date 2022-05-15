@@ -14,6 +14,7 @@ pub struct LatestMessage {
     pub user_name: Option<String>,
     pub user_avatar: Option<String>,
     pub message_id: u64,
+    pub tx_user_id: u64,
     pub message_category: i32,
     pub message: Option<String>,
     pub message_status: i32,
@@ -29,6 +30,7 @@ impl From<&LatestMessageEntity> for LatestMessage {
             user_name: entity.user_name.clone(),
             user_avatar: entity.user_avatar.clone(),
             message_id: entity.message_id,
+            tx_user_id: entity.tx_user_id,
             message_category: entity.message_category,
             message: entity.message.clone(),
             message_status: entity.message_status,
@@ -54,6 +56,7 @@ impl From<&(UserEntity, MessageEntity, Option<CallEntity>)> for LatestMessage {
             user_name: user.name.clone(),
             user_avatar: user.avatar.clone(),
             message_id: message.id,
+            tx_user_id: message.tx_user_id,
             message_category: message.category,
             message: message.message.clone(),
             message_status: message.status,
@@ -85,6 +88,10 @@ impl LatestMessage {
         self.message_id.into()
     }
 
+    async fn tx_user_id(&self) -> ID {
+        self.tx_user_id.into()
+    }
+
     async fn message_category(&self) -> i32 {
         self.message_category
     }
@@ -103,12 +110,13 @@ impl LatestMessage {
     }
 
     async fn unread_message_count(&self, ctx: &Context<'_>) -> Result<i64> {
-        if message_const::status::READ == self.message_status {
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?.unwrap();
+
+        if self.tx_user_id == identity.id || message_const::status::READ == self.message_status {
             return Ok(0);
         }
 
-        let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity(ctx)?.unwrap();
         let unread_message_count = common::convert_query_result(
             service::get_unread_message_count(identity.id, self.user_id, &conn),
             "Failed to get unread message count",

@@ -48,7 +48,7 @@ const withChakra = (StoryFn: Function, context: StoryContext) => {
   const direction = directionMap[locale]
   return (
     <ChakraProvider theme={extendTheme({ locale, direction })}>
-      <div dir={direction} id='story-wrapper' style={{ minHeight: '80vh' }}>
+      <div dir={direction} id='story-wrapper' style={{ height: '100vh' }}>
         <StoryFn />
       </div>
     </ChakraProvider>
