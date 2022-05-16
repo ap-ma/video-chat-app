@@ -71,13 +71,13 @@ export type SigninTemplateProps = Omit<HtmlSkeletonProps, 'children'> & {
 /** Presenter Props */
 export type PresenterProps = SigninTemplateProps & {
   disabled: boolean
-  // sign up
+  // SignUp
   isSufOpen: IsOpen
   onSufOpen: OnOpen
   onSufClose: OnClose
   isSucdOpen: IsOpen
   onSucdClose: OnClose
-  // forgot pass
+  // ForgotPass
   isFpfOpen: IsOpen
   onFpfOpen: OnOpen
   onFpfClose: OnClose
@@ -89,13 +89,13 @@ export type PresenterProps = SigninTemplateProps & {
 const SigninTemplatePresenter: React.VFC<PresenterProps> = ({
   mutation: { signIn, forgotPassword, signUp },
   disabled,
-  // sign up
+  // SignUp
   isSufOpen,
   onSufOpen,
   onSufClose,
   isSucdOpen,
   onSucdClose,
-  // forgot pass
+  // ForgotPass
   isFpfOpen,
   onFpfOpen,
   onFpfClose,
@@ -166,13 +166,13 @@ const SigninTemplateContainer: React.VFC<ContainerProps<SigninTemplateProps, Pre
   return presenter({
     mutation,
     disabled,
-    // sign up
+    // SignUp
     isSufOpen,
     onSufOpen,
     onSufClose,
     isSucdOpen,
     onSucdClose,
-    // forgot pass
+    // ForgotPass
     isFpfOpen,
     onFpfOpen,
     onFpfClose,

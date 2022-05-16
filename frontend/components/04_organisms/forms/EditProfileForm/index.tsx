@@ -19,8 +19,8 @@ import Modal, { ModalProps } from 'components/03_molecules/Modal'
 import { connect } from 'components/hoc'
 import { useSetError } from 'components/hooks'
 import { VALIDATION_USER_COMMENT_MAX_LEN } from 'const'
-import { SignUpMutation, SignUpMutationVariables } from 'graphql/generated'
-import React, { useCallback, useMemo } from 'react'
+import { EditProfileMutation, EditProfileMutationVariables, MeQuery } from 'graphql/generated'
+import React, { useCallback } from 'react'
 import { FieldErrors, SubmitHandler, useForm, UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
 import { ContainerProps, MutaionLoading, MutaionReset, MutateFunction, ValidationErrors } from 'types'
 import { imageCompression } from 'utils/general/helper'
@@ -28,26 +28,31 @@ import { hasValue, isNullish } from 'utils/general/object'
 import * as styles from './styles'
 import { FormSchema, schema } from './validation'
 
-/** SignupForm Props */
-export type SignupFormProps = Omit<ModalProps, 'children'> & {
+/** EditProfileForm Props */
+export type EditProfileFormProps = Omit<ModalProps, 'children'> & {
+  /**
+   * サインインユーザー情報
+   */
+  me?: MeQuery['me']
   /**
    * Mutation
    */
   mutation: {
     /**
-     * サインアップ
+     * プロフィール編集
      */
-    signUp: {
+    editProfile: {
+      result?: EditProfileMutation['editProfile']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      mutate: MutateFunction<SignUpMutation, SignUpMutationVariables>
+      mutate: MutateFunction<EditProfileMutation, EditProfileMutationVariables>
     }
   }
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<SignupFormProps, 'mutation'> & {
+export type PresenterProps = Omit<EditProfileFormProps, 'mutation'> & {
   loading: MutaionLoading
   errors: string[]
   fieldErrors: FieldErrors<FormSchema>
@@ -56,7 +61,7 @@ export type PresenterProps = Omit<SignupFormProps, 'mutation'> & {
 }
 
 /** Presenter Component */
-const SignupFormPresenter: React.VFC<PresenterProps> = ({
+const EditProfileFormPresenter: React.VFC<PresenterProps> = ({
   loading,
   errors,
   fieldErrors,
@@ -142,11 +147,11 @@ const SignupFormPresenter: React.VFC<PresenterProps> = ({
 )
 
 /** Container Component */
-const SignupFormContainer: React.VFC<ContainerProps<SignupFormProps, PresenterProps>> = ({
+const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, PresenterProps>> = ({
   presenter,
   isOpen,
   onClose: onSufClose,
-  mutation: { signUp },
+  mutation: { editProfile },
   ...props
 }) => {
   // react hook form
@@ -155,20 +160,20 @@ const SignupFormContainer: React.VFC<ContainerProps<SignupFormProps, PresenterPr
   })
 
   // status
-  const loading = signUp.loading
+  const loading = editProfile.loading
   const fieldErrors = formState.errors
   const fields = Object.keys(schema.innerType().shape)
-  const errors = useSetError<FormSchema>(fields, setError, signUp.errors, {
+  const errors = useSetError<FormSchema>(fields, setError, editProfile.errors, {
     comment: { vml_length: VALIDATION_USER_COMMENT_MAX_LEN }
   })
 
   // mutate
   const signUpMutation: SubmitHandler<FormSchema> = (input) => {
-    signUp.reset()
+    editProfile.reset()
     const avatar = (input.avatar as FileList).item(0)
     const compressed = isNullish(avatar) ? Promise.resolve(undefined) : imageCompression(avatar)
     const mutate = (avatar?: unknown) =>
-      signUp.mutate({ variables: { input: { ...input, avatar: avatar instanceof File ? avatar : undefined } } })
+      editProfile.mutate({ variables: { input: { ...input, avatar: avatar instanceof File ? avatar : undefined } } })
     compressed.then(mutate, mutate).catch(console.log)
   }
   const onSignUpButtonClick = handleSubmit(signUpMutation)
@@ -177,12 +182,8 @@ const SignupFormContainer: React.VFC<ContainerProps<SignupFormProps, PresenterPr
   const onClose = useCallback(() => {
     onSufClose()
     reset()
-    signUp.reset()
-  }, [onSufClose, reset, signUp])
-
-  useMemo(() => {
-    if (!isOpen) reset()
-  }, [isOpen, reset])
+    editProfile.reset()
+  }, [onSufClose, reset, editProfile])
 
   return presenter({
     isOpen,
@@ -196,5 +197,9 @@ const SignupFormContainer: React.VFC<ContainerProps<SignupFormProps, PresenterPr
   })
 }
 
-/** SignupForm */
-export default connect<SignupFormProps, PresenterProps>('SignupForm', SignupFormPresenter, SignupFormContainer)
+/** EditProfileForm */
+export default connect<EditProfileFormProps, PresenterProps>(
+  'EditProfileForm',
+  EditProfileFormPresenter,
+  EditProfileFormContainer
+)

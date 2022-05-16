@@ -42,7 +42,6 @@ import React from 'react'
 import {
   ContainerProps,
   LazyQueryFunction,
-  LocalStorageVariables,
   MutaionLoading,
   MutaionReset,
   MutateFunction,
@@ -52,7 +51,7 @@ import {
   QueryRefetch,
   ValidationErrors
 } from 'types'
-import { SetContactInfoUserId } from 'utils/apollo/state'
+import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 import Header from './Header'
 import Sidebar from './Sidebar'
 
@@ -78,7 +77,7 @@ export type IndexTemplateProps = {
      *  コンタクト情報 ユーザーID
      */
     contactInfoUserId: {
-      state: LocalStorageVariables
+      state: ContactInfoUserId
       setContactInfoUserId: SetContactInfoUserId
     }
   }
@@ -121,6 +120,7 @@ export type IndexTemplateProps = {
      * プロフィール編集
      */
     editProfile: {
+      result?: EditProfileMutation['editProfile']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
@@ -130,6 +130,7 @@ export type IndexTemplateProps = {
      * メールアドレス変更
      */
     changeEmail: {
+      result?: ChangeEmailMutation['changeEmail']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
@@ -139,6 +140,7 @@ export type IndexTemplateProps = {
      * パスワード変更
      */
     changePassword: {
+      result?: ChangePasswordMutation['changePassword']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
@@ -148,6 +150,7 @@ export type IndexTemplateProps = {
      * アカウント削除
      */
     deleteAccount: {
+      result?: DeleteAccountMutation['deleteAccount']
       loading: MutaionLoading
       mutate: MutateFunction<DeleteAccountMutation, DeleteAccountMutationVariables>
     }

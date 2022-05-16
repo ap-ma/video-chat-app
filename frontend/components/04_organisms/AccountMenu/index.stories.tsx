@@ -1,44 +1,51 @@
 /* eslint-disable import/no-unresolved */
 import { container } from '.storybook/decorators'
 import { dummyMutation, me } from '.storybook/dummies'
+import { Flex } from '@chakra-ui/react'
 /* eslint-enable import/no-unresolved  */
-import { Box } from '@chakra-ui/react'
 import { Meta, Story } from '@storybook/react'
 import { SignOutMutation, SignOutMutationVariables } from 'graphql/generated'
 import React from 'react'
 import { MutaionLoading } from 'types'
-import Header, { HeaderProps } from './index'
+import AccountMenu, { AccountMenuProps } from './index'
 
 export default {
-  title: '04_organisms/Header',
-  component: Header,
+  title: '04_organisms/AccountMenu',
+  component: AccountMenu,
   decorators: [
     (Story) => (
-      <div style={{ minHeight: '100vh' }}>
-        <Box pos='absolute' w='18rem' h='100vh' bg='#dcdcdc' d={{ base: 'none', md: 'block' }} />
+      <Flex
+        h='20'
+        pr={{ base: 5, md: 4 }}
+        bg='white'
+        borderBottomWidth='1px'
+        borderBottomColor='gray.200'
+        alignItems='center'
+        justifyContent={{ base: 'space-between', md: 'flex-end' }}
+      >
         {Story()}
-      </div>
+      </Flex>
     ),
     (Story) => container({ height: '100%', background: '#f5f5f5' })(Story())
   ]
 } as Meta
 
-type HeaderStoryProps = HeaderProps & {
-  signOutLoading: MutaionLoading
+type AccountMenuStoryProps = AccountMenuProps & {
+  loading: MutaionLoading
 }
 
-const Template: Story<HeaderStoryProps> = ({ signOutLoading, ...props }) => {
+const Template: Story<AccountMenuStoryProps> = ({ loading, ...props }) => {
   const signOut = dummyMutation<SignOutMutation['signOut'], SignOutMutation, SignOutMutationVariables>(
     'SignOut',
     undefined,
-    signOutLoading
+    loading
   )
   const mutation = { signOut }
-  return <Header {...{ ...props, me, mutation }} />
+  return <AccountMenu {...{ ...props, me, mutation }} />
 }
 
 export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'
 Primary.args = {
-  signOutLoading: false
+  loading: false
 }

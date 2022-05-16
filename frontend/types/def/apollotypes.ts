@@ -68,10 +68,3 @@ export type MutaionReset = MutationResult['reset']
 
 /** Apollo Client Mutation mutate function */
 export type MutateFunction<TData, TVariables> = MutationTuple<TData, TVariables>[0]
-
-//  ----------------------------------------------------------------------------
-//  Apollo Client local state types
-//  ----------------------------------------------------------------------------
-
-/** Apollo Client Reactive variables localStorage */
-export type LocalStorageVariables = ReturnType<typeof localStorage.getItem>

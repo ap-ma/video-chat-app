@@ -4,7 +4,8 @@ import SignupCompleteDialog, { SignupCompleteDialogProps } from './index'
 
 export default {
   title: '04_organisms/dialogs/SignupCompleteDialog',
-  component: SignupCompleteDialog
+  component: SignupCompleteDialog,
+  argTypes: { onClose: { action: 'clicked' } }
 } as Meta
 
 const Template: Story<SignupCompleteDialogProps> = ({ ...props }) => {

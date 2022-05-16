@@ -11,6 +11,7 @@ import SigninForm, { SigninFormProps } from './index'
 export default {
   title: '04_organisms/forms/SigninForm',
   component: SigninForm,
+  argTypes: { onFpfOpen: { action: 'clicked' } },
   decorators: [
     (Story) => (
       <Flex overflow='hidden' align='center' justify='center' minH='100vh' bg='gray.50'>

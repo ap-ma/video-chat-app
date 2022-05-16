@@ -6,8 +6,8 @@ import { connect } from 'components/hoc'
 import { ContactInfoQuery, ContactInfoQueryVariables, ContactsQuery } from 'graphql/generated'
 import React, { Fragment } from 'react'
 import { useForm, UseFormRegister } from 'react-hook-form'
-import { ContainerProps, LocalStorageVariables, QueryRefetch } from 'types'
-import { SetContactInfoUserId } from 'utils/apollo/state'
+import { ContainerProps, QueryRefetch } from 'types'
+import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 import { toStr } from 'utils/general/helper'
 import * as styles from './styles'
 import { FormSchema, schema } from './validation'
@@ -26,7 +26,7 @@ export type ContactListProps = ScrollbarProps & {
      *  コンタクト情報 ユーザーID
      */
     contactInfoUserId: {
-      state: LocalStorageVariables
+      state: ContactInfoUserId
       setContactInfoUserId: SetContactInfoUserId
     }
   }

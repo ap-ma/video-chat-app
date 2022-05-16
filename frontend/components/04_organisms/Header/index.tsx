@@ -1,25 +1,12 @@
-import {
-  Avatar,
-  Box,
-  Flex,
-  FlexProps,
-  HStack,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuDivider,
-  MenuItem,
-  MenuList,
-  Text,
-  VStack
-} from '@chakra-ui/react'
+import { Flex, FlexProps, HStack, IconButton, useDisclosure } from '@chakra-ui/react'
 import AppLogo from 'components/01_atoms/AppLogo'
+import AccountMenu from 'components/04_organisms/AccountMenu'
 import { connect } from 'components/hoc'
-import { MeQuery } from 'graphql/generated'
+import { MeQuery, SignOutMutation, SignOutMutationVariables } from 'graphql/generated'
 import React from 'react'
-import { FiBell, FiChevronDown } from 'react-icons/fi'
-import { GrContactInfo } from 'react-icons/gr'
-import { ContainerProps } from 'types'
+import { ImSearch } from 'react-icons/im'
+import { RiContactsLine } from 'react-icons/ri'
+import { ContainerProps, IsOpen, MutaionLoading, MutateFunction, OnClose, OnOpen } from 'types'
 import * as styles from './styles'
 
 /** Header Props */
@@ -28,63 +15,113 @@ export type HeaderProps = Omit<FlexProps, 'me'> & {
    * サインインユーザー情報
    */
   me?: MeQuery['me']
+  /**
+   * サイドバー onOpen
+   */
+  onSbOpen: OnOpen
+  /**
+   * ユーザー検索 onOpen
+   */
+  onSuOpen: OnOpen
+  /**
+   * Mutation
+   */
+  mutation: {
+    /**
+     * サインアウト
+     */
+    signOut: {
+      loading: MutaionLoading
+      mutate: MutateFunction<SignOutMutation, SignOutMutationVariables>
+    }
+  }
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<HeaderProps, 'me'>
+export type PresenterProps = HeaderProps & {
+  // EditProfile
+  isEpfOpen: IsOpen
+  onEpfOpen: OnOpen
+  onEpfClose: OnClose
+  // ChangeEmail
+  isCefOpen: IsOpen
+  onCefOpen: OnOpen
+  onCefClose: OnClose
+  // ChangePassword
+  isCpfOpen: IsOpen
+  onCpfOpen: OnOpen
+  onCpfClose: OnClose
+  // DeleteAccount
+  isDadOpen: IsOpen
+  onDadOpen: OnOpen
+  onDadClose: OnClose
+}
 
 /** Presenter Component */
-const HeaderPresenter: React.VFC<PresenterProps> = ({ ...props }) => (
+const HeaderPresenter: React.VFC<PresenterProps> = ({
+  me,
+  mutation: { signOut },
+  // sidebar
+  onSbOpen,
+  onSuOpen,
+  // EditProfile
+  isEpfOpen,
+  onEpfOpen,
+  onEpfClose,
+  // ChangeEmail
+  isCefOpen,
+  onCefOpen,
+  onCefClose,
+  // ChangePassword
+  isCpfOpen,
+  onCpfOpen,
+  onCpfClose,
+  // DeleteAccount
+  isDadOpen,
+  onDadOpen,
+  onDadClose,
+  ...props
+}) => (
   <Flex {...styles.root} {...props}>
-    <IconButton
-      d={{ base: 'flex', md: 'none' }}
-      onClick={() => console.log('onClick')}
-      variant='outline'
-      aria-label='open menu'
-      mr={{ base: '5', md: '2' }}
-      icon={<GrContactInfo />}
-    />
-
-    <AppLogo d={{ base: 'flex', md: 'none' }} />
-
-    <HStack spacing={{ base: '2', md: '6' }}>
-      <IconButton size='lg' variant='ghost' aria-label='open menu' icon={<FiBell />} />
-      <Flex alignItems='center'>
-        <Menu>
-          <MenuButton py={2} transition='all 0.3s' _focus={{ boxShadow: 'none' }}>
-            <HStack>
-              <Avatar
-                size='sm'
-                src={
-                  'https://1.bp.blogspot.com/-DU9jll2ZQ38/XexqGlVzO9I/AAAAAAABWdQ/m0lQONbEfSgEjIN14h7iIfRh8WS5qwrFACNcBGAsYHQ/s1600/gal_o_man.png'
-                }
-              />
-              <VStack display={{ base: 'none', md: 'flex' }} alignItems='flex-start' spacing='1px' ml='2'>
-                <Text fontSize='sm'>名前 太郎</Text>
-                <Text fontSize='xs' color='gray.600'>
-                  Code: sndsDas13D
-                </Text>
-              </VStack>
-              <Box display={{ base: 'none', md: 'flex' }}>
-                <FiChevronDown />
-              </Box>
-            </HStack>
-          </MenuButton>
-          <MenuList bg='white' borderColor='gray.200'>
-            <MenuItem>Profile</MenuItem>
-            <MenuItem>Account</MenuItem>
-            <MenuDivider />
-            <MenuItem>Sign out</MenuItem>
-          </MenuList>
-        </Menu>
-      </Flex>
+    <IconButton icon={<RiContactsLine />} {...styles.openButton} onClick={onSbOpen} />
+    <AppLogo {...styles.logo} />
+    <HStack {...styles.rightContents}>
+      <IconButton icon={<ImSearch />} {...styles.searchButton} onClick={onSuOpen} />
+      <AccountMenu mutation={{ signOut }} {...{ me, onEpfOpen, onCefOpen, onCpfOpen, onDadOpen }} />
     </HStack>
   </Flex>
 )
 
 /** Container Component */
 const HeaderContainer: React.VFC<ContainerProps<HeaderProps, PresenterProps>> = ({ presenter, ...props }) => {
-  return presenter({ ...props })
+  // EditProfileForm
+  const { isOpen: isEpfOpen, onOpen: onEpfOpen, onClose: onEpfClose } = useDisclosure()
+  // ChangeEmailForm
+  const { isOpen: isCefOpen, onOpen: onCefOpen, onClose: onCefClose } = useDisclosure()
+  // ChangePasswordForm
+  const { isOpen: isCpfOpen, onOpen: onCpfOpen, onClose: onCpfClose } = useDisclosure()
+  // DeleteAccountDialog
+  const { isOpen: isDadOpen, onOpen: onDadOpen, onClose: onDadClose } = useDisclosure()
+
+  return presenter({
+    // EditProfile
+    isEpfOpen,
+    onEpfOpen,
+    onEpfClose,
+    // ChangeEmail
+    isCefOpen,
+    onCefOpen,
+    onCefClose,
+    // ChangePassword
+    isCpfOpen,
+    onCpfOpen,
+    onCpfClose,
+    // DeleteAccount
+    isDadOpen,
+    onDadOpen,
+    onDadClose,
+    ...props
+  })
 }
 
 /** Header */

@@ -21,7 +21,7 @@ const Template: Story<ChatListProps> = ({ ...props }) => {
   const state = { contactInfoUserId: { state: contactUserId, setContactInfoUserId: setContactUserId } }
   const query = { contactInfo }
 
-  return <ChatList {...props} {...{ me, latestMessages, state, query }} />
+  return <ChatList {...{ ...props, me, latestMessages, state, query }} />
 }
 
 export const Primary = Template.bind({})

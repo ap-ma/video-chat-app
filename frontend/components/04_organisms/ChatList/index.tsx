@@ -3,8 +3,8 @@ import UserCard, { UserCardProps } from 'components/04_organisms/UserCard'
 import { connect } from 'components/hoc'
 import { ContactInfoQuery, ContactInfoQueryVariables, LatestMessagesQuery, MeQuery } from 'graphql/generated'
 import React from 'react'
-import { ContainerProps, LocalStorageVariables, QueryRefetch } from 'types'
-import { SetContactInfoUserId } from 'utils/apollo/state'
+import { ContainerProps, QueryRefetch } from 'types'
+import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 import { toStr } from 'utils/general/helper'
 import { getLatestMessage } from 'utils/helper'
 
@@ -26,7 +26,7 @@ export type ChatListProps = Omit<ScrollbarProps, 'me'> & {
      *  コンタクト情報 ユーザーID
      */
     contactInfoUserId: {
-      state: LocalStorageVariables
+      state: ContactInfoUserId
       setContactInfoUserId: SetContactInfoUserId
     }
   }

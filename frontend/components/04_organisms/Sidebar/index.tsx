@@ -1,15 +1,4 @@
-import {
-  Box,
-  BoxProps,
-  CloseButton,
-  CloseButtonProps,
-  Flex,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs
-} from '@chakra-ui/react'
+import { Box, BoxProps, CloseButton, Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import AppLogo from 'components/01_atoms/AppLogo'
 import ChatList from 'components/04_organisms/ChatList'
 import ContactList from 'components/04_organisms/ContactList'
@@ -22,8 +11,8 @@ import {
   MeQuery
 } from 'graphql/generated'
 import React from 'react'
-import { ContainerProps, LocalStorageVariables, QueryRefetch } from 'types'
-import { SetContactInfoUserId } from 'utils/apollo/state'
+import { ContainerProps, OnClose, QueryRefetch } from 'types'
+import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 import * as styles from './styles'
 
 /** Sidebar Props */
@@ -41,9 +30,9 @@ export type SidebarProps = Omit<BoxProps, 'me'> & {
    */
   latestMessages?: LatestMessagesQuery['latestMessages']
   /**
-   * 閉じるボタン押下時処理
+   * サイドバー onClose
    */
-  onCloseButtonClick: CloseButtonProps['onClick']
+  onSbClose: OnClose
   /**
    * Local State
    */
@@ -52,7 +41,7 @@ export type SidebarProps = Omit<BoxProps, 'me'> & {
      *  コンタクト情報 ユーザーID
      */
     contactInfoUserId: {
-      state: LocalStorageVariables
+      state: ContactInfoUserId
       setContactInfoUserId: SetContactInfoUserId
     }
   }
@@ -79,13 +68,13 @@ const SidebarPresenter: React.VFC<PresenterProps> = ({
   latestMessages,
   state,
   query,
-  onCloseButtonClick,
+  onSbClose,
   ...props
 }) => (
   <Box {...styles.root} {...props}>
     <Flex {...styles.head}>
       <AppLogo />
-      <CloseButton {...styles.close} onClick={onCloseButtonClick} />
+      <CloseButton {...styles.close} onClick={onSbClose} />
     </Flex>
     <Tabs isFitted {...styles.tab}>
       <TabList>

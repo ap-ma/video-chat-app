@@ -181,7 +181,7 @@ const Index: NextPage = () => {
   const [unblockContact, unblockContactMutation] = useUnblockContactMutation({
     update: (cache, { data }) => !isNullish(data) && updateContactCache(cache, data.unblockContact, 'ADD'),
     onCompleted: ({ unblockContact }) => {
-      if (contactInfoQuery.data?.contactInfo.userId === unblockContact.userId) {
+      if (contactInfoUserId === unblockContact.userId) {
         readMessages({ variables: { otherUserId: unblockContact.userId } }).catch(console.log)
       }
     }
@@ -200,7 +200,7 @@ const Index: NextPage = () => {
       const messageChanged = data.messageSubscription
       updateMessageCache(client.cache, messageChanged)
       if (isContactApproval(messageChanged)) contactsQuery.refetch()
-      if (contactInfoQuery.data?.contactInfo.userId === messageChanged.txUserId) {
+      if (contactInfoUserId === messageChanged.txUserId) {
         readMessages({ variables: { otherUserId: messageChanged.txUserId } }).catch(console.log)
       }
     }
@@ -233,29 +233,32 @@ const Index: NextPage = () => {
     },
     mutation: {
       signOut: {
-        result: signOutMutation.data?.signOut,
         loading: signOutMutation.loading,
         mutate: signOut
       },
       editProfile: {
+        result: editProfileMutation.data?.editProfile,
         loading: editProfileMutation.loading,
         errors: isValidationErrors(editProfileResult) ? editProfileResult : undefined,
         reset: editProfileMutation.reset,
         mutate: editProfile
       },
       changeEmail: {
+        result: changeEmailMutation.data?.changeEmail,
         loading: changeEmailMutation.loading,
         errors: isValidationErrors(changeEmailResult) ? changeEmailResult : undefined,
         reset: changeEmailMutation.reset,
         mutate: changeEmail
       },
       changePassword: {
+        result: changePasswordMutation.data?.changePassword,
         loading: changePasswordMutation.loading,
         errors: isValidationErrors(changePasswordResult) ? changePasswordResult : undefined,
         reset: changePasswordMutation.reset,
         mutate: changePassword
       },
       deleteAccount: {
+        result: deleteAccountMutation.data?.deleteAccount,
         loading: deleteAccountMutation.loading,
         mutate: deleteAccount
       },
