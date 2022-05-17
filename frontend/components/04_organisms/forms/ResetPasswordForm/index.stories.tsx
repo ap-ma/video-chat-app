@@ -14,7 +14,7 @@ export default {
   decorators: [
     (Story) => (
       <Flex overflow='hidden' align='center' justify='center' minH='100vh' bg='gray.50'>
-        <Stack spacing={8} minW={{ base: 'full', sm: 'md' }} maxW='lg' mt='-10%' mx='auto' py={12} px={6}>
+        <Stack spacing={8} minW={{ base: 'full', sm: 'md' }} maxW='lg' mt='-8%' mx='auto' py={12} px={6}>
           {Story()}
         </Stack>
       </Flex>

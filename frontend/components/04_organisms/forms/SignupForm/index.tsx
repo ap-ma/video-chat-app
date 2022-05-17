@@ -172,6 +172,8 @@ const SignupFormContainer: React.VFC<ContainerProps<SignupFormProps, PresenterPr
       signUp.mutate({ variables: { input: { ...input, avatar: avatar instanceof File ? avatar : undefined } } })
     compressed.then(mutate, mutate).catch(Toast('ValidationError'))
   }
+
+  // onClick sign up button
   const onSignUpButtonClick = handleSubmit(signUpMutation)
 
   // modal onClose

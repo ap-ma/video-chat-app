@@ -25,7 +25,7 @@ export const input = {
 } as const
 
 export const actions = {
-  pt: '4',
+  pt: 4,
   spacing: 4,
   direction: { base: 'column', sm: 'row' }
 } as const

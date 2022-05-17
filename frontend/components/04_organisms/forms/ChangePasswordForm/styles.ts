@@ -1,9 +1,7 @@
-export const root = {
-  spacing: 4,
-  p: 6,
-  bg: 'white',
-  rounded: 'lg',
-  boxShadow: 'lg'
+export const head = {
+  lineHeight: 1.1,
+  pb: 3,
+  fontSize: { base: '2xl', sm: '3xl' }
 } as const
 
 export const input = {

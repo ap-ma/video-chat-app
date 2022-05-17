@@ -1,4 +1,4 @@
-import { Button, FormControl, FormErrorMessage, FormLabel, Input, Stack, StackProps } from '@chakra-ui/react'
+import { Box, Button, FormControl, FormErrorMessage, FormLabel, Input, Stack, StackProps } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import AlertMessage from 'components/01_atoms/AlertMessage'
 import ErrorMessage from 'components/01_atoms/ErrorMessage'
@@ -82,11 +82,11 @@ const ResetPasswordFormPresenter: React.VFC<PresenterProps> = ({
       <Input type='password' placeholder='password' {...styles.input} {...register('passwordConfirm')} />
       <FormErrorMessage>{fieldErrors.passwordConfirm?.message}</FormErrorMessage>
     </FormControl>
-    <Stack>
+    <Box pt='1'>
       <Button {...styles.button} isLoading={loading} disabled={disabled} onClick={onSubmitButtonClick}>
         Submit
       </Button>
-    </Stack>
+    </Box>
   </Stack>
 )
 
@@ -116,6 +116,8 @@ const ResetPasswordFormContainer: React.VFC<ContainerProps<ResetPasswordFormProp
     resetPassword.reset()
     resetPassword.mutate({ variables: { input: { token: toStr(token), ...input } } }).catch(Toast('ValidationError'))
   }
+
+  // onClick submit button
   const onSubmitButtonClick = handleSubmit(resetPasswordMutation)
 
   return presenter({

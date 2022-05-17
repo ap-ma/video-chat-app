@@ -114,6 +114,8 @@ const SigninFormContainer: React.VFC<ContainerProps<SigninFormProps, PresenterPr
     signIn.reset()
     signIn.mutate({ variables: { input } }).catch(Toast('ValidationError'))
   }
+
+  // onClick sign in button
   const onSignInButtonClick = handleSubmit(signInMutation)
 
   return presenter({

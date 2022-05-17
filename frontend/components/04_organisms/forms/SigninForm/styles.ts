@@ -2,7 +2,7 @@ import { PresenterProps } from './index'
 
 export const root = {
   spacing: 4,
-  p: 8,
+  p: 6,
   bg: 'white',
   rounded: 'lg',
   boxShadow: 'lg'

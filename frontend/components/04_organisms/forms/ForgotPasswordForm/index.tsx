@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   FormControl,
   FormErrorMessage,
@@ -73,9 +74,11 @@ const ForgotPasswordFormPresenter: React.VFC<PresenterProps> = ({
             <Input type='email' placeholder='your-email@example.com' {...styles.input} {...register('email')} />
             <FormErrorMessage>{fieldErrors.email?.message}</FormErrorMessage>
           </FormControl>
-          <Button {...styles.button} isLoading={loading} onClick={onSubmitButtonClick}>
-            Submit
-          </Button>
+          <Box pt='0.5'>
+            <Button {...styles.button} isLoading={loading} onClick={onSubmitButtonClick}>
+              Submit
+            </Button>
+          </Box>
         </Stack>
       </ModalBody>
     </ModalContent>
@@ -106,6 +109,8 @@ const ForgotPasswordFormContainer: React.VFC<ContainerProps<ForgotPasswordFormPr
     forgotPassword.reset()
     forgotPassword.mutate({ variables: { email } }).catch(Toast('ValidationError'))
   }
+
+  // onClick submit button
   const onSubmitButtonClick = handleSubmit(forgotPasswordMutation)
 
   // modal onClose

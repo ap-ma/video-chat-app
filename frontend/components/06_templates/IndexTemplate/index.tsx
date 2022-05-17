@@ -260,7 +260,7 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
   latestMessages,
   state,
   query: { contactInfo, searchUser },
-  mutation: { signOut },
+  mutation: { signOut, editProfile, changeEmail, changePassword, deleteAccount },
   // Sidebar
   isSbOpen,
   onSbOpen,
@@ -293,7 +293,10 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
         </DrawerContent>
       </Drawer>
       {/* mobilenav */}
-      <Header mutation={{ signOut }} {...{ me, onSbOpen, onSuOpen }} />
+      <Header
+        mutation={{ signOut, editProfile, changeEmail, changePassword, deleteAccount }}
+        {...{ me, onSbOpen, onSuOpen }}
+      />
       <Box ml={{ base: 0, md: 72 }} p='4'>
         HOME
       </Box>

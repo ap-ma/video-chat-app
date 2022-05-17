@@ -10,7 +10,7 @@ export const contents = {
   spacing: 8,
   minW: { base: 'full', sm: 'md' },
   maxW: 'lg',
-  mt: '-10%',
+  mt: '-8%',
   mx: 'auto',
   py: 12,
   px: 6

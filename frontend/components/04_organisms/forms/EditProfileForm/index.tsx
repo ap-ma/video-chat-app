@@ -165,6 +165,8 @@ const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, P
   mutation: { editProfile },
   ...props
 }) => {
+  // edit flag
+  const [edit, setEdit] = useState(false)
   // AvatarEditor key
   const [avatarEditorKey, setAvatarEditorKey] = useState(nanoid())
 
@@ -178,22 +180,6 @@ const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, P
       isAvatarEdited: false
     }
   })
-
-  // edit flag
-  const [edit, setEdit] = useState(false)
-  const onEditButtonClick = () => {
-    setEdit(true)
-  }
-  const onCancelButtonClick = useCallback(() => {
-    setEdit(false)
-    setAvatarEditorKey(nanoid())
-    reset()
-  }, [reset])
-
-  // onAvatarEdit
-  const onAvatarEdit: AvatarEditorProps['onEdit'] = () => {
-    setValue('isAvatarEdited', true)
-  }
 
   // status
   const loading = editProfile.loading
@@ -212,9 +198,28 @@ const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, P
       editProfile.mutate({ variables: { input: { ...input, avatar: avatar instanceof File ? avatar : undefined } } })
     compressed.then(mutate, mutate).catch(Toast('ValidationError'))
   }
+
+  // onAvatarEdit
+  const onAvatarEdit: AvatarEditorProps['onEdit'] = () => {
+    setValue('isAvatarEdited', true)
+  }
+
+  // onClick edit button
+  const onEditButtonClick = () => {
+    setEdit(true)
+  }
+
+  // onClick cancel button
+  const onCancelButtonClick = useCallback(() => {
+    setEdit(false)
+    setAvatarEditorKey(nanoid())
+    reset()
+  }, [reset])
+
+  // onClick save button
   const onSaveButtonClick = handleSubmit(signUpMutation)
 
-  // onComplete
+  // mutate onComplete
   useMemo(() => {
     if (hasValue(editProfile.result)) {
       editProfile.reset()
