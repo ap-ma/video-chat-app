@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  ButtonProps,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -14,16 +15,19 @@ import {
 } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import AlertMessage from 'components/01_atoms/AlertMessage'
-import AvatarEditor from 'components/03_molecules/AvatarEditor'
-import Modal, { ModalProps } from 'components/03_molecules/Modal'
+import Editable from 'components/01_atoms/Editable'
+import Modal, { ModalProps } from 'components/01_atoms/Modal'
+import Toast from 'components/01_atoms/Toast'
+import AvatarEditor, { AvatarEditorProps } from 'components/03_molecules/AvatarEditor'
 import { connect } from 'components/hoc'
 import { useSetError } from 'components/hooks'
 import { VALIDATION_USER_COMMENT_MAX_LEN } from 'const'
 import { EditProfileMutation, EditProfileMutationVariables, MeQuery } from 'graphql/generated'
-import React, { useCallback } from 'react'
+import { nanoid } from 'nanoid'
+import React, { useCallback, useMemo, useState } from 'react'
 import { FieldErrors, SubmitHandler, useForm, UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
 import { ContainerProps, MutaionLoading, MutaionReset, MutateFunction, ValidationErrors } from 'types'
-import { imageCompression } from 'utils/general/helper'
+import { imageCompression, toStr } from 'utils/general/helper'
 import { hasValue, isNullish } from 'utils/general/object'
 import * as styles from './styles'
 import { FormSchema, schema } from './validation'
@@ -53,20 +57,31 @@ export type EditProfileFormProps = Omit<ModalProps, 'children'> & {
 
 /** Presenter Props */
 export type PresenterProps = Omit<EditProfileFormProps, 'mutation'> & {
+  avatarEditorKey: string
+  edit: boolean
   loading: MutaionLoading
   errors: string[]
   fieldErrors: FieldErrors<FormSchema>
   register: UseFormRegister<FormSchema>
-  onSignUpButtonClick: ReturnType<UseFormHandleSubmit<FormSchema>>
+  onAvatarEdit: AvatarEditorProps['onEdit']
+  onEditButtonClick: ButtonProps['onClick']
+  onCancelButtonClick: ButtonProps['onClick']
+  onSaveButtonClick: ReturnType<UseFormHandleSubmit<FormSchema>>
 }
 
 /** Presenter Component */
 const EditProfileFormPresenter: React.VFC<PresenterProps> = ({
+  me,
+  avatarEditorKey,
+  edit,
   loading,
   errors,
   fieldErrors,
   register,
-  onSignUpButtonClick,
+  onAvatarEdit,
+  onEditButtonClick,
+  onCancelButtonClick,
+  onSaveButtonClick,
   ...props
 }) => (
   <Modal {...props}>
@@ -74,72 +89,68 @@ const EditProfileFormPresenter: React.VFC<PresenterProps> = ({
       <ModalCloseButton isDisabled={loading} />
       <ModalBody pt='5' pb='8'>
         <Stack spacing='4'>
-          <Heading {...styles.head}>Sign up</Heading>
+          <Heading {...styles.head}>Edit Profile</Heading>
           <AlertMessage error={errors} />
           <AvatarEditor
-            {...register('avatar')}
-            isDisabled={loading}
+            avatar={toStr(me?.avatar)}
+            isDisabled={!edit || loading}
             isInvalid={hasValue(fieldErrors.avatar)}
             errorMessage={fieldErrors.avatar?.message}
+            onEdit={onAvatarEdit}
+            key={avatarEditorKey}
+            {...register('avatar')}
           />
+          <Input type='hidden' {...register('isAvatarEdited')} />
           <Stack {...styles.identifier}>
             <Box w='full'>
-              <FormControl id='su_code' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.code)}>
+              <FormControl id='ep_code' isRequired={edit} isDisabled={loading} isInvalid={hasValue(fieldErrors.code)}>
                 <FormLabel>Code</FormLabel>
-                <Tooltip label='Code for friends to find you.' {...styles.tooltip}>
-                  <Input type='text' placeholder='code' {...styles.input} {...register('code')} />
+                <Tooltip label='Code for friends to find you.' {...styles.tooltip({ edit })}>
+                  <Editable type='text' placeholder='code' {...styles.input} isEditable={edit} {...register('code')} />
                 </Tooltip>
                 <FormErrorMessage>{fieldErrors.code?.message}</FormErrorMessage>
               </FormControl>
             </Box>
             <Box w='full'>
-              <FormControl id='su_name' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.name)}>
+              <FormControl id='ep_name' isRequired={edit} isDisabled={loading} isInvalid={hasValue(fieldErrors.name)}>
                 <FormLabel>Nickname</FormLabel>
-                <Tooltip label='Your Nickname.' {...styles.tooltip}>
-                  <Input type='text' placeholder='nickname' {...styles.input} {...register('name')} />
+                <Tooltip label='Your Nickname.' {...styles.tooltip({ edit })}>
+                  <Editable
+                    type='text'
+                    placeholder='nickname'
+                    {...styles.input}
+                    isEditable={edit}
+                    {...register('name')}
+                  />
                 </Tooltip>
                 <FormErrorMessage>{fieldErrors.name?.message}</FormErrorMessage>
               </FormControl>
             </Box>
           </Stack>
-          <FormControl id='su_email' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.email)}>
-            <FormLabel>Email address</FormLabel>
-            <Tooltip label='Sign in Email Address.' {...styles.tooltip}>
-              <Input type='email' placeholder='your-email@example.com' {...styles.input} {...register('email')} />
-            </Tooltip>
-            <FormErrorMessage>{fieldErrors.email?.message}</FormErrorMessage>
-          </FormControl>
-          <FormControl id='su_password' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.password)}>
-            <FormLabel>Password</FormLabel>
-            <Tooltip label='Sign in Password.' {...styles.tooltip}>
-              <Input type='password' placeholder='password' {...styles.input} {...register('password')} />
-            </Tooltip>
-            <FormErrorMessage>{fieldErrors.password?.message}</FormErrorMessage>
-          </FormControl>
-          <FormControl
-            id='su_passwordConfirm'
-            isRequired
-            isDisabled={loading}
-            isInvalid={hasValue(fieldErrors.passwordConfirm)}
-          >
-            <FormLabel>Confirm Password</FormLabel>
-            <Tooltip label='Enter the Password again for confirmation.' {...styles.tooltip}>
-              <Input type='password' placeholder='password' {...styles.input} {...register('passwordConfirm')} />
-            </Tooltip>
-            <FormErrorMessage>{fieldErrors.passwordConfirm?.message}</FormErrorMessage>
-          </FormControl>
-          <FormControl id='su_comment' isDisabled={loading} isInvalid={hasValue(fieldErrors.comment)}>
+          <FormControl id='ep_comment' isDisabled={loading} isInvalid={hasValue(fieldErrors.comment)}>
             <FormLabel>Comment</FormLabel>
-            <Tooltip label='Status Message.' {...styles.tooltip}>
-              <Input type='text' placeholder='comment...' {...styles.input} {...register('comment')} />
+            <Tooltip label='Status Message.' {...styles.tooltip({ edit })}>
+              <Editable
+                type='text'
+                placeholder='comment...'
+                {...styles.input}
+                isEditable={edit}
+                {...register('comment')}
+              />
             </Tooltip>
             <FormErrorMessage>{fieldErrors.comment?.message}</FormErrorMessage>
           </FormControl>
-          <Box pt='4'>
-            <Button {...styles.signupButton} isLoading={loading} onClick={onSignUpButtonClick}>
-              Sign up
+          <Stack {...styles.actions}>
+            <Button {...styles.editButton({ edit })} onClick={onEditButtonClick}>
+              Edit
             </Button>
-          </Box>
+            <Button {...styles.cancelButton({ edit })} isDisabled={loading} onClick={onCancelButtonClick}>
+              Cancel
+            </Button>
+            <Button {...styles.saveButton({ edit })} isLoading={loading} onClick={onSaveButtonClick}>
+              Save
+            </Button>
+          </Stack>
         </Stack>
       </ModalBody>
     </ModalContent>
@@ -149,20 +160,45 @@ const EditProfileFormPresenter: React.VFC<PresenterProps> = ({
 /** Container Component */
 const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, PresenterProps>> = ({
   presenter,
-  isOpen,
-  onClose: onSufClose,
+  me,
+  onClose: onEpfClose,
   mutation: { editProfile },
   ...props
 }) => {
+  // AvatarEditor key
+  const [avatarEditorKey, setAvatarEditorKey] = useState(nanoid())
+
   // react hook form
-  const { register, handleSubmit, setError, reset, formState } = useForm<FormSchema>({
-    resolver: zodResolver(schema)
+  const { register, handleSubmit, setValue, setError, reset, formState } = useForm<FormSchema>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      code: me?.code ?? undefined,
+      name: me?.name ?? undefined,
+      comment: me?.comment ?? undefined,
+      isAvatarEdited: false
+    }
   })
+
+  // edit flag
+  const [edit, setEdit] = useState(false)
+  const onEditButtonClick = () => {
+    setEdit(true)
+  }
+  const onCancelButtonClick = useCallback(() => {
+    setEdit(false)
+    setAvatarEditorKey(nanoid())
+    reset()
+  }, [reset])
+
+  // onAvatarEdit
+  const onAvatarEdit: AvatarEditorProps['onEdit'] = () => {
+    setValue('isAvatarEdited', true)
+  }
 
   // status
   const loading = editProfile.loading
   const fieldErrors = formState.errors
-  const fields = Object.keys(schema.innerType().shape)
+  const fields = Object.keys(schema.shape)
   const errors = useSetError<FormSchema>(fields, setError, editProfile.errors, {
     comment: { vml_length: VALIDATION_USER_COMMENT_MAX_LEN }
   })
@@ -174,25 +210,39 @@ const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, P
     const compressed = isNullish(avatar) ? Promise.resolve(undefined) : imageCompression(avatar)
     const mutate = (avatar?: unknown) =>
       editProfile.mutate({ variables: { input: { ...input, avatar: avatar instanceof File ? avatar : undefined } } })
-    compressed.then(mutate, mutate).catch(console.log)
+    compressed.then(mutate, mutate).catch(Toast('ValidationError'))
   }
-  const onSignUpButtonClick = handleSubmit(signUpMutation)
+  const onSaveButtonClick = handleSubmit(signUpMutation)
+
+  // onComplete
+  useMemo(() => {
+    if (hasValue(editProfile.result)) {
+      editProfile.reset()
+      onCancelButtonClick()
+      Toast('EditProfileComplete')()
+    }
+  }, [editProfile, onCancelButtonClick])
 
   // modal onClose
   const onClose = useCallback(() => {
-    onSufClose()
-    reset()
+    onEpfClose()
     editProfile.reset()
-  }, [onSufClose, reset, editProfile])
+    onCancelButtonClick()
+  }, [onEpfClose, editProfile, onCancelButtonClick])
 
   return presenter({
-    isOpen,
+    me,
+    avatarEditorKey,
+    edit,
     onClose,
     loading,
     errors,
     fieldErrors,
     register,
-    onSignUpButtonClick,
+    onAvatarEdit,
+    onEditButtonClick,
+    onCancelButtonClick,
+    onSaveButtonClick,
     ...props
   })
 }

@@ -8,7 +8,7 @@ import Scrollbar, { ScrollbarProps } from './index'
 export default {
   title: '02_interactions/Scrollbar',
   component: Scrollbar,
-  decorators: [(Story) => container({ margin: '50px' })(Story())]
+  decorators: [(Story) => container({ padding: '50px' })(Story())]
 } as Meta
 
 const children = (

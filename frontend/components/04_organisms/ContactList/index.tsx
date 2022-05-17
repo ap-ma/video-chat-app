@@ -54,8 +54,8 @@ const ContactListPresenter: React.VFC<PresenterProps> = ({ contactList, register
   <Fragment>
     <Input type='text' placeholder='filter contacts...' {...styles.filter} {...register('filter')} />
     <Scrollbar mt='0.2em' {...props}>
-      {contactList?.map((contact, i) => (
-        <UserCard key={i} {...contact} />
+      {contactList?.map((contact) => (
+        <UserCard key={contact.userId} {...contact} />
       ))}
     </Scrollbar>
   </Fragment>
@@ -79,6 +79,7 @@ const ContactListContainer: React.VFC<ContainerProps<ContactListProps, Presenter
   const contactList = contacts
     ?.filter((contact) => contact.userName?.includes(filter))
     .map((contact) => ({
+      userId: contact.userId,
       image: contact.userAvatar ?? undefined,
       name: toStr(contact.userName),
       content: contact.userComment ?? undefined,

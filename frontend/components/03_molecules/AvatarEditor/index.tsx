@@ -14,9 +14,9 @@ import {
   IconButton,
   Input,
   InputProps,
-  Stack
+  Stack,
+  useMergeRefs
 } from '@chakra-ui/react'
-import composeRefs from '@seznam/compose-react-refs'
 import { connectRef } from 'components/hoc'
 import { ALLOWED_IMAGE_EXTS } from 'const'
 import React, { forwardRef, Ref, useRef, useState } from 'react'
@@ -28,10 +28,26 @@ import * as styles from './styles'
 /** AvatarEditor Props */
 export type AvatarEditorProps = Omit<InputProps, 'isDisabled'> &
   Partial<{
+    /**
+     * デフォルト画像
+     */
     avatar: AvatarProps['src']
+    /**
+     * 非活性フラグ
+     */
     isDisabled: boolean
+    /**
+     * エラーフラグ
+     */
     isInvalid: FormControlProps['isInvalid']
+    /**
+     * エラーメッセージ
+     */
     errorMessage: FormErrorMessageProps['children']
+    /**
+     * アバター編集時処理
+     */
+    onEdit: () => void
   }>
 
 /** Presenter Props */
@@ -49,10 +65,9 @@ const AvatarEditorPresenter = forwardRef<HTMLInputElement, PresenterProps>(
         <Center>
           <Avatar size='xl' src={avatar}>
             <AvatarBadge
-              {...styles.badge}
+              {...styles.badge({ isDisabled })}
               as={IconButton}
               icon={<SmallCloseIcon />}
-              disabled={isDisabled}
               onClick={clearAvatar}
             />
           </Avatar>
@@ -71,13 +86,14 @@ const AvatarEditorPresenter = forwardRef<HTMLInputElement, PresenterProps>(
 
 /** Container Component */
 const AvatarEditorContainer = forwardRef<HTMLInputElement, ContainerProps<AvatarEditorProps, PresenterProps>>(
-  ({ presenter, avatar, onChange, ...props }, ref) => {
+  ({ presenter, avatar, onChange, onEdit, ...props }, ref) => {
     const fileInputRef = useRef<HTMLInputElement>(null)
     const onAvatarChangeButtonClick = () => fileInputRef.current?.click()
     const [avatarSrc, setAvatarSrc] = useState<AvatarEditorProps['avatar']>(avatar)
 
     const onChangeAvatar: AvatarEditorProps['onChange'] = (event) => {
       if (!isNullish(onChange)) onChange(event)
+      if (!isNullish(onEdit)) onEdit()
 
       const image = event.target.files?.item(0)
       if (isNullish(image)) {
@@ -91,6 +107,7 @@ const AvatarEditorContainer = forwardRef<HTMLInputElement, ContainerProps<Avatar
     }
 
     const clearAvatar = () => {
+      if (!isNullish(onEdit)) onEdit()
       if (!isNullish(fileInputRef.current)) {
         fileInputRef.current.value = ''
         setAvatarSrc(undefined)
@@ -98,7 +115,7 @@ const AvatarEditorContainer = forwardRef<HTMLInputElement, ContainerProps<Avatar
     }
 
     return presenter({
-      ref: composeRefs<HTMLInputElement>(ref, fileInputRef),
+      ref: useMergeRefs<HTMLInputElement>(ref, fileInputRef),
       avatar: avatarSrc,
       onAvatarChangeButtonClick,
       onChange: onChangeAvatar,

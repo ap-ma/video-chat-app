@@ -50,9 +50,9 @@ export type PresenterProps = Omit<ChatListProps, 'me' | 'latestMessages' | 'stat
 
 /** Presenter Component */
 const ChatListPresenter: React.VFC<PresenterProps> = ({ chatList, ...props }) => (
-  <Scrollbar mt='0.4em' {...props}>
-    {chatList?.map((chat, i) => (
-      <UserCard key={i} {...chat} />
+  <Scrollbar mt='0.25em' {...props}>
+    {chatList?.map((chat) => (
+      <UserCard key={chat.userId} {...chat} />
     ))}
   </Scrollbar>
 )
@@ -67,6 +67,7 @@ const ChatListContainer: React.VFC<ContainerProps<ChatListProps, PresenterProps>
   ...props
 }) => {
   const chatList = latestMessages?.map((latestMessage) => ({
+    userId: latestMessage.userId,
     image: latestMessage.userAvatar ?? undefined,
     name: toStr(latestMessage.userName),
     content: getLatestMessage(latestMessage, toStr(me?.name)),

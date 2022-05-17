@@ -1,5 +1,5 @@
 import { Button, ModalBody, ModalContent, ModalFooter, ModalHeader, Text } from '@chakra-ui/react'
-import Modal, { ModalProps } from 'components/03_molecules/Modal'
+import Modal, { ModalProps } from 'components/01_atoms/Modal'
 import { connect } from 'components/hoc'
 import { PASSWORD_RESET_LINK_EXPIRATION_MINUTES } from 'const'
 import React from 'react'

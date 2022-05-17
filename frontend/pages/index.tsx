@@ -1,5 +1,6 @@
 import { useApolloClient } from '@apollo/client'
 import { ApolloError, GraphQLErrors } from '@apollo/client/errors'
+import Toast from 'components/01_atoms/Toast'
 import IndexTemplate, { IndexTemplateProps } from 'components/06_templates/IndexTemplate'
 import { CHAT_LENGTH, ERROR_PAGE, SIGNIN_PAGE } from 'const'
 import { addApolloState, initializeApollo } from 'graphql/apollo'
@@ -182,7 +183,7 @@ const Index: NextPage = () => {
     update: (cache, { data }) => !isNullish(data) && updateContactCache(cache, data.unblockContact, 'ADD'),
     onCompleted: ({ unblockContact }) => {
       if (contactInfoUserId === unblockContact.userId) {
-        readMessages({ variables: { otherUserId: unblockContact.userId } }).catch(console.log)
+        readMessages({ variables: { otherUserId: unblockContact.userId } }).catch(Toast('ValidationError'))
       }
     }
   })
@@ -201,7 +202,7 @@ const Index: NextPage = () => {
       updateMessageCache(client.cache, messageChanged)
       if (isContactApproval(messageChanged)) contactsQuery.refetch()
       if (contactInfoUserId === messageChanged.txUserId) {
-        readMessages({ variables: { otherUserId: messageChanged.txUserId } }).catch(console.log)
+        readMessages({ variables: { otherUserId: messageChanged.txUserId } }).catch(Toast('ValidationError'))
       }
     }
   })

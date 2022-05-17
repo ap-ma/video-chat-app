@@ -17,7 +17,7 @@ export const userInfo = {
 } as const
 
 export const name = {
-  fontSize: 'xs'
+  fontSize: 'sm'
 } as const
 
 export const code = {

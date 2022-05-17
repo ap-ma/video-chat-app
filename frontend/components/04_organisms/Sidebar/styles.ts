@@ -25,11 +25,11 @@ export const tab = {
 } as const
 
 export const contacts = {
-  /* 全体 - (ヘッダー部 + tabボタン部 + 検索部 + 余白部) */
-  h: 'calc(100vh - (var(--chakra-sizes-20) + 34px + 40px + 8px))'
+  /* 全体 - (ヘッダー部 + tabボタン部 + 検索部 + padding部 + 余白部) */
+  h: 'calc(100vh - (var(--chakra-sizes-20) + 34px + 40px + 3.2px + 8px))'
 } as const
 
 export const chats = {
-  /* 全体 - (ヘッダー部 + tabボタン部 + margin部 + 余白部) */
-  h: 'calc(100vh - (var(--chakra-sizes-20) + 34px + 8px + 8px))'
+  /* 全体 - (ヘッダー部 + tabボタン部 + padding部 + 余白部) */
+  h: 'calc(100vh - (var(--chakra-sizes-20) + 34px + 4px + 8px))'
 } as const

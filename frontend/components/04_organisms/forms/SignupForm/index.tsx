@@ -14,8 +14,9 @@ import {
 } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import AlertMessage from 'components/01_atoms/AlertMessage'
+import Modal, { ModalProps } from 'components/01_atoms/Modal'
+import Toast from 'components/01_atoms/Toast'
 import AvatarEditor from 'components/03_molecules/AvatarEditor'
-import Modal, { ModalProps } from 'components/03_molecules/Modal'
 import { connect } from 'components/hoc'
 import { useSetError } from 'components/hooks'
 import { VALIDATION_USER_COMMENT_MAX_LEN } from 'const'
@@ -72,10 +73,10 @@ const SignupFormPresenter: React.VFC<PresenterProps> = ({
           <Heading {...styles.head}>Sign up</Heading>
           <AlertMessage error={errors} />
           <AvatarEditor
-            {...register('avatar')}
             isDisabled={loading}
             isInvalid={hasValue(fieldErrors.avatar)}
             errorMessage={fieldErrors.avatar?.message}
+            {...register('avatar')}
           />
           <Stack {...styles.identifier}>
             <Box w='full'>
@@ -169,7 +170,7 @@ const SignupFormContainer: React.VFC<ContainerProps<SignupFormProps, PresenterPr
     const compressed = isNullish(avatar) ? Promise.resolve(undefined) : imageCompression(avatar)
     const mutate = (avatar?: unknown) =>
       signUp.mutate({ variables: { input: { ...input, avatar: avatar instanceof File ? avatar : undefined } } })
-    compressed.then(mutate, mutate).catch(console.log)
+    compressed.then(mutate, mutate).catch(Toast('ValidationError'))
   }
   const onSignUpButtonClick = handleSubmit(signUpMutation)
 

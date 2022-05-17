@@ -1,5 +1,5 @@
 import { Icon, ModalBody, ModalContent, ModalHeader, Text } from '@chakra-ui/react'
-import Modal, { ModalProps } from 'components/03_molecules/Modal'
+import Modal, { ModalProps } from 'components/01_atoms/Modal'
 import { connect } from 'components/hoc'
 import React from 'react'
 import { RiErrorWarningLine } from 'react-icons/ri'

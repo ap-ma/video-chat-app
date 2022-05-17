@@ -14,14 +14,19 @@ export default {
 
 type EditProfileFormStoryProps = EditProfileFormProps & {
   loading: MutaionLoading
+  result: boolean
 }
 
-const Template: Story<EditProfileFormStoryProps> = ({ loading, ...props }) => {
+const Template: Story<EditProfileFormStoryProps> = ({ loading, result, ...props }) => {
+  const mutateResult: EditProfileMutation['editProfile'] | undefined = result
+    ? { __typename: 'User', email: '', id: '', code: '' }
+    : undefined
+
   const editProfile = dummyMutation<
     EditProfileMutation['editProfile'],
     EditProfileMutation,
     EditProfileMutationVariables
-  >('EditProfile', undefined, loading)
+  >('EditProfile', mutateResult, loading)
   const mutation = { editProfile }
   return <EditProfileForm {...{ ...props, me, mutation }} />
 }
@@ -30,5 +35,6 @@ export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'
 Primary.args = {
   isOpen: true,
-  loading: false
+  loading: false,
+  result: false
 }

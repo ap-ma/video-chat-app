@@ -37,7 +37,7 @@ pub mod call {
     pub mod status {
         pub const OFFER: i32 = 1;
         pub const _DURING: i32 = 2;
-        pub const _TERMINATED: i32 = 3;
+        pub const _ENDED: i32 = 3;
         pub const _CANCELED: i32 = 4;
     }
 }

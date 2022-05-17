@@ -24,6 +24,7 @@ pub struct EditProfileInput {
     pub name: String,
     pub comment: Option<String>,
     pub avatar: Option<Upload>,
+    pub is_avatar_edited: Option<bool>,
 }
 
 #[derive(InputObject)]

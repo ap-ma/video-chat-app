@@ -1,6 +1,6 @@
 import { Box as Spacer, ModalBody, ModalContent, ModalHeader, Text } from '@chakra-ui/react'
 import Link from 'components/01_atoms/Link'
-import Modal, { ModalProps } from 'components/03_molecules/Modal'
+import Modal, { ModalProps } from 'components/01_atoms/Modal'
 import { connect } from 'components/hoc'
 import { SIGNIN_PAGE } from 'const'
 import React from 'react'

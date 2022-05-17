@@ -51,7 +51,7 @@ export const getLatestMessage = (
   ) {
     if (hasProperty(CATEGORY_MESSAGE, latestMessage.messageCategory)) {
       const message = toStr(CATEGORY_MESSAGE[latestMessage.messageCategory])
-      return message.replace('{tx_user}', txUser)
+      return message.replace('{tx_user}', txUser).replace('{other_user}', toStr(latestMessage.userName))
     }
   }
 

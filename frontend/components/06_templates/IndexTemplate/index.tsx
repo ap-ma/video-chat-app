@@ -1,4 +1,6 @@
-import { Box, Drawer, DrawerContent, useColorModeValue, useDisclosure } from '@chakra-ui/react'
+import { Box, Drawer, DrawerContent, useDisclosure } from '@chakra-ui/react'
+import Header from 'components/04_organisms/Header'
+import Sidebar from 'components/04_organisms/Sidebar'
 import HtmlSkeleton, { Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
 import {
@@ -41,10 +43,13 @@ import {
 import React from 'react'
 import {
   ContainerProps,
+  IsOpen,
   LazyQueryFunction,
   MutaionLoading,
   MutaionReset,
   MutateFunction,
+  OnClose,
+  OnOpen,
   QueryFetchMore,
   QueryLoading,
   QueryNetworkStatus,
@@ -52,8 +57,6 @@ import {
   ValidationErrors
 } from 'types'
 import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
-import Header from './Header'
-import Sidebar from './Sidebar'
 
 /** IndexTemplate Props */
 export type IndexTemplateProps = {
@@ -239,45 +242,86 @@ export type IndexTemplateProps = {
 }
 
 /** Presenter Props */
-export type PresenterProps = IndexTemplateProps
+export type PresenterProps = IndexTemplateProps & {
+  // Sidebar
+  isSbOpen: IsOpen
+  onSbOpen: OnOpen
+  onSbClose: OnClose
+  // SearchUser
+  isSuOpen: IsOpen
+  onSuOpen: OnOpen
+  onSuClose: OnClose
+}
 
 /** Presenter Component */
-const IndexTemplatePresenter: React.VFC<PresenterProps> = ({ ...props }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  return (
-    <HtmlSkeleton>
-      <Title>Home</Title>
-      <Box minH='100vh' bg={useColorModeValue('gray.100', 'gray.900')}>
-        <Sidebar onClose={onClose} display={{ base: 'none', md: 'block' }} />
-        <Drawer
-          autoFocus={false}
-          isOpen={isOpen}
-          placement='left'
-          onClose={onClose}
-          returnFocusOnClose={false}
-          onOverlayClick={onClose}
-          size='full'
-        >
-          <DrawerContent>
-            <Sidebar onClose={onClose} />
-          </DrawerContent>
-        </Drawer>
-        {/* mobilenav */}
-        <Header onOpen={onOpen} />
-        <Box ml={{ base: 0, md: 72 }} p='4'>
-          HOME
-        </Box>
+const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
+  me,
+  contacts,
+  latestMessages,
+  state,
+  query: { contactInfo, searchUser },
+  mutation: { signOut },
+  // Sidebar
+  isSbOpen,
+  onSbOpen,
+  onSbClose,
+  // SearchUser
+  isSuOpen,
+  onSuOpen,
+  onSuClose,
+  ...props
+}) => (
+  <HtmlSkeleton>
+    <Title>Home</Title>
+    <Box minH='100vh' bg='gray.100'>
+      <Sidebar
+        display={{ base: 'none', md: 'block' }}
+        query={{ contactInfo }}
+        {...{ me, contacts, latestMessages, onSbClose, state }}
+      />
+      <Drawer
+        autoFocus={false}
+        isOpen={isSbOpen}
+        placement='left'
+        onClose={onSbClose}
+        onOverlayClick={onSbClose}
+        returnFocusOnClose={false}
+        size='full'
+      >
+        <DrawerContent>
+          <Sidebar query={{ contactInfo }} {...{ me, contacts, latestMessages, onSbClose, state }} />
+        </DrawerContent>
+      </Drawer>
+      {/* mobilenav */}
+      <Header mutation={{ signOut }} {...{ me, onSbOpen, onSuOpen }} />
+      <Box ml={{ base: 0, md: 72 }} p='4'>
+        HOME
       </Box>
-    </HtmlSkeleton>
-  )
-}
+    </Box>
+  </HtmlSkeleton>
+)
 
 /** Container Component */
 const IndexTemplateContainer: React.VFC<ContainerProps<IndexTemplateProps, PresenterProps>> = ({
   presenter,
   ...props
 }) => {
-  return presenter({ ...props })
+  // Sidebar
+  const { isOpen: isSbOpen, onOpen: onSbOpen, onClose: onSbClose } = useDisclosure()
+  // SearchUser
+  const { isOpen: isSuOpen, onOpen: onSuOpen, onClose: onSuClose } = useDisclosure()
+
+  return presenter({
+    // Sidebar
+    isSbOpen,
+    onSbOpen,
+    onSbClose,
+    // SearchUser
+    isSuOpen,
+    onSuOpen,
+    onSuClose,
+    ...props
+  })
 }
 
 /** IndexTemplate */

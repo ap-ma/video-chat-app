@@ -15,6 +15,7 @@ import {
   Text,
   VStack
 } from '@chakra-ui/react'
+import Toast from 'components/01_atoms/Toast'
 import { connect } from 'components/hoc'
 import { MeQuery, SignOutMutation, SignOutMutationVariables } from 'graphql/generated'
 import React from 'react'
@@ -125,7 +126,7 @@ const AccountMenuContainer: React.VFC<ContainerProps<AccountMenuProps, Presenter
   ...props
 }) => {
   const loading = signOut.loading
-  const onSignOutButtonClick = () => signOut.mutate().catch(console.log)
+  const onSignOutButtonClick = () => signOut.mutate().catch(Toast('ValidationError'))
   return presenter({ loading, onSignOutButtonClick, ...props })
 }
 

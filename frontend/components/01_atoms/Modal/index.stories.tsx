@@ -8,7 +8,7 @@ import { ChakraColors } from 'types'
 import Modal, { ModalProps } from './index'
 
 export default {
-  title: '03_molecules/Modal',
+  title: '01_atoms/Modal',
   component: Modal
 } as Meta
 

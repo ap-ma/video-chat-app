@@ -12,7 +12,8 @@ import {
 } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import ErrorMessage from 'components/01_atoms/ErrorMessage'
-import Modal, { ModalProps } from 'components/03_molecules/Modal'
+import Modal, { ModalProps } from 'components/01_atoms/Modal'
+import Toast from 'components/01_atoms/Toast'
 import { connect } from 'components/hoc'
 import { useSetError } from 'components/hooks'
 import { ForgotPasswordMutation, ForgotPasswordMutationVariables } from 'graphql/generated'
@@ -103,7 +104,7 @@ const ForgotPasswordFormContainer: React.VFC<ContainerProps<ForgotPasswordFormPr
   // mutate
   const forgotPasswordMutation: SubmitHandler<FormSchema> = ({ email }) => {
     forgotPassword.reset()
-    forgotPassword.mutate({ variables: { email } }).catch(console.log)
+    forgotPassword.mutate({ variables: { email } }).catch(Toast('ValidationError'))
   }
   const onSubmitButtonClick = handleSubmit(forgotPasswordMutation)
 

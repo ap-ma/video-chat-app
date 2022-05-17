@@ -42,8 +42,9 @@ import {
   UndeleteContactMutation,
   UndeleteContactMutationVariables
 } from 'graphql/generated'
-import React from 'react'
+import React, { useState } from 'react'
 import { MutaionLoading, QueryLoading, QueryNetworkStatus } from 'types'
+import { toStr } from 'utils/general/helper'
 import IndexTemplate, { IndexTemplateProps } from './index'
 
 export default {
@@ -97,6 +98,10 @@ const Template: Story<IndexTemplateStoryProps> = ({
   unblockContactLoading,
   ...props
 }) => {
+  // state
+  const [contactUserId, setContactUserId] = useState(toStr(otherUserId))
+  const state = { contactInfoUserId: { state: contactUserId, setContactInfoUserId: setContactUserId } }
+
   // query
   const contactInfo = dummyContactInfo(
     userId,
@@ -218,7 +223,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
     unblockContact
   }
 
-  return <IndexTemplate {...{ ...props, me, contacts, latestMessages, query, mutation }} />
+  return <IndexTemplate {...{ ...props, me, contacts, latestMessages, state, query, mutation }} />
 }
 
 const contactStatusLabels: Record<number, string> = {}

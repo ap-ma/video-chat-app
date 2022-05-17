@@ -9,6 +9,10 @@ import * as styles from './styles'
 /** UserCard Props */
 export type UserCardProps = FlexProps & {
   /**
+   * ユーザーID
+   */
+  userId: string
+  /**
    * アバター画像URL
    */
   image?: AvatarProps['src']

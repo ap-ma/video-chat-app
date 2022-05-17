@@ -86,6 +86,7 @@ export type EditProfileInput = {
   avatar?: InputMaybe<Scalars['Upload']>
   code: Scalars['String']
   comment?: InputMaybe<Scalars['String']>
+  isAvatarEdited?: InputMaybe<Scalars['Boolean']>
   name: Scalars['String']
 }
 

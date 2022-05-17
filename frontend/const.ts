@@ -1,4 +1,4 @@
-import { isDevelopment, isNode } from 'utils'
+import { isDevelopment, isNode } from 'utils/general/context'
 
 //  ----------------------------------------------------------------------------
 //  System const values
@@ -159,7 +159,7 @@ export const CALL = {
     /** 通話中 */
     DURING: 2,
     /** 通話終了 */
-    TERMINATED: 3,
+    ENDED: 3,
     /** キャンセル */
     CANCELED: 4
   }
