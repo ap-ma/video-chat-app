@@ -2,7 +2,7 @@ import { Box, Button, FormControl, FormErrorMessage, FormLabel, Input, Stack, St
 import { zodResolver } from '@hookform/resolvers/zod'
 import AlertMessage from 'components/01_atoms/AlertMessage'
 import ErrorMessage from 'components/01_atoms/ErrorMessage'
-import Toast from 'components/01_atoms/Toast'
+import toast from 'components/01_atoms/Toast'
 import { connect } from 'components/hoc'
 import { useSetError } from 'components/hooks'
 import { ResetPasswordInput, ResetPasswordMutation, ResetPasswordMutationVariables } from 'graphql/generated'
@@ -114,7 +114,7 @@ const ResetPasswordFormContainer: React.VFC<ContainerProps<ResetPasswordFormProp
   // mutate
   const resetPasswordMutation: SubmitHandler<FormSchema> = (input) => {
     resetPassword.reset()
-    resetPassword.mutate({ variables: { input: { token: toStr(token), ...input } } }).catch(Toast('ValidationError'))
+    resetPassword.mutate({ variables: { input: { token: toStr(token), ...input } } }).catch(toast('ValidationError'))
   }
 
   // onClick submit button

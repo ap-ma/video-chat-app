@@ -20,9 +20,9 @@ export default {
 const Template: Story<ContactListProps> = ({ ...props }) => {
   const [contactUserId, setContactUserId] = useState(toStr(otherUserId))
   const state = { contactInfoUserId: { state: contactUserId, setContactInfoUserId: setContactUserId } }
-  const query = { contactInfo }
+  const query = { contacts, contactInfo }
 
-  return <ContactList {...{ ...props, contacts, state, query }} />
+  return <ContactList {...{ ...props, state, query }} />
 }
 
 export const Primary = Template.bind({})

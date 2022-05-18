@@ -18,6 +18,10 @@ type EditProfileFormStoryProps = EditProfileFormProps & {
 }
 
 const Template: Story<EditProfileFormStoryProps> = ({ loading, result, ...props }) => {
+  // query
+  const query = { me }
+
+  // mutation
   const mutateResult: EditProfileMutation['editProfile'] | undefined = result
     ? { __typename: 'User', email: '', id: '', code: '' }
     : undefined
@@ -27,8 +31,10 @@ const Template: Story<EditProfileFormStoryProps> = ({ loading, result, ...props 
     EditProfileMutation,
     EditProfileMutationVariables
   >('EditProfile', mutateResult, loading)
+
   const mutation = { editProfile }
-  return <EditProfileForm {...{ ...props, me, mutation }} />
+
+  return <EditProfileForm {...{ ...props, query, mutation }} />
 }
 
 export const Primary = Template.bind({})

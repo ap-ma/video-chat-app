@@ -94,8 +94,8 @@ Signin.getInitialProps = async ({ req, res }) => {
 
   const { data, error } = await apolloClient
     .query<IsAuthenticatedQuery, IsAuthenticatedQueryVariables>({
-      query: IsAuthenticatedDocument,
-      context
+      context,
+      query: IsAuthenticatedDocument
     })
     .catch((error) => ({ data: undefined, error: error as ApolloError }))
 

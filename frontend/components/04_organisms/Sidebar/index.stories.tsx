@@ -17,9 +17,9 @@ export default {
 const Template: Story<SidebarProps> = ({ ...props }) => {
   const [contactUserId, setContactUserId] = useState(toStr(otherUserId))
   const state = { contactInfoUserId: { state: contactUserId, setContactInfoUserId: setContactUserId } }
-  const query = { contactInfo }
+  const query = { me, contacts, latestMessages, contactInfo }
 
-  return <Sidebar {...{ ...props, me, contacts, latestMessages, state, query }} />
+  return <Sidebar {...{ ...props, state, query }} />
 }
 
 export const Primary = Template.bind({})

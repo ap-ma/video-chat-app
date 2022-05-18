@@ -15,10 +15,6 @@ import { FormSchema, schema } from './validation'
 /** ContactList Props */
 export type ContactListProps = ScrollbarProps & {
   /**
-   * コンタクト一覧
-   */
-  contacts?: ContactsQuery['contacts']
-  /**
    * Local State
    */
   state: {
@@ -34,6 +30,12 @@ export type ContactListProps = ScrollbarProps & {
    * Query
    */
   query: {
+    /**
+     * コンタクト一覧
+     */
+    contacts: {
+      result?: ContactsQuery['contacts']
+    }
     /**
      *  コンタクト情報
      */
@@ -64,9 +66,8 @@ const ContactListPresenter: React.VFC<PresenterProps> = ({ contactList, register
 /** Container Component */
 const ContactListContainer: React.VFC<ContainerProps<ContactListProps, PresenterProps>> = ({
   presenter,
-  contacts,
   state: { contactInfoUserId },
-  query: { contactInfo },
+  query: { contacts, contactInfo },
   ...props
 }) => {
   // react hook form
@@ -76,7 +77,7 @@ const ContactListContainer: React.VFC<ContainerProps<ContactListProps, Presenter
 
   // contact list
   const filter = watch('filter', '')
-  const contactList = contacts
+  const contactList = contacts.result
     ?.filter((contact) => contact.userName?.includes(filter))
     .map((contact) => ({
       userId: contact.userId,

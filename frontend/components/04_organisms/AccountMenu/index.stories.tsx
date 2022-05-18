@@ -35,13 +35,19 @@ type AccountMenuStoryProps = AccountMenuProps & {
 }
 
 const Template: Story<AccountMenuStoryProps> = ({ loading, ...props }) => {
+  // query
+  const query = { me }
+
+  // mutation
   const signOut = dummyMutation<SignOutMutation['signOut'], SignOutMutation, SignOutMutationVariables>(
     'SignOut',
     undefined,
     loading
   )
+
   const mutation = { signOut }
-  return <AccountMenu {...{ ...props, me, mutation }} />
+
+  return <AccountMenu {...{ ...props, query, mutation }} />
 }
 
 export const Primary = Template.bind({})

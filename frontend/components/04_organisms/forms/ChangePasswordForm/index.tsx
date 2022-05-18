@@ -14,7 +14,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod'
 import ErrorMessage from 'components/01_atoms/ErrorMessage'
 import Modal, { ModalProps } from 'components/01_atoms/Modal'
-import Toast from 'components/01_atoms/Toast'
+import toast from 'components/01_atoms/Toast'
 import { connect } from 'components/hoc'
 import { useSetError } from 'components/hooks'
 import { ChangePasswordMutation, ChangePasswordMutationVariables } from 'graphql/generated'
@@ -61,7 +61,7 @@ const ChangePasswordFormPresenter: React.VFC<PresenterProps> = ({
   onSubmitButtonClick,
   ...props
 }) => (
-  <Modal {...props}>
+  <Modal isCentered {...props}>
     <ModalContent>
       <ModalCloseButton isDisabled={loading} />
       <ModalBody pt='5' pb='6'>
@@ -73,7 +73,12 @@ const ChangePasswordFormPresenter: React.VFC<PresenterProps> = ({
             <Input type='password' placeholder='password' {...styles.input} {...register('password')} />
             <FormErrorMessage>{fieldErrors.password?.message}</FormErrorMessage>
           </FormControl>
-          <FormControl id='cp_newPassword' isRequired isDisabled={loading} isInvalid={hasValue(fieldErrors.password)}>
+          <FormControl
+            id='cp_newPassword'
+            isRequired
+            isDisabled={loading}
+            isInvalid={hasValue(fieldErrors.newPassword)}
+          >
             <FormLabel>New Password</FormLabel>
             <Input type='password' placeholder='new password' {...styles.input} {...register('newPassword')} />
             <FormErrorMessage>{fieldErrors.newPassword?.message}</FormErrorMessage>
@@ -121,7 +126,7 @@ const ChangePasswordFormContainer: React.VFC<ContainerProps<ChangePasswordFormPr
   // mutate
   const changePasswordMutation: SubmitHandler<FormSchema> = (input) => {
     changePassword.reset()
-    changePassword.mutate({ variables: { input } }).catch(Toast('ValidationError'))
+    changePassword.mutate({ variables: { input } }).catch(toast('ValidationError'))
   }
 
   // onClick submit button

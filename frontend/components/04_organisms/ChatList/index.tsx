@@ -11,14 +11,6 @@ import { getLatestMessage } from 'utils/helper'
 /** ChatList Props */
 export type ChatListProps = Omit<ScrollbarProps, 'me'> & {
   /**
-   * サインインユーザー情報
-   */
-  me?: MeQuery['me']
-  /**
-   * メッセージ一覧
-   */
-  latestMessages?: LatestMessagesQuery['latestMessages']
-  /**
    * Local State
    */
   state: {
@@ -34,6 +26,18 @@ export type ChatListProps = Omit<ScrollbarProps, 'me'> & {
    * Query
    */
   query: {
+    /**
+     * サインインユーザー情報
+     */
+    me: {
+      result?: MeQuery['me']
+    }
+    /**
+     * メッセージ一覧
+     */
+    latestMessages: {
+      result?: LatestMessagesQuery['latestMessages']
+    }
     /**
      *  コンタクト情報
      */
@@ -60,17 +64,15 @@ const ChatListPresenter: React.VFC<PresenterProps> = ({ chatList, ...props }) =>
 /** Container Component */
 const ChatListContainer: React.VFC<ContainerProps<ChatListProps, PresenterProps>> = ({
   presenter,
-  me,
-  latestMessages,
   state: { contactInfoUserId },
-  query: { contactInfo },
+  query: { me, latestMessages, contactInfo },
   ...props
 }) => {
-  const chatList = latestMessages?.map((latestMessage) => ({
+  const chatList = latestMessages.result?.map((latestMessage) => ({
     userId: latestMessage.userId,
     image: latestMessage.userAvatar ?? undefined,
     name: toStr(latestMessage.userName),
-    content: getLatestMessage(latestMessage, toStr(me?.name)),
+    content: getLatestMessage(latestMessage, toStr(me.result?.name)),
     active: contactInfoUserId.state === latestMessage.userId,
     unreadCount: latestMessage.unreadMessageCount,
     onClick: () => {

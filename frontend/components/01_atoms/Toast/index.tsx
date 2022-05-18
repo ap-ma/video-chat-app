@@ -1,10 +1,7 @@
 import { createStandaloneToast } from '@chakra-ui/toast'
 
-/** Toast type */
-export type ToastType = 'EditProfileComplete' | 'ValidationError'
-
 /** Toast types */
-const TOASTS: Record<ToastType, Record<string, unknown>> = {
+const TOASTS = {
   EditProfileComplete: {
     title: 'Success.',
     description: 'Updated profile.',
@@ -21,14 +18,14 @@ const TOASTS: Record<ToastType, Record<string, unknown>> = {
     variant: 'subtle',
     isClosable: true
   }
-}
+} as const
 
-/** Toast */
-const Toast =
-  (type: ToastType): (() => void) =>
+/** toast */
+const toast =
+  (type: keyof typeof TOASTS): (() => void) =>
   () => {
     const toast = createStandaloneToast()
     toast(TOASTS[type])
   }
 
-export default Toast
+export default toast

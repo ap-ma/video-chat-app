@@ -111,7 +111,10 @@ function createApolloClient() {
       // client.query()
       query: { fetchPolicy: 'network-only' },
       // useQuery()
-      watchQuery: { fetchPolicy: isNode() ? 'cache-only' : 'cache-and-network' }
+      watchQuery: {
+        fetchPolicy: isNode() ? 'cache-only' : 'cache-and-network',
+        notifyOnNetworkStatusChange: true
+      }
     }
   })
 }

@@ -17,6 +17,7 @@ import {
   ContactInfoQuery,
   ContactInfoQueryVariables,
   ContactsQuery,
+  ContactsQueryVariables,
   DeleteAccountMutation,
   DeleteAccountMutationVariables,
   DeleteContactMutation,
@@ -26,7 +27,9 @@ import {
   EditProfileMutation,
   EditProfileMutationVariables,
   LatestMessagesQuery,
+  LatestMessagesQueryVariables,
   MeQuery,
+  MeQueryVariables,
   ReadMessagesMutation,
   ReadMessagesMutationVariables,
   SearchUserQuery,
@@ -61,18 +64,6 @@ import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 /** IndexTemplate Props */
 export type IndexTemplateProps = {
   /**
-   * サインインユーザー情報
-   */
-  me?: MeQuery['me']
-  /**
-   * コンタクト一覧
-   */
-  contacts?: ContactsQuery['contacts']
-  /**
-   * メッセージ一覧
-   */
-  latestMessages?: LatestMessagesQuery['latestMessages']
-  /**
    * Local State
    */
   state: {
@@ -89,10 +80,34 @@ export type IndexTemplateProps = {
    */
   query: {
     /**
+     * サインインユーザー情報
+     */
+    me: {
+      result?: MeQuery['me']
+      loading: QueryLoading
+      refetch: QueryRefetch<MeQuery, MeQueryVariables>
+    }
+    /**
+     * コンタクト一覧
+     */
+    contacts: {
+      result?: ContactsQuery['contacts']
+      loading: QueryLoading
+      refetch: QueryRefetch<ContactsQuery, ContactsQueryVariables>
+    }
+    /**
+     * メッセージ一覧
+     */
+    latestMessages: {
+      result?: LatestMessagesQuery['latestMessages']
+      loading: QueryLoading
+      refetch: QueryRefetch<LatestMessagesQuery, LatestMessagesQueryVariables>
+    }
+    /**
      *  コンタクト情報
      */
     contactInfo: {
-      contactInfo?: ContactInfoQuery['contactInfo']
+      result?: ContactInfoQuery['contactInfo']
       loading: QueryLoading
       networkStatus: QueryNetworkStatus
       refetch: QueryRefetch<ContactInfoQuery, ContactInfoQueryVariables>
@@ -102,7 +117,7 @@ export type IndexTemplateProps = {
      * ユーザー検索
      */
     searchUser: {
-      users?: SearchUserQuery['searchUser']
+      result?: SearchUserQuery['searchUser']
       loading: QueryLoading
       getUsersByCode: LazyQueryFunction<SearchUserQuery, SearchUserQueryVariables>
     }
@@ -115,7 +130,6 @@ export type IndexTemplateProps = {
      * サインアウト
      */
     signOut: {
-      result?: SignOutMutation['signOut']
       loading: MutaionLoading
       mutate: MutateFunction<SignOutMutation, SignOutMutationVariables>
     }
@@ -247,28 +261,17 @@ export type PresenterProps = IndexTemplateProps & {
   isSbOpen: IsOpen
   onSbOpen: OnOpen
   onSbClose: OnClose
-  // SearchUser
-  isSuOpen: IsOpen
-  onSuOpen: OnOpen
-  onSuClose: OnClose
 }
 
 /** Presenter Component */
 const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
-  me,
-  contacts,
-  latestMessages,
   state,
-  query: { contactInfo, searchUser },
+  query: { me, contacts, latestMessages, contactInfo, searchUser },
   mutation: { signOut, editProfile, changeEmail, changePassword, deleteAccount },
   // Sidebar
   isSbOpen,
   onSbOpen,
   onSbClose,
-  // SearchUser
-  isSuOpen,
-  onSuOpen,
-  onSuClose,
   ...props
 }) => (
   <HtmlSkeleton>
@@ -276,8 +279,8 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
     <Box minH='100vh' bg='gray.100'>
       <Sidebar
         display={{ base: 'none', md: 'block' }}
-        query={{ contactInfo }}
-        {...{ me, contacts, latestMessages, onSbClose, state }}
+        query={{ me, contacts, latestMessages, contactInfo }}
+        {...{ onSbClose, state }}
       />
       <Drawer
         autoFocus={false}
@@ -289,13 +292,14 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
         size='full'
       >
         <DrawerContent>
-          <Sidebar query={{ contactInfo }} {...{ me, contacts, latestMessages, onSbClose, state }} />
+          <Sidebar query={{ me, contacts, latestMessages, contactInfo }} {...{ onSbClose, state }} />
         </DrawerContent>
       </Drawer>
       {/* mobilenav */}
       <Header
+        onSbOpen={onSbOpen}
+        query={{ me }}
         mutation={{ signOut, editProfile, changeEmail, changePassword, deleteAccount }}
-        {...{ me, onSbOpen, onSuOpen }}
       />
       <Box ml={{ base: 0, md: 72 }} p='4'>
         HOME
@@ -311,18 +315,12 @@ const IndexTemplateContainer: React.VFC<ContainerProps<IndexTemplateProps, Prese
 }) => {
   // Sidebar
   const { isOpen: isSbOpen, onOpen: onSbOpen, onClose: onSbClose } = useDisclosure()
-  // SearchUser
-  const { isOpen: isSuOpen, onOpen: onSuOpen, onClose: onSuClose } = useDisclosure()
 
   return presenter({
     // Sidebar
     isSbOpen,
     onSbOpen,
     onSbClose,
-    // SearchUser
-    isSuOpen,
-    onSuOpen,
-    onSuClose,
     ...props
   })
 }

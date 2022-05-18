@@ -1,6 +1,6 @@
 import { useApolloClient } from '@apollo/client'
 import { ApolloError, GraphQLErrors } from '@apollo/client/errors'
-import Toast from 'components/01_atoms/Toast'
+import toast from 'components/01_atoms/Toast'
 import IndexTemplate, { IndexTemplateProps } from 'components/06_templates/IndexTemplate'
 import { CHAT_LENGTH, ERROR_PAGE, SIGNIN_PAGE } from 'const'
 import { addApolloState, initializeApollo } from 'graphql/apollo'
@@ -81,10 +81,7 @@ const Index: NextPage = () => {
   if (isNullish(contactInfoUserId)) setContactInfoUserId(toStr(meQuery.data?.me.id))
 
   // コンタクト一覧
-  const contactsQuery = useContactsQuery({
-    fetchPolicy: 'cache-first',
-    notifyOnNetworkStatusChange: true
-  })
+  const contactsQuery = useContactsQuery({ fetchPolicy: 'cache-first' })
   handle(contactsQuery.error, handler)
 
   // メッセージ一覧
@@ -93,8 +90,7 @@ const Index: NextPage = () => {
 
   // コンタクト情報
   const contactInfoQuery = useContactInfoQuery({
-    variables: { contactUserId: contactInfoUserId, limit: CHAT_LENGTH },
-    notifyOnNetworkStatusChange: true
+    variables: { contactUserId: contactInfoUserId, limit: CHAT_LENGTH }
   })
   handle(contactInfoQuery.error, {
     noError: () => undefined,
@@ -183,7 +179,7 @@ const Index: NextPage = () => {
     update: (cache, { data }) => !isNullish(data) && updateContactCache(cache, data.unblockContact, 'ADD'),
     onCompleted: ({ unblockContact }) => {
       if (contactInfoUserId === unblockContact.userId) {
-        readMessages({ variables: { otherUserId: unblockContact.userId } }).catch(Toast('ValidationError'))
+        readMessages({ variables: { otherUserId: unblockContact.userId } }).catch(toast('ValidationError'))
       }
     }
   })
@@ -202,7 +198,7 @@ const Index: NextPage = () => {
       updateMessageCache(client.cache, messageChanged)
       if (isContactApproval(messageChanged)) contactsQuery.refetch()
       if (contactInfoUserId === messageChanged.txUserId) {
-        readMessages({ variables: { otherUserId: messageChanged.txUserId } }).catch(Toast('ValidationError'))
+        readMessages({ variables: { otherUserId: messageChanged.txUserId } }).catch(toast('ValidationError'))
       }
     }
   })
@@ -212,9 +208,6 @@ const Index: NextPage = () => {
 
   // IndexTemplate Props
   const props: IndexTemplateProps = {
-    me: meQuery.data?.me,
-    contacts: contactsQuery.data?.contacts,
-    latestMessages: latestMessagesQuery.data?.latestMessages,
     state: {
       contactInfoUserId: {
         state: contactInfoUserId,
@@ -222,12 +215,24 @@ const Index: NextPage = () => {
       }
     },
     query: {
+      me: {
+        result: meQuery.data?.me,
+        ...meQuery
+      },
+      contacts: {
+        result: contactsQuery.data?.contacts,
+        ...contactsQuery
+      },
+      latestMessages: {
+        result: latestMessagesQuery.data?.latestMessages,
+        ...latestMessagesQuery
+      },
       contactInfo: {
-        contactInfo: contactInfoQuery.data?.contactInfo,
+        result: contactInfoQuery.data?.contactInfo,
         ...contactInfoQuery
       },
       searchUser: {
-        users: searchUserQuery.data?.searchUser,
+        result: searchUserQuery.data?.searchUser,
         loading: searchUserQuery.loading,
         getUsersByCode
       }
@@ -342,9 +347,9 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 
   const { error } = await apolloClient
     .query<InitQuery, InitQueryVariables>({
+      context,
       query: InitDocument,
-      variables: { limit: CHAT_LENGTH },
-      context
+      variables: { limit: CHAT_LENGTH }
     })
     .catch((error) => ({ error: error as ApolloError }))
 

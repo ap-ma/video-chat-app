@@ -134,11 +134,10 @@ const SigninTemplateContainer: React.VFC<ContainerProps<SigninTemplateProps, Pre
   mutation,
   ...props
 }) => {
-  // SignupForm
+  // Signup
   const { isOpen: isSufOpen, onOpen: onSufOpen, onClose: onSufClose } = useDisclosure()
-  // SignupCompleteDialog
   const { isOpen: isSucdOpen, onOpen: onSucdOpen, onClose: onSucdClose } = useDisclosure()
-  // sign up 完了時
+  // Signup 完了時
   useMemo(() => {
     if (mutation.signUp.result) {
       onSufClose()
@@ -147,11 +146,10 @@ const SigninTemplateContainer: React.VFC<ContainerProps<SigninTemplateProps, Pre
     }
   }, [onSufClose, onSucdOpen, mutation.signUp])
 
-  // ForgotPasswordForm
+  // ForgotPassword
   const { isOpen: isFpfOpen, onOpen: onFpfOpen, onClose: onFpfClose } = useDisclosure()
-  // ForgotPassworCompleteDialog
   const { isOpen: isFpcdOpen, onOpen: onFpcdOpen, onClose: onFpcdClose } = useDisclosure()
-  // forgot password 完了時
+  // ForgotPassword 完了時
   useMemo(() => {
     if (mutation.forgotPassword.result) {
       onFpfClose()

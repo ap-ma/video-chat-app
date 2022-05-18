@@ -17,7 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import AlertMessage from 'components/01_atoms/AlertMessage'
 import Editable from 'components/01_atoms/Editable'
 import Modal, { ModalProps } from 'components/01_atoms/Modal'
-import Toast from 'components/01_atoms/Toast'
+import toast from 'components/01_atoms/Toast'
 import AvatarEditor, { AvatarEditorProps } from 'components/03_molecules/AvatarEditor'
 import { connect } from 'components/hoc'
 import { useSetError } from 'components/hooks'
@@ -35,9 +35,16 @@ import { FormSchema, schema } from './validation'
 /** EditProfileForm Props */
 export type EditProfileFormProps = Omit<ModalProps, 'children'> & {
   /**
-   * サインインユーザー情報
+   * Query
    */
-  me?: MeQuery['me']
+  query: {
+    /**
+     * サインインユーザー情報
+     */
+    me: {
+      result?: MeQuery['me']
+    }
+  }
   /**
    * Mutation
    */
@@ -56,7 +63,8 @@ export type EditProfileFormProps = Omit<ModalProps, 'children'> & {
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<EditProfileFormProps, 'mutation'> & {
+export type PresenterProps = Omit<EditProfileFormProps, 'query' | 'mutation'> & {
+  avatar: AvatarEditorProps['avatar']
   avatarEditorKey: string
   edit: boolean
   loading: MutaionLoading
@@ -71,7 +79,7 @@ export type PresenterProps = Omit<EditProfileFormProps, 'mutation'> & {
 
 /** Presenter Component */
 const EditProfileFormPresenter: React.VFC<PresenterProps> = ({
-  me,
+  avatar,
   avatarEditorKey,
   edit,
   loading,
@@ -84,7 +92,7 @@ const EditProfileFormPresenter: React.VFC<PresenterProps> = ({
   onSaveButtonClick,
   ...props
 }) => (
-  <Modal {...props}>
+  <Modal isCentered {...props}>
     <ModalContent>
       <ModalCloseButton isDisabled={loading} />
       <ModalBody pt='5' pb='8'>
@@ -92,7 +100,7 @@ const EditProfileFormPresenter: React.VFC<PresenterProps> = ({
           <Heading {...styles.head}>Edit Profile</Heading>
           <AlertMessage error={errors} />
           <AvatarEditor
-            avatar={toStr(me?.avatar)}
+            avatar={avatar}
             isDisabled={!edit || loading}
             isInvalid={hasValue(fieldErrors.avatar)}
             errorMessage={fieldErrors.avatar?.message}
@@ -160,25 +168,29 @@ const EditProfileFormPresenter: React.VFC<PresenterProps> = ({
 /** Container Component */
 const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, PresenterProps>> = ({
   presenter,
-  me,
+  query: { me },
   onClose: onEpfClose,
   mutation: { editProfile },
   ...props
 }) => {
-  // edit flag
+  // state
   const [edit, setEdit] = useState(false)
-  // AvatarEditor key
   const [avatarEditorKey, setAvatarEditorKey] = useState(nanoid())
+
+  // default values
+  const defaultValues = useMemo(() => {
+    return {
+      code: me.result?.code ?? undefined,
+      name: me.result?.name ?? undefined,
+      comment: me.result?.comment ?? undefined,
+      isAvatarEdited: false
+    }
+  }, [me.result])
 
   // react hook form
   const { register, handleSubmit, setValue, setError, reset, formState } = useForm<FormSchema>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      code: me?.code ?? undefined,
-      name: me?.name ?? undefined,
-      comment: me?.comment ?? undefined,
-      isAvatarEdited: false
-    }
+    defaultValues
   })
 
   // status
@@ -196,7 +208,7 @@ const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, P
     const compressed = isNullish(avatar) ? Promise.resolve(undefined) : imageCompression(avatar)
     const mutate = (avatar?: unknown) =>
       editProfile.mutate({ variables: { input: { ...input, avatar: avatar instanceof File ? avatar : undefined } } })
-    compressed.then(mutate, mutate).catch(Toast('ValidationError'))
+    compressed.then(mutate, mutate).catch(toast('ValidationError'))
   }
 
   // onAvatarEdit
@@ -213,8 +225,8 @@ const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, P
   const onCancelButtonClick = useCallback(() => {
     setEdit(false)
     setAvatarEditorKey(nanoid())
-    reset()
-  }, [reset])
+    reset(defaultValues)
+  }, [reset, defaultValues])
 
   // onClick save button
   const onSaveButtonClick = handleSubmit(signUpMutation)
@@ -224,7 +236,7 @@ const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, P
     if (hasValue(editProfile.result)) {
       editProfile.reset()
       onCancelButtonClick()
-      Toast('EditProfileComplete')()
+      toast('EditProfileComplete')()
     }
   }, [editProfile, onCancelButtonClick])
 
@@ -236,7 +248,7 @@ const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, P
   }, [onEpfClose, editProfile, onCancelButtonClick])
 
   return presenter({
-    me,
+    avatar: toStr(me.result?.avatar),
     avatarEditorKey,
     edit,
     onClose,

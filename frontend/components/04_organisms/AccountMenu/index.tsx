@@ -15,7 +15,7 @@ import {
   Text,
   VStack
 } from '@chakra-ui/react'
-import Toast from 'components/01_atoms/Toast'
+import toast from 'components/01_atoms/Toast'
 import { connect } from 'components/hoc'
 import { MeQuery, SignOutMutation, SignOutMutationVariables } from 'graphql/generated'
 import React from 'react'
@@ -26,10 +26,6 @@ import * as styles from './styles'
 
 /** AccountMenu Props */
 export type AccountMenuProps = Omit<FlexProps, 'me'> & {
-  /**
-   * サインインユーザー情報
-   */
-  me?: MeQuery['me']
   /**
    * プロフィール編集モーダル onOpen
    */
@@ -46,6 +42,17 @@ export type AccountMenuProps = Omit<FlexProps, 'me'> & {
    * アカウント削除ダイアログ onOpen
    */
   onDadOpen: OnOpen
+  /**
+   * Query
+   */
+  query: {
+    /**
+     * サインインユーザー情報
+     */
+    me: {
+      result?: MeQuery['me']
+    }
+  }
   /**
    * Mutation
    */
@@ -68,7 +75,7 @@ export type PresenterProps = Omit<AccountMenuProps, 'mutation'> & {
 
 /** Presenter Component */
 const AccountMenuPresenter: React.VFC<PresenterProps> = ({
-  me,
+  query: { me },
   onEpfOpen,
   onCefOpen,
   onCpfOpen,
@@ -81,10 +88,10 @@ const AccountMenuPresenter: React.VFC<PresenterProps> = ({
     <Menu>
       <MenuButton {...styles.trigger}>
         <HStack spacing={3}>
-          <Avatar {...styles.avatar} src={toStr(me?.avatar)} />
+          <Avatar {...styles.avatar} src={toStr(me.result?.avatar)} />
           <VStack {...styles.userInfo}>
-            <Text {...styles.name}>{me?.name}</Text>
-            <Text {...styles.code}>code: {me?.code}</Text>
+            <Text {...styles.name}>{me.result?.name}</Text>
+            <Text {...styles.code}>code: {me.result?.code}</Text>
           </VStack>
           <Box {...styles.arrow}>
             <FiChevronDown />
@@ -126,7 +133,7 @@ const AccountMenuContainer: React.VFC<ContainerProps<AccountMenuProps, Presenter
   ...props
 }) => {
   const loading = signOut.loading
-  const onSignOutButtonClick = () => signOut.mutate().catch(Toast('ValidationError'))
+  const onSignOutButtonClick = () => signOut.mutate().catch(toast('ValidationError'))
   return presenter({ loading, onSignOutButtonClick, ...props })
 }
 

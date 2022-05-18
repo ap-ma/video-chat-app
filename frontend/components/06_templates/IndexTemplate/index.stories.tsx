@@ -2,10 +2,10 @@
 import {
   contacts,
   dummyContactInfo,
+  dummyMe,
   dummyMutation,
   dummySearchUser,
   latestMessages,
-  me,
   otherUserId,
   userId
 } from '.storybook/dummies'
@@ -53,12 +53,12 @@ export default {
 } as Meta
 
 type IndexTemplateStoryProps = IndexTemplateProps & {
+  meLoading: QueryLoading
   contactInfoLoading: QueryLoading
   contactIntoNetworkStatus: QueryNetworkStatus
   contactInfoStatus: number
   contactInfoBlocked: boolean
   searchUserLoading: QueryLoading
-  signOutResult: SignOutMutation['signOut']
   signOutLoading: MutaionLoading
   editProfileLoading: MutaionLoading
   changeEmailLoading: MutaionLoading
@@ -76,12 +76,12 @@ type IndexTemplateStoryProps = IndexTemplateProps & {
 }
 
 const Template: Story<IndexTemplateStoryProps> = ({
+  meLoading,
   contactInfoLoading,
   contactIntoNetworkStatus,
   contactInfoStatus,
   contactInfoBlocked,
   searchUserLoading,
-  signOutResult,
   signOutLoading,
   editProfileLoading,
   changeEmailLoading,
@@ -103,23 +103,33 @@ const Template: Story<IndexTemplateStoryProps> = ({
   const state = { contactInfoUserId: { state: contactUserId, setContactInfoUserId: setContactUserId } }
 
   // query
+  const me = dummyMe(userId, meLoading, undefined)
+
   const contactInfo = dummyContactInfo(
     userId,
     otherUserId,
-    contactInfoLoading,
-    contactIntoNetworkStatus,
     contactInfoStatus,
     contactInfoBlocked,
     50,
-    (i) => `chat message${i}`
+    (i) => `chat message${i}`,
+    contactInfoLoading,
+    contactIntoNetworkStatus
   )
 
   const searchUser = dummySearchUser(searchUserLoading, 10, (i) => (i % 3 != 0 ? `status message${i}` : undefined))
 
+  const query = {
+    me,
+    contacts,
+    latestMessages,
+    contactInfo,
+    searchUser
+  }
+
   // mutation
   const signOut = dummyMutation<SignOutMutation['signOut'], SignOutMutation, SignOutMutationVariables>(
     'signOut',
-    signOutResult,
+    undefined,
     signOutLoading
   )
 
@@ -201,11 +211,6 @@ const Template: Story<IndexTemplateStoryProps> = ({
     UnblockContactMutationVariables
   >('UnblockContact', undefined, unblockContactLoading)
 
-  const query = {
-    contactInfo,
-    searchUser
-  }
-
   const mutation = {
     signOut,
     editProfile,
@@ -223,7 +228,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
     unblockContact
   }
 
-  return <IndexTemplate {...{ ...props, me, contacts, latestMessages, state, query, mutation }} />
+  return <IndexTemplate {...{ ...props, state, query, mutation }} />
 }
 
 const contactStatusLabels: Record<number, string> = {}
@@ -255,12 +260,12 @@ Primary.argTypes = {
   }
 }
 Primary.args = {
+  meLoading: false,
   contactInfoLoading: false,
   contactIntoNetworkStatus: 7,
   contactInfoStatus: CONTACT.STATUS.APPROVED,
   contactInfoBlocked: false,
   searchUserLoading: false,
-  signOutResult: false,
   signOutLoading: false,
   editProfileLoading: false,
   changePasswordLoading: false,

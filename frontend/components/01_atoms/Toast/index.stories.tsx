@@ -1,15 +1,15 @@
 import { Button } from '@chakra-ui/react'
 import { Meta, Story } from '@storybook/react/types-6-0'
 import React from 'react'
-import Toast, { ToastType } from './index'
+import toast from './index'
 
 export default {
   title: '01_atoms/Toast',
   component: Button
 } as Meta
 
-const Template: Story<{ type: ToastType }> = ({ type }) => {
-  return <Button onClick={Toast(type)}>トーストを表示</Button>
+const Template: Story<{ type: Parameters<typeof toast>[0] }> = ({ type }) => {
+  return <Button onClick={toast(type)}>トーストを表示</Button>
 }
 
 export const Primary = Template.bind({})

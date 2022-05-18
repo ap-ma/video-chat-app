@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved */
 import { container } from '.storybook/decorators'
-import { dummyMutation, me } from '.storybook/dummies'
+import { dummyMe, dummyMutation, userId } from '.storybook/dummies'
 /* eslint-enable import/no-unresolved  */
 import { Box } from '@chakra-ui/react'
 import { Meta, Story } from '@storybook/react'
@@ -17,7 +17,7 @@ import {
   SignOutMutationVariables
 } from 'graphql/generated'
 import React from 'react'
-import { MutaionLoading } from 'types'
+import { MutaionLoading, QueryLoading } from 'types'
 import Header, { HeaderProps } from './index'
 
 export default {
@@ -35,6 +35,7 @@ export default {
 } as Meta
 
 type HeaderStoryProps = HeaderProps & {
+  meLoading: QueryLoading
   signOutLoading: MutaionLoading
   editProfileLoading: MutaionLoading
   changeEmailLoading: MutaionLoading
@@ -43,6 +44,7 @@ type HeaderStoryProps = HeaderProps & {
 }
 
 const Template: Story<HeaderStoryProps> = ({
+  meLoading,
   signOutLoading,
   editProfileLoading,
   changeEmailLoading,
@@ -50,11 +52,17 @@ const Template: Story<HeaderStoryProps> = ({
   deleteAccountLoading,
   ...props
 }) => {
+  // query
+  const me = dummyMe(userId, meLoading, undefined)
+  const query = { me }
+
+  // mutation
   const signOut = dummyMutation<SignOutMutation['signOut'], SignOutMutation, SignOutMutationVariables>(
     'SignOut',
     undefined,
     signOutLoading
   )
+
   const editProfile = dummyMutation<
     EditProfileMutation['editProfile'],
     EditProfileMutation,
@@ -80,12 +88,14 @@ const Template: Story<HeaderStoryProps> = ({
   >('DeleteAccount', undefined, deleteAccountLoading)
 
   const mutation = { signOut, editProfile, changeEmail, changePassword, deleteAccount }
-  return <Header {...{ ...props, me, mutation }} />
+
+  return <Header {...{ ...props, query, mutation }} />
 }
 
 export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'
 Primary.args = {
+  meLoading: false,
   signOutLoading: false,
   editProfileLoading: false,
   changePasswordLoading: false,

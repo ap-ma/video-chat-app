@@ -19,9 +19,9 @@ export default {
 const Template: Story<ChatListProps> = ({ ...props }) => {
   const [contactUserId, setContactUserId] = useState(toStr(otherUserId))
   const state = { contactInfoUserId: { state: contactUserId, setContactInfoUserId: setContactUserId } }
-  const query = { contactInfo }
+  const query = { me, latestMessages, contactInfo }
 
-  return <ChatList {...{ ...props, me, latestMessages, state, query }} />
+  return <ChatList {...{ ...props, state, query }} />
 }
 
 export const Primary = Template.bind({})

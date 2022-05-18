@@ -3,8 +3,11 @@ import {
   ContactInfoQuery,
   ContactInfoQueryVariables,
   ContactsQuery,
+  ContactsQueryVariables,
   LatestMessagesQuery,
+  LatestMessagesQueryVariables,
   MeQuery,
+  MeQueryVariables,
   SearchUserQuery,
   SearchUserQueryVariables
 } from 'graphql/generated'
@@ -45,8 +48,17 @@ export function dummyMutation<Result, TData, TVariables>(
   }
 }
 
-export function dummyMe(userId: number): MeQuery['me'] {
-  return {
+export function dummyMe(
+  userId: number,
+  loading?: QueryLoading,
+  networkStatus?: QueryNetworkStatus
+): {
+  result: MeQuery['me']
+  loading: QueryLoading
+  networkStatus: QueryNetworkStatus
+  refetch: QueryRefetch<MeQuery, MeQueryVariables>
+} {
+  const me: MeQuery['me'] = {
     __typename: 'User',
     email: 'test-email@example.com',
     id: toStr(userId),
@@ -56,9 +68,31 @@ export function dummyMe(userId: number): MeQuery['me'] {
     avatar:
       'https://1.bp.blogspot.com/-GqIjU--SM-k/X9lJl-pkCjI/AAAAAAABc68/hEhMB_uG-xEPzhgaRjBhgX24-niyVZUnwCNcBGAsYHQ/s637/pose_reiwa_woman.png'
   }
+
+  const refetch = (() => {
+    alert('Me Query - refetch')
+    return Promise.resolve({ data: undefined, loading: false, networkStatus: 7 })
+  }) as unknown as QueryRefetch<MeQuery, MeQueryVariables>
+
+  return {
+    result: me,
+    loading: !!loading,
+    networkStatus: networkStatus ?? 7,
+    refetch
+  }
 }
 
-export function dummyContacts(len: number, commentGen: (i: number) => string | undefined): ContactsQuery['contacts'] {
+export function dummyContacts(
+  len: number,
+  commentGen: (i: number) => string | undefined,
+  loading?: QueryLoading,
+  networkStatus?: QueryNetworkStatus
+): {
+  result: ContactsQuery['contacts']
+  loading: QueryLoading
+  networkStatus: QueryNetworkStatus
+  refetch: QueryRefetch<ContactsQuery, ContactsQueryVariables>
+} {
   const contacts: ContactsQuery['contacts'] = []
   for (let i = 1; i <= len; i++) {
     const r = Math.floor(Math.random() * Math.floor(2))
@@ -74,14 +108,32 @@ export function dummyContacts(len: number, commentGen: (i: number) => string | u
       blocked: false
     })
   }
-  return contacts
+
+  const refetch = (() => {
+    alert('ContactsQuery Query - refetch')
+    return Promise.resolve({ data: undefined, loading: false, networkStatus: 7 })
+  }) as unknown as QueryRefetch<ContactsQuery, ContactsQueryVariables>
+
+  return {
+    result: contacts,
+    loading: !!loading,
+    networkStatus: networkStatus ?? 7,
+    refetch
+  }
 }
 
 export function dummyLatestMessages(
   userId: number,
   len: number,
-  messageGen: (i: number) => string | undefined
-): LatestMessagesQuery['latestMessages'] {
+  messageGen: (i: number) => string | undefined,
+  loading?: QueryLoading,
+  networkStatus?: QueryNetworkStatus
+): {
+  result: LatestMessagesQuery['latestMessages']
+  loading: QueryLoading
+  networkStatus: QueryNetworkStatus
+  refetch: QueryRefetch<LatestMessagesQuery, LatestMessagesQueryVariables>
+} {
   const latestMessages: LatestMessagesQuery['latestMessages'] = []
   for (let i = 1; i <= len; i++) {
     const r = Math.floor(Math.random() * Math.floor(2))
@@ -116,20 +168,31 @@ export function dummyLatestMessages(
           : undefined
     })
   }
-  return latestMessages
+
+  const refetch = (() => {
+    alert('LatestMessagesQuery Query - refetch')
+    return Promise.resolve({ data: undefined, loading: false, networkStatus: 7 })
+  }) as unknown as QueryRefetch<LatestMessagesQuery, LatestMessagesQueryVariables>
+
+  return {
+    result: latestMessages,
+    loading: !!loading,
+    networkStatus: networkStatus ?? 7,
+    refetch
+  }
 }
 
 export function dummyContactInfo(
   userId: number,
   otherUserId: number,
-  loading: QueryLoading,
-  networkStatus: QueryNetworkStatus,
   contactStatus: number,
   blocked: boolean,
   chatLen: number,
-  messageGen: (i: number) => string | undefined
+  messageGen: (i: number) => string | undefined,
+  loading?: QueryLoading,
+  networkStatus?: QueryNetworkStatus
 ): {
-  contactInfo: ContactInfoQuery['contactInfo']
+  result: ContactInfoQuery['contactInfo']
   loading: QueryLoading
   networkStatus: QueryNetworkStatus
   refetch: QueryRefetch<ContactInfoQuery, ContactInfoQueryVariables>
@@ -189,9 +252,9 @@ export function dummyContactInfo(
   >
 
   return {
-    contactInfo: contactInfo,
-    loading,
-    networkStatus,
+    result: contactInfo,
+    loading: !!loading,
+    networkStatus: networkStatus ?? 7,
     refetch,
     fetchMore
   }
@@ -250,13 +313,19 @@ export const userId = 200
 export const otherUserId = 3
 
 /** Me */
-export const me = dummyMe(userId)
+export const me = dummyMe(userId, undefined, undefined)
 
 /** Contacts */
-export const contacts = dummyContacts(100, (i) => (i % 3 != 0 ? `status message${i}` : undefined))
+export const contacts = dummyContacts(100, (i) => (i % 3 != 0 ? `status message${i}` : undefined), undefined, undefined)
 
 /** Latest Messages */
-export const latestMessages = dummyLatestMessages(userId, 100, (i) => `I would like to reiterate${i}`)
+export const latestMessages = dummyLatestMessages(
+  userId,
+  100,
+  (i) => `I would like to reiterate${i}`,
+  undefined,
+  undefined
+)
 
 /** Contact Info */
-export const contactInfo = dummyContactInfo(userId, otherUserId, false, 7, 2, false, 50, (i) => `chat message${i}`)
+export const contactInfo = dummyContactInfo(userId, otherUserId, 2, false, 50, (i) => `chat message${i}`, false, 7)

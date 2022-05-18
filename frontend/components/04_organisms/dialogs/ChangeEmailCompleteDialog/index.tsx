@@ -7,25 +7,23 @@ import { ContainerProps } from 'types'
 import { toStr } from 'utils/general/helper'
 import * as styles from './styles'
 
-/** SignupCompleteDialog Props */
-export type SignupCompleteDialogProps = Omit<ModalProps, 'children'>
+/** ChangeEmailCompleteDialog Props */
+export type ChangeEmailCompleteDialogProps = Omit<ModalProps, 'children'>
 
 /** Presenter Props */
-export type PresenterProps = SignupCompleteDialogProps & {
+export type PresenterProps = ChangeEmailCompleteDialogProps & {
   expirationMinutes: string
 }
 
 /** Presenter Component */
-const SignupCompleteDialogPresenter: React.VFC<PresenterProps> = ({ expirationMinutes, onClose, ...props }) => (
+const ChangeEmailCompleteDialogPresenter: React.VFC<PresenterProps> = ({ expirationMinutes, onClose, ...props }) => (
   <Modal isCentered {...{ onClose, ...props }}>
     <ModalContent>
       <ModalHeader {...styles.head}>Verification email sent</ModalHeader>
       <ModalBody>
-        <Text {...styles.text}>A verification email has been sent to your email address.</Text>
+        <Text {...styles.text}>A verification email has been sent to new email address.</Text>
         <Text {...styles.text}>The verification link will expire after {expirationMinutes} minutes.</Text>
-        <Text {...styles.text}>
-          After verifying your email address, your account will be activated and you will be able to sign in.
-        </Text>
+        <Text {...styles.text}>After verifying your email address, your email address will be switched.</Text>
       </ModalBody>
       <ModalFooter mt='-5px'>
         <Button {...styles.button} onClick={onClose}>
@@ -37,7 +35,7 @@ const SignupCompleteDialogPresenter: React.VFC<PresenterProps> = ({ expirationMi
 )
 
 /** Container Component */
-const SignupCompleteDialogContainer: React.VFC<ContainerProps<SignupCompleteDialogProps, PresenterProps>> = ({
+const ChangeEmailCompleteDialogContainer: React.VFC<ContainerProps<ChangeEmailCompleteDialogProps, PresenterProps>> = ({
   presenter,
   ...props
 }) => {
@@ -45,9 +43,9 @@ const SignupCompleteDialogContainer: React.VFC<ContainerProps<SignupCompleteDial
   return presenter({ expirationMinutes, ...props })
 }
 
-/** SignupCompleteDialog */
-export default connect<SignupCompleteDialogProps, PresenterProps>(
-  'SignupCompleteDialog',
-  SignupCompleteDialogPresenter,
-  SignupCompleteDialogContainer
+/** ChangeEmailCompleteDialog */
+export default connect<ChangeEmailCompleteDialogProps, PresenterProps>(
+  'ChangeEmailCompleteDialog',
+  ChangeEmailCompleteDialogPresenter,
+  ChangeEmailCompleteDialogContainer
 )

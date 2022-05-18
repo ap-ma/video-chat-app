@@ -186,7 +186,7 @@ impl Mutation {
         let email_verification_token = NewEmailVerificationTokenEntity {
             user_id: user.id,
             category: email_verification_token_const::category::UPDATE,
-            email,
+            email: email.clone(),
             token: token_digest,
             created_at: Local::now().naive_local(),
         };
@@ -199,7 +199,7 @@ impl Mutation {
         // send email
         let to_name = &user.name.unwrap_or("Anonymous".to_owned());
         let (subject, body) = mail_builder::email_verification_at_update(to_name, &token)?;
-        common::send_mail(&user.email, to_name, &subject, body).map_err(|e| {
+        common::send_mail(&email, to_name, &subject, body).map_err(|e| {
             let m = "Failed to send email verification email.";
             GraphqlError::ServerError(m.into(), e.message).extend()
         })?;

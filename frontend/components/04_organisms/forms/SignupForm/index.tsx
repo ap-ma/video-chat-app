@@ -15,7 +15,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod'
 import AlertMessage from 'components/01_atoms/AlertMessage'
 import Modal, { ModalProps } from 'components/01_atoms/Modal'
-import Toast from 'components/01_atoms/Toast'
+import toast from 'components/01_atoms/Toast'
 import AvatarEditor from 'components/03_molecules/AvatarEditor'
 import { connect } from 'components/hoc'
 import { useSetError } from 'components/hooks'
@@ -170,7 +170,7 @@ const SignupFormContainer: React.VFC<ContainerProps<SignupFormProps, PresenterPr
     const compressed = isNullish(avatar) ? Promise.resolve(undefined) : imageCompression(avatar)
     const mutate = (avatar?: unknown) =>
       signUp.mutate({ variables: { input: { ...input, avatar: avatar instanceof File ? avatar : undefined } } })
-    compressed.then(mutate, mutate).catch(Toast('ValidationError'))
+    compressed.then(mutate, mutate).catch(toast('ValidationError'))
   }
 
   // onClick sign up button

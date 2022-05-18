@@ -1,7 +1,9 @@
 import { Flex, FlexProps, HStack, IconButton, useDisclosure } from '@chakra-ui/react'
 import AppLogo from 'components/01_atoms/AppLogo'
 import AccountMenu from 'components/04_organisms/AccountMenu'
+import ChangeEmailCompleteDialog from 'components/04_organisms/dialogs/ChangeEmailCompleteDialog'
 import ChangePasswordCompleteDialog from 'components/04_organisms/dialogs/ChangePasswordCompleteDialog'
+import ChangeEmailForm from 'components/04_organisms/forms/ChangeEmailForm'
 import ChangePasswordForm from 'components/04_organisms/forms/ChangePasswordForm'
 import EditProfileForm from 'components/04_organisms/forms/EditProfileForm'
 import { connect } from 'components/hoc'
@@ -15,6 +17,7 @@ import {
   EditProfileMutation,
   EditProfileMutationVariables,
   MeQuery,
+  MeQueryVariables,
   SignOutMutation,
   SignOutMutationVariables
 } from 'graphql/generated'
@@ -29,6 +32,8 @@ import {
   MutateFunction,
   OnClose,
   OnOpen,
+  QueryLoading,
+  QueryRefetch,
   ValidationErrors
 } from 'types'
 import * as styles from './styles'
@@ -36,17 +41,22 @@ import * as styles from './styles'
 /** Header Props */
 export type HeaderProps = Omit<FlexProps, 'me'> & {
   /**
-   * サインインユーザー情報
-   */
-  me?: MeQuery['me']
-  /**
    * サイドバー onOpen
    */
   onSbOpen: OnOpen
   /**
-   * ユーザー検索 onOpen
+   * Query
    */
-  onSuOpen: OnOpen
+  query: {
+    /**
+     * サインインユーザー情報
+     */
+    me: {
+      result?: MeQuery['me']
+      loading: QueryLoading
+      refetch: QueryRefetch<MeQuery, MeQueryVariables>
+    }
+  }
   /**
    * Mutation
    */
@@ -101,6 +111,10 @@ export type HeaderProps = Omit<FlexProps, 'me'> & {
 
 /** Presenter Props */
 export type PresenterProps = HeaderProps & {
+  // SearchUser
+  isSuOpen: IsOpen
+  onSuOpen: OnOpen
+  onSuClose: OnClose
   // EditProfile
   isEpfOpen: IsOpen
   onEpfOpen: OnOpen
@@ -109,6 +123,8 @@ export type PresenterProps = HeaderProps & {
   isCefOpen: IsOpen
   onCefOpen: OnOpen
   onCefClose: OnClose
+  isCedOpen: IsOpen
+  onCedClose: OnClose
   // ChangePassword
   isCpfOpen: IsOpen
   onCpfOpen: OnOpen
@@ -123,11 +139,14 @@ export type PresenterProps = HeaderProps & {
 
 /** Presenter Component */
 const HeaderPresenter: React.VFC<PresenterProps> = ({
-  me,
+  query: { me },
   mutation: { signOut, editProfile, changeEmail, changePassword, deleteAccount },
   // sidebar
   onSbOpen,
+  // SearchUser
+  isSuOpen,
   onSuOpen,
+  onSuClose,
   // EditProfile
   isEpfOpen,
   onEpfOpen,
@@ -136,6 +155,8 @@ const HeaderPresenter: React.VFC<PresenterProps> = ({
   isCefOpen,
   onCefOpen,
   onCefClose,
+  isCedOpen,
+  onCedClose,
   // ChangePassword
   isCpfOpen,
   onCpfOpen,
@@ -153,26 +174,49 @@ const HeaderPresenter: React.VFC<PresenterProps> = ({
     <AppLogo {...styles.logo} />
     <HStack {...styles.rightContents}>
       <IconButton icon={<ImSearch />} {...styles.searchButton} onClick={onSuOpen} />
-      <AccountMenu mutation={{ signOut }} {...{ me, onEpfOpen, onCefOpen, onCpfOpen, onDadOpen }} />
+      <AccountMenu query={{ me }} mutation={{ signOut }} {...{ onEpfOpen, onCefOpen, onCpfOpen, onDadOpen }} />
     </HStack>
-    <EditProfileForm me={me} mutation={{ editProfile }} isOpen={isEpfOpen} onClose={onEpfClose} />
+    <EditProfileForm query={{ me }} mutation={{ editProfile }} isOpen={isEpfOpen} onClose={onEpfClose} />
+    <ChangeEmailForm query={{ me }} mutation={{ changeEmail }} isOpen={isCefOpen} onClose={onCefClose} />
+    <ChangeEmailCompleteDialog isOpen={isCedOpen} onClose={onCedClose} />
     <ChangePasswordForm mutation={{ changePassword }} isOpen={isCpfOpen} onClose={onCpfClose} />
     <ChangePasswordCompleteDialog isOpen={isCpdOpen} onClose={onCpdClose} />
   </Flex>
 )
 
 /** Container Component */
-const HeaderContainer: React.VFC<ContainerProps<HeaderProps, PresenterProps>> = ({ presenter, mutation, ...props }) => {
+const HeaderContainer: React.VFC<ContainerProps<HeaderProps, PresenterProps>> = ({
+  presenter,
+  query,
+  mutation,
+  ...props
+}) => {
+  // SearchUser
+  const { isOpen: isSuOpen, onOpen: onSuOpen, onClose: onSuClose } = useDisclosure()
+
   // EditProfileForm
   const { isOpen: isEpfOpen, onOpen: onEpfOpen, onClose: onEpfClose } = useDisclosure()
 
-  // ChangeEmailForm
-  const { isOpen: isCefOpen, onOpen: onCefOpen, onClose: onCefClose } = useDisclosure()
+  // ChangeEmail
+  const { isOpen: isCefOpen, onOpen: onChangeEmailFormOpen, onClose: onCefClose } = useDisclosure()
+  const { isOpen: isCedOpen, onOpen: onCedOpen, onClose: onCedClose } = useDisclosure()
+  const onCefOpen = () => {
+    query.me.refetch()
+    onChangeEmailFormOpen()
+  }
+  // ChangeEmail 完了時
+  useMemo(() => {
+    if (mutation.changeEmail.result) {
+      onCefClose()
+      onCedOpen()
+      mutation.changeEmail.reset()
+    }
+  }, [onCefClose, onCedOpen, mutation.changeEmail])
 
-  // ChangePasswordForm
+  // ChangePassword
   const { isOpen: isCpfOpen, onOpen: onCpfOpen, onClose: onCpfClose } = useDisclosure()
   const { isOpen: isCpdOpen, onOpen: onCpdOpen, onClose: onCpdClose } = useDisclosure()
-  // change password 完了時
+  // ChangePassword 完了時
   useMemo(() => {
     if (mutation.changePassword.result) {
       onCpfClose()
@@ -185,7 +229,12 @@ const HeaderContainer: React.VFC<ContainerProps<HeaderProps, PresenterProps>> = 
   const { isOpen: isDadOpen, onOpen: onDadOpen, onClose: onDadClose } = useDisclosure()
 
   return presenter({
+    query,
     mutation,
+    // SearchUser
+    isSuOpen,
+    onSuOpen,
+    onSuClose,
     // EditProfile
     isEpfOpen,
     onEpfOpen,
@@ -194,6 +243,8 @@ const HeaderContainer: React.VFC<ContainerProps<HeaderProps, PresenterProps>> = 
     isCefOpen,
     onCefOpen,
     onCefClose,
+    isCedOpen,
+    onCedClose,
     // ChangePassword
     isCpfOpen,
     onCpfOpen,

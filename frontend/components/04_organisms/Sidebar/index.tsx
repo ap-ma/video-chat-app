@@ -18,18 +18,6 @@ import * as styles from './styles'
 /** Sidebar Props */
 export type SidebarProps = Omit<BoxProps, 'me'> & {
   /**
-   * サインインユーザー情報
-   */
-  me?: MeQuery['me']
-  /**
-   * コンタクト一覧
-   */
-  contacts?: ContactsQuery['contacts']
-  /**
-   * メッセージ一覧
-   */
-  latestMessages?: LatestMessagesQuery['latestMessages']
-  /**
    * サイドバー onClose
    */
   onSbClose: OnClose
@@ -50,6 +38,24 @@ export type SidebarProps = Omit<BoxProps, 'me'> & {
    */
   query: {
     /**
+     * サインインユーザー情報
+     */
+    me: {
+      result?: MeQuery['me']
+    }
+    /**
+     * コンタクト一覧
+     */
+    contacts: {
+      result?: ContactsQuery['contacts']
+    }
+    /**
+     * メッセージ一覧
+     */
+    latestMessages: {
+      result?: LatestMessagesQuery['latestMessages']
+    }
+    /**
      *  コンタクト情報
      */
     contactInfo: {
@@ -63,11 +69,8 @@ export type PresenterProps = SidebarProps
 
 /** Presenter Component */
 const SidebarPresenter: React.VFC<PresenterProps> = ({
-  me,
-  contacts,
-  latestMessages,
   state,
-  query,
+  query: { me, contacts, latestMessages, contactInfo },
   onSbClose,
   ...props
 }) => (
@@ -83,10 +86,10 @@ const SidebarPresenter: React.VFC<PresenterProps> = ({
       </TabList>
       <TabPanels>
         <TabPanel p='0'>
-          <ContactList {...styles.contacts} {...{ contacts, state, query }} />
+          <ContactList {...styles.contacts} state={state} query={{ contacts, contactInfo }} />
         </TabPanel>
         <TabPanel p='0'>
-          <ChatList {...styles.chats} {...{ me, latestMessages, state, query }} />
+          <ChatList {...styles.chats} state={state} query={{ me, latestMessages, contactInfo }} />
         </TabPanel>
       </TabPanels>
     </Tabs>

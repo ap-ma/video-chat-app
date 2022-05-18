@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import ErrorMessage from 'components/01_atoms/ErrorMessage'
-import Toast from 'components/01_atoms/Toast'
+import toast from 'components/01_atoms/Toast'
 import { connect } from 'components/hoc'
 import { useSetError } from 'components/hooks'
 import { SignInMutation, SignInMutationVariables } from 'graphql/generated'
@@ -112,7 +112,7 @@ const SigninFormContainer: React.VFC<ContainerProps<SigninFormProps, PresenterPr
   // mutate
   const signInMutation: SubmitHandler<FormSchema> = (input) => {
     signIn.reset()
-    signIn.mutate({ variables: { input } }).catch(Toast('ValidationError'))
+    signIn.mutate({ variables: { input } }).catch(toast('ValidationError'))
   }
 
   // onClick sign in button
