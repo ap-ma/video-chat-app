@@ -5,7 +5,7 @@ import HtmlSkeleton, { HtmlSkeletonProps, Title } from 'components/05_layouts/Ht
 import { connect } from 'components/hoc'
 import { ResetPasswordInput, ResetPasswordMutation, ResetPasswordMutationVariables } from 'graphql/generated'
 import React, { useMemo } from 'react'
-import { ContainerProps, IsOpen, MutaionLoading, MutaionReset, MutateFunction, OnClose, ValidationErrors } from 'types'
+import { ContainerProps, Disclosure, MutaionLoading, MutaionReset, MutateFunction, ValidationErrors } from 'types'
 import * as styles from './styles'
 
 /** ResetPasswordTemplate Props */
@@ -37,8 +37,7 @@ export type ResetPasswordTemplateProps = Omit<HtmlSkeletonProps, 'children'> & {
 
 /** Presenter Props */
 export type PresenterProps = ResetPasswordTemplateProps & {
-  isRpcdOpen: IsOpen
-  onRpcdClose: OnClose
+  rpcdDisc: Disclosure
 }
 
 /** Presenter Component */
@@ -46,8 +45,7 @@ const ResetPasswordTemplatePresenter: React.VFC<PresenterProps> = ({
   token,
   tokenErrors,
   mutation,
-  isRpcdOpen,
-  onRpcdClose,
+  rpcdDisc,
   ...props
 }) => (
   <HtmlSkeleton {...props}>
@@ -58,7 +56,7 @@ const ResetPasswordTemplatePresenter: React.VFC<PresenterProps> = ({
         <ResetPasswordForm {...{ token, tokenErrors, mutation }} />
       </Stack>
     </Flex>
-    <ResetPasswordCompleteDialog isOpen={isRpcdOpen} onClose={onRpcdClose} />
+    <ResetPasswordCompleteDialog isOpen={rpcdDisc.isOpen} onClose={rpcdDisc.onClose} />
   </HtmlSkeleton>
 )
 
@@ -68,19 +66,19 @@ const ResetPasswordTemplateContainer: React.VFC<ContainerProps<ResetPasswordTemp
   mutation,
   ...props
 }) => {
-  const { isOpen: isRpcdOpen, onOpen: onRpcdOpen, onClose: onRpcdClose } = useDisclosure()
+  // ResetPassword dialog
+  const rpcdDisc = useDisclosure()
 
+  // ResetPassword onComplete
+  const onRpcdOpen = rpcdDisc.onOpen
+  const resetPasswordResult = mutation.resetPassword.result
   useMemo(() => {
-    if (mutation.resetPassword.result) {
-      onRpcdOpen()
-      mutation.resetPassword.reset()
-    }
-  }, [mutation, onRpcdOpen])
+    if (resetPasswordResult) onRpcdOpen()
+  }, [onRpcdOpen, resetPasswordResult])
 
   return presenter({
     mutation,
-    isRpcdOpen,
-    onRpcdClose,
+    rpcdDisc,
     ...props
   })
 }

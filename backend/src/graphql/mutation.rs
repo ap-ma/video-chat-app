@@ -108,7 +108,7 @@ impl Mutation {
             };
 
             common::convert_query_result(
-                service::create_email_verification_token(email_verification_token, &conn),
+                service::upsert_email_verification_token(email_verification_token, &conn),
                 "Failed to create email_verification_token",
             )?;
 

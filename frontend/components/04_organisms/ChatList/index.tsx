@@ -3,13 +3,13 @@ import UserCard, { UserCardProps } from 'components/04_organisms/UserCard'
 import { connect } from 'components/hoc'
 import { ContactInfoQuery, ContactInfoQueryVariables, LatestMessagesQuery, MeQuery } from 'graphql/generated'
 import React from 'react'
-import { ContainerProps, QueryRefetch } from 'types'
+import { ContainerProps, QueryRefetch, Unbox } from 'types'
 import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 import { toStr } from 'utils/general/helper'
 import { getLatestMessage } from 'utils/helper'
 
 /** ChatList Props */
-export type ChatListProps = Omit<ScrollbarProps, 'me'> & {
+export type ChatListProps = ScrollbarProps & {
   /**
    * Local State
    */
@@ -48,15 +48,15 @@ export type ChatListProps = Omit<ScrollbarProps, 'me'> & {
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<ChatListProps, 'me' | 'latestMessages' | 'state' | 'query'> & {
-  chatList?: UserCardProps[]
+export type PresenterProps = Omit<ChatListProps, 'state' | 'query'> & {
+  chatList?: Unbox<UserCardProps & { key: Unbox<LatestMessagesQuery['latestMessages']>['userId'] }>[]
 }
 
 /** Presenter Component */
 const ChatListPresenter: React.VFC<PresenterProps> = ({ chatList, ...props }) => (
   <Scrollbar mt='0.25em' {...props}>
-    {chatList?.map((chat) => (
-      <UserCard key={chat.userId} {...chat} />
+    {chatList?.map(({ key, ...chat }) => (
+      <UserCard key={key} {...chat} />
     ))}
   </Scrollbar>
 )
@@ -69,7 +69,7 @@ const ChatListContainer: React.VFC<ContainerProps<ChatListProps, PresenterProps>
   ...props
 }) => {
   const chatList = latestMessages.result?.map((latestMessage) => ({
-    userId: latestMessage.userId,
+    key: latestMessage.userId,
     image: latestMessage.userAvatar ?? undefined,
     name: toStr(latestMessage.userName),
     content: getLatestMessage(latestMessage, toStr(me.result?.name)),

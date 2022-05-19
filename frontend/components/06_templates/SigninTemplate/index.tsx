@@ -17,16 +17,7 @@ import {
   SignUpMutationVariables
 } from 'graphql/generated'
 import React, { useMemo } from 'react'
-import {
-  ContainerProps,
-  IsOpen,
-  MutaionLoading,
-  MutaionReset,
-  MutateFunction,
-  OnClose,
-  OnOpen,
-  ValidationErrors
-} from 'types'
+import { ContainerProps, Disclosure, MutaionLoading, MutaionReset, MutateFunction, ValidationErrors } from 'types'
 import * as styles from './styles'
 
 /** SigninTemplate Props */
@@ -72,17 +63,11 @@ export type SigninTemplateProps = Omit<HtmlSkeletonProps, 'children'> & {
 export type PresenterProps = SigninTemplateProps & {
   disabled: boolean
   // SignUp
-  isSufOpen: IsOpen
-  onSufOpen: OnOpen
-  onSufClose: OnClose
-  isSucdOpen: IsOpen
-  onSucdClose: OnClose
+  sufDisc: Disclosure
+  sucdDisc: Disclosure
   // ForgotPass
-  isFpfOpen: IsOpen
-  onFpfOpen: OnOpen
-  onFpfClose: OnClose
-  isFpcdOpen: IsOpen
-  onFpcdClose: OnClose
+  fpfDisc: Disclosure
+  fpcdDisc: Disclosure
 }
 
 /** Presenter Component */
@@ -90,17 +75,11 @@ const SigninTemplatePresenter: React.VFC<PresenterProps> = ({
   mutation: { signIn, forgotPassword, signUp },
   disabled,
   // SignUp
-  isSufOpen,
-  onSufOpen,
-  onSufClose,
-  isSucdOpen,
-  onSucdClose,
+  sufDisc,
+  sucdDisc,
   // ForgotPass
-  isFpfOpen,
-  onFpfOpen,
-  onFpfClose,
-  isFpcdOpen,
-  onFpcdClose,
+  fpfDisc,
+  fpcdDisc,
   ...props
 }) => (
   <HtmlSkeleton {...props}>
@@ -112,19 +91,19 @@ const SigninTemplatePresenter: React.VFC<PresenterProps> = ({
             <AppLogo {...styles.logo} />
             <Text {...styles.linkLabel}>
               New to this app?
-              <Link {...styles.link({ disabled })} onClick={onSufOpen}>
+              <Link {...styles.link({ disabled })} onClick={sufDisc.onOpen}>
                 Create an account.
               </Link>
             </Text>
           </Stack>
-          <SigninForm mutation={{ signIn }} onFpfOpen={onFpfOpen} />
+          <SigninForm mutation={{ signIn }} onFpfOpen={fpfDisc.onOpen} />
         </Stack>
       </Flex>
     </BackgroundWave>
-    <SignupForm mutation={{ signUp }} isOpen={isSufOpen} onClose={onSufClose} />
-    <SignupCompleteDialog isOpen={isSucdOpen} onClose={onSucdClose} />
-    <ForgotPasswordForm mutation={{ forgotPassword }} isOpen={isFpfOpen} onClose={onFpfClose} />
-    <ForgotPasswordCompleteDialog isOpen={isFpcdOpen} onClose={onFpcdClose} />
+    <SignupForm mutation={{ signUp }} isOpen={sufDisc.isOpen} onClose={sufDisc.onClose} />
+    <SignupCompleteDialog isOpen={sucdDisc.isOpen} onClose={sucdDisc.onClose} />
+    <ForgotPasswordForm mutation={{ forgotPassword }} isOpen={fpfDisc.isOpen} onClose={fpfDisc.onClose} />
+    <ForgotPasswordCompleteDialog isOpen={fpcdDisc.isOpen} onClose={fpcdDisc.onClose} />
   </HtmlSkeleton>
 )
 
@@ -134,29 +113,35 @@ const SigninTemplateContainer: React.VFC<ContainerProps<SigninTemplateProps, Pre
   mutation,
   ...props
 }) => {
-  // Signup
-  const { isOpen: isSufOpen, onOpen: onSufOpen, onClose: onSufClose } = useDisclosure()
-  const { isOpen: isSucdOpen, onOpen: onSucdOpen, onClose: onSucdClose } = useDisclosure()
-  // Signup 完了時
+  // Signup modal
+  const sufDisc = useDisclosure()
+  const sucdDisc = useDisclosure()
+
+  // Signup onComplete
+  const onSufClose = sufDisc.onClose
+  const onSucdOpen = sucdDisc.onOpen
+  const signUpResult = mutation.signUp.result
   useMemo(() => {
-    if (mutation.signUp.result) {
+    if (signUpResult) {
       onSufClose()
       onSucdOpen()
-      mutation.signUp.reset()
     }
-  }, [onSufClose, onSucdOpen, mutation.signUp])
+  }, [onSufClose, onSucdOpen, signUpResult])
 
-  // ForgotPassword
-  const { isOpen: isFpfOpen, onOpen: onFpfOpen, onClose: onFpfClose } = useDisclosure()
-  const { isOpen: isFpcdOpen, onOpen: onFpcdOpen, onClose: onFpcdClose } = useDisclosure()
-  // ForgotPassword 完了時
+  // ForgotPassword modal
+  const fpfDisc = useDisclosure()
+  const fpcdDisc = useDisclosure()
+
+  // ForgotPassword onComplete
+  const onFpfClose = fpfDisc.onClose
+  const onFpcdOpen = fpcdDisc.onOpen
+  const forgotPasswordResult = mutation.forgotPassword.result
   useMemo(() => {
-    if (mutation.forgotPassword.result) {
+    if (forgotPasswordResult) {
       onFpfClose()
       onFpcdOpen()
-      mutation.forgotPassword.reset()
     }
-  }, [onFpfClose, onFpcdOpen, mutation.forgotPassword])
+  }, [onFpfClose, onFpcdOpen, forgotPasswordResult])
 
   // status
   const disabled = mutation.signIn.loading || !!mutation.signIn.result
@@ -165,17 +150,11 @@ const SigninTemplateContainer: React.VFC<ContainerProps<SigninTemplateProps, Pre
     mutation,
     disabled,
     // SignUp
-    isSufOpen,
-    onSufOpen,
-    onSufClose,
-    isSucdOpen,
-    onSucdClose,
+    sufDisc,
+    sucdDisc,
     // ForgotPass
-    isFpfOpen,
-    onFpfOpen,
-    onFpfClose,
-    isFpcdOpen,
-    onFpcdClose,
+    fpfDisc,
+    fpcdDisc,
     ...props
   })
 }

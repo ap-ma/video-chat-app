@@ -16,11 +16,11 @@ import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 import * as styles from './styles'
 
 /** Sidebar Props */
-export type SidebarProps = Omit<BoxProps, 'me'> & {
+export type SidebarProps = BoxProps & {
   /**
    * サイドバー onClose
    */
-  onSbClose: OnClose
+  onClose: OnClose
   /**
    * Local State
    */
@@ -71,13 +71,13 @@ export type PresenterProps = SidebarProps
 const SidebarPresenter: React.VFC<PresenterProps> = ({
   state,
   query: { me, contacts, latestMessages, contactInfo },
-  onSbClose,
+  onClose,
   ...props
 }) => (
   <Box {...styles.root} {...props}>
     <Flex {...styles.head}>
       <AppLogo />
-      <CloseButton {...styles.close} onClick={onSbClose} />
+      <CloseButton {...styles.close} onClick={onClose} />
     </Flex>
     <Tabs isFitted {...styles.tab}>
       <TabList>
@@ -86,7 +86,7 @@ const SidebarPresenter: React.VFC<PresenterProps> = ({
       </TabList>
       <TabPanels>
         <TabPanel p='0'>
-          <ContactList {...styles.contacts} state={state} query={{ contacts, contactInfo }} />
+          <ContactList {...styles.contacts} state={state} query={{ me, contacts, contactInfo }} />
         </TabPanel>
         <TabPanel p='0'>
           <ChatList {...styles.chats} state={state} query={{ me, latestMessages, contactInfo }} />

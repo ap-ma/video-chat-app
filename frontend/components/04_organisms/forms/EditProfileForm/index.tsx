@@ -232,13 +232,10 @@ const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, P
   const onSaveButtonClick = handleSubmit(signUpMutation)
 
   // mutate onComplete
+  const editProfileResult = editProfile.result
   useMemo(() => {
-    if (hasValue(editProfile.result)) {
-      editProfile.reset()
-      onCancelButtonClick()
-      toast('EditProfileComplete')()
-    }
-  }, [editProfile, onCancelButtonClick])
+    if (hasValue(editProfileResult)) onCancelButtonClick()
+  }, [editProfileResult, onCancelButtonClick])
 
   // modal onClose
   const onClose = useCallback(() => {

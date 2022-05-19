@@ -25,7 +25,7 @@ import { toStr } from 'utils/general/helper'
 import * as styles from './styles'
 
 /** AccountMenu Props */
-export type AccountMenuProps = Omit<FlexProps, 'me'> & {
+export type AccountMenuProps = FlexProps & {
   /**
    * プロフィール編集モーダル onOpen
    */

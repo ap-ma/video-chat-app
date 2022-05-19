@@ -15,8 +15,8 @@ export type ChakraPosition = PositionProps['position']
 //  Chakra UI hooks types
 //  ----------------------------------------------------------------------------
 
-/** Chakra UI hooks useDisclosure isOpen */
-export type IsOpen = ReturnType<typeof useDisclosure>['isOpen']
+/** Chakra UI hooks Disclosure  */
+export type Disclosure = ReturnType<typeof useDisclosure>
 
 /** Chakra UI hooks useDisclosure onOpen */
 export type OnOpen = ReturnType<typeof useDisclosure>['onOpen']

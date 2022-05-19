@@ -46,17 +46,8 @@ impl Contact {
         self.user_code.as_str()
     }
 
-    async fn user_name(&self, ctx: &Context<'_>) -> Result<Option<String>> {
-        let identity = auth::get_identity(ctx)?;
-
-        if let Some(identity) = identity {
-            if self.user_id == identity.id {
-                let name = self.user_name.clone().map_or(String::new(), |v| v + " ");
-                return Ok(Some(name + "(myself)"));
-            }
-        }
-
-        Ok(self.user_name.clone())
+    async fn user_name(&self) -> Option<&str> {
+        self.user_name.as_deref()
     }
 
     async fn user_comment(&self) -> Option<&str> {

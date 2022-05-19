@@ -3,6 +3,7 @@ import AppLogo from 'components/01_atoms/AppLogo'
 import AccountMenu from 'components/04_organisms/AccountMenu'
 import ChangeEmailCompleteDialog from 'components/04_organisms/dialogs/ChangeEmailCompleteDialog'
 import ChangePasswordCompleteDialog from 'components/04_organisms/dialogs/ChangePasswordCompleteDialog'
+import DeleteAccountDialog from 'components/04_organisms/dialogs/DeleteAccountDialog'
 import ChangeEmailForm from 'components/04_organisms/forms/ChangeEmailForm'
 import ChangePasswordForm from 'components/04_organisms/forms/ChangePasswordForm'
 import EditProfileForm from 'components/04_organisms/forms/EditProfileForm'
@@ -26,11 +27,10 @@ import { ImSearch } from 'react-icons/im'
 import { RiContactsLine } from 'react-icons/ri'
 import {
   ContainerProps,
-  IsOpen,
+  Disclosure,
   MutaionLoading,
   MutaionReset,
   MutateFunction,
-  OnClose,
   OnOpen,
   QueryLoading,
   QueryRefetch,
@@ -39,7 +39,7 @@ import {
 import * as styles from './styles'
 
 /** Header Props */
-export type HeaderProps = Omit<FlexProps, 'me'> & {
+export type HeaderProps = FlexProps & {
   /**
    * サイドバー onOpen
    */
@@ -111,76 +111,49 @@ export type HeaderProps = Omit<FlexProps, 'me'> & {
 
 /** Presenter Props */
 export type PresenterProps = HeaderProps & {
-  // SearchUser
-  isSuOpen: IsOpen
-  onSuOpen: OnOpen
-  onSuClose: OnClose
-  // EditProfile
-  isEpfOpen: IsOpen
-  onEpfOpen: OnOpen
-  onEpfClose: OnClose
-  // ChangeEmail
-  isCefOpen: IsOpen
-  onCefOpen: OnOpen
-  onCefClose: OnClose
-  isCedOpen: IsOpen
-  onCedClose: OnClose
-  // ChangePassword
-  isCpfOpen: IsOpen
-  onCpfOpen: OnOpen
-  onCpfClose: OnClose
-  isCpdOpen: IsOpen
-  onCpdClose: OnClose
-  // DeleteAccount
-  isDadOpen: IsOpen
-  onDadOpen: OnOpen
-  onDadClose: OnClose
+  suDisc: Disclosure
+  epfDisc: Disclosure
+  cefDisc: Disclosure
+  cecdDisc: Disclosure
+  cpfDisc: Disclosure
+  cpcdDisc: Disclosure
+  dadDisc: Disclosure
 }
 
 /** Presenter Component */
 const HeaderPresenter: React.VFC<PresenterProps> = ({
   query: { me },
   mutation: { signOut, editProfile, changeEmail, changePassword, deleteAccount },
-  // sidebar
   onSbOpen,
-  // SearchUser
-  isSuOpen,
-  onSuOpen,
-  onSuClose,
-  // EditProfile
-  isEpfOpen,
-  onEpfOpen,
-  onEpfClose,
-  // ChangeEmail
-  isCefOpen,
-  onCefOpen,
-  onCefClose,
-  isCedOpen,
-  onCedClose,
-  // ChangePassword
-  isCpfOpen,
-  onCpfOpen,
-  onCpfClose,
-  isCpdOpen,
-  onCpdClose,
-  // DeleteAccount
-  isDadOpen,
-  onDadOpen,
-  onDadClose,
+  suDisc,
+  epfDisc,
+  cefDisc,
+  cecdDisc,
+  cpfDisc,
+  cpcdDisc,
+  dadDisc,
   ...props
 }) => (
   <Flex {...styles.root} {...props}>
     <IconButton icon={<RiContactsLine />} {...styles.openButton} onClick={onSbOpen} />
     <AppLogo {...styles.logo} />
     <HStack {...styles.rightContents}>
-      <IconButton icon={<ImSearch />} {...styles.searchButton} onClick={onSuOpen} />
-      <AccountMenu query={{ me }} mutation={{ signOut }} {...{ onEpfOpen, onCefOpen, onCpfOpen, onDadOpen }} />
+      <IconButton icon={<ImSearch />} {...styles.searchButton} onClick={suDisc.onOpen} />
+      <AccountMenu
+        query={{ me }}
+        mutation={{ signOut }}
+        onEpfOpen={epfDisc.onOpen}
+        onCefOpen={cefDisc.onOpen}
+        onCpfOpen={cpfDisc.onOpen}
+        onDadOpen={dadDisc.onOpen}
+      />
     </HStack>
-    <EditProfileForm query={{ me }} mutation={{ editProfile }} isOpen={isEpfOpen} onClose={onEpfClose} />
-    <ChangeEmailForm query={{ me }} mutation={{ changeEmail }} isOpen={isCefOpen} onClose={onCefClose} />
-    <ChangeEmailCompleteDialog isOpen={isCedOpen} onClose={onCedClose} />
-    <ChangePasswordForm mutation={{ changePassword }} isOpen={isCpfOpen} onClose={onCpfClose} />
-    <ChangePasswordCompleteDialog isOpen={isCpdOpen} onClose={onCpdClose} />
+    <EditProfileForm query={{ me }} mutation={{ editProfile }} isOpen={epfDisc.isOpen} onClose={epfDisc.onClose} />
+    <ChangeEmailForm query={{ me }} mutation={{ changeEmail }} isOpen={cefDisc.isOpen} onClose={cefDisc.onClose} />
+    <ChangeEmailCompleteDialog isOpen={cecdDisc.isOpen} onClose={cecdDisc.onClose} />
+    <ChangePasswordForm mutation={{ changePassword }} isOpen={cpfDisc.isOpen} onClose={cpfDisc.onClose} />
+    <ChangePasswordCompleteDialog isOpen={cpcdDisc.isOpen} onClose={cpcdDisc.onClose} />
+    <DeleteAccountDialog mutation={{ deleteAccount }} isOpen={dadDisc.isOpen} onClose={dadDisc.onClose} />
   </Flex>
 )
 
@@ -191,70 +164,64 @@ const HeaderContainer: React.VFC<ContainerProps<HeaderProps, PresenterProps>> = 
   mutation,
   ...props
 }) => {
-  // SearchUser
-  const { isOpen: isSuOpen, onOpen: onSuOpen, onClose: onSuClose } = useDisclosure()
+  // SearchUser modal
+  const suDisc = useDisclosure()
 
-  // EditProfileForm
-  const { isOpen: isEpfOpen, onOpen: onEpfOpen, onClose: onEpfClose } = useDisclosure()
+  // EditProfile modal
+  const epfDisc = useDisclosure()
 
-  // ChangeEmail
-  const { isOpen: isCefOpen, onOpen: onChangeEmailFormOpen, onClose: onCefClose } = useDisclosure()
-  const { isOpen: isCedOpen, onOpen: onCedOpen, onClose: onCedClose } = useDisclosure()
-  const onCefOpen = () => {
-    query.me.refetch()
-    onChangeEmailFormOpen()
-  }
-  // ChangeEmail 完了時
+  // ChangeEmail modal
+  const { onOpen: onCefOpen, ...cefDiscRest } = useDisclosure()
+  const cecdDisc = useDisclosure()
+  const cefDisc = useMemo(() => {
+    return {
+      onOpen: () => {
+        query.me.refetch()
+        onCefOpen()
+      },
+      ...cefDiscRest
+    }
+  }, [onCefOpen, cefDiscRest, query.me])
+
+  // ChangeEmail onComplete
+  const onCefClose = cefDisc.onClose
+  const onCecdOpen = cecdDisc.onOpen
+  const changeEmailResult = mutation.changeEmail.result
   useMemo(() => {
-    if (mutation.changeEmail.result) {
+    if (changeEmailResult) {
       onCefClose()
-      onCedOpen()
-      mutation.changeEmail.reset()
+      onCecdOpen()
     }
-  }, [onCefClose, onCedOpen, mutation.changeEmail])
+  }, [onCefClose, onCecdOpen, changeEmailResult])
 
-  // ChangePassword
-  const { isOpen: isCpfOpen, onOpen: onCpfOpen, onClose: onCpfClose } = useDisclosure()
-  const { isOpen: isCpdOpen, onOpen: onCpdOpen, onClose: onCpdClose } = useDisclosure()
-  // ChangePassword 完了時
+  // ChangePassword modal
+  const cpfDisc = useDisclosure()
+  const cpcdDisc = useDisclosure()
+
+  // ChangePassword onComplete
+  const onCpfClose = cpfDisc.onClose
+  const onCpcdOpen = cpcdDisc.onOpen
+  const changePasswordResult = mutation.changePassword.result
   useMemo(() => {
-    if (mutation.changePassword.result) {
+    if (changePasswordResult) {
       onCpfClose()
-      onCpdOpen()
-      mutation.changePassword.reset()
+      onCpcdOpen()
     }
-  }, [onCpfClose, onCpdOpen, mutation.changePassword])
+  }, [onCpfClose, onCpcdOpen, changePasswordResult])
 
-  // DeleteAccountDialog
-  const { isOpen: isDadOpen, onOpen: onDadOpen, onClose: onDadClose } = useDisclosure()
+  // DeleteAccount dialog
+  const dadDisc = useDisclosure()
 
   return presenter({
     query,
     mutation,
-    // SearchUser
-    isSuOpen,
-    onSuOpen,
-    onSuClose,
-    // EditProfile
-    isEpfOpen,
-    onEpfOpen,
-    onEpfClose,
-    // ChangeEmail
-    isCefOpen,
-    onCefOpen,
-    onCefClose,
-    isCedOpen,
-    onCedClose,
-    // ChangePassword
-    isCpfOpen,
-    onCpfOpen,
-    onCpfClose,
-    isCpdOpen,
-    onCpdClose,
-    // DeleteAccount
-    isDadOpen,
-    onDadOpen,
-    onDadClose,
+    suDisc,
+    epfDisc,
+    cefDisc,
+    cecdDisc,
+    cpfDisc,
+    cpcdDisc,
+    dadDisc,
     ...props
   })
 }

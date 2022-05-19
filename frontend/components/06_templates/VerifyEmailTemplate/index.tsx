@@ -5,7 +5,7 @@ import HtmlSkeleton, { HtmlSkeletonProps, Title } from 'components/05_layouts/Ht
 import { connect } from 'components/hoc'
 import { VerifyEmailMutation } from 'graphql/generated'
 import React from 'react'
-import { ContainerProps, IsOpen, OnClose } from 'types'
+import { ContainerProps, Disclosure } from 'types'
 
 /** VerifyEmailTemplate Props */
 export type VerifyEmailTemplateProps = Omit<HtmlSkeletonProps, 'children'> &
@@ -18,24 +18,16 @@ export type VerifyEmailTemplateProps = Omit<HtmlSkeletonProps, 'children'> &
 
 /** Presenter Props */
 export type PresenterProps = Omit<VerifyEmailTemplateProps, 'result'> & {
-  isEvsdOpen: IsOpen
-  onEvsdClose: OnClose
-  isEvfdOpen: IsOpen
-  onEvfdClose: OnClose
+  evsdDisc: Disclosure
+  evfdDisc: Disclosure
 }
 
 /** Presenter Component */
-const VerifyEmailTemplatePresenter: React.VFC<PresenterProps> = ({
-  isEvsdOpen,
-  onEvsdClose,
-  isEvfdOpen,
-  onEvfdClose,
-  ...props
-}) => (
+const VerifyEmailTemplatePresenter: React.VFC<PresenterProps> = ({ evsdDisc, evfdDisc, ...props }) => (
   <HtmlSkeleton {...props}>
     <Title>Verify Email</Title>
-    <EmailVerificationSuccessDialog isOpen={isEvsdOpen} onClose={onEvsdClose} />
-    <EmailVerificationFailureDialog isOpen={isEvfdOpen} onClose={onEvfdClose} />
+    <EmailVerificationSuccessDialog isOpen={evsdDisc.isOpen} onClose={evsdDisc.onClose} />
+    <EmailVerificationFailureDialog isOpen={evfdDisc.isOpen} onClose={evfdDisc.onClose} />
   </HtmlSkeleton>
 )
 
@@ -45,14 +37,13 @@ const VerifyEmailTemplateContainer: React.VFC<ContainerProps<VerifyEmailTemplate
   result,
   ...props
 }) => {
-  const { isOpen: isEvsdOpen, onClose: onEvsdClose } = useDisclosure({ isOpen: result })
-  const { isOpen: isEvfdOpen, onClose: onEvfdClose } = useDisclosure({ isOpen: !result })
+  // EmailVerification dialog
+  const evsdDisc = useDisclosure({ isOpen: result })
+  const evfdDisc = useDisclosure({ isOpen: !result })
 
   return presenter({
-    isEvsdOpen,
-    onEvsdClose,
-    isEvfdOpen,
-    onEvfdClose,
+    evsdDisc,
+    evfdDisc,
     ...props
   })
 }

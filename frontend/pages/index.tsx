@@ -13,6 +13,7 @@ import {
   useChangePasswordMutation,
   useContactApplicationMutation,
   useContactApprovalMutation,
+  useContactInfoLazyQuery,
   useContactInfoQuery,
   useContactsQuery,
   useDeleteAccountMutation,
@@ -78,7 +79,9 @@ const Index: NextPage = () => {
   // ユーザー情報
   const meQuery = useMeQuery({ fetchPolicy: 'cache-first' })
   handle(meQuery.error, handler)
-  if (isNullish(contactInfoUserId)) setContactInfoUserId(toStr(meQuery.data?.me.id))
+  if (isNullish(contactInfoUserId)) {
+    setContactInfoUserId(toStr(meQuery.data?.me.id))
+  }
 
   // コンタクト一覧
   const contactsQuery = useContactsQuery({ fetchPolicy: 'cache-first' })
@@ -92,14 +95,15 @@ const Index: NextPage = () => {
   const contactInfoQuery = useContactInfoQuery({
     variables: { contactUserId: contactInfoUserId, limit: CHAT_LENGTH }
   })
-  handle(contactInfoQuery.error, {
-    noError: () => undefined,
-    _default: () => contactInfoQuery.refetch({ contactUserId: meQuery.data?.me.id })
-  })?.catch((error) => handle(error as ApolloError, handler) && undefined)
+  handle(contactInfoQuery.error, handler)
+
+  // コンタクト情報 Lazy
+  const [contactInfo, contactInfoLazyQuery] = useContactInfoLazyQuery({ fetchPolicy: 'network-only' })
+  handle(contactInfoLazyQuery.error, handler)
 
   // ユーザー検索
-  const [getUsersByCode, searchUserQuery] = useSearchUserLazyQuery({ fetchPolicy: 'network-only' })
-  handle(searchUserQuery.error, handler)
+  const [searchUser, searchUserLazyQuery] = useSearchUserLazyQuery({ fetchPolicy: 'network-only' })
+  handle(searchUserLazyQuery.error, handler)
 
   //  ----------------------------------------------------------------------------
   //  Mutation
@@ -111,7 +115,12 @@ const Index: NextPage = () => {
   if (signOutMutation.data?.signOut) destroy()
 
   // プロフィール編集
-  const [editProfile, editProfileMutation] = useEditProfileMutation()
+  const [editProfile, editProfileMutation] = useEditProfileMutation({
+    onCompleted: () => {
+      contactInfo()
+      toast('EditProfileComplete')()
+    }
+  })
   const editProfileResult = handle(editProfileMutation.error, handler)
 
   // メールアドレス変更
@@ -232,9 +241,9 @@ const Index: NextPage = () => {
         ...contactInfoQuery
       },
       searchUser: {
-        result: searchUserQuery.data?.searchUser,
-        loading: searchUserQuery.loading,
-        getUsersByCode
+        result: searchUserLazyQuery.data?.searchUser,
+        loading: searchUserLazyQuery.loading,
+        query: searchUser
       }
     },
     mutation: {

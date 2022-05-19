@@ -1,7 +1,7 @@
 import { Box, Drawer, DrawerContent, useDisclosure } from '@chakra-ui/react'
 import Header from 'components/04_organisms/Header'
 import Sidebar from 'components/04_organisms/Sidebar'
-import HtmlSkeleton, { Title } from 'components/05_layouts/HtmlSkeleton'
+import HtmlSkeleton, { HtmlSkeletonProps, Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
 import {
   BlockContactMutation,
@@ -46,13 +46,11 @@ import {
 import React from 'react'
 import {
   ContainerProps,
-  IsOpen,
+  Disclosure,
   LazyQueryFunction,
   MutaionLoading,
   MutaionReset,
   MutateFunction,
-  OnClose,
-  OnOpen,
   QueryFetchMore,
   QueryLoading,
   QueryNetworkStatus,
@@ -62,7 +60,7 @@ import {
 import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 
 /** IndexTemplate Props */
-export type IndexTemplateProps = {
+export type IndexTemplateProps = Omit<HtmlSkeletonProps, 'children'> & {
   /**
    * Local State
    */
@@ -119,7 +117,7 @@ export type IndexTemplateProps = {
     searchUser: {
       result?: SearchUserQuery['searchUser']
       loading: QueryLoading
-      getUsersByCode: LazyQueryFunction<SearchUserQuery, SearchUserQueryVariables>
+      query: LazyQueryFunction<SearchUserQuery, SearchUserQueryVariables>
     }
   }
   /**
@@ -257,10 +255,7 @@ export type IndexTemplateProps = {
 
 /** Presenter Props */
 export type PresenterProps = IndexTemplateProps & {
-  // Sidebar
-  isSbOpen: IsOpen
-  onSbOpen: OnOpen
-  onSbClose: OnClose
+  sbDisc: Disclosure
 }
 
 /** Presenter Component */
@@ -268,36 +263,34 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
   state,
   query: { me, contacts, latestMessages, contactInfo, searchUser },
   mutation: { signOut, editProfile, changeEmail, changePassword, deleteAccount },
-  // Sidebar
-  isSbOpen,
-  onSbOpen,
-  onSbClose,
+  sbDisc,
   ...props
 }) => (
-  <HtmlSkeleton>
+  <HtmlSkeleton {...props}>
     <Title>Home</Title>
     <Box minH='100vh' bg='gray.100'>
       <Sidebar
         display={{ base: 'none', md: 'block' }}
+        state={state}
         query={{ me, contacts, latestMessages, contactInfo }}
-        {...{ onSbClose, state }}
+        onClose={sbDisc.onClose}
       />
       <Drawer
         autoFocus={false}
-        isOpen={isSbOpen}
+        isOpen={sbDisc.isOpen}
         placement='left'
-        onClose={onSbClose}
-        onOverlayClick={onSbClose}
+        onClose={sbDisc.onClose}
+        onOverlayClick={sbDisc.onClose}
         returnFocusOnClose={false}
         size='full'
       >
         <DrawerContent>
-          <Sidebar query={{ me, contacts, latestMessages, contactInfo }} {...{ onSbClose, state }} />
+          <Sidebar state={state} query={{ me, contacts, latestMessages, contactInfo }} onClose={sbDisc.onClose} />
         </DrawerContent>
       </Drawer>
       {/* mobilenav */}
       <Header
-        onSbOpen={onSbOpen}
+        onSbOpen={sbDisc.onOpen}
         query={{ me }}
         mutation={{ signOut, editProfile, changeEmail, changePassword, deleteAccount }}
       />
@@ -314,15 +307,8 @@ const IndexTemplateContainer: React.VFC<ContainerProps<IndexTemplateProps, Prese
   ...props
 }) => {
   // Sidebar
-  const { isOpen: isSbOpen, onOpen: onSbOpen, onClose: onSbClose } = useDisclosure()
-
-  return presenter({
-    // Sidebar
-    isSbOpen,
-    onSbOpen,
-    onSbClose,
-    ...props
-  })
+  const sbDisc = useDisclosure()
+  return presenter({ sbDisc, ...props })
 }
 
 /** IndexTemplate */

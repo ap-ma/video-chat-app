@@ -3,10 +3,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Scrollbar, { ScrollbarProps } from 'components/02_interactions/Scrollbar'
 import UserCard, { UserCardProps } from 'components/04_organisms/UserCard'
 import { connect } from 'components/hoc'
-import { ContactInfoQuery, ContactInfoQueryVariables, ContactsQuery } from 'graphql/generated'
+import { ContactInfoQuery, ContactInfoQueryVariables, ContactsQuery, MeQuery } from 'graphql/generated'
 import React, { Fragment } from 'react'
 import { useForm, UseFormRegister } from 'react-hook-form'
-import { ContainerProps, QueryRefetch } from 'types'
+import { ContainerProps, QueryRefetch, Unbox } from 'types'
 import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 import { toStr } from 'utils/general/helper'
 import * as styles from './styles'
@@ -31,6 +31,12 @@ export type ContactListProps = ScrollbarProps & {
    */
   query: {
     /**
+     * サインインユーザー情報
+     */
+    me: {
+      result?: MeQuery['me']
+    }
+    /**
      * コンタクト一覧
      */
     contacts: {
@@ -46,8 +52,8 @@ export type ContactListProps = ScrollbarProps & {
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<ContactListProps, 'contacts' | 'state' | 'query'> & {
-  contactList?: UserCardProps[]
+export type PresenterProps = Omit<ContactListProps, 'state' | 'query'> & {
+  contactList?: Unbox<UserCardProps & { key: Unbox<ContactsQuery['contacts']>['userId'] }>[]
   register: UseFormRegister<FormSchema>
 }
 
@@ -56,8 +62,8 @@ const ContactListPresenter: React.VFC<PresenterProps> = ({ contactList, register
   <Fragment>
     <Input type='text' placeholder='filter contacts...' {...styles.filter} {...register('filter')} />
     <Scrollbar mt='0.2em' {...props}>
-      {contactList?.map((contact) => (
-        <UserCard key={contact.userId} {...contact} />
+      {contactList?.map(({ key, ...contact }) => (
+        <UserCard key={key} {...contact} />
       ))}
     </Scrollbar>
   </Fragment>
@@ -67,7 +73,7 @@ const ContactListPresenter: React.VFC<PresenterProps> = ({ contactList, register
 const ContactListContainer: React.VFC<ContainerProps<ContactListProps, PresenterProps>> = ({
   presenter,
   state: { contactInfoUserId },
-  query: { contacts, contactInfo },
+  query: { me, contacts, contactInfo },
   ...props
 }) => {
   // react hook form
@@ -80,9 +86,9 @@ const ContactListContainer: React.VFC<ContainerProps<ContactListProps, Presenter
   const contactList = contacts.result
     ?.filter((contact) => contact.userName?.includes(filter))
     .map((contact) => ({
-      userId: contact.userId,
+      key: contact.userId,
       image: contact.userAvatar ?? undefined,
-      name: toStr(contact.userName),
+      name: toStr(me.result?.id === contact.userId ? `${contact.userName} (myself)` : contact.userName),
       content: contact.userComment ?? undefined,
       active: contactInfoUserId.state === contact.userId,
       onClick: () => {
