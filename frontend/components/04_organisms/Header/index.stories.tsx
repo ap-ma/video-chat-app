@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved */
 import { container } from '.storybook/decorators'
-import { dummyMe, dummyMutation, userId } from '.storybook/dummies'
+import { contactInfo, dummyMe, dummyMutation, dummySearchUser, otherUserId, userId } from '.storybook/dummies'
 /* eslint-enable import/no-unresolved  */
 import { Box } from '@chakra-ui/react'
 import { Meta, Story } from '@storybook/react'
@@ -16,8 +16,9 @@ import {
   SignOutMutation,
   SignOutMutationVariables
 } from 'graphql/generated'
-import React from 'react'
+import React, { useState } from 'react'
 import { MutaionLoading, QueryLoading } from 'types'
+import { toStr } from 'utils/general/helper'
 import Header, { HeaderProps } from './index'
 
 export default {
@@ -36,6 +37,8 @@ export default {
 
 type HeaderStoryProps = HeaderProps & {
   meLoading: QueryLoading
+  searchUserLoading: QueryLoading
+  searchUserResult: boolean
   signOutLoading: MutaionLoading
   editProfileLoading: MutaionLoading
   changeEmailLoading: MutaionLoading
@@ -45,6 +48,8 @@ type HeaderStoryProps = HeaderProps & {
 
 const Template: Story<HeaderStoryProps> = ({
   meLoading,
+  searchUserLoading,
+  searchUserResult,
   signOutLoading,
   editProfileLoading,
   changeEmailLoading,
@@ -52,9 +57,14 @@ const Template: Story<HeaderStoryProps> = ({
   deleteAccountLoading,
   ...props
 }) => {
+  // state
+  const [contactUserId, setContactUserId] = useState(toStr(otherUserId))
+  const state = { contactInfoUserId: { state: contactUserId, setContactInfoUserId: setContactUserId } }
+
   // query
   const me = dummyMe(userId, meLoading, undefined)
-  const query = { me }
+  const searchUser = dummySearchUser(searchUserLoading, searchUserResult)
+  const query = { me, contactInfo, searchUser }
 
   // mutation
   const signOut = dummyMutation<SignOutMutation['signOut'], SignOutMutation, SignOutMutationVariables>(
@@ -89,13 +99,15 @@ const Template: Story<HeaderStoryProps> = ({
 
   const mutation = { signOut, editProfile, changeEmail, changePassword, deleteAccount }
 
-  return <Header {...{ ...props, query, mutation }} />
+  return <Header {...{ ...props, state, query, mutation }} />
 }
 
 export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'
 Primary.args = {
   meLoading: false,
+  searchUserLoading: false,
+  searchUserResult: true,
   signOutLoading: false,
   editProfileLoading: false,
   changePasswordLoading: false,

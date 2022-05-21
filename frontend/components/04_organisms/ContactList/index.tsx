@@ -1,12 +1,12 @@
 import { Input } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Scrollbar, { ScrollbarProps } from 'components/02_interactions/Scrollbar'
-import UserCard, { UserCardProps } from 'components/04_organisms/UserCard'
+import ContactCard, { ContactCardProps } from 'components/03_molecules/ContactCard'
 import { connect } from 'components/hoc'
 import { ContactInfoQuery, ContactInfoQueryVariables, ContactsQuery, MeQuery } from 'graphql/generated'
 import React, { Fragment } from 'react'
 import { useForm, UseFormRegister } from 'react-hook-form'
-import { ContainerProps, QueryRefetch, Unbox } from 'types'
+import { ContainerProps, OnClose, QueryRefetch, Unbox } from 'types'
 import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 import { toStr } from 'utils/general/helper'
 import * as styles from './styles'
@@ -14,6 +14,10 @@ import { FormSchema, schema } from './validation'
 
 /** ContactList Props */
 export type ContactListProps = ScrollbarProps & {
+  /**
+   * サイドバー onClose
+   */
+  onSbClose: OnClose
   /**
    * Local State
    */
@@ -52,8 +56,8 @@ export type ContactListProps = ScrollbarProps & {
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<ContactListProps, 'state' | 'query'> & {
-  contactList?: Unbox<UserCardProps & { key: Unbox<ContactsQuery['contacts']>['userId'] }>[]
+export type PresenterProps = Omit<ContactListProps, 'onSbClose' | 'state' | 'query'> & {
+  contactList?: (ContactCardProps & { key: Unbox<ContactsQuery['contacts']>['userId'] })[]
   register: UseFormRegister<FormSchema>
 }
 
@@ -63,7 +67,7 @@ const ContactListPresenter: React.VFC<PresenterProps> = ({ contactList, register
     <Input type='text' placeholder='filter contacts...' {...styles.filter} {...register('filter')} />
     <Scrollbar mt='0.2em' {...props}>
       {contactList?.map(({ key, ...contact }) => (
-        <UserCard key={key} {...contact} />
+        <ContactCard key={key} {...contact} />
       ))}
     </Scrollbar>
   </Fragment>
@@ -74,6 +78,7 @@ const ContactListContainer: React.VFC<ContainerProps<ContactListProps, Presenter
   presenter,
   state: { contactInfoUserId },
   query: { me, contacts, contactInfo },
+  onSbClose,
   ...props
 }) => {
   // react hook form
@@ -94,6 +99,7 @@ const ContactListContainer: React.VFC<ContainerProps<ContactListProps, Presenter
       onClick: () => {
         contactInfoUserId.setContactInfoUserId(contact.userId)
         contactInfo.refetch({ contactUserId: contact.userId })
+        onSbClose()
       }
     }))
 

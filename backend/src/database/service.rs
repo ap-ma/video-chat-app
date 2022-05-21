@@ -60,11 +60,15 @@ pub fn find_user_by_email(email: &str, conn: &MysqlConnection) -> QueryResult<Us
         .first(conn)
 }
 
-pub fn get_users_by_code(user_code: &str, conn: &MysqlConnection) -> QueryResult<Vec<UserEntity>> {
+pub fn find_users_by_code(
+    user_code: &str,
+    conn: &MysqlConnection,
+) -> QueryResult<Option<UserEntity>> {
     users::table
-        .filter(users::code.like(format!("%{}%", user_code)))
+        .filter(users::code.eq(user_code))
         .filter(users::status.eq(user_const::status::ACTIVE))
-        .load(conn)
+        .first(conn)
+        .optional()
 }
 
 pub fn create_contact(

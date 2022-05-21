@@ -3,15 +3,15 @@ import { container } from '.storybook/decorators'
 /* eslint-enable import/no-unresolved  */
 import { Meta, Story } from '@storybook/react/types-6-0'
 import React from 'react'
-import UserCard, { UserCardProps } from './index'
+import ContactCard, { ContactCardProps } from './index'
 
 export default {
-  title: '04_organisms/UserCard',
+  title: '03_molecules/ContactCard',
   argTypes: { onClick: { action: 'clicked' } },
-  component: UserCard
+  component: ContactCard
 } as Meta
 
-const Template: Story<UserCardProps> = (props) => <UserCard {...props} />
+const Template: Story<ContactCardProps> = (props) => <ContactCard {...props} />
 
 export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'

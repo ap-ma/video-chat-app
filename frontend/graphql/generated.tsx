@@ -248,7 +248,7 @@ export type Query = {
   isPasswordResetTokenValid: Scalars['Boolean']
   latestMessages: Array<LatestMessage>
   me: User
-  searchUser: Array<User>
+  searchUser: User
 }
 
 export type QueryContactInfoArgs = {
@@ -1375,14 +1375,14 @@ export type SearchUserQueryVariables = Exact<{
 
 export type SearchUserQuery = {
   __typename?: 'Query'
-  searchUser: Array<{
+  searchUser: {
     __typename: 'User'
     id: string
     code: string
     name?: string | null
     comment?: string | null
     avatar?: string | null
-  }>
+  }
 }
 
 export type CallEventSubscriptionVariables = Exact<{ [key: string]: never }>

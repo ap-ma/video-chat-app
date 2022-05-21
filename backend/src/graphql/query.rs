@@ -106,13 +106,13 @@ impl Query {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn search_user(&self, ctx: &Context<'_>, user_code: String) -> Result<Vec<User>> {
+    async fn search_user(&self, ctx: &Context<'_>, user_code: String) -> Result<Option<User>> {
         let conn = common::get_conn(ctx)?;
-        let users = common::convert_query_result(
-            service::get_users_by_code(user_code.as_str(), &conn),
-            "Failed to get user",
+        let user = common::convert_query_result(
+            service::find_users_by_code(user_code.as_str(), &conn),
+            "Failed to get the user",
         )?;
 
-        Ok(users.iter().map(User::from).collect())
+        Ok(user.map(|user| User::from(&user)))
     }
 }

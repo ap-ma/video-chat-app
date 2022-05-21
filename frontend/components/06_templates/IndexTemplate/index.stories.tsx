@@ -59,6 +59,7 @@ type IndexTemplateStoryProps = IndexTemplateProps & {
   contactInfoStatus: number
   contactInfoBlocked: boolean
   searchUserLoading: QueryLoading
+  searchUserResult: boolean
   signOutLoading: MutaionLoading
   editProfileLoading: MutaionLoading
   changeEmailLoading: MutaionLoading
@@ -82,6 +83,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
   contactInfoStatus,
   contactInfoBlocked,
   searchUserLoading,
+  searchUserResult,
   signOutLoading,
   editProfileLoading,
   changeEmailLoading,
@@ -116,7 +118,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
     contactIntoNetworkStatus
   )
 
-  const searchUser = dummySearchUser(searchUserLoading, 10, (i) => (i % 3 != 0 ? `status message${i}` : undefined))
+  const searchUser = dummySearchUser(searchUserLoading, searchUserResult)
 
   const query = {
     me,
@@ -266,6 +268,7 @@ Primary.args = {
   contactInfoStatus: CONTACT.STATUS.APPROVED,
   contactInfoBlocked: false,
   searchUserLoading: false,
+  searchUserResult: true,
   signOutLoading: false,
   editProfileLoading: false,
   changePasswordLoading: false,

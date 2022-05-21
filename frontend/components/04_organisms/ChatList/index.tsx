@@ -1,15 +1,19 @@
 import Scrollbar, { ScrollbarProps } from 'components/02_interactions/Scrollbar'
-import UserCard, { UserCardProps } from 'components/04_organisms/UserCard'
+import ContactCard, { ContactCardProps } from 'components/03_molecules/ContactCard'
 import { connect } from 'components/hoc'
 import { ContactInfoQuery, ContactInfoQueryVariables, LatestMessagesQuery, MeQuery } from 'graphql/generated'
 import React from 'react'
-import { ContainerProps, QueryRefetch, Unbox } from 'types'
+import { ContainerProps, OnClose, QueryRefetch, Unbox } from 'types'
 import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 import { toStr } from 'utils/general/helper'
 import { getLatestMessage } from 'utils/helper'
 
 /** ChatList Props */
 export type ChatListProps = ScrollbarProps & {
+  /**
+   * サイドバー onClose
+   */
+  onSbClose: OnClose
   /**
    * Local State
    */
@@ -48,15 +52,15 @@ export type ChatListProps = ScrollbarProps & {
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<ChatListProps, 'state' | 'query'> & {
-  chatList?: Unbox<UserCardProps & { key: Unbox<LatestMessagesQuery['latestMessages']>['userId'] }>[]
+export type PresenterProps = Omit<ChatListProps, 'onSbClose' | 'state' | 'query'> & {
+  chatList?: (ContactCardProps & { key: Unbox<LatestMessagesQuery['latestMessages']>['userId'] })[]
 }
 
 /** Presenter Component */
 const ChatListPresenter: React.VFC<PresenterProps> = ({ chatList, ...props }) => (
   <Scrollbar mt='0.25em' {...props}>
     {chatList?.map(({ key, ...chat }) => (
-      <UserCard key={key} {...chat} />
+      <ContactCard key={key} {...chat} />
     ))}
   </Scrollbar>
 )
@@ -66,6 +70,7 @@ const ChatListContainer: React.VFC<ContainerProps<ChatListProps, PresenterProps>
   presenter,
   state: { contactInfoUserId },
   query: { me, latestMessages, contactInfo },
+  onSbClose,
   ...props
 }) => {
   const chatList = latestMessages.result?.map((latestMessage) => ({
@@ -78,6 +83,7 @@ const ChatListContainer: React.VFC<ContainerProps<ChatListProps, PresenterProps>
     onClick: () => {
       contactInfoUserId.setContactInfoUserId(latestMessage.userId)
       contactInfo.refetch({ contactUserId: latestMessage.userId })
+      onSbClose()
     }
   }))
 

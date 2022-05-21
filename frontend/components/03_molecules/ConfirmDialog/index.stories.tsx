@@ -1,4 +1,4 @@
-import { Box, Button, useDisclosure } from '@chakra-ui/react'
+import { Box, Button, ButtonProps, useDisclosure } from '@chakra-ui/react'
 import { ThemingProps } from '@chakra-ui/system'
 import { Meta, Story } from '@storybook/react'
 import React, { ReactText } from 'react'
@@ -6,8 +6,8 @@ import ConfirmDialog, { ConfirmDialogProps } from './index'
 
 export default {
   title: '03_molecules/ConfirmDialog',
-  component: ConfirmDialog,
-  argTypes: { onClose: { action: 'clicked' } }
+  argTypes: { onClick: { action: 'clicked' } },
+  component: ConfirmDialog
 } as Meta
 
 type ConfirmDialogStoryProps = ConfirmDialogProps & {
@@ -15,6 +15,7 @@ type ConfirmDialogStoryProps = ConfirmDialogProps & {
   cancelText: ReactText
   okColorScheme: ThemingProps['colorScheme']
   cancelColorScheme: ThemingProps['colorScheme']
+  onClick: ButtonProps['onClick']
 }
 
 const Template: Story<ConfirmDialogStoryProps> = ({
@@ -22,15 +23,16 @@ const Template: Story<ConfirmDialogStoryProps> = ({
   cancelText,
   okColorScheme,
   cancelColorScheme,
+  onClick,
   ...props
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const ok = { children: okText, colorScheme: okColorScheme }
+  const ok = { children: okText, colorScheme: okColorScheme, onClick }
   const cancel = { children: cancelText, colorScheme: cancelColorScheme, onClick: onClose }
   return (
     <Box h='100vh'>
       <Button onClick={onOpen}>Open Modal</Button>
-      <ConfirmDialog {...{ ...props, isOpen, ok, cancel }} />{' '}
+      <ConfirmDialog {...{ ...props, isOpen, ok, cancel }} />
     </Box>
   )
 }

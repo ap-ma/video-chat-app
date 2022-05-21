@@ -262,35 +262,32 @@ export function dummyContactInfo(
 
 export function dummySearchUser(
   loading: QueryLoading,
-  len: number,
-  commentGen: (i: number) => string | undefined
+  result: boolean
 ): {
-  users: SearchUserQuery['searchUser']
+  result?: SearchUserQuery['searchUser']
   loading: QueryLoading
-  getUsersByCode: LazyQueryFunction<SearchUserQuery, SearchUserQueryVariables>
+  query: LazyQueryFunction<SearchUserQuery, SearchUserQueryVariables>
 } {
-  const users: SearchUserQuery['searchUser'] = []
-  for (let i = 1; i <= len; i++) {
-    const r = Math.floor(Math.random() * Math.floor(2))
-    users.push({
-      __typename: 'User',
-      id: toStr(i),
-      code: `user${zf(i, 3)}`,
-      name: `鈴木${i + (r ? '子' : '郎')}`,
-      comment: commentGen(i),
-      avatar: illustya[r]
-    })
-  }
+  const user: SearchUserQuery['searchUser'] | undefined = result
+    ? {
+        __typename: 'User',
+        id: toStr(1),
+        code: `code032`,
+        name: `John Smith`,
+        comment: 'earth',
+        avatar: illustya[0]
+      }
+    : undefined
 
-  const getUsersByCode = (() => alert('SearchUser LazyQuery - getUsersByCode')) as unknown as LazyQueryFunction<
+  const query = (() => Promise.resolve(alert('SearchUser LazyQuery - query'))) as unknown as LazyQueryFunction<
     SearchUserQuery,
     SearchUserQueryVariables
   >
 
   return {
-    users,
+    result: user,
     loading,
-    getUsersByCode
+    query
   }
 }
 

@@ -6,8 +6,8 @@ import { toStr } from 'utils/general/helper'
 import { isNullish } from 'utils/general/object'
 import * as styles from './styles'
 
-/** UserCard Props */
-export type UserCardProps = FlexProps & {
+/** ContactCard Props */
+export type ContactCardProps = FlexProps & {
   /**
    * アバター画像URL
    */
@@ -31,10 +31,10 @@ export type UserCardProps = FlexProps & {
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<UserCardProps, 'unreadCount'> & { count: string }
+export type PresenterProps = Omit<ContactCardProps, 'unreadCount'> & { count: string }
 
 /** Presenter Component */
-const UserCardPresenter: React.VFC<PresenterProps> = ({ image, name, content, active, count, ...props }) => (
+const ContactCardPresenter: React.VFC<PresenterProps> = ({ image, name, content, active, count, ...props }) => (
   <Flex {...styles.root({ active })} {...props}>
     <Avatar size='md' src={image} />
     <Box ml='3' overflow='hidden'>
@@ -46,7 +46,7 @@ const UserCardPresenter: React.VFC<PresenterProps> = ({ image, name, content, ac
 )
 
 /** Container Component */
-const UserCardContainer: React.VFC<ContainerProps<UserCardProps, PresenterProps>> = ({
+const ContactCardContainer: React.VFC<ContainerProps<ContactCardProps, PresenterProps>> = ({
   presenter,
   unreadCount,
   ...props
@@ -55,5 +55,5 @@ const UserCardContainer: React.VFC<ContainerProps<UserCardProps, PresenterProps>
   return presenter({ count, ...props })
 }
 
-/** UserCard */
-export default connect<UserCardProps, PresenterProps>('UserCard', UserCardPresenter, UserCardContainer)
+/** ContactCard */
+export default connect<ContactCardProps, PresenterProps>('ContactCard', ContactCardPresenter, ContactCardContainer)

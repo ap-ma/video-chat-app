@@ -7,18 +7,23 @@ import DeleteAccountDialog from 'components/04_organisms/dialogs/DeleteAccountDi
 import ChangeEmailForm from 'components/04_organisms/forms/ChangeEmailForm'
 import ChangePasswordForm from 'components/04_organisms/forms/ChangePasswordForm'
 import EditProfileForm from 'components/04_organisms/forms/EditProfileForm'
+import SearchUser from 'components/04_organisms/SearchUser'
 import { connect } from 'components/hoc'
 import {
   ChangeEmailMutation,
   ChangeEmailMutationVariables,
   ChangePasswordMutation,
   ChangePasswordMutationVariables,
+  ContactInfoQuery,
+  ContactInfoQueryVariables,
   DeleteAccountMutation,
   DeleteAccountMutationVariables,
   EditProfileMutation,
   EditProfileMutationVariables,
   MeQuery,
   MeQueryVariables,
+  SearchUserQuery,
+  SearchUserQueryVariables,
   SignOutMutation,
   SignOutMutationVariables
 } from 'graphql/generated'
@@ -28,6 +33,7 @@ import { RiContactsLine } from 'react-icons/ri'
 import {
   ContainerProps,
   Disclosure,
+  LazyQueryFunction,
   MutaionLoading,
   MutaionReset,
   MutateFunction,
@@ -36,6 +42,7 @@ import {
   QueryRefetch,
   ValidationErrors
 } from 'types'
+import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 import * as styles from './styles'
 
 /** Header Props */
@@ -44,6 +51,18 @@ export type HeaderProps = FlexProps & {
    * サイドバー onOpen
    */
   onSbOpen: OnOpen
+  /**
+   * Local State
+   */
+  state: {
+    /**
+     *  コンタクト情報 ユーザーID
+     */
+    contactInfoUserId: {
+      state: ContactInfoUserId
+      setContactInfoUserId: SetContactInfoUserId
+    }
+  }
   /**
    * Query
    */
@@ -55,6 +74,20 @@ export type HeaderProps = FlexProps & {
       result?: MeQuery['me']
       loading: QueryLoading
       refetch: QueryRefetch<MeQuery, MeQueryVariables>
+    }
+    /**
+     *  コンタクト情報
+     */
+    contactInfo: {
+      refetch: QueryRefetch<ContactInfoQuery, ContactInfoQueryVariables>
+    }
+    /**
+     * ユーザー検索
+     */
+    searchUser: {
+      result?: SearchUserQuery['searchUser']
+      loading: QueryLoading
+      query: LazyQueryFunction<SearchUserQuery, SearchUserQueryVariables>
     }
   }
   /**
@@ -122,7 +155,8 @@ export type PresenterProps = HeaderProps & {
 
 /** Presenter Component */
 const HeaderPresenter: React.VFC<PresenterProps> = ({
-  query: { me },
+  state: { contactInfoUserId },
+  query: { me, contactInfo, searchUser },
   mutation: { signOut, editProfile, changeEmail, changePassword, deleteAccount },
   onSbOpen,
   suDisc,
@@ -154,6 +188,12 @@ const HeaderPresenter: React.VFC<PresenterProps> = ({
     <ChangePasswordForm mutation={{ changePassword }} isOpen={cpfDisc.isOpen} onClose={cpfDisc.onClose} />
     <ChangePasswordCompleteDialog isOpen={cpcdDisc.isOpen} onClose={cpcdDisc.onClose} />
     <DeleteAccountDialog mutation={{ deleteAccount }} isOpen={dadDisc.isOpen} onClose={dadDisc.onClose} />
+    <SearchUser
+      state={{ contactInfoUserId }}
+      query={{ contactInfo, searchUser }}
+      isOpen={suDisc.isOpen}
+      onClose={suDisc.onClose}
+    />
   </Flex>
 )
 

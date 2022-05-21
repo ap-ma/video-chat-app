@@ -15,7 +15,7 @@ export type PresenterProps = EmailVerificationFailureDialogProps
 /** Presenter Component */
 const EmailVerificationFailureDialogPresenter: React.VFC<PresenterProps> = ({ ...props }) => (
   <Modal isCentered size='lg' {...props}>
-    <ModalContent pb='4'>
+    <ModalContent pb='5'>
       <Icon as={RiErrorWarningLine} {...styles.icon} />
       <ModalHeader {...styles.head}>Verification Failure</ModalHeader>
       <ModalBody textAlign='center'>

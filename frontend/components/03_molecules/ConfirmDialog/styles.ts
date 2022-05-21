@@ -10,13 +10,13 @@ export const overlay = {
 } as const
 
 export const header = {
-  pb: 3,
-  mx: { base: 0, sm: 8 },
-  fontSize: { base: 'lg', sm: 'xl' }
+  pb: 4,
+  fontSize: { base: 'xl', sm: '2xl' },
+  textAlign: 'center'
 } as const
 
 export const body = {
-  mx: { base: 4, sm: 12 }
+  mx: { base: 8, sm: 16 }
 } as const
 
 export const actions = {

@@ -1,4 +1,5 @@
 import { Box, Drawer, DrawerContent, useDisclosure } from '@chakra-ui/react'
+import Chat from 'components/04_organisms/Chat'
 import Header from 'components/04_organisms/Header'
 import Sidebar from 'components/04_organisms/Sidebar'
 import HtmlSkeleton, { HtmlSkeletonProps, Title } from 'components/05_layouts/HtmlSkeleton'
@@ -58,6 +59,7 @@ import {
   ValidationErrors
 } from 'types'
 import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
+import * as styles from './styles'
 
 /** IndexTemplate Props */
 export type IndexTemplateProps = Omit<HtmlSkeletonProps, 'children'> & {
@@ -268,35 +270,25 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
 }) => (
   <HtmlSkeleton {...props}>
     <Title>Home</Title>
-    <Box minH='100vh' bg='gray.100'>
+    <Box minH='100vh'>
       <Sidebar
-        display={{ base: 'none', md: 'block' }}
+        {...styles.mdSidebar}
         state={state}
         query={{ me, contacts, latestMessages, contactInfo }}
         onClose={sbDisc.onClose}
       />
-      <Drawer
-        autoFocus={false}
-        isOpen={sbDisc.isOpen}
-        placement='left'
-        onClose={sbDisc.onClose}
-        onOverlayClick={sbDisc.onClose}
-        returnFocusOnClose={false}
-        size='full'
-      >
+      <Drawer {...styles.drawer} isOpen={sbDisc.isOpen} onClose={sbDisc.onClose} onOverlayClick={sbDisc.onClose}>
         <DrawerContent>
           <Sidebar state={state} query={{ me, contacts, latestMessages, contactInfo }} onClose={sbDisc.onClose} />
         </DrawerContent>
       </Drawer>
-      {/* mobilenav */}
       <Header
         onSbOpen={sbDisc.onOpen}
-        query={{ me }}
+        state={state}
+        query={{ me, contactInfo, searchUser }}
         mutation={{ signOut, editProfile, changeEmail, changePassword, deleteAccount }}
       />
-      <Box ml={{ base: 0, md: 72 }} p='4'>
-        HOME
-      </Box>
+      <Box {...styles.chat}><Chat/></Box>
     </Box>
   </HtmlSkeleton>
 )
