@@ -1,7 +1,7 @@
 import { Flex, Heading, Stack, useDisclosure } from '@chakra-ui/react'
 import ResetPasswordCompleteDialog from 'components/04_organisms/dialogs/ResetPasswordCompleteDialog'
 import ResetPasswordForm from 'components/04_organisms/forms/ResetPasswordForm'
-import HtmlSkeleton, { HtmlSkeletonProps, Title } from 'components/05_layouts/HtmlSkeleton'
+import HtmlSkeleton, { Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
 import { ResetPasswordInput, ResetPasswordMutation, ResetPasswordMutationVariables } from 'graphql/generated'
 import React, { useMemo } from 'react'
@@ -9,7 +9,7 @@ import { ContainerProps, Disclosure, MutaionLoading, MutaionReset, MutateFunctio
 import * as styles from './styles'
 
 /** ResetPasswordTemplate Props */
-export type ResetPasswordTemplateProps = Omit<HtmlSkeletonProps, 'children'> & {
+export type ResetPasswordTemplateProps = {
   /**
    * トークン
    */
@@ -41,16 +41,10 @@ export type PresenterProps = ResetPasswordTemplateProps & {
 }
 
 /** Presenter Component */
-const ResetPasswordTemplatePresenter: React.VFC<PresenterProps> = ({
-  token,
-  tokenErrors,
-  mutation,
-  rpcdDisc,
-  ...props
-}) => (
-  <HtmlSkeleton {...props}>
+const ResetPasswordTemplatePresenter: React.VFC<PresenterProps> = ({ token, tokenErrors, mutation, rpcdDisc }) => (
+  <HtmlSkeleton>
     <Title>Reset Password</Title>
-    <Flex {...styles.container} {...props}>
+    <Flex {...styles.container}>
       <Stack {...styles.contents}>
         <Heading {...styles.head}>Enter new password</Heading>
         <ResetPasswordForm {...{ token, tokenErrors, mutation }} />

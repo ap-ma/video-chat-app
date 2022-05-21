@@ -6,7 +6,7 @@ import SignupCompleteDialog from 'components/04_organisms/dialogs/SignupComplete
 import ForgotPasswordForm from 'components/04_organisms/forms/ForgotPasswordForm'
 import SigninForm from 'components/04_organisms/forms/SigninForm'
 import SignupForm from 'components/04_organisms/forms/SignupForm'
-import HtmlSkeleton, { HtmlSkeletonProps, Title } from 'components/05_layouts/HtmlSkeleton'
+import HtmlSkeleton, { Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
 import {
   ForgotPasswordMutation,
@@ -21,7 +21,7 @@ import { ContainerProps, Disclosure, MutaionLoading, MutaionReset, MutateFunctio
 import * as styles from './styles'
 
 /** SigninTemplate Props */
-export type SigninTemplateProps = Omit<HtmlSkeletonProps, 'children'> & {
+export type SigninTemplateProps = {
   /**
    * Mutation
    */
@@ -79,13 +79,12 @@ const SigninTemplatePresenter: React.VFC<PresenterProps> = ({
   sucdDisc,
   // ForgotPass
   fpfDisc,
-  fpcdDisc,
-  ...props
+  fpcdDisc
 }) => (
-  <HtmlSkeleton {...props}>
+  <HtmlSkeleton>
     <Title>Sign in</Title>
     <BackgroundWave {...styles.wave}>
-      <Flex {...styles.container} {...props}>
+      <Flex {...styles.container}>
         <Stack {...styles.contents}>
           <Stack align='center'>
             <AppLogo {...styles.logo} />

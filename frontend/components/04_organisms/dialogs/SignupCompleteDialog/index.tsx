@@ -1,4 +1,4 @@
-import { Button, ModalBody, ModalContent, ModalFooter, ModalHeader, Text, useBreakpointValue } from '@chakra-ui/react'
+import { Button, ModalBody, ModalContent, ModalFooter, ModalHeader, Text } from '@chakra-ui/react'
 import Modal, { ModalProps } from 'components/01_atoms/Modal'
 import { connect } from 'components/hoc'
 import { EMAIL_VERIFICATION_LINK_EXPIRATION_MINUTES } from 'const'
@@ -17,8 +17,8 @@ export type PresenterProps = SignupCompleteDialogProps & {
 
 /** Presenter Component */
 const SignupCompleteDialogPresenter: React.VFC<PresenterProps> = ({ expirationMinutes, onClose, ...props }) => (
-  <Modal {...{ onClose, ...props }}>
-    <ModalContent {...styles.content}>
+  <Modal isCentered {...{ onClose, ...props }}>
+    <ModalContent>
       <ModalHeader {...styles.head}>Verification email sent</ModalHeader>
       <ModalBody>
         <Text {...styles.text}>A verification email has been sent to your email address.</Text>
@@ -41,11 +41,8 @@ const SignupCompleteDialogContainer: React.VFC<ContainerProps<SignupCompleteDial
   presenter,
   ...props
 }) => {
-  // modal prop isCentered
-  const isCentered = useBreakpointValue({ base: true, sm: false })
-
   const expirationMinutes = toStr(EMAIL_VERIFICATION_LINK_EXPIRATION_MINUTES)
-  return presenter({ isCentered, expirationMinutes, ...props })
+  return presenter({ expirationMinutes, ...props })
 }
 
 /** SignupCompleteDialog */

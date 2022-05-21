@@ -12,10 +12,10 @@ export type ErrorTemplateProps = Omit<HtmlSkeletonProps, 'children'>
 export type PresenterProps = ErrorTemplateProps
 
 /** Presenter Component */
-const ErrorTemplatePresenter: React.VFC<PresenterProps> = (props) => (
-  <HtmlSkeleton {...props}>
+const ErrorTemplatePresenter: React.VFC<PresenterProps> = () => (
+  <HtmlSkeleton>
     <Title>Error</Title>
-    <Flex {...styles.container} {...props}>
+    <Flex {...styles.container}>
       <Stack {...styles.segment}>
         <Stack align='center'>
           <Icon as={RiErrorWarningLine} {...styles.icon} />

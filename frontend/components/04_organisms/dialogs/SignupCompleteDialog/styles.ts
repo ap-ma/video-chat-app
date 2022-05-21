@@ -1,7 +1,3 @@
-export const content = {
-  top: { base: 0, sm: '15vh' }
-} as const
-
 export const head = {
   textAlign: 'center',
   fontSize: { base: 'xl', md: '2xl' }

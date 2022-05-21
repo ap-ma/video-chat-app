@@ -2,7 +2,7 @@ import { Box, Drawer, DrawerContent, useDisclosure } from '@chakra-ui/react'
 import Chat from 'components/04_organisms/Chat'
 import Header from 'components/04_organisms/Header'
 import Sidebar from 'components/04_organisms/Sidebar'
-import HtmlSkeleton, { HtmlSkeletonProps, Title } from 'components/05_layouts/HtmlSkeleton'
+import HtmlSkeleton, { Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
 import {
   BlockContactMutation,
@@ -62,7 +62,7 @@ import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 import * as styles from './styles'
 
 /** IndexTemplate Props */
-export type IndexTemplateProps = Omit<HtmlSkeletonProps, 'children'> & {
+export type IndexTemplateProps = {
   /**
    * Local State
    */
@@ -265,10 +265,9 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
   state,
   query: { me, contacts, latestMessages, contactInfo, searchUser },
   mutation: { signOut, editProfile, changeEmail, changePassword, deleteAccount },
-  sbDisc,
-  ...props
+  sbDisc
 }) => (
-  <HtmlSkeleton {...props}>
+  <HtmlSkeleton>
     <Title>Home</Title>
     <Box minH='100vh'>
       <Sidebar
@@ -288,7 +287,9 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
         query={{ me, contactInfo, searchUser }}
         mutation={{ signOut, editProfile, changeEmail, changePassword, deleteAccount }}
       />
-      <Box {...styles.chat}><Chat/></Box>
+      <Box {...styles.chat}>
+        <Chat />
+      </Box>
     </Box>
   </HtmlSkeleton>
 )
