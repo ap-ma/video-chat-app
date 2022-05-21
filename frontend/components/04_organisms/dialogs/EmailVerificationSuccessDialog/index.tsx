@@ -1,4 +1,4 @@
-import { Box as Spacer, Icon, ModalBody, ModalContent, ModalHeader, Text } from '@chakra-ui/react'
+import { Box as Spacer, Icon, ModalBody, ModalContent, ModalHeader, Text, useBreakpointValue } from '@chakra-ui/react'
 import Link from 'components/01_atoms/Link'
 import Modal, { ModalProps } from 'components/01_atoms/Modal'
 import { connect } from 'components/hoc'
@@ -15,7 +15,7 @@ export type PresenterProps = EmailVerificationSuccessDialogProps
 
 /** Presenter Component */
 const EmailVerificationSuccessDialogPresenter: React.VFC<PresenterProps> = ({ ...props }) => (
-  <Modal isCentered size='lg' {...props}>
+  <Modal isCentered {...props}>
     <ModalContent pb='4'>
       <Icon as={RiCheckboxCircleLine} {...styles.icon} />
       <ModalHeader {...styles.head}>Email Verified</ModalHeader>
@@ -35,7 +35,9 @@ const EmailVerificationSuccessDialogPresenter: React.VFC<PresenterProps> = ({ ..
 const EmailVerificationSuccessDialogContainer: React.VFC<
   ContainerProps<EmailVerificationSuccessDialogProps, PresenterProps>
 > = ({ presenter, ...props }) => {
-  return presenter({ ...props })
+  // modal prop size
+  const size = useBreakpointValue({ base: 'md', sm: 'lg' })
+  return presenter({ size, ...props })
 }
 
 /** EmailVerificationSuccessDialog */

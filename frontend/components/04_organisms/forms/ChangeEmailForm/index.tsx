@@ -11,7 +11,8 @@ import {
   ModalContent,
   Spinner,
   Stack,
-  Text
+  Text,
+  useBreakpointValue
 } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import ErrorMessage from 'components/01_atoms/ErrorMessage'
@@ -77,8 +78,8 @@ const ChangeEmailFormPresenter: React.VFC<PresenterProps> = ({
   onSubmitButtonClick,
   ...props
 }) => (
-  <Modal isCentered {...props}>
-    <ModalContent>
+  <Modal {...props}>
+    <ModalContent {...styles.content}>
       <ModalCloseButton isDisabled={loading} />
       <ModalBody pt='5' pb='6'>
         <Stack spacing='4'>
@@ -113,6 +114,9 @@ const ChangeEmailFormContainer: React.VFC<ContainerProps<ChangeEmailFormProps, P
   mutation: { changeEmail },
   ...props
 }) => {
+  // modal prop isCentered
+  const isCentered = useBreakpointValue({ base: true, sm: false })
+
   // react hook form
   const { register, handleSubmit, setError, reset, formState } = useForm<FormSchema>({
     resolver: zodResolver(schema)
@@ -145,6 +149,7 @@ const ChangeEmailFormContainer: React.VFC<ContainerProps<ChangeEmailFormProps, P
   }, [isOpen, reset])
 
   return presenter({
+    isCentered,
     isOpen,
     onClose,
     loading,

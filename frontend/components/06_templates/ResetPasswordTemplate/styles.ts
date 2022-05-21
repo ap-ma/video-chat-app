@@ -8,8 +8,7 @@ export const container = {
 
 export const contents = {
   spacing: 8,
-  minW: { base: 'full', sm: 'md' },
-  maxW: 'lg',
+  w: { base: 'full', sm: 'md' },
   mt: '-8%',
   mx: 'auto',
   py: 12,

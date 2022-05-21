@@ -1,4 +1,4 @@
-import { Button, ModalBody, ModalContent, ModalFooter, ModalHeader, Text } from '@chakra-ui/react'
+import { Button, ModalBody, ModalContent, ModalFooter, ModalHeader, Text, useBreakpointValue } from '@chakra-ui/react'
 import Modal, { ModalProps } from 'components/01_atoms/Modal'
 import { connect } from 'components/hoc'
 import React from 'react'
@@ -13,8 +13,8 @@ export type PresenterProps = ChangePasswordCompleteDialogProps
 
 /** Presenter Component */
 const ChangePasswordCompleteDialogPresenter: React.VFC<PresenterProps> = ({ onClose, ...props }) => (
-  <Modal isCentered {...{ onClose, ...props }}>
-    <ModalContent>
+  <Modal {...{ onClose, ...props }}>
+    <ModalContent {...styles.content}>
       <ModalHeader {...styles.head}>Password changed</ModalHeader>
       <ModalBody>
         <Text {...styles.text}>Password change completed successfully.</Text>
@@ -33,7 +33,9 @@ const ChangePasswordCompleteDialogPresenter: React.VFC<PresenterProps> = ({ onCl
 const ChangePasswordCompleteDialogContainer: React.VFC<
   ContainerProps<ChangePasswordCompleteDialogProps, PresenterProps>
 > = ({ presenter, ...props }) => {
-  return presenter({ ...props })
+  // modal prop isCentered
+  const isCentered = useBreakpointValue({ base: true, sm: false })
+  return presenter({ isCentered, ...props })
 }
 
 /** ChangePasswordCompleteDialog */

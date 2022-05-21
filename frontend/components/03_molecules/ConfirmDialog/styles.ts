@@ -9,6 +9,10 @@ export const overlay = {
   backdropFilter: 'blur(10px)'
 } as const
 
+export const content = {
+  top: { base: 0, sm: '15vh' }
+} as const
+
 export const header = {
   pb: 4,
   fontSize: { base: 'xl', sm: '2xl' },
@@ -16,7 +20,7 @@ export const header = {
 } as const
 
 export const body = {
-  mx: { base: 8, sm: 16 }
+  alignSelf: 'center'
 } as const
 
 export const actions = {

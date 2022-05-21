@@ -15,7 +15,7 @@ export type PresenterProps = ResetPasswordCompleteDialogProps
 
 /** Presenter Component */
 const ResetPasswordCompleteDialogPresenter: React.VFC<PresenterProps> = ({ ...props }) => (
-  <Modal isCentered size='lg' {...props}>
+  <Modal isCentered {...props}>
     <ModalContent pb='3'>
       <ModalHeader {...styles.head}>Password reset</ModalHeader>
       <ModalBody textAlign='center'>

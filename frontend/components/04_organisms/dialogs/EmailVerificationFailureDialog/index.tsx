@@ -1,4 +1,4 @@
-import { Icon, ModalBody, ModalContent, ModalHeader, Text } from '@chakra-ui/react'
+import { Icon, ModalBody, ModalContent, ModalHeader, Text, useBreakpointValue } from '@chakra-ui/react'
 import Modal, { ModalProps } from 'components/01_atoms/Modal'
 import { connect } from 'components/hoc'
 import React from 'react'
@@ -14,7 +14,7 @@ export type PresenterProps = EmailVerificationFailureDialogProps
 
 /** Presenter Component */
 const EmailVerificationFailureDialogPresenter: React.VFC<PresenterProps> = ({ ...props }) => (
-  <Modal isCentered size='lg' {...props}>
+  <Modal isCentered {...props}>
     <ModalContent pb='5'>
       <Icon as={RiErrorWarningLine} {...styles.icon} />
       <ModalHeader {...styles.head}>Verification Failure</ModalHeader>
@@ -30,7 +30,9 @@ const EmailVerificationFailureDialogPresenter: React.VFC<PresenterProps> = ({ ..
 const EmailVerificationFailureDialogContainer: React.VFC<
   ContainerProps<EmailVerificationFailureDialogProps, PresenterProps>
 > = ({ presenter, ...props }) => {
-  return presenter({ ...props })
+  // modal prop size
+  const size = useBreakpointValue({ base: 'md', sm: 'lg' })
+  return presenter({ size, ...props })
 }
 
 /** EmailVerificationFailureDialog */

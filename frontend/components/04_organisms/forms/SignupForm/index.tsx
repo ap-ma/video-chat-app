@@ -65,7 +65,7 @@ const SignupFormPresenter: React.VFC<PresenterProps> = ({
   onSignUpButtonClick,
   ...props
 }) => (
-  <Modal {...props}>
+  <Modal isCentered {...props}>
     <ModalContent>
       <ModalCloseButton isDisabled={loading} />
       <ModalBody pt='5' pb='8'>

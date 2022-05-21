@@ -1,5 +1,9 @@
 import { PresenterProps } from './index'
 
+export const content = {
+  top: { base: 0, sm: '8vh' }
+} as const
+
 export const head = {
   lineHeight: 1.1,
   pb: 1,

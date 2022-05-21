@@ -11,7 +11,8 @@ import {
   ModalCloseButton,
   ModalContent,
   Stack,
-  Tooltip
+  Tooltip,
+  useBreakpointValue
 } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import AlertMessage from 'components/01_atoms/AlertMessage'
@@ -92,8 +93,8 @@ const EditProfileFormPresenter: React.VFC<PresenterProps> = ({
   onSaveButtonClick,
   ...props
 }) => (
-  <Modal isCentered {...props}>
-    <ModalContent>
+  <Modal {...props}>
+    <ModalContent {...styles.content}>
       <ModalCloseButton isDisabled={loading} />
       <ModalBody pt='5' pb='8'>
         <Stack spacing='4'>
@@ -173,6 +174,9 @@ const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, P
   mutation: { editProfile },
   ...props
 }) => {
+  // modal prop isCentered
+  const isCentered = useBreakpointValue({ base: true, sm: false })
+
   // state
   const [edit, setEdit] = useState(false)
   const [avatarEditorKey, setAvatarEditorKey] = useState(nanoid())
@@ -245,10 +249,11 @@ const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, P
   }, [onEpfClose, editProfile, onCancelButtonClick])
 
   return presenter({
+    isCentered,
+    onClose,
     avatar: toStr(me.result?.avatar),
     avatarEditorKey,
     edit,
-    onClose,
     loading,
     errors,
     fieldErrors,

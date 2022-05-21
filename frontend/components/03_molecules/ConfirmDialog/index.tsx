@@ -9,7 +9,8 @@ import {
   Button,
   ButtonProps,
   HStack,
-  Text
+  Text,
+  useBreakpointValue
 } from '@chakra-ui/react'
 import { connect } from 'components/hoc'
 import React, { ReactText } from 'react'
@@ -45,9 +46,9 @@ export type PresenterProps = Omit<ConfirmDialogProps, 'body'> & {
 
 /** Presenter Component */
 const ConfirmDialogPresenter: React.VFC<PresenterProps> = ({ header, body, ok, cancel, ...props }) => (
-  <AlertDialog isCentered {...styles.root} {...props}>
+  <AlertDialog {...styles.root} {...props}>
     <AlertDialogOverlay {...styles.overlay} />
-    <AlertDialogContent>
+    <AlertDialogContent {...styles.content}>
       <AlertDialogHeader {...styles.header}>{header}</AlertDialogHeader>
       <AlertDialogBody {...styles.body}>
         {body?.map((content, i) => (
@@ -73,10 +74,14 @@ const ConfirmDialogContainer: React.VFC<ContainerProps<ConfirmDialogProps, Prese
   leastDestructiveRef = undefined,
   ...props
 }) => {
+  // modal prop isCentered
+  const isCentered = useBreakpointValue({ base: true, sm: false })
+
   body = isNullish(body) || isArray(body) ? body : [body]
   if (isBlank(ok.children)) ok.children = 'OK'
   if (isBlank(cancel.children)) cancel.children = 'Cancel'
-  return presenter({ body, ok, cancel, leastDestructiveRef, ...props })
+
+  return presenter({ isCentered, body, ok, cancel, leastDestructiveRef, ...props })
 }
 
 /** ConfirmDialog */

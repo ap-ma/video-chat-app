@@ -9,7 +9,8 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  Stack
+  Stack,
+  useBreakpointValue
 } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import ErrorMessage from 'components/01_atoms/ErrorMessage'
@@ -61,8 +62,8 @@ const ChangePasswordFormPresenter: React.VFC<PresenterProps> = ({
   onSubmitButtonClick,
   ...props
 }) => (
-  <Modal isCentered {...props}>
-    <ModalContent>
+  <Modal {...props}>
+    <ModalContent {...styles.content}>
       <ModalCloseButton isDisabled={loading} />
       <ModalBody pt='5' pb='6'>
         <Stack spacing='4'>
@@ -112,6 +113,9 @@ const ChangePasswordFormContainer: React.VFC<ContainerProps<ChangePasswordFormPr
   mutation: { changePassword },
   ...props
 }) => {
+  // modal prop isCentered
+  const isCentered = useBreakpointValue({ base: true, sm: false })
+
   // react hook form
   const { register, handleSubmit, setError, reset, formState } = useForm<FormSchema>({
     resolver: zodResolver(schema)
@@ -144,6 +148,7 @@ const ChangePasswordFormContainer: React.VFC<ContainerProps<ChangePasswordFormPr
   }, [isOpen, reset])
 
   return presenter({
+    isCentered,
     isOpen,
     onClose,
     loading,
