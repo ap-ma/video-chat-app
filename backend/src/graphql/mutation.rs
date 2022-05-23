@@ -440,11 +440,6 @@ impl Mutation {
             return Err(e.extend());
         }
 
-        if contact_const::status::DELETED == contact.status {
-            let e = GraphqlError::ValidationError(error::V_CONTACT_DELETED.into(), "contactId");
-            return Err(e.extend());
-        }
-
         if contact.blocked {
             let e = GraphqlError::ValidationError(error::V_CONTACT_BLOCKED.into(), "contactId");
             return Err(e.extend());
@@ -474,11 +469,6 @@ impl Mutation {
 
         if contact.user_id != identity.id {
             let e = GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId");
-            return Err(e.extend());
-        }
-
-        if contact_const::status::DELETED == contact.status {
-            let e = GraphqlError::ValidationError(error::V_CONTACT_DELETED.into(), "contactId");
             return Err(e.extend());
         }
 

@@ -1,5 +1,7 @@
-import { Box, Drawer, DrawerContent, useDisclosure } from '@chakra-ui/react'
+import { Box, Drawer, DrawerContent, Flex, useDisclosure } from '@chakra-ui/react'
 import Chat from 'components/04_organisms/Chat'
+import ContactInfo from 'components/04_organisms/ContactInfo'
+import SendMessageForm from 'components/04_organisms/forms/SendMessageForm'
 import Header from 'components/04_organisms/Header'
 import Sidebar from 'components/04_organisms/Sidebar'
 import HtmlSkeleton, { Title } from 'components/05_layouts/HtmlSkeleton'
@@ -287,9 +289,11 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
         query={{ me, contactInfo, searchUser }}
         mutation={{ signOut, editProfile, changeEmail, changePassword, deleteAccount }}
       />
-      <Box {...styles.chat}>
+      <Flex {...styles.main}>
+        <ContactInfo />
         <Chat />
-      </Box>
+        <SendMessageForm />
+      </Flex>
     </Box>
   </HtmlSkeleton>
 )

@@ -86,7 +86,7 @@ const SearchUserPresenter: React.VFC<PresenterProps> = ({
 }) => (
   <Modal closeOnOverlayClick {...props}>
     <ModalContent {...styles.content}>
-      <ModalBody w='full'>
+      <ModalBody w='full' my='0.5'>
         <InputGroup size='lg'>
           <FormControl id='su_code' isDisabled={loading} isInvalid={hasValue(fieldErrors.code)}>
             <Input

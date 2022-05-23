@@ -4,19 +4,19 @@ import { contactInfo, latestMessages, me, otherUserId } from '.storybook/dummies
 import { Meta, Story } from '@storybook/react'
 import React, { useState } from 'react'
 import { toStr } from 'utils/general/helper'
-import Chat, { ChatProps } from './index'
+import SendMessageForm, { SendMessageFormProps } from './index'
 
 export default {
-  title: '04_organisms/Chat',
-  component: Chat
+  title: '04_organisms/forms/SendMessageForm',
+  component: SendMessageForm
 } as Meta
 
-const Template: Story<ChatProps> = ({ ...props }) => {
+const Template: Story<SendMessageFormProps> = ({ ...props }) => {
   const [contactUserId, setContactUserId] = useState(toStr(otherUserId))
   const state = { contactInfoUserId: { state: contactUserId, setContactInfoUserId: setContactUserId } }
   const query = { me, latestMessages, contactInfo }
 
-  return <Chat {...{ ...props, state, query }} />
+  return <SendMessageForm {...{ ...props, state, query }} />
 }
 
 export const Primary = Template.bind({})

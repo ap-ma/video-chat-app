@@ -10,6 +10,7 @@ export const content = {
 
 export const input = {
   pl: 3,
+  fontSize: 'sm',
   variant: 'flushed',
   autoComplete: 'off',
   autoCorrect: 'off',

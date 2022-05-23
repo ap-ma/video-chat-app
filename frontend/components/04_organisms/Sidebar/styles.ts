@@ -4,7 +4,7 @@ export const root = {
   bg: 'white',
   pos: 'absolute',
   transition: '3s ease',
-  borderRight: '1px',
+  borderRightWidth: '1px',
   borderRightColor: 'gray.200'
 } as const
 
@@ -29,7 +29,7 @@ export const contacts = {
   h: 'calc(100vh - (var(--chakra-sizes-20) + 34px + 40px + 3.2px + 8px))'
 } as const
 
-export const chats = {
+export const messages = {
   /* 全体 - (ヘッダー部 + tabボタン部 + padding部 + 余白部) */
   h: 'calc(100vh - (var(--chakra-sizes-20) + 34px + 4px + 8px))'
 } as const

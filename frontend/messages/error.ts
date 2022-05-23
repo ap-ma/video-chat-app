@@ -37,7 +37,7 @@ export const VALIDATION_ERRORS = {
   // コンタクト登録済
   V_CONTACT_REGISTERED: 'Contact is already registered.',
   // コンタクト削除済
-  V_CONTACT_DELETED: 'Contact has been deleted.',
+  V_CONTACT_DELETED: 'Contact has already been deleted.',
   // コンタクト未削除
   V_CONTACT_NOT_DELETED: 'Contact have not been deleted.',
   // コンタクトブロック済
