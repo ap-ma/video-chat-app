@@ -5,26 +5,26 @@ import { Meta, Story } from '@storybook/react'
 import { DeleteAccountMutation, DeleteAccountMutationVariables } from 'graphql/generated'
 import React from 'react'
 import { MutaionLoading } from 'types'
-import DeleteAccountDialog, { DeleteAccountDialogProps } from './index'
+import DeleteAccountConfirmDialog, { DeleteAccountConfirmDialogProps } from './index'
 
 export default {
-  title: '04_organisms/dialogs/DeleteAccountDialog',
-  component: DeleteAccountDialog,
+  title: '04_organisms/dialogs/DeleteAccountConfirmDialog',
+  component: DeleteAccountConfirmDialog,
   argTypes: { onClose: { action: 'clicked' } }
 } as Meta
 
-type DeleteAccountDialogStoryProps = DeleteAccountDialogProps & {
+type DeleteAccountConfirmDialogStoryProps = DeleteAccountConfirmDialogProps & {
   loading: MutaionLoading
 }
 
-const Template: Story<DeleteAccountDialogStoryProps> = ({ loading, ...props }) => {
+const Template: Story<DeleteAccountConfirmDialogStoryProps> = ({ loading, ...props }) => {
   const deleteAccount = dummyMutation<
     DeleteAccountMutation['deleteAccount'],
     DeleteAccountMutation,
     DeleteAccountMutationVariables
   >('DeleteAccount', undefined, loading)
   const mutation = { deleteAccount }
-  return <DeleteAccountDialog {...{ ...props, mutation }} />
+  return <DeleteAccountConfirmDialog {...{ ...props, mutation }} />
 }
 
 export const Primary = Template.bind({})

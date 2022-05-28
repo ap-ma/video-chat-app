@@ -5,8 +5,11 @@ import { DeleteAccountMutation, DeleteAccountMutationVariables } from 'graphql/g
 import React from 'react'
 import { ContainerProps, MutaionLoading, MutateFunction } from 'types'
 
-/** DeleteAccountDialog Props */
-export type DeleteAccountDialogProps = Omit<ConfirmDialogProps, 'children' | 'header' | 'body' | 'ok' | 'cancel'> & {
+/** DeleteAccountConfirmDialog Props */
+export type DeleteAccountConfirmDialogProps = Omit<
+  ConfirmDialogProps,
+  'children' | 'header' | 'body' | 'ok' | 'cancel'
+> & {
   /**
    * Mutation
    */
@@ -22,13 +25,13 @@ export type DeleteAccountDialogProps = Omit<ConfirmDialogProps, 'children' | 'he
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<DeleteAccountDialogProps, 'mutation'> & {
+export type PresenterProps = Omit<DeleteAccountConfirmDialogProps, 'mutation'> & {
   loading: MutaionLoading
   onDeleteButtonClick: ButtonProps['onClick']
 }
 
 /** Presenter Component */
-const DeleteAccountDialogPresenter: React.VFC<PresenterProps> = ({
+const DeleteAccountConfirmDialogPresenter: React.VFC<PresenterProps> = ({
   loading,
   onClose,
   onDeleteButtonClick,
@@ -37,26 +40,24 @@ const DeleteAccountDialogPresenter: React.VFC<PresenterProps> = ({
   <ConfirmDialog
     header='Delete Account'
     body={['Do you want to delete your account?', 'This operation cannot be undone.']}
-    ok={{ children: 'Delete', colorScheme: 'red', isLoading: loading, onClick: onDeleteButtonClick }}
+    ok={{ colorScheme: 'red', children: 'Delete', isLoading: loading, onClick: onDeleteButtonClick }}
     cancel={{ children: 'Cancel', isDisabled: loading, onClick: onClose }}
     {...{ onClose, ...props }}
   />
 )
 
 /** Container Component */
-const DeleteAccountDialogContainer: React.VFC<ContainerProps<DeleteAccountDialogProps, PresenterProps>> = ({
-  presenter,
-  mutation: { deleteAccount },
-  ...props
-}) => {
+const DeleteAccountConfirmDialogContainer: React.VFC<
+  ContainerProps<DeleteAccountConfirmDialogProps, PresenterProps>
+> = ({ presenter, mutation: { deleteAccount }, ...props }) => {
   const loading = deleteAccount.loading
   const onDeleteButtonClick = () => deleteAccount.mutate()
   return presenter({ loading, onDeleteButtonClick, ...props })
 }
 
-/** DeleteAccountDialog */
-export default connect<DeleteAccountDialogProps, PresenterProps>(
-  'DeleteAccountDialog',
-  DeleteAccountDialogPresenter,
-  DeleteAccountDialogContainer
+/** DeleteAccountConfirmDialog */
+export default connect<DeleteAccountConfirmDialogProps, PresenterProps>(
+  'DeleteAccountConfirmDialog',
+  DeleteAccountConfirmDialogPresenter,
+  DeleteAccountConfirmDialogContainer
 )

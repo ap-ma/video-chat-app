@@ -17,7 +17,7 @@ Primary.storyName = 'プライマリ'
 Primary.argTypes = {
   type: {
     control: { type: 'select' },
-    options: ['EditProfileComplete', 'ValidationError']
+    options: ['EditProfileComplete', 'ValidationError', 'UnexpectedError']
   }
 }
 Primary.args = {

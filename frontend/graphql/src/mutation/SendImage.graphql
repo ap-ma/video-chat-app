@@ -1,0 +1,10 @@
+input SendImageInput {
+  contactId: ID!
+  image: Upload!
+}
+
+mutation SendImage($input: SendImageInput!, $dateTimeFormat: String) {
+  sendImage(input: $input) {
+    ...MessageChangedFields
+  }
+}

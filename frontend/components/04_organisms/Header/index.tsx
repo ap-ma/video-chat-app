@@ -3,7 +3,7 @@ import AppLogo from 'components/01_atoms/AppLogo'
 import AccountMenu from 'components/04_organisms/AccountMenu'
 import ChangeEmailCompleteDialog from 'components/04_organisms/dialogs/ChangeEmailCompleteDialog'
 import ChangePasswordCompleteDialog from 'components/04_organisms/dialogs/ChangePasswordCompleteDialog'
-import DeleteAccountDialog from 'components/04_organisms/dialogs/DeleteAccountDialog'
+import DeleteAccountConfirmDialog from 'components/04_organisms/dialogs/DeleteAccountConfirmDialog'
 import ChangeEmailForm from 'components/04_organisms/forms/ChangeEmailForm'
 import ChangePasswordForm from 'components/04_organisms/forms/ChangePasswordForm'
 import EditProfileForm from 'components/04_organisms/forms/EditProfileForm'
@@ -187,7 +187,7 @@ const HeaderPresenter: React.VFC<PresenterProps> = ({
     <ChangeEmailCompleteDialog isOpen={cecdDisc.isOpen} onClose={cecdDisc.onClose} />
     <ChangePasswordForm mutation={{ changePassword }} isOpen={cpfDisc.isOpen} onClose={cpfDisc.onClose} />
     <ChangePasswordCompleteDialog isOpen={cpcdDisc.isOpen} onClose={cpcdDisc.onClose} />
-    <DeleteAccountDialog mutation={{ deleteAccount }} isOpen={dadDisc.isOpen} onClose={dadDisc.onClose} />
+    <DeleteAccountConfirmDialog mutation={{ deleteAccount }} isOpen={dadDisc.isOpen} onClose={dadDisc.onClose} />
     <SearchUser
       state={{ contactInfoUserId }}
       query={{ contactInfo, searchUser }}

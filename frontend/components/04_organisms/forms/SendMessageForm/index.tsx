@@ -1,7 +1,8 @@
-import { Box, BoxProps, Flex, IconButton, Stack, Textarea } from '@chakra-ui/react'
+import { Box, BoxProps, Flex, IconButton, Stack, Textarea, useBreakpointValue } from '@chakra-ui/react'
 import { connect } from 'components/hoc'
 import React from 'react'
-import { IoMdImage, IoMdSend } from 'react-icons/io'
+import { AiOutlineFileImage, AiOutlinePhone } from 'react-icons/ai'
+import { IoMdSend } from 'react-icons/io'
 import { ContainerProps } from 'types'
 
 /** SendMessageForm Props */
@@ -17,7 +18,7 @@ const SendMessageFormPresenter: React.VFC<PresenterProps> = ({ ...props }) => (
         bg='white'
         resize='none'
         size='sm'
-        rows={2}
+        rows={useBreakpointValue({ base: 2, md: 4 })}
         placeholder='Enter your message here'
         borderWidth='2px'
         borderColor='gray.200'
@@ -32,7 +33,18 @@ const SendMessageFormPresenter: React.VFC<PresenterProps> = ({ ...props }) => (
           _hover={{ bg: 'transparent' }}
           _focus={{ border: 0 }}
           aria-label='send image'
-          icon={<IoMdImage />}
+          icon={<AiOutlineFileImage />}
+        />
+        <IconButton
+          size='sm'
+          fontSize='xl'
+          color='gray.500'
+          bg='transparent'
+          _hover={{ bg: 'transparent' }}
+          _focus={{ border: 0 }}
+          aria-label='send message'
+          icon={<AiOutlinePhone />}
+          d={{ base: 'none', md: 'inline-flex' }}
         />
         <IconButton
           size='sm'

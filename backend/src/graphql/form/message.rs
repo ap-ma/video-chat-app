@@ -7,6 +7,12 @@ pub struct SendMessageInput {
 }
 
 #[derive(InputObject)]
+pub struct SendImageInput {
+    pub contact_id: ID,
+    pub image: Upload,
+}
+
+#[derive(InputObject)]
 pub struct CallOfferInput {
     pub contact_id: ID,
     pub data: String,

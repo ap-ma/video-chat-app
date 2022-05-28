@@ -1,0 +1,5 @@
+mutation ApplyContact($otherUserId: ID!, $dateTimeFormat: String) {
+  applyContact(otherUserId: $otherUserId) {
+    ...MessageChangedFields
+  }
+}

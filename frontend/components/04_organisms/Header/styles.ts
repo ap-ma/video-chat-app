@@ -3,7 +3,7 @@ export const root = {
   ml: { base: 0, md: 72 },
   pl: 4,
   pr: { base: 5, md: 4 },
-  bg: 'white',
+  bg: 'gray.50',
   borderBottomWidth: '1px',
   borderBottomColor: 'gray.200',
   alignItems: 'center',

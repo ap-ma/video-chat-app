@@ -1,7 +1,7 @@
 use super::common::{self, mail_builder, CallEventType, MutationType, SimpleBroker};
 use super::form::{
-    CallOfferInput, ChangePasswordInput, EditProfileInput, ResetPasswordInput, SendMessageInput,
-    SignInInput, SignUpInput,
+    CallOfferInput, ChangePasswordInput, EditProfileInput, ResetPasswordInput, SendImageInput,
+    SendMessageInput, SignInInput, SignUpInput,
 };
 use super::model::{CallEvent, Contact, Message, MessageChanged, User};
 use super::security::auth::{self, Role};
@@ -458,6 +458,38 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn send_image(&self, ctx: &Context<'_>, input: SendImageInput) -> Result<MessageChanged> {
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?.unwrap();
+
+        let contact = service::find_contact_by_id(common::convert_id(&input.contact_id)?, &conn);
+        let contact = contact.map_err(|_| {
+            GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId").extend()
+        })?;
+
+        if contact.user_id != identity.id {
+            let e = GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId");
+            return Err(e.extend());
+        }
+
+        if contact.blocked {
+            let e = GraphqlError::ValidationError(error::V_CONTACT_BLOCKED.into(), "contactId");
+            return Err(e.extend());
+        }
+
+        let message_changed = create_message(
+            contact.contact_user_id,
+            message_const::category::IMAGE_TRANSMISSION,
+            Some("image URL".into()),
+            Some(contact.id),
+            Some(contact.status),
+            ctx,
+        )?;
+
+        Ok(message_changed)
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn call_offer(&self, ctx: &Context<'_>, input: CallOfferInput) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
@@ -664,11 +696,7 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn contact_application(
-        &self,
-        ctx: &Context<'_>,
-        other_user_id: ID,
-    ) -> Result<MessageChanged> {
+    async fn apply_contact(&self, ctx: &Context<'_>, other_user_id: ID) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
 
@@ -694,7 +722,7 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn contact_approval(&self, ctx: &Context<'_>, message_id: ID) -> Result<MessageChanged> {
+    async fn approve_contact(&self, ctx: &Context<'_>, message_id: ID) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?.unwrap();
 

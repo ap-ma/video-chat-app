@@ -20,7 +20,8 @@ export const header = {
 } as const
 
 export const body = {
-  alignSelf: 'center'
+  alignSelf: 'center',
+  mb: 1
 } as const
 
 export const actions = {

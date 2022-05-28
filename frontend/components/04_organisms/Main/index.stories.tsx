@@ -1,15 +1,7 @@
 /* eslint-disable import/no-unresolved */
-import {
-  contacts,
-  dummyContactInfo,
-  dummyMe,
-  dummyMutation,
-  dummySearchUser,
-  latestMessages,
-  otherUserId,
-  userId
-} from '.storybook/dummies'
+import { dummyContactInfo, dummyMutation, otherUserId, userId } from '.storybook/dummies'
 /* eslint-enable import/no-unresolved  */
+import { Box } from '@chakra-ui/react'
 import { Meta, Story } from '@storybook/react'
 import { CONTACT } from 'const'
 import {
@@ -19,52 +11,42 @@ import {
   ApproveContactMutationVariables,
   BlockContactMutation,
   BlockContactMutationVariables,
-  ChangeEmailMutation,
-  ChangeEmailMutationVariables,
-  ChangePasswordMutation,
-  ChangePasswordMutationVariables,
-  DeleteAccountMutation,
-  DeleteAccountMutationVariables,
   DeleteContactMutation,
   DeleteContactMutationVariables,
   DeleteMessageMutation,
   DeleteMessageMutationVariables,
-  EditProfileMutation,
-  EditProfileMutationVariables,
   ReadMessagesMutation,
   ReadMessagesMutationVariables,
   SendMessageMutation,
   SendMessageMutationVariables,
-  SignOutMutation,
-  SignOutMutationVariables,
   UnblockContactMutation,
   UnblockContactMutationVariables,
   UndeleteContactMutation,
   UndeleteContactMutationVariables
 } from 'graphql/generated'
-import React, { useState } from 'react'
+import React from 'react'
 import { MutaionLoading, QueryLoading, QueryNetworkStatus } from 'types'
-import { toStr } from 'utils/general/helper'
-import IndexTemplate, { IndexTemplateProps } from './index'
+import Main, { MainProps } from './index'
 
 export default {
-  title: '06_templates/IndexTemplate',
-  component: IndexTemplate
+  title: '04_organisms/Main',
+  component: Main,
+  decorators: [
+    (Story) => (
+      <Box minHeight='100vh'>
+        <Box h='full' w='72' d={{ base: 'none', md: 'block' }} bg='#f8f8f8' pos='absolute' />
+        <Box h='20' ml={{ base: 0, md: 72 }} bg='#e0dcdc' />
+        {Story()}
+      </Box>
+    )
+  ]
 } as Meta
 
-type IndexTemplateStoryProps = IndexTemplateProps & {
-  meLoading: QueryLoading
+type MainStoryProps = MainProps & {
   contactInfoLoading: QueryLoading
   contactIntoNetworkStatus: QueryNetworkStatus
   contactInfoStatus: number
   contactInfoBlocked: boolean
-  searchUserLoading: QueryLoading
-  searchUserResult: boolean
-  signOutLoading: MutaionLoading
-  editProfileLoading: MutaionLoading
-  changeEmailLoading: MutaionLoading
-  changePasswordLoading: MutaionLoading
-  deleteAccountLoading: MutaionLoading
   sendMessageLoading: MutaionLoading
   deleteMessageLoading: MutaionLoading
   readMessagesLoading: MutaionLoading
@@ -76,19 +58,11 @@ type IndexTemplateStoryProps = IndexTemplateProps & {
   unblockContactLoading: MutaionLoading
 }
 
-const Template: Story<IndexTemplateStoryProps> = ({
-  meLoading,
+const Template: Story<MainStoryProps> = ({
   contactInfoLoading,
   contactIntoNetworkStatus,
   contactInfoStatus,
   contactInfoBlocked,
-  searchUserLoading,
-  searchUserResult,
-  signOutLoading,
-  editProfileLoading,
-  changeEmailLoading,
-  changePasswordLoading,
-  deleteAccountLoading,
   sendMessageLoading,
   deleteMessageLoading,
   readMessagesLoading,
@@ -100,13 +74,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
   unblockContactLoading,
   ...props
 }) => {
-  // state
-  const [contactUserId, setContactUserId] = useState(toStr(otherUserId))
-  const state = { contactInfoUserId: { state: contactUserId, setContactInfoUserId: setContactUserId } }
-
   // query
-  const me = dummyMe(userId, meLoading, undefined)
-
   const contactInfo = dummyContactInfo(
     userId,
     otherUserId,
@@ -118,47 +86,9 @@ const Template: Story<IndexTemplateStoryProps> = ({
     contactIntoNetworkStatus
   )
 
-  const searchUser = dummySearchUser(searchUserLoading, searchUserResult)
-
-  const query = {
-    me,
-    contacts,
-    latestMessages,
-    contactInfo,
-    searchUser
-  }
+  const query = { contactInfo }
 
   // mutation
-  const signOut = dummyMutation<SignOutMutation['signOut'], SignOutMutation, SignOutMutationVariables>(
-    'signOut',
-    undefined,
-    signOutLoading
-  )
-
-  const editProfile = dummyMutation<
-    EditProfileMutation['editProfile'],
-    EditProfileMutation,
-    EditProfileMutationVariables
-  >('EditProfile', undefined, editProfileLoading)
-
-  const changeEmail = dummyMutation<
-    ChangeEmailMutation['changeEmail'],
-    ChangeEmailMutation,
-    ChangeEmailMutationVariables
-  >('ChangeEmail', undefined, changeEmailLoading)
-
-  const changePassword = dummyMutation<
-    ChangePasswordMutation['changePassword'],
-    ChangePasswordMutation,
-    ChangePasswordMutationVariables
-  >('ChangePassword', undefined, changePasswordLoading)
-
-  const deleteAccount = dummyMutation<
-    DeleteAccountMutation['deleteAccount'],
-    DeleteAccountMutation,
-    DeleteAccountMutationVariables
-  >('DeleteAccount', undefined, deleteAccountLoading)
-
   const sendMessage = dummyMutation<
     SendMessageMutation['sendMessage'],
     SendMessageMutation,
@@ -214,11 +144,6 @@ const Template: Story<IndexTemplateStoryProps> = ({
   >('UnblockContact', undefined, unblockContactLoading)
 
   const mutation = {
-    signOut,
-    editProfile,
-    changeEmail,
-    changePassword,
-    deleteAccount,
     sendMessage,
     deleteMessage,
     readMessages,
@@ -230,7 +155,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
     unblockContact
   }
 
-  return <IndexTemplate {...{ ...props, state, query, mutation }} />
+  return <Main {...{ ...props, query, mutation }} />
 }
 
 const contactStatusLabels: Record<number, string> = {}
@@ -262,17 +187,10 @@ Primary.argTypes = {
   }
 }
 Primary.args = {
-  meLoading: false,
   contactInfoLoading: false,
   contactIntoNetworkStatus: 7,
   contactInfoStatus: CONTACT.STATUS.APPROVED,
   contactInfoBlocked: false,
-  searchUserLoading: false,
-  searchUserResult: true,
-  signOutLoading: false,
-  editProfileLoading: false,
-  changePasswordLoading: false,
-  deleteAccountLoading: false,
   sendMessageLoading: false,
   deleteMessageLoading: false,
   readMessagesLoading: false,

@@ -1,5 +1,0 @@
-mutation ContactApproval($messageId: ID!, $dateTimeFormat: String) {
-  contactApproval(messageId: $messageId) {
-    ...MessageChangedFields
-  }
-}

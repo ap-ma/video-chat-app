@@ -17,6 +17,14 @@ const TOASTS = {
     position: 'top',
     variant: 'subtle',
     isClosable: true
+  },
+  UnexpectedError: {
+    title: 'Error.',
+    description: 'Unexpected error occurred.',
+    status: 'error',
+    position: 'top',
+    variant: 'subtle',
+    isClosable: true
   }
 } as const
 

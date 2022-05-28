@@ -1,22 +1,20 @@
-import { Box, Drawer, DrawerContent, Flex, useDisclosure } from '@chakra-ui/react'
-import Chat from 'components/04_organisms/Chat'
-import ContactInfo from 'components/04_organisms/ContactInfo'
-import SendMessageForm from 'components/04_organisms/forms/SendMessageForm'
+import { Box, Drawer, DrawerContent, useDisclosure } from '@chakra-ui/react'
 import Header from 'components/04_organisms/Header'
+import Main from 'components/04_organisms/Main'
 import Sidebar from 'components/04_organisms/Sidebar'
 import HtmlSkeleton, { Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
 import {
+  ApplyContactMutation,
+  ApplyContactMutationVariables,
+  ApproveContactMutation,
+  ApproveContactMutationVariables,
   BlockContactMutation,
   BlockContactMutationVariables,
   ChangeEmailMutation,
   ChangeEmailMutationVariables,
   ChangePasswordMutation,
   ChangePasswordMutationVariables,
-  ContactApplicationMutation,
-  ContactApplicationMutationVariables,
-  ContactApprovalMutation,
-  ContactApprovalMutationVariables,
   ContactInfoQuery,
   ContactInfoQueryVariables,
   ContactsQuery,
@@ -37,6 +35,8 @@ import {
   ReadMessagesMutationVariables,
   SearchUserQuery,
   SearchUserQueryVariables,
+  SendImageMutation,
+  SendImageMutationVariables,
   SendMessageMutation,
   SendMessageMutationVariables,
   SignOutMutation,
@@ -183,6 +183,15 @@ export type IndexTemplateProps = {
       mutate: MutateFunction<SendMessageMutation, SendMessageMutationVariables>
     }
     /**
+     * 画像送信
+     */
+    sendImage: {
+      loading: MutaionLoading
+      errors?: ValidationErrors
+      reset: MutaionReset
+      mutate: MutateFunction<SendImageMutation, SendImageMutationVariables>
+    }
+    /**
      * メッセージ削除
      */
     deleteMessage: {
@@ -203,25 +212,28 @@ export type IndexTemplateProps = {
     /**
      * コンタクト申請
      */
-    contactApplication: {
+    applyContact: {
+      result?: ApplyContactMutation['applyContact']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      mutate: MutateFunction<ContactApplicationMutation, ContactApplicationMutationVariables>
+      mutate: MutateFunction<ApplyContactMutation, ApplyContactMutationVariables>
     }
     /**
      * コンタクト承認
      */
-    contactApproval: {
+    approveContact: {
+      result?: ApproveContactMutation['approveContact']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      mutate: MutateFunction<ContactApprovalMutation, ContactApprovalMutationVariables>
+      mutate: MutateFunction<ApproveContactMutation, ApproveContactMutationVariables>
     }
     /**
      * コンタクト削除
      */
     deleteContact: {
+      result?: DeleteContactMutation['deleteContact']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
@@ -231,6 +243,7 @@ export type IndexTemplateProps = {
      * コンタクト削除取消
      */
     undeleteContact: {
+      result?: UndeleteContactMutation['undeleteContact']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
@@ -240,6 +253,7 @@ export type IndexTemplateProps = {
      * コンタクトブロック
      */
     blockContact: {
+      result?: BlockContactMutation['blockContact']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
@@ -249,6 +263,7 @@ export type IndexTemplateProps = {
      * コンタクトブロック解除
      */
     unblockContact: {
+      result?: UnblockContactMutation['unblockContact']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
@@ -266,7 +281,23 @@ export type PresenterProps = IndexTemplateProps & {
 const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
   state,
   query: { me, contacts, latestMessages, contactInfo, searchUser },
-  mutation: { signOut, editProfile, changeEmail, changePassword, deleteAccount },
+  mutation: {
+    signOut,
+    editProfile,
+    changeEmail,
+    changePassword,
+    deleteAccount,
+    sendMessage,
+    sendImage,
+    deleteMessage,
+    readMessages,
+    applyContact,
+    approveContact,
+    deleteContact,
+    undeleteContact,
+    blockContact,
+    unblockContact
+  },
   sbDisc
 }) => (
   <HtmlSkeleton>
@@ -289,11 +320,21 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
         query={{ me, contactInfo, searchUser }}
         mutation={{ signOut, editProfile, changeEmail, changePassword, deleteAccount }}
       />
-      <Flex {...styles.main}>
-        <ContactInfo />
-        <Chat />
-        <SendMessageForm />
-      </Flex>
+      <Main
+        query={{ contactInfo }}
+        mutation={{
+          sendMessage,
+          sendImage,
+          deleteMessage,
+          readMessages,
+          applyContact,
+          approveContact,
+          deleteContact,
+          undeleteContact,
+          blockContact,
+          unblockContact
+        }}
+      />
     </Box>
   </HtmlSkeleton>
 )

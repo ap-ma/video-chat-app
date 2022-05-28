@@ -1,7 +1,7 @@
 export const root = {
   h: 'full',
   w: { base: 'full', md: 72 },
-  bg: 'white',
+  bg: 'gray.50',
   pos: 'absolute',
   transition: '3s ease',
   borderRightWidth: '1px',
@@ -11,9 +11,11 @@ export const root = {
 export const head = {
   h: '20',
   ml: '4',
-  mr: '8',
+  pr: { base: 8, md: 0 },
   alignItems: 'center',
-  justifyContent: 'space-between'
+  justifyContent: 'space-between',
+  borderBottomWidth: '1px',
+  borderBottomColor: 'gray.200'
 } as const
 
 export const close = {
@@ -22,6 +24,11 @@ export const close = {
 
 export const tab = {
   variant: 'enclosed-colored'
+} as const
+
+export const panel = {
+  p: '0',
+  bg: 'white'
 } as const
 
 export const contacts = {

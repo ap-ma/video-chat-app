@@ -18,7 +18,7 @@ import {
 } from 'graphql/generated'
 import { Optional, ReadFieldParam } from 'types'
 import { isNullish } from 'utils/general/object'
-import { isContactApproval } from './utils'
+import { isApproveContact } from './utils'
 
 /**
  * メッセージ登録更新時キャッシュ更新処理
@@ -98,12 +98,12 @@ export function updateMessageCache(cache: ApolloCache<unknown>, messageChanged: 
     id: cache.identify(contactInfo.contactInfo),
     fields: {
       id(existingId) {
-        return isContactApproval(messageChanged) && !isNullish(messageChanged.contactId)
+        return isApproveContact(messageChanged) && !isNullish(messageChanged.contactId)
           ? messageChanged.contactId
           : existingId
       },
       status(existingStatus) {
-        return isContactApproval(messageChanged) && !isNullish(messageChanged.contactStatus)
+        return isApproveContact(messageChanged) && !isNullish(messageChanged.contactStatus)
           ? messageChanged.contactStatus
           : existingStatus
       },

@@ -140,12 +140,12 @@ export type MessageChanged = {
 
 export type Mutation = {
   __typename?: 'Mutation'
+  applyContact: MessageChanged
+  approveContact: MessageChanged
   blockContact: Contact
   callOffer: MessageChanged
   changeEmail: Scalars['Boolean']
   changePassword: Scalars['Boolean']
-  contactApplication: MessageChanged
-  contactApproval: MessageChanged
   deleteAccount: Scalars['Boolean']
   deleteContact: Contact
   deleteMessage: MessageChanged
@@ -153,6 +153,7 @@ export type Mutation = {
   forgotPassword: Scalars['Boolean']
   readMessages: MessageChanged
   resetPassword: Scalars['Boolean']
+  sendImage: MessageChanged
   sendMessage: MessageChanged
   signIn: Scalars['Boolean']
   signOut: Scalars['Boolean']
@@ -160,6 +161,14 @@ export type Mutation = {
   unblockContact: Contact
   undeleteContact: Contact
   verifyEmail: Scalars['Boolean']
+}
+
+export type MutationApplyContactArgs = {
+  otherUserId: Scalars['ID']
+}
+
+export type MutationApproveContactArgs = {
+  messageId: Scalars['ID']
 }
 
 export type MutationBlockContactArgs = {
@@ -176,14 +185,6 @@ export type MutationChangeEmailArgs = {
 
 export type MutationChangePasswordArgs = {
   input: ChangePasswordInput
-}
-
-export type MutationContactApplicationArgs = {
-  otherUserId: Scalars['ID']
-}
-
-export type MutationContactApprovalArgs = {
-  messageId: Scalars['ID']
 }
 
 export type MutationDeleteContactArgs = {
@@ -208,6 +209,10 @@ export type MutationReadMessagesArgs = {
 
 export type MutationResetPasswordArgs = {
   input: ResetPasswordInput
+}
+
+export type MutationSendImageArgs = {
+  input: SendImageInput
 }
 
 export type MutationSendMessageArgs = {
@@ -248,7 +253,7 @@ export type Query = {
   isPasswordResetTokenValid: Scalars['Boolean']
   latestMessages: Array<LatestMessage>
   me: User
-  searchUser: User
+  searchUser?: Maybe<User>
 }
 
 export type QueryContactInfoArgs = {
@@ -267,6 +272,11 @@ export type ResetPasswordInput = {
   password: Scalars['String']
   passwordConfirm: Scalars['String']
   token: Scalars['String']
+}
+
+export type SendImageInput = {
+  contactId: Scalars['ID']
+  image: Scalars['Upload']
 }
 
 export type SendMessageInput = {
@@ -536,6 +546,162 @@ export type OwnUserFieldsFragment = {
   avatar?: string | null
 }
 
+export type ApplyContactMutationVariables = Exact<{
+  otherUserId: Scalars['ID']
+  dateTimeFormat?: InputMaybe<Scalars['String']>
+}>
+
+export type ApplyContactMutation = {
+  __typename?: 'Mutation'
+  applyContact: {
+    __typename: 'MessageChanged'
+    txUserId: string
+    rxUserId: string
+    contactId?: string | null
+    contactStatus?: number | null
+    mutationType: MutationType
+    message?: {
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    } | null
+    messages?: Array<{
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    }> | null
+    latestMessage?: {
+      __typename: 'LatestMessage'
+      userId: string
+      userCode: string
+      userName?: string | null
+      userAvatar?: string | null
+      messageId: string
+      txUserId: string
+      messageCategory: number
+      message?: string | null
+      messageStatus: number
+      createdAt: string
+      unreadMessageCount: number
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    } | null
+  }
+}
+
+export type ApproveContactMutationVariables = Exact<{
+  messageId: Scalars['ID']
+  dateTimeFormat?: InputMaybe<Scalars['String']>
+}>
+
+export type ApproveContactMutation = {
+  __typename?: 'Mutation'
+  approveContact: {
+    __typename: 'MessageChanged'
+    txUserId: string
+    rxUserId: string
+    contactId?: string | null
+    contactStatus?: number | null
+    mutationType: MutationType
+    message?: {
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    } | null
+    messages?: Array<{
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    }> | null
+    latestMessage?: {
+      __typename: 'LatestMessage'
+      userId: string
+      userCode: string
+      userName?: string | null
+      userAvatar?: string | null
+      messageId: string
+      txUserId: string
+      messageCategory: number
+      message?: string | null
+      messageStatus: number
+      createdAt: string
+      unreadMessageCount: number
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    } | null
+  }
+}
+
 export type BlockContactMutationVariables = Exact<{
   contactId: Scalars['ID']
 }>
@@ -644,162 +810,6 @@ export type ChangePasswordMutationVariables = Exact<{
 }>
 
 export type ChangePasswordMutation = { __typename?: 'Mutation'; changePassword: boolean }
-
-export type ContactApplicationMutationVariables = Exact<{
-  otherUserId: Scalars['ID']
-  dateTimeFormat?: InputMaybe<Scalars['String']>
-}>
-
-export type ContactApplicationMutation = {
-  __typename?: 'Mutation'
-  contactApplication: {
-    __typename: 'MessageChanged'
-    txUserId: string
-    rxUserId: string
-    contactId?: string | null
-    contactStatus?: number | null
-    mutationType: MutationType
-    message?: {
-      __typename: 'Message'
-      id: string
-      txUserId: string
-      rxUserId: string
-      category: number
-      message?: string | null
-      status: number
-      createdAt: string
-      call?: {
-        __typename: 'Call'
-        id: string
-        messageId: string
-        status: number
-        startedAt?: string | null
-        endedAt?: string | null
-        callTime?: number | null
-      } | null
-    } | null
-    messages?: Array<{
-      __typename: 'Message'
-      id: string
-      txUserId: string
-      rxUserId: string
-      category: number
-      message?: string | null
-      status: number
-      createdAt: string
-      call?: {
-        __typename: 'Call'
-        id: string
-        messageId: string
-        status: number
-        startedAt?: string | null
-        endedAt?: string | null
-        callTime?: number | null
-      } | null
-    }> | null
-    latestMessage?: {
-      __typename: 'LatestMessage'
-      userId: string
-      userCode: string
-      userName?: string | null
-      userAvatar?: string | null
-      messageId: string
-      txUserId: string
-      messageCategory: number
-      message?: string | null
-      messageStatus: number
-      createdAt: string
-      unreadMessageCount: number
-      call?: {
-        __typename: 'Call'
-        id: string
-        messageId: string
-        status: number
-        startedAt?: string | null
-        endedAt?: string | null
-        callTime?: number | null
-      } | null
-    } | null
-  }
-}
-
-export type ContactApprovalMutationVariables = Exact<{
-  messageId: Scalars['ID']
-  dateTimeFormat?: InputMaybe<Scalars['String']>
-}>
-
-export type ContactApprovalMutation = {
-  __typename?: 'Mutation'
-  contactApproval: {
-    __typename: 'MessageChanged'
-    txUserId: string
-    rxUserId: string
-    contactId?: string | null
-    contactStatus?: number | null
-    mutationType: MutationType
-    message?: {
-      __typename: 'Message'
-      id: string
-      txUserId: string
-      rxUserId: string
-      category: number
-      message?: string | null
-      status: number
-      createdAt: string
-      call?: {
-        __typename: 'Call'
-        id: string
-        messageId: string
-        status: number
-        startedAt?: string | null
-        endedAt?: string | null
-        callTime?: number | null
-      } | null
-    } | null
-    messages?: Array<{
-      __typename: 'Message'
-      id: string
-      txUserId: string
-      rxUserId: string
-      category: number
-      message?: string | null
-      status: number
-      createdAt: string
-      call?: {
-        __typename: 'Call'
-        id: string
-        messageId: string
-        status: number
-        startedAt?: string | null
-        endedAt?: string | null
-        callTime?: number | null
-      } | null
-    }> | null
-    latestMessage?: {
-      __typename: 'LatestMessage'
-      userId: string
-      userCode: string
-      userName?: string | null
-      userAvatar?: string | null
-      messageId: string
-      txUserId: string
-      messageCategory: number
-      message?: string | null
-      messageStatus: number
-      createdAt: string
-      unreadMessageCount: number
-      call?: {
-        __typename: 'Call'
-        id: string
-        messageId: string
-        status: number
-        startedAt?: string | null
-        endedAt?: string | null
-        callTime?: number | null
-      } | null
-    } | null
-  }
-}
 
 export type DeleteAccountMutationVariables = Exact<{ [key: string]: never }>
 
@@ -1008,6 +1018,84 @@ export type ResetPasswordMutationVariables = Exact<{
 }>
 
 export type ResetPasswordMutation = { __typename?: 'Mutation'; resetPassword: boolean }
+
+export type SendImageMutationVariables = Exact<{
+  input: SendImageInput
+  dateTimeFormat?: InputMaybe<Scalars['String']>
+}>
+
+export type SendImageMutation = {
+  __typename?: 'Mutation'
+  sendImage: {
+    __typename: 'MessageChanged'
+    txUserId: string
+    rxUserId: string
+    contactId?: string | null
+    contactStatus?: number | null
+    mutationType: MutationType
+    message?: {
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    } | null
+    messages?: Array<{
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    }> | null
+    latestMessage?: {
+      __typename: 'LatestMessage'
+      userId: string
+      userCode: string
+      userName?: string | null
+      userAvatar?: string | null
+      messageId: string
+      txUserId: string
+      messageCategory: number
+      message?: string | null
+      messageStatus: number
+      createdAt: string
+      unreadMessageCount: number
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    } | null
+  }
+}
 
 export type SendMessageMutationVariables = Exact<{
   input: SendMessageInput
@@ -1375,14 +1463,14 @@ export type SearchUserQueryVariables = Exact<{
 
 export type SearchUserQuery = {
   __typename?: 'Query'
-  searchUser: {
+  searchUser?: {
     __typename: 'User'
     id: string
     code: string
     name?: string | null
     comment?: string | null
     avatar?: string | null
-  }
+  } | null
 }
 
 export type CallEventSubscriptionVariables = Exact<{ [key: string]: never }>
@@ -1604,6 +1692,86 @@ export const OwnUserFieldsFragmentDoc = gql`
   }
   ${OtherUserFieldsFragmentDoc}
 `
+export const ApplyContactDocument = gql`
+  mutation ApplyContact($otherUserId: ID!, $dateTimeFormat: String) {
+    applyContact(otherUserId: $otherUserId) {
+      ...MessageChangedFields
+    }
+  }
+  ${MessageChangedFieldsFragmentDoc}
+`
+export type ApplyContactMutationFn = Apollo.MutationFunction<ApplyContactMutation, ApplyContactMutationVariables>
+
+/**
+ * __useApplyContactMutation__
+ *
+ * To run a mutation, you first call `useApplyContactMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useApplyContactMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [applyContactMutation, { data, loading, error }] = useApplyContactMutation({
+ *   variables: {
+ *      otherUserId: // value for 'otherUserId'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
+ *   },
+ * });
+ */
+export function useApplyContactMutation(
+  baseOptions?: Apollo.MutationHookOptions<ApplyContactMutation, ApplyContactMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<ApplyContactMutation, ApplyContactMutationVariables>(ApplyContactDocument, options)
+}
+export type ApplyContactMutationHookResult = ReturnType<typeof useApplyContactMutation>
+export type ApplyContactMutationResult = Apollo.MutationResult<ApplyContactMutation>
+export type ApplyContactMutationOptions = Apollo.BaseMutationOptions<
+  ApplyContactMutation,
+  ApplyContactMutationVariables
+>
+export const ApproveContactDocument = gql`
+  mutation ApproveContact($messageId: ID!, $dateTimeFormat: String) {
+    approveContact(messageId: $messageId) {
+      ...MessageChangedFields
+    }
+  }
+  ${MessageChangedFieldsFragmentDoc}
+`
+export type ApproveContactMutationFn = Apollo.MutationFunction<ApproveContactMutation, ApproveContactMutationVariables>
+
+/**
+ * __useApproveContactMutation__
+ *
+ * To run a mutation, you first call `useApproveContactMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useApproveContactMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [approveContactMutation, { data, loading, error }] = useApproveContactMutation({
+ *   variables: {
+ *      messageId: // value for 'messageId'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
+ *   },
+ * });
+ */
+export function useApproveContactMutation(
+  baseOptions?: Apollo.MutationHookOptions<ApproveContactMutation, ApproveContactMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<ApproveContactMutation, ApproveContactMutationVariables>(ApproveContactDocument, options)
+}
+export type ApproveContactMutationHookResult = ReturnType<typeof useApproveContactMutation>
+export type ApproveContactMutationResult = Apollo.MutationResult<ApproveContactMutation>
+export type ApproveContactMutationOptions = Apollo.BaseMutationOptions<
+  ApproveContactMutation,
+  ApproveContactMutationVariables
+>
 export const BlockContactDocument = gql`
   mutation BlockContact($contactId: ID!) {
     blockContact(contactId: $contactId) {
@@ -1748,95 +1916,6 @@ export type ChangePasswordMutationResult = Apollo.MutationResult<ChangePasswordM
 export type ChangePasswordMutationOptions = Apollo.BaseMutationOptions<
   ChangePasswordMutation,
   ChangePasswordMutationVariables
->
-export const ContactApplicationDocument = gql`
-  mutation ContactApplication($otherUserId: ID!, $dateTimeFormat: String) {
-    contactApplication(otherUserId: $otherUserId) {
-      ...MessageChangedFields
-    }
-  }
-  ${MessageChangedFieldsFragmentDoc}
-`
-export type ContactApplicationMutationFn = Apollo.MutationFunction<
-  ContactApplicationMutation,
-  ContactApplicationMutationVariables
->
-
-/**
- * __useContactApplicationMutation__
- *
- * To run a mutation, you first call `useContactApplicationMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useContactApplicationMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [contactApplicationMutation, { data, loading, error }] = useContactApplicationMutation({
- *   variables: {
- *      otherUserId: // value for 'otherUserId'
- *      dateTimeFormat: // value for 'dateTimeFormat'
- *   },
- * });
- */
-export function useContactApplicationMutation(
-  baseOptions?: Apollo.MutationHookOptions<ContactApplicationMutation, ContactApplicationMutationVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<ContactApplicationMutation, ContactApplicationMutationVariables>(
-    ContactApplicationDocument,
-    options
-  )
-}
-export type ContactApplicationMutationHookResult = ReturnType<typeof useContactApplicationMutation>
-export type ContactApplicationMutationResult = Apollo.MutationResult<ContactApplicationMutation>
-export type ContactApplicationMutationOptions = Apollo.BaseMutationOptions<
-  ContactApplicationMutation,
-  ContactApplicationMutationVariables
->
-export const ContactApprovalDocument = gql`
-  mutation ContactApproval($messageId: ID!, $dateTimeFormat: String) {
-    contactApproval(messageId: $messageId) {
-      ...MessageChangedFields
-    }
-  }
-  ${MessageChangedFieldsFragmentDoc}
-`
-export type ContactApprovalMutationFn = Apollo.MutationFunction<
-  ContactApprovalMutation,
-  ContactApprovalMutationVariables
->
-
-/**
- * __useContactApprovalMutation__
- *
- * To run a mutation, you first call `useContactApprovalMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useContactApprovalMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [contactApprovalMutation, { data, loading, error }] = useContactApprovalMutation({
- *   variables: {
- *      messageId: // value for 'messageId'
- *      dateTimeFormat: // value for 'dateTimeFormat'
- *   },
- * });
- */
-export function useContactApprovalMutation(
-  baseOptions?: Apollo.MutationHookOptions<ContactApprovalMutation, ContactApprovalMutationVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<ContactApprovalMutation, ContactApprovalMutationVariables>(ContactApprovalDocument, options)
-}
-export type ContactApprovalMutationHookResult = ReturnType<typeof useContactApprovalMutation>
-export type ContactApprovalMutationResult = Apollo.MutationResult<ContactApprovalMutation>
-export type ContactApprovalMutationOptions = Apollo.BaseMutationOptions<
-  ContactApprovalMutation,
-  ContactApprovalMutationVariables
 >
 export const DeleteAccountDocument = gql`
   mutation DeleteAccount {
@@ -2100,6 +2179,43 @@ export type ResetPasswordMutationOptions = Apollo.BaseMutationOptions<
   ResetPasswordMutation,
   ResetPasswordMutationVariables
 >
+export const SendImageDocument = gql`
+  mutation SendImage($input: SendImageInput!, $dateTimeFormat: String) {
+    sendImage(input: $input) {
+      ...MessageChangedFields
+    }
+  }
+  ${MessageChangedFieldsFragmentDoc}
+`
+export type SendImageMutationFn = Apollo.MutationFunction<SendImageMutation, SendImageMutationVariables>
+
+/**
+ * __useSendImageMutation__
+ *
+ * To run a mutation, you first call `useSendImageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendImageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendImageMutation, { data, loading, error }] = useSendImageMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
+ *   },
+ * });
+ */
+export function useSendImageMutation(
+  baseOptions?: Apollo.MutationHookOptions<SendImageMutation, SendImageMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<SendImageMutation, SendImageMutationVariables>(SendImageDocument, options)
+}
+export type SendImageMutationHookResult = ReturnType<typeof useSendImageMutation>
+export type SendImageMutationResult = Apollo.MutationResult<SendImageMutation>
+export type SendImageMutationOptions = Apollo.BaseMutationOptions<SendImageMutation, SendImageMutationVariables>
 export const SendMessageDocument = gql`
   mutation SendMessage($input: SendMessageInput!, $dateTimeFormat: String) {
     sendMessage(input: $input) {

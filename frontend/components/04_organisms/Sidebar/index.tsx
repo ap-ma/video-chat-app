@@ -85,10 +85,10 @@ const SidebarPresenter: React.VFC<PresenterProps> = ({
         <Tab py='1'>Chats</Tab>
       </TabList>
       <TabPanels>
-        <TabPanel p='0'>
+        <TabPanel {...styles.panel}>
           <ContactList {...styles.contacts} onSbClose={onClose} state={state} query={{ me, contacts, contactInfo }} />
         </TabPanel>
-        <TabPanel p='0'>
+        <TabPanel {...styles.panel}>
           <LatestMessageList
             {...styles.messages}
             onSbClose={onClose}
