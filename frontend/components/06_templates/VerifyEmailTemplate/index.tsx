@@ -1,6 +1,6 @@
 import { useDisclosure } from '@chakra-ui/react'
-import EmailVerificationFailureDialog from 'components/04_organisms/dialogs/EmailVerificationFailureDialog'
-import EmailVerificationSuccessDialog from 'components/04_organisms/dialogs/EmailVerificationSuccessDialog'
+import EmailVerificationFailureDialog from 'components/04_organisms/_dialogs/EmailVerificationFailureDialog'
+import EmailVerificationSuccessDialog from 'components/04_organisms/_dialogs/EmailVerificationSuccessDialog'
 import HtmlSkeleton, { Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
 import { VerifyEmailMutation } from 'graphql/generated'

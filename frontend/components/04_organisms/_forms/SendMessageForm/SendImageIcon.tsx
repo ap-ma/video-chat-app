@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react'
 import SendImageConfirmDialog, {
   SendImageConfirmDialogProps
-} from 'components/04_organisms/dialogs/SendImageConfirmDialog'
+} from 'components/04_organisms/_dialogs/SendImageConfirmDialog'
 import { connectRef } from 'components/hoc'
 import { ALLOWED_IMAGE_EXTS } from 'const'
 import { ContactInfoQuery, SendImageMutation, SendImageMutationVariables } from 'graphql/generated'

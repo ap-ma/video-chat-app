@@ -1,11 +1,20 @@
 import { Box, BoxProps } from '@chakra-ui/react'
-import WorkflowCard from 'components/04_organisms/WorkflowCard'
+import ApplyContactBox from 'components/04_organisms/_boxes/ApplyContactBox'
+import ApproveContactBox from 'components/04_organisms/_boxes/ApproveContactBox'
+import UnblockContactBox from 'components/04_organisms/_boxes/UnblockContactBox'
 import { connect } from 'components/hoc'
 import {
+  ApplyContactMutation,
+  ApplyContactMutationVariables,
+  ApproveContactMutation,
+  ApproveContactMutationVariables,
   ContactInfoQuery,
   ContactInfoQueryVariables,
   DeleteMessageMutation,
-  DeleteMessageMutationVariables
+  DeleteMessageMutationVariables,
+  MeQuery,
+  UnblockContactMutation,
+  UnblockContactMutationVariables
 } from 'graphql/generated'
 import React from 'react'
 import {
@@ -13,7 +22,6 @@ import {
   MutaionLoading,
   MutaionReset,
   MutateFunction,
-  OnOpen,
   QueryFetchMore,
   QueryLoading,
   QueryNetworkStatus,
@@ -23,21 +31,15 @@ import {
 /** Chat Props */
 export type ChatProps = BoxProps & {
   /**
-   * コンタクト申請ダイアログ onOpen
-   */
-  onApplyccdOpen: OnOpen
-  /**
-   * コンタクト承認ダイアログ onOpen
-   */
-  onApproveccdOpen: OnOpen
-  /**
-   * コンタクトブロック解除ダイアログ onOpen
-   */
-  onUbccdOpen: OnOpen
-  /**
    * Query
    */
   query: {
+    /**
+     * サインインユーザー情報
+     */
+    me: {
+      result?: MeQuery['me']
+    }
     /**
      *  コンタクト情報
      */
@@ -61,6 +63,30 @@ export type ChatProps = BoxProps & {
       reset: MutaionReset
       mutate: MutateFunction<DeleteMessageMutation, DeleteMessageMutationVariables>
     }
+    /**
+     * コンタクト申請
+     */
+    applyContact: {
+      loading: MutaionLoading
+      reset: MutaionReset
+      mutate: MutateFunction<ApplyContactMutation, ApplyContactMutationVariables>
+    }
+    /**
+     * コンタクト承認
+     */
+    approveContact: {
+      loading: MutaionLoading
+      reset: MutaionReset
+      mutate: MutateFunction<ApproveContactMutation, ApproveContactMutationVariables>
+    }
+    /**
+     * コンタクトブロック解除
+     */
+    unblockContact: {
+      loading: MutaionLoading
+      reset: MutaionReset
+      mutate: MutateFunction<UnblockContactMutation, UnblockContactMutationVariables>
+    }
   }
 }
 
@@ -69,15 +95,14 @@ export type PresenterProps = ChatProps
 
 /** Presenter Component */
 const ChatPresenter: React.VFC<PresenterProps> = ({
-  query: { contactInfo },
-  mutation: { deleteMessage },
-  onApplyccdOpen,
-  onApproveccdOpen,
-  onUbccdOpen,
+  query: { me, contactInfo },
+  mutation: { deleteMessage, applyContact, approveContact, unblockContact },
   ...props
 }) => (
-  <Box {...{ h: '100%', align: 'center' }}>
-    <WorkflowCard {...{ onApplyccdOpen, onApproveccdOpen, onUbccdOpen }} query={{ contactInfo }} />
+  <Box h='100%' {...props}>
+    <ApplyContactBox query={{ contactInfo }} mutation={{ applyContact }} />
+    <ApproveContactBox query={{ me, contactInfo }} mutation={{ approveContact }} />
+    <UnblockContactBox query={{ contactInfo }} mutation={{ unblockContact }} />
   </Box>
 )
 

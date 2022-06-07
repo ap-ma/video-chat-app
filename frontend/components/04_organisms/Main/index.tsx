@@ -1,13 +1,11 @@
 import { Flex, FlexProps, useDisclosure } from '@chakra-ui/react'
 import Chat from 'components/04_organisms/Chat'
 import ContactInfo from 'components/04_organisms/ContactInfo'
-import ApplyContactConfirmDialog from 'components/04_organisms/dialogs/ApplyContactConfirmDialog'
-import ApproveContactConfirmDialog from 'components/04_organisms/dialogs/ApproveContactConfirmDialog'
-import BlockContactConfirmDialog from 'components/04_organisms/dialogs/BlockContactConfirmDialog'
-import DeleteContactConfirmDialog from 'components/04_organisms/dialogs/DeleteContactConfirmDialog'
-import UnblockContactConfirmDialog from 'components/04_organisms/dialogs/UnblockContactConfirmDialog'
-import UndeleteContactConfirmDialog from 'components/04_organisms/dialogs/UndeleteContactConfirmDialog'
-import SendMessageForm from 'components/04_organisms/forms/SendMessageForm'
+import BlockContactConfirmDialog from 'components/04_organisms/_dialogs/BlockContactConfirmDialog'
+import DeleteContactConfirmDialog from 'components/04_organisms/_dialogs/DeleteContactConfirmDialog'
+import UnblockContactConfirmDialog from 'components/04_organisms/_dialogs/UnblockContactConfirmDialog'
+import UndeleteContactConfirmDialog from 'components/04_organisms/_dialogs/UndeleteContactConfirmDialog'
+import SendMessageForm from 'components/04_organisms/_forms/SendMessageForm'
 import { connect } from 'components/hoc'
 import {
   ApplyContactMutation,
@@ -166,8 +164,6 @@ export type MainProps = FlexProps & {
 
 /** Presenter Props */
 export type PresenterProps = MainProps & {
-  applyccdDisc: Disclosure
-  approveccdDisc: Disclosure
   mccdOpenDisc: Disclosure
   dccdDisc: Disclosure
   udccdDisc: Disclosure
@@ -189,8 +185,6 @@ const MainPresenter: React.VFC<PresenterProps> = ({
     blockContact,
     unblockContact
   },
-  applyccdDisc,
-  approveccdDisc,
   mccdOpenDisc,
   dccdDisc,
   udccdDisc,
@@ -207,26 +201,8 @@ const MainPresenter: React.VFC<PresenterProps> = ({
       onBccdOpen={bccdDisc.onOpen}
       onUbccdOpen={ubccdDisc.onOpen}
     />
-    <Chat
-      onApplyccdOpen={applyccdDisc.onOpen}
-      onApproveccdOpen={approveccdDisc.onOpen}
-      onUbccdOpen={ubccdDisc.onOpen}
-      query={{ contactInfo }}
-      mutation={{ deleteMessage }}
-    />
+    <Chat query={{ me, contactInfo }} mutation={{ deleteMessage, applyContact, approveContact, unblockContact }} />
     <SendMessageForm onMccdOpen={mccdOpenDisc.onOpen} query={{ contactInfo }} mutation={{ sendMessage, sendImage }} />
-    <ApplyContactConfirmDialog
-      query={{ contactInfo }}
-      mutation={{ applyContact }}
-      isOpen={applyccdDisc.isOpen}
-      onClose={applyccdDisc.onClose}
-    />
-    <ApproveContactConfirmDialog
-      query={{ me, contactInfo }}
-      mutation={{ approveContact }}
-      isOpen={approveccdDisc.isOpen}
-      onClose={approveccdDisc.onClose}
-    />
     <DeleteContactConfirmDialog
       query={{ contactInfo }}
       mutation={{ deleteContact }}
@@ -272,22 +248,6 @@ const MainContainer: React.VFC<ContainerProps<MainProps, PresenterProps>> = ({
   // MakeCallConfirmDialog modal
   const mccdOpenDisc = useDisclosure()
 
-  // ApplyContactConfirmDialog modal
-  const applyccdDisc = useDisclosure()
-  const onApplyccdClose = applyccdDisc.onClose
-  const applyContactResult = applyContact.result
-  useMemo(() => {
-    if (hasValue(applyContactResult)) onApplyccdClose()
-  }, [onApplyccdClose, applyContactResult])
-
-  // ApproveContactConfirmDialog modal
-  const approveccdDisc = useDisclosure()
-  const onApproveccdClose = approveccdDisc.onClose
-  const approveContactResult = approveContact.result
-  useMemo(() => {
-    if (hasValue(approveContactResult)) onApproveccdClose()
-  }, [onApproveccdClose, approveContactResult])
-
   // DeleteContactConfirmDialog modal
   const dccdDisc = useDisclosure()
   const onDccdClose = dccdDisc.onClose
@@ -331,8 +291,6 @@ const MainContainer: React.VFC<ContainerProps<MainProps, PresenterProps>> = ({
       unblockContact,
       ...mutationRest
     },
-    applyccdDisc,
-    approveccdDisc,
     mccdOpenDisc,
     dccdDisc,
     udccdDisc,

@@ -1,6 +1,6 @@
 import { Flex, Heading, Stack, useDisclosure } from '@chakra-ui/react'
-import ResetPasswordCompleteDialog from 'components/04_organisms/dialogs/ResetPasswordCompleteDialog'
-import ResetPasswordForm from 'components/04_organisms/forms/ResetPasswordForm'
+import ResetPasswordCompleteDialog from 'components/04_organisms/_dialogs/ResetPasswordCompleteDialog'
+import ResetPasswordForm from 'components/04_organisms/_forms/ResetPasswordForm'
 import HtmlSkeleton, { Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
 import { ResetPasswordInput, ResetPasswordMutation, ResetPasswordMutationVariables } from 'graphql/generated'
