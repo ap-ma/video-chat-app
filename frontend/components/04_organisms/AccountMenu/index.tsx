@@ -100,24 +100,24 @@ const AccountMenuPresenter: React.VFC<PresenterProps> = ({
       </MenuButton>
       <MenuList {...styles.list}>
         <MenuGroup title='Profile'>
-          <MenuItem isDisabled={loading} onClick={onEpfOpen}>
+          <MenuItem {...styles.item} isDisabled={loading} onClick={onEpfOpen}>
             Edit Profile
           </MenuItem>
         </MenuGroup>
         <MenuDivider />
         <MenuGroup title='Account'>
-          <MenuItem isDisabled={loading} onClick={onCefOpen}>
+          <MenuItem {...styles.item} isDisabled={loading} onClick={onCefOpen}>
             Change Email
           </MenuItem>
-          <MenuItem isDisabled={loading} onClick={onCpfOpen}>
+          <MenuItem {...styles.item} isDisabled={loading} onClick={onCpfOpen}>
             Change Password
           </MenuItem>
-          <MenuItem isDisabled={loading} onClick={onDadOpen}>
+          <MenuItem {...styles.item} isDisabled={loading} onClick={onDadOpen}>
             Delete Account
           </MenuItem>
         </MenuGroup>
         <MenuDivider />
-        <MenuItem isDisabled={loading} onClick={onSignOutButtonClick}>
+        <MenuItem {...styles.signOut} isDisabled={loading} onClick={onSignOutButtonClick}>
           <Text {...styles.signOutText({ loading })}>Sign out</Text>
           <Spinner {...styles.signOutSpinner({ loading })} />
         </MenuItem>

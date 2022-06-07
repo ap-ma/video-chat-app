@@ -53,7 +53,8 @@ export function updateMessageCache(cache: ApolloCache<unknown>, messageChanged: 
           if (!included && !isNullish(messageChanged.latestMessage)) {
             const newLatestMessageRef = cache.writeFragment<LatestMessage>({
               data: messageChanged.latestMessage,
-              fragment: LatestMessageFieldsFragmentDoc
+              fragment: LatestMessageFieldsFragmentDoc,
+              fragmentName: 'LatestMessageFields'
             })
             existingLatestMessages = [newLatestMessageRef, ...existingLatestMessages]
           }
@@ -113,7 +114,8 @@ export function updateMessageCache(cache: ApolloCache<unknown>, messageChanged: 
           if (!isNullish(messageChanged.message)) {
             const newMessageRef = cache.writeFragment<Message>({
               data: messageChanged.message,
-              fragment: MessageFieldsFragmentDoc
+              fragment: MessageFieldsFragmentDoc,
+              fragmentName: 'MessageFields'
             })
             existingChat = [newMessageRef, ...existingChat]
           }
@@ -206,7 +208,8 @@ export function updateContactCache(
         if (!included && !isNullish(contact.latestMessage)) {
           const newLatestMessageRef = cache.writeFragment<LatestMessage>({
             data: contact.latestMessage,
-            fragment: LatestMessageFieldsFragmentDoc
+            fragment: LatestMessageFieldsFragmentDoc,
+            fragmentName: 'LatestMessageFields'
           })
 
           // メッセージ一覧に最新メッセージを追加

@@ -34,5 +34,5 @@ export function useSetError<T>(
 
     return characteristic
   }, [errors])
-  /* eslint-enable react-hooks/exhaustive-deps  */
+  /* eslint-enable react-hooks/exhaustive-deps */
 }

@@ -58,7 +58,7 @@ export type PresenterProps = Omit<AvatarEditorProps, 'value'> & {
 }
 
 /** Presenter Component */
-const AvatarEditorPresenter = forwardRef<HTMLInputElement, PresenterProps>(
+const AvatarEditorPresenter = forwardRef<HTMLInputElement, Omit<PresenterProps, 'ref'>>(
   ({ avatar, onAvatarChangeButtonClick, clearAvatar, isDisabled, isInvalid, errorMessage, ...props }, ref) => (
     <FormControl id='avatar' isInvalid={isInvalid}>
       <Stack {...styles.container}>
@@ -91,7 +91,7 @@ const AvatarEditorContainer = forwardRef<HTMLInputElement, ContainerProps<Avatar
     const onAvatarChangeButtonClick = () => fileInputRef.current?.click()
     const [avatarSrc, setAvatarSrc] = useState<AvatarEditorProps['avatar']>(avatar)
 
-    const onChangeAvatar: AvatarEditorProps['onChange'] = (event) => {
+    const onAvatarChange: AvatarEditorProps['onChange'] = (event) => {
       if (!isNullish(onChange)) onChange(event)
       if (!isNullish(onEdit)) onEdit()
 
@@ -118,7 +118,7 @@ const AvatarEditorContainer = forwardRef<HTMLInputElement, ContainerProps<Avatar
       ref: useMergeRefs<HTMLInputElement>(ref, fileInputRef),
       avatar: avatarSrc,
       onAvatarChangeButtonClick,
-      onChange: onChangeAvatar,
+      onChange: onAvatarChange,
       clearAvatar,
       ...props
     })

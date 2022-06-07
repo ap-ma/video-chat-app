@@ -34,6 +34,16 @@ export const list = {
   borderColor: 'gray.200'
 } as const
 
+export const item = {
+  fontSize: 'sm',
+  pl: 6
+} as const
+
+export const signOut = {
+  fontSize: 'sm',
+  pl: 4
+} as const
+
 export const signOutText = ({ loading }: Pick<PresenterProps, 'loading'>): Record<string, unknown> =>
   ({
     d: !loading ? 'block' : 'none'

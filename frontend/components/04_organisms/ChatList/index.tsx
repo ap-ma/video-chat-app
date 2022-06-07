@@ -8,8 +8,8 @@ import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 import { toStr } from 'utils/general/helper'
 import { getLatestMessage } from 'utils/helper'
 
-/** LatestMessageList Props */
-export type LatestMessageListProps = ScrollbarProps & {
+/** ChatList Props */
+export type ChatListProps = ScrollbarProps & {
   /**
    * サイドバー onClose
    */
@@ -52,28 +52,28 @@ export type LatestMessageListProps = ScrollbarProps & {
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<LatestMessageListProps, 'onSbClose' | 'state' | 'query'> & {
-  latestMessageList?: (ContactCardProps & { key: Unbox<LatestMessagesQuery['latestMessages']>['userId'] })[]
+export type PresenterProps = Omit<ChatListProps, 'onSbClose' | 'state' | 'query'> & {
+  chatList?: (ContactCardProps & { key: Unbox<LatestMessagesQuery['latestMessages']>['userId'] })[]
 }
 
 /** Presenter Component */
-const LatestMessageListPresenter: React.VFC<PresenterProps> = ({ latestMessageList, ...props }) => (
+const ChatListPresenter: React.VFC<PresenterProps> = ({ chatList, ...props }) => (
   <Scrollbar mt='0.25em' {...props}>
-    {latestMessageList?.map(({ key, ...latestMessage }) => (
+    {chatList?.map(({ key, ...latestMessage }) => (
       <ContactCard key={key} {...latestMessage} />
     ))}
   </Scrollbar>
 )
 
 /** Container Component */
-const LatestMessageListContainer: React.VFC<ContainerProps<LatestMessageListProps, PresenterProps>> = ({
+const ChatListContainer: React.VFC<ContainerProps<ChatListProps, PresenterProps>> = ({
   presenter,
   state: { contactInfoUserId },
   query: { me, latestMessages, contactInfo },
   onSbClose,
   ...props
 }) => {
-  const latestMessageList = latestMessages.result?.map((latestMessage) => ({
+  const chatList = latestMessages.result?.map((latestMessage) => ({
     key: latestMessage.userId,
     image: latestMessage.userAvatar ?? undefined,
     name: toStr(latestMessage.userName),
@@ -87,12 +87,8 @@ const LatestMessageListContainer: React.VFC<ContainerProps<LatestMessageListProp
     }
   }))
 
-  return presenter({ latestMessageList, ...props })
+  return presenter({ chatList, ...props })
 }
 
-/** LatestMessageList */
-export default connect<LatestMessageListProps, PresenterProps>(
-  'LatestMessageList',
-  LatestMessageListPresenter,
-  LatestMessageListContainer
-)
+/** ChatList */
+export default connect<ChatListProps, PresenterProps>('ChatList', ChatListPresenter, ChatListContainer)

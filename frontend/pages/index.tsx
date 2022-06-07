@@ -69,12 +69,24 @@ const Index: NextPage = () => {
   }
 
   //  ----------------------------------------------------------------------------
-  //  Local State
+  //  Not in props
+  //  ----------------------------------------------------------------------------
+
+  // コンタクト情報 LazyQuery
+  const [contactInfo, contactInfoLazyQuery] = useContactInfoLazyQuery({ fetchPolicy: 'network-only' })
+  handle(contactInfoLazyQuery.error, handler)
+
+  // メッセージ既読
+  const [readMessages, readMessagesMutation] = useReadMessagesMutation()
+  handle(readMessagesMutation.error, handler)
+
+  //  ----------------------------------------------------------------------------
+  //  State Props
   //  ----------------------------------------------------------------------------
   const contactInfoUserId = contactInfoUserIdVar()
 
   //  ----------------------------------------------------------------------------
-  //  Query
+  //  Query Props
   //  ----------------------------------------------------------------------------
 
   // ユーザー情報
@@ -94,20 +106,21 @@ const Index: NextPage = () => {
 
   // コンタクト情報
   const contactInfoQuery = useContactInfoQuery({
-    variables: { contactUserId: contactInfoUserId, limit: CHAT_LENGTH }
+    variables: { contactUserId: contactInfoUserId, limit: CHAT_LENGTH },
+    onCompleted: ({ contactInfo }) => {
+      if (!contactInfo.blocked) {
+        readMessages({ variables: { otherUserId: contactInfo.userId } }).catch(toast('UnexpectedError'))
+      }
+    }
   })
   handle(contactInfoQuery.error, handler)
-
-  // コンタクト情報 Lazy
-  const [contactInfo, contactInfoLazyQuery] = useContactInfoLazyQuery({ fetchPolicy: 'network-only' })
-  handle(contactInfoLazyQuery.error, handler)
 
   // ユーザー検索
   const [searchUser, searchUserLazyQuery] = useSearchUserLazyQuery({ fetchPolicy: 'network-only' })
   handle(searchUserLazyQuery.error, handler)
 
   //  ----------------------------------------------------------------------------
-  //  Mutation
+  //  Mutation Props
   //  ----------------------------------------------------------------------------
 
   // サインアウト
@@ -155,10 +168,6 @@ const Index: NextPage = () => {
   })
   const deleteMessageResult = handle(deleteMessageMutation.error, handler)
 
-  // メッセージ既読
-  const [readMessages, readMessagesMutation] = useReadMessagesMutation()
-  const readMessagesResult = handle(readMessagesMutation.error, handler)
-
   // コンタクト申請
   const [applyContact, applyContactMutation] = useApplyContactMutation({
     update: (cache, { data }) => !isNullish(data) && updateMessageCache(cache, data.applyContact)
@@ -195,7 +204,7 @@ const Index: NextPage = () => {
     update: (cache, { data }) => !isNullish(data) && updateContactCache(cache, data.unblockContact, 'ADD'),
     onCompleted: ({ unblockContact }) => {
       if (contactInfoUserId === unblockContact.userId) {
-        readMessages({ variables: { otherUserId: unblockContact.userId } }).catch(toast('ValidationError'))
+        readMessages({ variables: { otherUserId: unblockContact.userId } }).catch(toast('UnexpectedError'))
       }
     }
   })
@@ -214,7 +223,7 @@ const Index: NextPage = () => {
       updateMessageCache(client.cache, messageChanged)
       if (isApproveContact(messageChanged)) contactsQuery.refetch()
       if (contactInfoUserId === messageChanged.txUserId) {
-        readMessages({ variables: { otherUserId: messageChanged.txUserId } }).catch(toast('ValidationError'))
+        readMessages({ variables: { otherUserId: messageChanged.txUserId } }).catch(toast('UnexpectedError'))
       }
     }
   })
@@ -291,6 +300,7 @@ const Index: NextPage = () => {
         mutate: sendMessage
       },
       sendImage: {
+        result: sendImageMutation.data?.sendImage,
         loading: sendImageMutation.loading,
         errors: isValidationErrors(sendImageResult) ? sendImageResult : undefined,
         reset: sendImageMutation.reset,
@@ -301,12 +311,6 @@ const Index: NextPage = () => {
         errors: isValidationErrors(deleteMessageResult) ? deleteMessageResult : undefined,
         reset: deleteMessageMutation.reset,
         mutate: deleteMessage
-      },
-      readMessages: {
-        loading: readMessagesMutation.loading,
-        errors: isValidationErrors(readMessagesResult) ? readMessagesResult : undefined,
-        reset: readMessagesMutation.reset,
-        mutate: readMessages
       },
       applyContact: {
         result: applyContactMutation.data?.applyContact,

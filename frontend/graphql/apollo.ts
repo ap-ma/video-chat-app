@@ -28,8 +28,9 @@ function createCache() {
   return new InMemoryCache({
     typePolicies: {
       Contact: { keyFields: ['id', 'userId'], fields: { chat: cursorPagination() } },
-      ChatHistory: { keyFields: ['userId'] },
-      MessageChanged: { keyFields: ['txUserId', 'rxUserId'] }
+      LatestMessage: { keyFields: ['userId'] },
+      MessageChanged: { keyFields: false },
+      CallEvent: { keyFields: false }
     }
   })
 }

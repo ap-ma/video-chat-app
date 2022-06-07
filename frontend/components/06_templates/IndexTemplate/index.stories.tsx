@@ -10,6 +10,7 @@ import {
   userId
 } from '.storybook/dummies'
 /* eslint-enable import/no-unresolved  */
+import { NetworkStatus } from '@apollo/client'
 import { Meta, Story } from '@storybook/react'
 import { CONTACT } from 'const'
 import {
@@ -33,6 +34,8 @@ import {
   EditProfileMutationVariables,
   ReadMessagesMutation,
   ReadMessagesMutationVariables,
+  SendImageMutation,
+  SendImageMutationVariables,
   SendMessageMutation,
   SendMessageMutationVariables,
   SignOutMutation,
@@ -66,6 +69,7 @@ type IndexTemplateStoryProps = IndexTemplateProps & {
   changePasswordLoading: MutaionLoading
   deleteAccountLoading: MutaionLoading
   sendMessageLoading: MutaionLoading
+  sendImageLoading: MutaionLoading
   deleteMessageLoading: MutaionLoading
   readMessagesLoading: MutaionLoading
   applyContactLoading: MutaionLoading
@@ -90,6 +94,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
   changePasswordLoading,
   deleteAccountLoading,
   sendMessageLoading,
+  sendImageLoading,
   deleteMessageLoading,
   readMessagesLoading,
   applyContactLoading,
@@ -165,6 +170,12 @@ const Template: Story<IndexTemplateStoryProps> = ({
     SendMessageMutationVariables
   >('SendMessage', undefined, sendMessageLoading)
 
+  const sendImage = dummyMutation<SendImageMutation['sendImage'], SendImageMutation, SendImageMutationVariables>(
+    'SendImage',
+    undefined,
+    sendImageLoading
+  )
+
   const deleteMessage = dummyMutation<
     DeleteMessageMutation['deleteMessage'],
     DeleteMessageMutation,
@@ -220,6 +231,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
     changePassword,
     deleteAccount,
     sendMessage,
+    sendImage,
     deleteMessage,
     readMessages,
     applyContact,
@@ -242,18 +254,10 @@ export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'
 Primary.argTypes = {
   contactIntoNetworkStatus: {
-    options: [1, 2, 3, 4, 6, 7, 8],
+    options: Object.values(NetworkStatus),
     control: {
       type: 'select',
-      labels: {
-        1: 'loading',
-        2: 'setVariables',
-        3: 'fetchMore',
-        4: 'refetch',
-        6: 'poll',
-        7: 'ready',
-        8: 'error'
-      }
+      labels: Object.fromEntries(Object.entries(NetworkStatus).filter(([key]) => isFinite(Number(key))))
     }
   },
   contactInfoStatus: {
@@ -264,7 +268,7 @@ Primary.argTypes = {
 Primary.args = {
   meLoading: false,
   contactInfoLoading: false,
-  contactIntoNetworkStatus: 7,
+  contactIntoNetworkStatus: NetworkStatus.ready,
   contactInfoStatus: CONTACT.STATUS.APPROVED,
   contactInfoBlocked: false,
   searchUserLoading: false,
@@ -274,6 +278,7 @@ Primary.args = {
   changePasswordLoading: false,
   deleteAccountLoading: false,
   sendMessageLoading: false,
+  sendImageLoading: false,
   deleteMessageLoading: false,
   readMessagesLoading: false,
   applyContactLoading: false,

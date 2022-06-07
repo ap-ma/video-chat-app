@@ -150,7 +150,7 @@ export type PresenterProps = HeaderProps & {
   cecdDisc: Disclosure
   cpfDisc: Disclosure
   cpcdDisc: Disclosure
-  dadDisc: Disclosure
+  dacdDisc: Disclosure
 }
 
 /** Presenter Component */
@@ -165,7 +165,7 @@ const HeaderPresenter: React.VFC<PresenterProps> = ({
   cecdDisc,
   cpfDisc,
   cpcdDisc,
-  dadDisc,
+  dacdDisc,
   ...props
 }) => (
   <Flex {...styles.root} {...props}>
@@ -179,7 +179,7 @@ const HeaderPresenter: React.VFC<PresenterProps> = ({
         onEpfOpen={epfDisc.onOpen}
         onCefOpen={cefDisc.onOpen}
         onCpfOpen={cpfDisc.onOpen}
-        onDadOpen={dadDisc.onOpen}
+        onDadOpen={dacdDisc.onOpen}
       />
     </HStack>
     <EditProfileForm query={{ me }} mutation={{ editProfile }} isOpen={epfDisc.isOpen} onClose={epfDisc.onClose} />
@@ -187,7 +187,7 @@ const HeaderPresenter: React.VFC<PresenterProps> = ({
     <ChangeEmailCompleteDialog isOpen={cecdDisc.isOpen} onClose={cecdDisc.onClose} />
     <ChangePasswordForm mutation={{ changePassword }} isOpen={cpfDisc.isOpen} onClose={cpfDisc.onClose} />
     <ChangePasswordCompleteDialog isOpen={cpcdDisc.isOpen} onClose={cpcdDisc.onClose} />
-    <DeleteAccountConfirmDialog mutation={{ deleteAccount }} isOpen={dadDisc.isOpen} onClose={dadDisc.onClose} />
+    <DeleteAccountConfirmDialog mutation={{ deleteAccount }} isOpen={dacdDisc.isOpen} onClose={dacdDisc.onClose} />
     <SearchUser
       state={{ contactInfoUserId }}
       query={{ contactInfo, searchUser }}
@@ -249,8 +249,8 @@ const HeaderContainer: React.VFC<ContainerProps<HeaderProps, PresenterProps>> = 
     }
   }, [onCpfClose, onCpcdOpen, changePasswordResult])
 
-  // DeleteAccount dialog
-  const dadDisc = useDisclosure()
+  // DeleteAccountConfirmDialog modal
+  const dacdDisc = useDisclosure()
 
   return presenter({
     query,
@@ -261,7 +261,7 @@ const HeaderContainer: React.VFC<ContainerProps<HeaderProps, PresenterProps>> = 
     cecdDisc,
     cpfDisc,
     cpcdDisc,
-    dadDisc,
+    dacdDisc,
     ...props
   })
 }

@@ -1,6 +1,8 @@
 import { Flex, FlexProps, useDisclosure } from '@chakra-ui/react'
 import Chat from 'components/04_organisms/Chat'
 import ContactInfo from 'components/04_organisms/ContactInfo'
+import ApplyContactConfirmDialog from 'components/04_organisms/dialogs/ApplyContactConfirmDialog'
+import ApproveContactConfirmDialog from 'components/04_organisms/dialogs/ApproveContactConfirmDialog'
 import BlockContactConfirmDialog from 'components/04_organisms/dialogs/BlockContactConfirmDialog'
 import DeleteContactConfirmDialog from 'components/04_organisms/dialogs/DeleteContactConfirmDialog'
 import UnblockContactConfirmDialog from 'components/04_organisms/dialogs/UnblockContactConfirmDialog'
@@ -20,8 +22,7 @@ import {
   DeleteContactMutationVariables,
   DeleteMessageMutation,
   DeleteMessageMutationVariables,
-  ReadMessagesMutation,
-  ReadMessagesMutationVariables,
+  MeQuery,
   SendImageMutation,
   SendImageMutationVariables,
   SendMessageMutation,
@@ -53,6 +54,12 @@ export type MainProps = FlexProps & {
    */
   query: {
     /**
+     * サインインユーザー情報
+     */
+    me: {
+      result?: MeQuery['me']
+    }
+    /**
      *  コンタクト情報
      */
     contactInfo: {
@@ -79,6 +86,7 @@ export type MainProps = FlexProps & {
      * 画像送信
      */
     sendImage: {
+      result?: SendImageMutation['sendImage']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
@@ -92,15 +100,6 @@ export type MainProps = FlexProps & {
       errors?: ValidationErrors
       reset: MutaionReset
       mutate: MutateFunction<DeleteMessageMutation, DeleteMessageMutationVariables>
-    }
-    /**
-     * メッセージ既読
-     */
-    readMessages: {
-      loading: MutaionLoading
-      errors?: ValidationErrors
-      reset: MutaionReset
-      mutate: MutateFunction<ReadMessagesMutation, ReadMessagesMutationVariables>
     }
     /**
      * コンタクト申請
@@ -167,21 +166,22 @@ export type MainProps = FlexProps & {
 
 /** Presenter Props */
 export type PresenterProps = MainProps & {
+  applyccdDisc: Disclosure
+  approveccdDisc: Disclosure
   mccdOpenDisc: Disclosure
-  dccdOpenDisc: Disclosure
-  udccdOpenDisc: Disclosure
-  bccdOpenDisc: Disclosure
-  ubccdOpenDisc: Disclosure
+  dccdDisc: Disclosure
+  udccdDisc: Disclosure
+  bccdDisc: Disclosure
+  ubccdDisc: Disclosure
 }
 
 /** Presenter Component */
 const MainPresenter: React.VFC<PresenterProps> = ({
-  query: { contactInfo },
+  query: { me, contactInfo },
   mutation: {
     sendMessage,
     sendImage,
     deleteMessage,
-    readMessages,
     applyContact,
     approveContact,
     deleteContact,
@@ -189,95 +189,155 @@ const MainPresenter: React.VFC<PresenterProps> = ({
     blockContact,
     unblockContact
   },
+  applyccdDisc,
+  approveccdDisc,
   mccdOpenDisc,
-  dccdOpenDisc,
-  udccdOpenDisc,
-  bccdOpenDisc,
-  ubccdOpenDisc,
+  dccdDisc,
+  udccdDisc,
+  bccdDisc,
+  ubccdDisc,
   ...props
 }) => (
   <Flex {...styles.root} {...props}>
     <ContactInfo
       query={{ contactInfo }}
       onMccdOpen={mccdOpenDisc.onOpen}
-      onDccdOpen={dccdOpenDisc.onOpen}
-      onUdccdOpen={udccdOpenDisc.onOpen}
-      onBccdOpen={bccdOpenDisc.onOpen}
-      onUbccdOpen={ubccdOpenDisc.onOpen}
+      onDccdOpen={dccdDisc.onOpen}
+      onUdccdOpen={udccdDisc.onOpen}
+      onBccdOpen={bccdDisc.onOpen}
+      onUbccdOpen={ubccdDisc.onOpen}
     />
-    <Chat />
-    <SendMessageForm />
+    <Chat
+      onApplyccdOpen={applyccdDisc.onOpen}
+      onApproveccdOpen={approveccdDisc.onOpen}
+      onUbccdOpen={ubccdDisc.onOpen}
+      query={{ contactInfo }}
+      mutation={{ deleteMessage }}
+    />
+    <SendMessageForm onMccdOpen={mccdOpenDisc.onOpen} query={{ contactInfo }} mutation={{ sendMessage, sendImage }} />
+    <ApplyContactConfirmDialog
+      query={{ contactInfo }}
+      mutation={{ applyContact }}
+      isOpen={applyccdDisc.isOpen}
+      onClose={applyccdDisc.onClose}
+    />
+    <ApproveContactConfirmDialog
+      query={{ me, contactInfo }}
+      mutation={{ approveContact }}
+      isOpen={approveccdDisc.isOpen}
+      onClose={approveccdDisc.onClose}
+    />
     <DeleteContactConfirmDialog
       query={{ contactInfo }}
       mutation={{ deleteContact }}
-      isOpen={dccdOpenDisc.isOpen}
-      onClose={dccdOpenDisc.onClose}
+      isOpen={dccdDisc.isOpen}
+      onClose={dccdDisc.onClose}
     />
     <UndeleteContactConfirmDialog
       query={{ contactInfo }}
       mutation={{ undeleteContact }}
-      isOpen={udccdOpenDisc.isOpen}
-      onClose={udccdOpenDisc.onClose}
+      isOpen={udccdDisc.isOpen}
+      onClose={udccdDisc.onClose}
     />
     <BlockContactConfirmDialog
       query={{ contactInfo }}
       mutation={{ blockContact }}
-      isOpen={bccdOpenDisc.isOpen}
-      onClose={bccdOpenDisc.onClose}
+      isOpen={bccdDisc.isOpen}
+      onClose={bccdDisc.onClose}
     />
     <UnblockContactConfirmDialog
       query={{ contactInfo }}
       mutation={{ unblockContact }}
-      isOpen={ubccdOpenDisc.isOpen}
-      onClose={ubccdOpenDisc.onClose}
+      isOpen={ubccdDisc.isOpen}
+      onClose={ubccdDisc.onClose}
     />
   </Flex>
 )
 
 /** Container Component */
-const MainContainer: React.VFC<ContainerProps<MainProps, PresenterProps>> = ({ presenter, mutation, ...props }) => {
+const MainContainer: React.VFC<ContainerProps<MainProps, PresenterProps>> = ({
+  presenter,
+  query: { contactInfo, ...queryRest },
+  mutation: {
+    applyContact,
+    approveContact,
+    deleteContact,
+    undeleteContact,
+    blockContact,
+    unblockContact,
+    ...mutationRest
+  },
+  ...props
+}) => {
   // MakeCallConfirmDialog modal
   const mccdOpenDisc = useDisclosure()
 
+  // ApplyContactConfirmDialog modal
+  const applyccdDisc = useDisclosure()
+  const onApplyccdClose = applyccdDisc.onClose
+  const applyContactResult = applyContact.result
+  useMemo(() => {
+    if (hasValue(applyContactResult)) onApplyccdClose()
+  }, [onApplyccdClose, applyContactResult])
+
+  // ApproveContactConfirmDialog modal
+  const approveccdDisc = useDisclosure()
+  const onApproveccdClose = approveccdDisc.onClose
+  const approveContactResult = approveContact.result
+  useMemo(() => {
+    if (hasValue(approveContactResult)) onApproveccdClose()
+  }, [onApproveccdClose, approveContactResult])
+
   // DeleteContactConfirmDialog modal
-  const dccdOpenDisc = useDisclosure()
-  const onDccdClose = dccdOpenDisc.onClose
-  const deleteContactResult = mutation.deleteContact.result
+  const dccdDisc = useDisclosure()
+  const onDccdClose = dccdDisc.onClose
+  const deleteContactResult = deleteContact.result
   useMemo(() => {
     if (hasValue(deleteContactResult)) onDccdClose()
   }, [onDccdClose, deleteContactResult])
 
   // UndeleteContactConfirmDialog modal
-  const udccdOpenDisc = useDisclosure()
-  const onUdccdClose = udccdOpenDisc.onClose
-  const undeleteContactResult = mutation.undeleteContact.result
+  const udccdDisc = useDisclosure()
+  const onUdccdClose = udccdDisc.onClose
+  const undeleteContactResult = undeleteContact.result
   useMemo(() => {
     if (hasValue(undeleteContactResult)) onUdccdClose()
   }, [onUdccdClose, undeleteContactResult])
 
   // BlockContactConfirmDialog modal
-  const bccdOpenDisc = useDisclosure()
-  const onBccdClose = bccdOpenDisc.onClose
-  const blockContactResult = mutation.blockContact.result
+  const bccdDisc = useDisclosure()
+  const onBccdClose = bccdDisc.onClose
+  const blockContactResult = blockContact.result
   useMemo(() => {
     if (hasValue(blockContactResult)) onBccdClose()
   }, [onBccdClose, blockContactResult])
 
   // UnblockContactConfirmDialog modal
-  const ubccdOpenDisc = useDisclosure()
-  const onUbccdClose = ubccdOpenDisc.onClose
-  const unblockContactResult = mutation.unblockContact.result
+  const ubccdDisc = useDisclosure()
+  const onUbccdClose = ubccdDisc.onClose
+  const unblockContactResult = unblockContact.result
   useMemo(() => {
     if (hasValue(unblockContactResult)) onUbccdClose()
   }, [onUbccdClose, unblockContactResult])
 
   return presenter({
-    mutation,
+    query: { contactInfo, ...queryRest },
+    mutation: {
+      applyContact,
+      approveContact,
+      deleteContact,
+      undeleteContact,
+      blockContact,
+      unblockContact,
+      ...mutationRest
+    },
+    applyccdDisc,
+    approveccdDisc,
     mccdOpenDisc,
-    dccdOpenDisc,
-    udccdOpenDisc,
-    bccdOpenDisc,
-    ubccdOpenDisc,
+    dccdDisc,
+    udccdDisc,
+    bccdDisc,
+    ubccdDisc,
     ...props
   })
 }

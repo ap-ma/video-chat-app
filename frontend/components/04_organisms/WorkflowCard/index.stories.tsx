@@ -7,33 +7,45 @@ import { CONTACT } from 'const'
 import React from 'react'
 import { QueryNetworkStatus } from 'types'
 import { includes } from 'utils/general/object'
-import ContactInfo, { ContactInfoProps } from './index'
+import WorkflowCard, { WorkflowCardProps } from './index'
 
 export default {
-  title: '04_organisms/ContactInfo',
-  component: ContactInfo
+  title: '04_organisms/WorkflowCard',
+  component: WorkflowCard
 } as Meta
 
-type ContactInfoStoryProps = ContactInfoProps & {
-  networkStatus: QueryNetworkStatus
-  status: number
-  blocked: boolean
+type WorkflowCardStoryProps = WorkflowCardProps & {
+  contactIntoNetworkStatus: QueryNetworkStatus
+  contactInfoStatus: number
+  contactInfoBlocked: boolean
 }
 
-const Template: Story<ContactInfoStoryProps> = ({ networkStatus, status, blocked, ...props }) => {
+const Template: Story<WorkflowCardStoryProps> = ({
+  contactIntoNetworkStatus,
+  contactInfoStatus,
+  contactInfoBlocked,
+  ...props
+}) => {
+  // query
   const contactInfo = dummyContactInfo(
     userId,
     otherUserId,
-    status,
-    blocked,
+    contactInfoStatus,
+    contactInfoBlocked,
     50,
     (i) => `chat message${i}`,
-    !includes(networkStatus, NetworkStatus.loading, NetworkStatus.fetchMore, NetworkStatus.refetch, NetworkStatus.poll),
-    networkStatus
+    !includes(
+      contactIntoNetworkStatus,
+      NetworkStatus.loading,
+      NetworkStatus.fetchMore,
+      NetworkStatus.refetch,
+      NetworkStatus.poll
+    ),
+    contactIntoNetworkStatus
   )
   const query = { contactInfo }
 
-  return <ContactInfo {...{ ...props, query }} />
+  return <WorkflowCard {...{ ...props, query }} />
 }
 
 const contactStatusLabels: Record<number, string> = {}
@@ -44,20 +56,20 @@ Object.entries(CONTACT.STATUS).forEach(([key, value]) => {
 export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'
 Primary.argTypes = {
-  networkStatus: {
+  contactIntoNetworkStatus: {
     options: Object.values(NetworkStatus),
     control: {
       type: 'select',
       labels: Object.fromEntries(Object.entries(NetworkStatus).filter(([key]) => isFinite(Number(key))))
     }
   },
-  status: {
+  contactInfoStatus: {
     options: Object.values(CONTACT.STATUS),
     control: { type: 'select', labels: contactStatusLabels }
   }
 }
 Primary.args = {
-  networkStatus: NetworkStatus.ready,
-  status: CONTACT.STATUS.APPROVED,
-  blocked: false
+  contactIntoNetworkStatus: NetworkStatus.ready,
+  contactInfoStatus: CONTACT.STATUS.APPROVED,
+  contactInfoBlocked: false
 }

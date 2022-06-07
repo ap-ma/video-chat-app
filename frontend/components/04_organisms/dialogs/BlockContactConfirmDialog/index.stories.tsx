@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-import { dummyMutation } from '.storybook/dummies'
+import { contactInfo, dummyMutation } from '.storybook/dummies'
 /* eslint-enable import/no-unresolved  */
 import { Meta, Story } from '@storybook/react'
 import { BlockContactMutation, BlockContactMutationVariables } from 'graphql/generated'
@@ -18,13 +18,18 @@ type BlockContactConfirmDialogStoryProps = BlockContactConfirmDialogProps & {
 }
 
 const Template: Story<BlockContactConfirmDialogStoryProps> = ({ loading, ...props }) => {
+  // query
+  const query = { contactInfo }
+
+  // mutation
   const blockContact = dummyMutation<
     BlockContactMutation['blockContact'],
     BlockContactMutation,
     BlockContactMutationVariables
   >('BlockContact', undefined, loading)
   const mutation = { blockContact }
-  return <BlockContactConfirmDialog {...{ ...props, mutation }} />
+
+  return <BlockContactConfirmDialog {...{ ...props, query, mutation }} />
 }
 
 export const Primary = Template.bind({})

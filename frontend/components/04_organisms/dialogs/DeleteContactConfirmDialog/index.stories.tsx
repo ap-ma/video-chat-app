@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-import { dummyMutation } from '.storybook/dummies'
+import { contactInfo, dummyMutation } from '.storybook/dummies'
 /* eslint-enable import/no-unresolved  */
 import { Meta, Story } from '@storybook/react'
 import { DeleteContactMutation, DeleteContactMutationVariables } from 'graphql/generated'
@@ -18,13 +18,18 @@ type DeleteContactConfirmDialogStoryProps = DeleteContactConfirmDialogProps & {
 }
 
 const Template: Story<DeleteContactConfirmDialogStoryProps> = ({ loading, ...props }) => {
+  // query
+  const query = { contactInfo }
+
+  // mutation
   const deleteContact = dummyMutation<
     DeleteContactMutation['deleteContact'],
     DeleteContactMutation,
     DeleteContactMutationVariables
   >('DeleteContact', undefined, loading)
   const mutation = { deleteContact }
-  return <DeleteContactConfirmDialog {...{ ...props, mutation }} />
+
+  return <DeleteContactConfirmDialog {...{ ...props, query, mutation }} />
 }
 
 export const Primary = Template.bind({})

@@ -1,3 +1,4 @@
+import { NetworkStatus } from '@apollo/client'
 import {
   Avatar,
   Box,
@@ -16,7 +17,7 @@ import { CONTACT } from 'const'
 import { ContactInfoQuery } from 'graphql/generated'
 import React from 'react'
 import { AiOutlineMenu, AiOutlinePhone } from 'react-icons/ai'
-import { ContainerProps, OnOpen, QueryLoading } from 'types'
+import { ContainerProps, OnOpen, QueryLoading, QueryNetworkStatus } from 'types'
 import { toStr } from 'utils/general/helper'
 import * as styles from './styles'
 
@@ -51,7 +52,7 @@ export type ContactInfoProps = FlexProps & {
      */
     contactInfo: {
       result?: ContactInfoQuery['contactInfo']
-      loading: QueryLoading
+      networkStatus: QueryNetworkStatus
     }
   }
 }
@@ -117,7 +118,7 @@ const ContactInfoContainer: React.VFC<ContainerProps<ContactInfoProps, Presenter
   ...props
 }) => {
   // status
-  const loading = contactInfo.loading
+  const loading = NetworkStatus.refetch === contactInfo.networkStatus
   const disabled = CONTACT.STATUS.UNAPPROVED === contactInfo.result?.status || loading
   const approved = CONTACT.STATUS.APPROVED === contactInfo.result?.status
   const deleted = CONTACT.STATUS.DELETED === contactInfo.result?.status

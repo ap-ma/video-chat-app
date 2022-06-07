@@ -168,8 +168,8 @@ const EditProfileFormPresenter: React.VFC<PresenterProps> = ({
 /** Container Component */
 const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, PresenterProps>> = ({
   presenter,
-  query: { me },
   onClose: onEpfClose,
+  query: { me },
   mutation: { editProfile },
   ...props
 }) => {

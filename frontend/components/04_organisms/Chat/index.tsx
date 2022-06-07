@@ -1,48 +1,84 @@
-import { Avatar, Box, Flex, FlexProps, Icon, Text } from '@chakra-ui/react'
+import { Box, BoxProps } from '@chakra-ui/react'
+import WorkflowCard from 'components/04_organisms/WorkflowCard'
 import { connect } from 'components/hoc'
+import {
+  ContactInfoQuery,
+  ContactInfoQueryVariables,
+  DeleteMessageMutation,
+  DeleteMessageMutationVariables
+} from 'graphql/generated'
 import React from 'react'
-import { IoSettingsOutline } from 'react-icons/io5'
-import { ContainerProps } from 'types'
+import {
+  ContainerProps,
+  MutaionLoading,
+  MutaionReset,
+  MutateFunction,
+  OnOpen,
+  QueryFetchMore,
+  QueryLoading,
+  QueryNetworkStatus,
+  ValidationErrors
+} from 'types'
 
 /** Chat Props */
-export type ChatProps = FlexProps
+export type ChatProps = BoxProps & {
+  /**
+   * コンタクト申請ダイアログ onOpen
+   */
+  onApplyccdOpen: OnOpen
+  /**
+   * コンタクト承認ダイアログ onOpen
+   */
+  onApproveccdOpen: OnOpen
+  /**
+   * コンタクトブロック解除ダイアログ onOpen
+   */
+  onUbccdOpen: OnOpen
+  /**
+   * Query
+   */
+  query: {
+    /**
+     *  コンタクト情報
+     */
+    contactInfo: {
+      result?: ContactInfoQuery['contactInfo']
+      loading: QueryLoading
+      networkStatus: QueryNetworkStatus
+      fetchMore: QueryFetchMore<ContactInfoQuery, ContactInfoQueryVariables>
+    }
+  }
+  /**
+   * Mutation
+   */
+  mutation: {
+    /**
+     * メッセージ削除
+     */
+    deleteMessage: {
+      loading: MutaionLoading
+      errors?: ValidationErrors
+      reset: MutaionReset
+      mutate: MutateFunction<DeleteMessageMutation, DeleteMessageMutationVariables>
+    }
+  }
+}
+
 /** Presenter Props */
 export type PresenterProps = ChatProps
 
 /** Presenter Component */
-const ChatPresenter: React.VFC<PresenterProps> = ({ ...props }) => (
-  <Flex
-    {...{
-      align: 'center',
-      py: '4',
-      px: '6',
-      role: 'group',
-      flex: 'auto'
-    }}
-  >
-    <Avatar
-      size='md'
-      src='https://1.bp.blogspot.com/-00OxkKkBAFk/XzXk2V2J6sI/AAAAAAABamk/bQcMCNYq5XkGs5aEGUoU1dkBdoAg7pocACNcBGAsYHQ/s1600/gao_pose_woman.png'
-    />
-    <Box ml='3' overflow='hidden'>
-      <Text
-        {...{
-          fontWeight: 'bold',
-          overflow: 'hidden',
-          whiteSpace: 'nowrap',
-          textOverflow: 'ellipsis'
-        }}
-      >
-        Joenny
-      </Text>
-      <Text
-        {...{ fontSize: 'sm', color: 'gray.600', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}
-      >
-        {"i'm fine"}
-      </Text>
-    </Box>
-    <Icon ml='auto' w={5} h={5} as={IoSettingsOutline} />
-  </Flex>
+const ChatPresenter: React.VFC<PresenterProps> = ({
+  query: { contactInfo },
+  mutation: { deleteMessage },
+  onApplyccdOpen,
+  onApproveccdOpen,
+  onUbccdOpen,
+  ...props
+}) => (
+  <Box {...{ h: '100%', align: 'center' }}>
+    <WorkflowCard {...{ onApplyccdOpen, onApproveccdOpen, onUbccdOpen }} query={{ contactInfo }} />
+  </Box>
 )
 
 /** Container Component */

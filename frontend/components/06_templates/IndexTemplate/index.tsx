@@ -31,8 +31,6 @@ import {
   LatestMessagesQueryVariables,
   MeQuery,
   MeQueryVariables,
-  ReadMessagesMutation,
-  ReadMessagesMutationVariables,
   SearchUserQuery,
   SearchUserQueryVariables,
   SendImageMutation,
@@ -186,6 +184,7 @@ export type IndexTemplateProps = {
      * 画像送信
      */
     sendImage: {
+      result?: SendImageMutation['sendImage']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
@@ -199,15 +198,6 @@ export type IndexTemplateProps = {
       errors?: ValidationErrors
       reset: MutaionReset
       mutate: MutateFunction<DeleteMessageMutation, DeleteMessageMutationVariables>
-    }
-    /**
-     * メッセージ既読
-     */
-    readMessages: {
-      loading: MutaionLoading
-      errors?: ValidationErrors
-      reset: MutaionReset
-      mutate: MutateFunction<ReadMessagesMutation, ReadMessagesMutationVariables>
     }
     /**
      * コンタクト申請
@@ -290,7 +280,6 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
     sendMessage,
     sendImage,
     deleteMessage,
-    readMessages,
     applyContact,
     approveContact,
     deleteContact,
@@ -321,12 +310,11 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
         mutation={{ signOut, editProfile, changeEmail, changePassword, deleteAccount }}
       />
       <Main
-        query={{ contactInfo }}
+        query={{ me, contactInfo }}
         mutation={{
           sendMessage,
           sendImage,
           deleteMessage,
-          readMessages,
           applyContact,
           approveContact,
           deleteContact,

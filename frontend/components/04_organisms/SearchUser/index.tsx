@@ -165,7 +165,7 @@ const SearchUserContainer: React.VFC<ContainerProps<SearchUserProps, PresenterPr
     result = {
       image: toStr(user.avatar),
       name: toStr(user.name),
-      note: `code: ${user.code}`,
+      note: toStr(user.comment),
       button: {
         children: 'Open',
         onClick: () => {
