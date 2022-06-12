@@ -1,6 +1,7 @@
 # 開発環境
 FROM node:16 as developer
 WORKDIR /app
+RUN npm install -g npm@8.5.5
 RUN ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 
 # ビルド環境
