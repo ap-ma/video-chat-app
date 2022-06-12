@@ -1,24 +1,48 @@
+/* eslint-disable import/no-unresolved */
+import { chakraColors } from '.storybook/const'
+import { container } from '.storybook/decorators'
+/* eslint-enable import/no-unresolved  */
 import { Meta, Story } from '@storybook/react/types-6-0'
 import React from 'react'
+import { NonEmptyArray } from 'types'
 import Balloon, { BalloonProps } from './index'
 
 export default {
   title: '01_atoms/Balloon',
-  component: Balloon
+  component: Balloon,
+  decorators: [(Story) => container({ margin: '50px' })(Story())]
 } as Meta
 
-export const Primary: Story<BalloonProps> = ({ children }) => <Balloon>{children}</Balloon>
+const triangleMarkPositions: NonEmptyArray<BalloonProps['triangleMarkPosition']> = ['left', 'right', 'none']
+
+const Template: Story<BalloonProps> = ({ children, ...props }) => <Balloon {...props}>{children}</Balloon>
+
+export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'
+Primary.argTypes = {
+  triangleMarkPosition: { control: { type: 'select' }, options: triangleMarkPositions },
+  bgColor: { control: 'color' },
+  textColor: { control: 'color' }
+}
 Primary.args = {
-  children: 'バルーン'
+  triangleMarkPosition: 'none',
+  bgColor: '#4299E1',
+  textColor: '#ffffff',
+  autoSizing: false,
+  children: 'テキストメッセージ'
 }
 
-export const AbsolutePosition: Story<BalloonProps & { position: number }> = ({ position }) => {
-  const content = `左上から ${position}px`
-  return <Balloon style={{ position: 'absolute', top: `${position}px`, left: `${position}px` }}>{content}</Balloon>
+export const Chat = Template.bind({})
+Chat.storyName = 'チャット'
+Chat.argTypes = {
+  triangleMarkPosition: { control: { type: 'select' }, options: triangleMarkPositions },
+  bgColor: { control: { type: 'select' }, options: chakraColors },
+  textColor: { control: { type: 'select' }, options: chakraColors }
 }
-AbsolutePosition.storyName = '絶対位置指定配置'
-AbsolutePosition.argTypes = { position: { control: 'number' } }
-AbsolutePosition.args = {
-  position: 100
+Chat.args = {
+  triangleMarkPosition: 'left',
+  bgColor: 'purple.400',
+  textColor: 'white',
+  autoSizing: true,
+  children: 'テキストメッセージ'
 }

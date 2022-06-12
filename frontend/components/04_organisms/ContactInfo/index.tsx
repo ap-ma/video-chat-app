@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react'
 import { connect } from 'components/hoc'
 import { CONTACT } from 'const'
-import { ContactInfoQuery } from 'graphql/generated'
+import { ContactInfoQuery, MeQuery } from 'graphql/generated'
 import React from 'react'
 import { AiOutlineMenu, AiOutlinePhone } from 'react-icons/ai'
 import { ContainerProps, OnOpen, QueryLoading, QueryNetworkStatus } from 'types'
@@ -48,6 +48,12 @@ export type ContactInfoProps = FlexProps & {
    */
   query: {
     /**
+     * サインインユーザー情報
+     */
+    me: {
+      result?: MeQuery['me']
+    }
+    /**
      *  コンタクト情報
      */
     contactInfo: {
@@ -58,7 +64,9 @@ export type ContactInfoProps = FlexProps & {
 }
 
 /** Presenter Props */
-export type PresenterProps = ContactInfoProps & {
+export type PresenterProps = Omit<ContactInfoProps, 'query'> & {
+  query: Omit<ContactInfoProps['query'], 'me'>
+} & {
   loading: QueryLoading
   disabled: boolean
   approved: boolean
@@ -114,12 +122,13 @@ const ContactInfoPresenter: React.VFC<PresenterProps> = ({
 /** Container Component */
 const ContactInfoContainer: React.VFC<ContainerProps<ContactInfoProps, PresenterProps>> = ({
   presenter,
-  query: { contactInfo },
+  query: { me, contactInfo },
   ...props
 }) => {
   // status
   const loading = NetworkStatus.refetch === contactInfo.networkStatus
-  const disabled = CONTACT.STATUS.UNAPPROVED === contactInfo.result?.status || loading
+  const disabled =
+    loading || me.result?.id === contactInfo.result?.userId || CONTACT.STATUS.UNAPPROVED === contactInfo.result?.status
   const approved = CONTACT.STATUS.APPROVED === contactInfo.result?.status
   const deleted = CONTACT.STATUS.DELETED === contactInfo.result?.status
   const notBlocked = CONTACT.STATUS.UNAPPROVED !== contactInfo.result?.status && !contactInfo.result?.blocked

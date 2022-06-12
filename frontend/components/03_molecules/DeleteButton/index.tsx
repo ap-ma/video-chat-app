@@ -1,5 +1,5 @@
 import { IconButton, IconButtonProps } from '@chakra-ui/react'
-import Baloon from 'components/01_atoms/Balloon'
+import Baloon from 'components/01_atoms/Bubble'
 import Tooltip, { Tip } from 'components/02_interactions/Tooltip'
 import { connect } from 'components/hoc'
 import React from 'react'

@@ -249,7 +249,7 @@ export function cursorPagination<TExisting extends Array<StoreObject | Reference
       let offset = offsetFromCursor(merged, cursorKey, args?.cursor, readField)
       if (offset < 0) offset = merged.length
       incoming.forEach((item, i) => (merged[offset + i] = item))
-      return merged as SafeReadonly<TExisting>
+      return getUniqueItems(merged, cursorKey, readField) as SafeReadonly<TExisting>
     }
   }
 }
@@ -275,4 +275,25 @@ function offsetFromCursor(
     }
   }
   return -1
+}
+
+/**
+ * 指定のリストから識別子の重複する要素を取り除き、新しい配列を生成して返す
+ *
+ * @param items - カーソルを探索する対象のリスト
+ * @param key - オブジェクト識別子のフィールド名
+ * @param readField - 正規化/非正規オブジェクトを問わず、指定フィールドを読み込めるヘルパ関数
+ * @returns 重複要素が取り除かれた配列
+ */
+function getUniqueItems(items: Array<StoreObject | Reference>, key: string, readField: ReadFieldFunction) {
+  const result = []
+  const map = new Map()
+  for (const item of items) {
+    const id = readField(key, item)
+    if (!map.get(id)) {
+      map.set(id, true)
+      result.push(item)
+    }
+  }
+  return result
 }

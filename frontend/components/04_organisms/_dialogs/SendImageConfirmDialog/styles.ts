@@ -13,7 +13,7 @@ export const text = ({ isInvalid }: Pick<PresenterProps, 'isInvalid'>): Record<s
 
 export const image = ({ isInvalid }: Pick<PresenterProps, 'isInvalid'>): Record<string, unknown> =>
   ({
-    mt: 2,
+    mt: 4,
     mx: 'auto',
     borderStyle: 'solid',
     borderWidth: '1px',

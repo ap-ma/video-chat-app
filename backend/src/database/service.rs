@@ -3,6 +3,7 @@ use super::schema::{
     calls, contacts, email_verification_tokens, messages, password_reset_tokens, users,
 };
 use crate::constant::{contact as contact_const, message as message_const, user as user_const};
+use chrono::Local;
 use diesel::prelude::*;
 use diesel::sql_types::{Bigint, Bool, Integer, Unsigned};
 
@@ -155,7 +156,10 @@ pub fn update_message_to_read(
         .filter(rx_user_id.eq(user_id))
         .filter(status.eq(message_const::status::UNREAD));
     diesel::update(target)
-        .set(status.eq(message_const::status::READ))
+        .set((
+            status.eq(message_const::status::READ),
+            updated_at.eq(Local::now().naive_local()),
+        ))
         .execute(conn)
 }
 

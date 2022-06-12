@@ -1,24 +1,55 @@
-import classnames from 'classnames'
+import { Box, BoxProps, Text, TextProps } from '@chakra-ui/react'
 import { connect } from 'components/hoc'
 import React from 'react'
-import { ContainerProps } from 'types'
+import { ChakraColors, ContainerProps } from 'types'
 import * as styles from './styles'
 
 /** Balloon Props */
-export type BalloonProps = JSX.IntrinsicElements['span']
+export type BalloonProps = Omit<BoxProps, 'children' | 'bgColor'> &
+  Pick<TextProps, 'children'> & {
+    /**
+     * 吹き出しの三角マークの位置
+     */
+    triangleMarkPosition: 'left' | 'right' | 'none'
+    /**
+     * 吹き出しの背景色
+     */
+    bgColor?: ChakraColors
+    /**
+     * 吹き出しの文字色
+     */
+    textColor?: ChakraColors
+    /**
+     * テキストに合わせて横幅を伸縮させるか否か
+     */
+    autoSizing?: boolean
+  }
+
 /** Presenter Props */
 export type PresenterProps = BalloonProps
 
 /** Presenter Component */
-const BalloonPresenter: React.VFC<PresenterProps> = ({ children, className, ...props }) => (
-  <span className={classnames(styles.root, className)} {...props}>
-    {children}
-  </span>
+const BalloonPresenter: React.VFC<PresenterProps> = ({
+  triangleMarkPosition,
+  bgColor,
+  textColor,
+  autoSizing,
+  children,
+  ...props
+}) => (
+  <Box {...styles.root({ triangleMarkPosition, bgColor, autoSizing })} {...props}>
+    <Text {...styles.content({ textColor })}>{children}</Text>
+  </Box>
 )
 
 /** Container Component */
-const BalloonContainer: React.VFC<ContainerProps<BalloonProps, PresenterProps>> = ({ presenter, ...props }) => {
-  return presenter({ ...props })
+const BalloonContainer: React.VFC<ContainerProps<BalloonProps, PresenterProps>> = ({
+  presenter,
+  bgColor = 'gray.50',
+  textColor = 'black',
+  ...props
+}) => {
+  return presenter({ bgColor, textColor, ...props })
 }
 
 /** Balloon */

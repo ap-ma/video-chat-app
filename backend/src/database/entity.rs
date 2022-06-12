@@ -33,6 +33,8 @@ pub struct NewUserEntity {
     pub avatar: Option<String>,
     pub role: i32,
     pub status: i32,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Identifiable, AsChangeset, Default)]
@@ -48,6 +50,7 @@ pub struct ChangeUserEntity {
     pub avatar: Option<Option<String>>,
     pub role: Option<i32>,
     pub status: Option<i32>,
+    pub updated_at: Option<NaiveDateTime>,
 }
 
 #[derive(Identifiable, Queryable, Associations)]
@@ -70,6 +73,8 @@ pub struct NewContactEntity {
     pub contact_user_id: u64,
     pub status: i32,
     pub blocked: bool,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Identifiable, AsChangeset, Default)]
@@ -80,6 +85,7 @@ pub struct ChangeContactEntity {
     pub contact_user_id: Option<u64>,
     pub status: Option<i32>,
     pub blocked: Option<bool>,
+    pub updated_at: Option<NaiveDateTime>,
 }
 
 #[derive(Identifiable, Queryable, QueryableByName)]
@@ -103,6 +109,8 @@ pub struct NewMessageEntity {
     pub category: i32,
     pub message: Option<String>,
     pub status: i32,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Identifiable, AsChangeset, Default)]
@@ -114,6 +122,7 @@ pub struct ChangeMessageEntity {
     pub category: Option<i32>,
     pub message: Option<Option<String>>,
     pub status: Option<i32>,
+    pub updated_at: Option<NaiveDateTime>,
 }
 
 #[derive(QueryableByName)]
@@ -165,6 +174,8 @@ pub struct CallEntity {
 pub struct NewCallEntity {
     pub message_id: u64,
     pub status: i32,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Identifiable, AsChangeset, Default)]
@@ -175,6 +186,7 @@ pub struct ChangeCallEntity {
     pub status: Option<i32>,
     pub started_at: Option<Option<NaiveDateTime>>,
     pub ended_at: Option<Option<NaiveDateTime>>,
+    pub updated_at: Option<NaiveDateTime>,
 }
 
 #[derive(Identifiable, Queryable)]

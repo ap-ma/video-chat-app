@@ -2,7 +2,7 @@
 import { withSytle } from '.storybook/decorators'
 /* eslint-enable import/no-unresolved  */
 import { Meta, Story } from '@storybook/react'
-import Balloon from 'components/01_atoms/Balloon'
+import Bubble from 'components/01_atoms/Bubble'
 import React from 'react'
 import Tooltip, { Marker, MarkerProps, Tip, TooltipProps } from './index'
 
@@ -52,7 +52,7 @@ MarkerHover.args = {
   tip: 'チップの内容'
 }
 
-export const BalloonHover: Story<TooltipStoryProps & { markerColor?: MarkerProps['mkColor'] }> = ({
+export const BubbleHover: Story<TooltipStoryProps & { markerColor?: MarkerProps['mkColor'] }> = ({
   content,
   tip,
   markerColor
@@ -63,16 +63,16 @@ export const BalloonHover: Story<TooltipStoryProps & { markerColor?: MarkerProps
       <Tooltip>
         <Marker mkColor={markerColor}>{content}</Marker>
         <Tip>
-          <Balloon>{tip}</Balloon>
+          <Bubble>{tip}</Bubble>
         </Tip>
       </Tooltip>
       を表示
     </p>
   )
 }
-BalloonHover.storyName = 'バルーン'
-BalloonHover.argTypes = { markerColor: { control: 'color' } }
-BalloonHover.args = {
+BubbleHover.storyName = 'バルーン'
+BubbleHover.argTypes = { markerColor: { control: 'color' } }
+BubbleHover.args = {
   content: 'バルーンチップ',
   tip: '注釈を記述',
   markerColor: '#9DECF9'

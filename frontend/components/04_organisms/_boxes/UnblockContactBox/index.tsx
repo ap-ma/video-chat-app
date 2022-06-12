@@ -1,23 +1,10 @@
 import { Box, Button, ButtonProps, Flex, FlexProps, Icon, Stack, Text } from '@chakra-ui/react'
 import toast from 'components/01_atoms/Toast'
 import { connect } from 'components/hoc'
-import {
-  ContactInfoQuery,
-  ContactInfoQueryVariables,
-  UnblockContactMutation,
-  UnblockContactMutationVariables
-} from 'graphql/generated'
+import { ContactInfoQuery, UnblockContactMutation, UnblockContactMutationVariables } from 'graphql/generated'
 import React from 'react'
 import { FiLock } from 'react-icons/fi'
-import {
-  ContainerProps,
-  MutaionLoading,
-  MutaionReset,
-  MutateFunction,
-  QueryFetchMore,
-  QueryLoading,
-  QueryNetworkStatus
-} from 'types'
+import { ContainerProps, MutaionLoading, MutaionReset, MutateFunction } from 'types'
 import { toStr } from 'utils/general/helper'
 import * as styles from './styles'
 
@@ -32,9 +19,6 @@ export type UnblockContactBoxProps = FlexProps & {
      */
     contactInfo: {
       result?: ContactInfoQuery['contactInfo']
-      loading: QueryLoading
-      networkStatus: QueryNetworkStatus
-      fetchMore: QueryFetchMore<ContactInfoQuery, ContactInfoQueryVariables>
     }
   }
   /**

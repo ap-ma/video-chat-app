@@ -1,25 +1,38 @@
 import { Box, BoxProps } from '@chakra-ui/react'
-import { connect } from 'components/hoc'
-import React from 'react'
+import { connectRef } from 'components/hoc'
+import React, { forwardRef, Ref } from 'react'
 import { ContainerProps } from 'types'
 import * as styles from './styles'
 
 /** Scrollbar Props */
 export type ScrollbarProps = BoxProps
+
 /** Presenter Props */
-export type PresenterProps = ScrollbarProps
-
-/** Presenter Component */
-const ScrollbarPresenter: React.VFC<PresenterProps> = ({ children, ...props }) => (
-  <Box {...styles.root} {...props}>
-    {children}
-  </Box>
-)
-
-/** Container Component */
-const ScrollbarContainer: React.VFC<ContainerProps<ScrollbarProps, PresenterProps>> = ({ presenter, ...props }) => {
-  return presenter({ ...props })
+export type PresenterProps = ScrollbarProps & {
+  ref: Ref<HTMLDivElement>
 }
 
+/** Presenter Component */
+const ScrollbarPresenter = forwardRef<HTMLDivElement, Omit<PresenterProps, 'ref'>>(({ children, ...props }, ref) => (
+  <Box {...styles.root} ref={ref} {...props}>
+    {children}
+  </Box>
+))
+
+/** Container Component */
+const ScrollbarContainer = forwardRef<HTMLDivElement, ContainerProps<ScrollbarProps, PresenterProps>>(
+  ({ presenter, ...props }, ref) => {
+    return presenter({ ref, ...props })
+  }
+)
+
+// display name
+ScrollbarPresenter.displayName = 'ScrollbarPresenter'
+ScrollbarContainer.displayName = 'ScrollbarContainer'
+
 /** Scrollbar */
-export default connect<ScrollbarProps, PresenterProps>('Scrollbar', ScrollbarPresenter, ScrollbarContainer)
+export default connectRef<HTMLDivElement, ScrollbarProps, PresenterProps>(
+  'Scrollbar',
+  ScrollbarPresenter,
+  ScrollbarContainer
+)

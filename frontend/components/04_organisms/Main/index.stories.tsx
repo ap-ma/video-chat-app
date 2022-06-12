@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-import { dummyContactInfo, dummyMutation, otherUserId, userId } from '.storybook/dummies'
+import { dummyContactInfo, dummyMutation, me, otherUserId, userId } from '.storybook/dummies'
 /* eslint-enable import/no-unresolved  */
 import { NetworkStatus } from '@apollo/client'
 import { Box } from '@chakra-ui/react'
@@ -91,7 +91,7 @@ const Template: Story<MainStoryProps> = ({
     contactIntoNetworkStatus
   )
 
-  const query = { contactInfo }
+  const query = { me, contactInfo }
 
   // mutation
   const sendMessage = dummyMutation<

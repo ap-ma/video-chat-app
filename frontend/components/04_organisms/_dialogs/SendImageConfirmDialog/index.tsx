@@ -84,7 +84,7 @@ const SendImageConfirmDialogPresenter: React.VFC<PresenterProps> = ({
 }) => (
   <Modal {...{ onClose, ...props }}>
     <ModalContent {...styles.content}>
-      <ModalBody pt='3' pb='5'>
+      <ModalBody py='5'>
         <AlertMessage error={errors} />
         <Text {...styles.text({ isInvalid })}>Would you like to send this image?</Text>
         <Image {...styles.image({ isInvalid })} src={imageSrc} />

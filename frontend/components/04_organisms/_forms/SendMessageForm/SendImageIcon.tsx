@@ -80,7 +80,7 @@ const SendImageFormPresenter = forwardRef<HTMLInputElement, Omit<PresenterProps,
         onClick={onImageIconClick}
         {...props}
       />
-      <Input {...styles.fileInput(ALLOWED_IMAGE_EXTS)} onChange={onImageChange} ref={ref} />
+      <Input {...styles.fileInput(ALLOWED_IMAGE_EXTS)} ref={ref} onChange={onImageChange} />
       <SendImageConfirmDialog
         {...{ isCentered, query, mutation, image }}
         isOpen={sicdDisc.isOpen}

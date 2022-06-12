@@ -32,11 +32,11 @@ export const panel = {
 } as const
 
 export const contacts = {
-  /* 全体 - (ヘッダー部 + tabボタン部 + 検索部 + padding部 + 余白部) */
+  // 全体 - (ヘッダー部 + tabボタン部 + 検索部 + padding部 + 余白部)
   h: 'calc(100vh - (var(--chakra-sizes-20) + 34px + 40px + 3.2px + 8px))'
 } as const
 
 export const messages = {
-  /* 全体 - (ヘッダー部 + tabボタン部 + padding部 + 余白部) */
+  // 全体 - (ヘッダー部 + tabボタン部 + padding部 + 余白部)
   h: 'calc(100vh - (var(--chakra-sizes-20) + 34px + 4px + 8px))'
 } as const

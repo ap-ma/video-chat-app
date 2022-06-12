@@ -72,6 +72,7 @@ impl Mutation {
             GraphqlError::ServerError(m.into(), e.to_string()).extend()
         })?;
 
+        let now = Local::now().naive_local();
         let new_user = NewUserEntity {
             code: input.code,
             name: Some(input.name),
@@ -81,6 +82,8 @@ impl Mutation {
             avatar: None,
             role: user_const::role::USER,
             status: user_const::status::UNVERIFIED,
+            created_at: now,
+            updated_at: now,
         };
 
         conn.transaction::<_, Error, _>(|| {
@@ -144,6 +147,7 @@ impl Mutation {
             name: Some(Some(input.name)),
             comment: Some(input.comment),
             avatar: None,
+            updated_at: Some(Local::now().naive_local()),
             ..Default::default()
         };
 
@@ -248,6 +252,7 @@ impl Mutation {
             id: user.id,
             email: Some(token_record.email),
             status: Some(user_const::status::ACTIVE),
+            updated_at: Some(Local::now().naive_local()),
             ..Default::default()
         };
 
@@ -299,6 +304,7 @@ impl Mutation {
         let change_user = ChangeUserEntity {
             id: identity.id,
             password: Some(password),
+            updated_at: Some(Local::now().naive_local()),
             ..Default::default()
         };
 
@@ -369,6 +375,7 @@ impl Mutation {
         let change_user = ChangeUserEntity {
             id: user.id,
             password: Some(password),
+            updated_at: Some(Local::now().naive_local()),
             ..Default::default()
         };
 
@@ -397,6 +404,7 @@ impl Mutation {
         let change_user = ChangeUserEntity {
             id: identity.id,
             status: Some(user_const::status::DELETED),
+            updated_at: Some(Local::now().naive_local()),
             ..Default::default()
         };
 
@@ -509,12 +517,15 @@ impl Mutation {
             return Err(e.extend());
         }
 
+        let now = Local::now().naive_local();
         let new_message = NewMessageEntity {
             tx_user_id: identity.id,
             rx_user_id: contact.contact_user_id,
             category: message_const::category::CALLING,
             message: None,
             status: message_const::status::UNREAD,
+            created_at: now,
+            updated_at: now,
         };
 
         let message = common::convert_query_result(
@@ -525,6 +536,8 @@ impl Mutation {
         let new_call = NewCallEntity {
             message_id: message.id,
             status: call_const::status::OFFER,
+            created_at: now,
+            updated_at: now,
         };
 
         let call = common::convert_query_result(
@@ -599,6 +612,7 @@ impl Mutation {
         let change_message = ChangeMessageEntity {
             id: message.id,
             status: Some(message_const::status::DELETED),
+            updated_at: Some(Local::now().naive_local()),
             ..Default::default()
         };
 
@@ -790,6 +804,7 @@ impl Mutation {
         let change_contact = ChangeContactEntity {
             id: contact.id,
             status: Some(contact_const::status::DELETED),
+            updated_at: Some(Local::now().naive_local()),
             ..Default::default()
         };
 
@@ -830,6 +845,7 @@ impl Mutation {
         let change_contact = ChangeContactEntity {
             id: contact.id,
             status: Some(contact_const::status::APPROVED),
+            updated_at: Some(Local::now().naive_local()),
             ..Default::default()
         };
 
@@ -869,6 +885,7 @@ impl Mutation {
         let change_contact = ChangeContactEntity {
             id: contact.id,
             blocked: Some(true),
+            updated_at: Some(Local::now().naive_local()),
             ..Default::default()
         };
 
@@ -909,6 +926,7 @@ impl Mutation {
         let change_contact = ChangeContactEntity {
             id: contact.id,
             blocked: Some(false),
+            updated_at: Some(Local::now().naive_local()),
             ..Default::default()
         };
 
@@ -929,11 +947,14 @@ impl Mutation {
 fn create_contact(user_id: u64, contact_user_id: u64, ctx: &Context<'_>) -> Result<ContactEntity> {
     let conn = common::get_conn(ctx)?;
 
+    let now = Local::now().naive_local();
     let new_contact = NewContactEntity {
         user_id: user_id,
         contact_user_id: contact_user_id,
         status: contact_const::status::APPROVED,
         blocked: false,
+        created_at: now,
+        updated_at: now,
     };
 
     let contact = common::convert_query_result(
@@ -956,12 +977,15 @@ fn create_message(
     let identity = auth::get_identity(ctx)?;
     let identity = identity.ok_or_else(|| GraphqlError::AuthenticationError.extend())?;
 
+    let now = Local::now().naive_local();
     let new_message = NewMessageEntity {
         tx_user_id: identity.id,
         rx_user_id,
         category,
         message,
         status: message_const::status::UNREAD,
+        created_at: now,
+        updated_at: now,
     };
 
     let message = common::convert_query_result(

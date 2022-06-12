@@ -1,6 +1,7 @@
 # 開発環境
 FROM node:16 as developer
 WORKDIR /app
+RUN ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 
 # ビルド環境
 FROM developer as builder

@@ -4,6 +4,7 @@ WORKDIR /app
 RUN apt-get update -y && apt-get install -y clang llvm-dev libclang-dev
 RUN cargo install cargo-watch && \ 
   cargo install diesel_cli --no-default-features --features mysql
+RUN ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 
 # ビルド環境
 FROM developer as builder

@@ -194,7 +194,7 @@ const MainPresenter: React.VFC<PresenterProps> = ({
 }) => (
   <Flex {...styles.root} {...props}>
     <ContactInfo
-      query={{ contactInfo }}
+      query={{ me, contactInfo }}
       onMccdOpen={mccdOpenDisc.onOpen}
       onDccdOpen={dccdDisc.onOpen}
       onUdccdOpen={udccdDisc.onOpen}

@@ -2,13 +2,12 @@ import {
   AlertDialog,
   AlertDialogBody,
   AlertDialogContent,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogOverlay,
   AlertDialogProps,
   Button,
   ButtonProps,
-  HStack,
+  Stack,
   Text,
   useBreakpointValue
 } from '@chakra-ui/react'
@@ -54,13 +53,11 @@ const ConfirmDialogPresenter: React.VFC<PresenterProps> = ({ header, body, ok, c
         {body?.map((content, i) => (
           <Text key={i}>{content}</Text>
         ))}
-      </AlertDialogBody>
-      <AlertDialogFooter>
-        <HStack {...styles.actions}>
+        <Stack {...styles.actions}>
           <Button {...cancel} />
           <Button {...ok} />
-        </HStack>
-      </AlertDialogFooter>
+        </Stack>
+      </AlertDialogBody>
     </AlertDialogContent>
   </AlertDialog>
 )

@@ -76,7 +76,7 @@ const AvatarEditorPresenter = forwardRef<HTMLInputElement, Omit<PresenterProps, 
           <Button w='full' disabled={isDisabled} onClick={onAvatarChangeButtonClick}>
             Change Avatar
           </Button>
-          <Input {...styles.fileInput(ALLOWED_IMAGE_EXTS)} {...props} ref={ref} />
+          <Input {...styles.fileInput(ALLOWED_IMAGE_EXTS)} ref={ref} {...props} />
         </Center>
       </Stack>
       <FormErrorMessage>{errorMessage}</FormErrorMessage>

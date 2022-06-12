@@ -1,4 +1,4 @@
-query ContactInfo($contactUserId: ID, $cursor: Int, $limit: Int, $dateTimeFormat: String) {
+query ContactInfo($contactUserId: ID, $cursor: ID, $limit: Int, $dateTimeFormat: String) {
   contactInfo(contactUserId: $contactUserId) {
     ...ContactFieldsWithChat
   }

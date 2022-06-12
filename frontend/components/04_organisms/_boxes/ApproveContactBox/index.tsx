@@ -2,24 +2,10 @@ import { Button, ButtonProps, Flex, FlexProps, Icon, Stack, Text } from '@chakra
 import toast from 'components/01_atoms/Toast'
 import { connect } from 'components/hoc'
 import { MESSAGE } from 'const'
-import {
-  ApproveContactMutation,
-  ApproveContactMutationVariables,
-  ContactInfoQuery,
-  ContactInfoQueryVariables,
-  MeQuery
-} from 'graphql/generated'
+import { ApproveContactMutation, ApproveContactMutationVariables, ContactInfoQuery, MeQuery } from 'graphql/generated'
 import React from 'react'
 import { FiUserCheck } from 'react-icons/fi'
-import {
-  ContainerProps,
-  MutaionLoading,
-  MutaionReset,
-  MutateFunction,
-  QueryFetchMore,
-  QueryLoading,
-  QueryNetworkStatus
-} from 'types'
+import { ContainerProps, MutaionLoading, MutaionReset, MutateFunction } from 'types'
 import { isNullish } from 'utils/general/object'
 import * as styles from './styles'
 
@@ -40,9 +26,6 @@ export type ApproveContactBoxProps = FlexProps & {
      */
     contactInfo: {
       result?: ContactInfoQuery['contactInfo']
-      loading: QueryLoading
-      networkStatus: QueryNetworkStatus
-      fetchMore: QueryFetchMore<ContactInfoQuery, ContactInfoQueryVariables>
     }
   }
   /**

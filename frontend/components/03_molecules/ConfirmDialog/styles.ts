@@ -21,9 +21,16 @@ export const header = {
 
 export const body = {
   alignSelf: 'center',
+  textAlign: 'center',
   mb: 1
 } as const
 
 export const actions = {
-  spacing: 3
+  justifyContent: 'center',
+  spacing: 3,
+  mt: 6,
+  mb: 1,
+  mx: 'auto',
+  w: { base: '200px', sm: '200px' },
+  direction: { base: 'column', sm: 'row' }
 } as const

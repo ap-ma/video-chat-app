@@ -1,7 +1,7 @@
 export const container = {
   w: 80,
   p: 6,
-  bg: 'gray.100',
+  bg: 'gray.50',
   rounded: 'lg',
   borderWidth: '1px',
   borderColor: 'gray.200',

@@ -13,6 +13,7 @@ use crate::remember_token::RememberToken;
 use actix_web::cookie::{time::Duration, CookieBuilder, SameSite};
 use actix_web::http::header::SET_COOKIE;
 use async_graphql::{Context, Result};
+use chrono::Local;
 
 pub fn remember(user_id: u64, remember_me: &Option<bool>, ctx: &Context<'_>) -> Result<()> {
     let conn = common::get_conn(ctx)?;
@@ -24,6 +25,7 @@ pub fn remember(user_id: u64, remember_me: &Option<bool>, ctx: &Context<'_>) -> 
         let change_user = ChangeUserEntity {
             id: user_id,
             remember_token: Some(Some(token_digest)),
+            updated_at: Some(Local::now().naive_local()),
             ..Default::default()
         };
 
@@ -59,6 +61,7 @@ pub fn purge_remember_token(ctx: &Context<'_>) -> Result<()> {
         let change_user = ChangeUserEntity {
             id: user.id,
             remember_token: Some(None),
+            updated_at: Some(Local::now().naive_local()),
             ..Default::default()
         };
 

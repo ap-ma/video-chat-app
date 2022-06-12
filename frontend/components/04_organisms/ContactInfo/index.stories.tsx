@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-import { dummyContactInfo, otherUserId, userId } from '.storybook/dummies'
+import { dummyContactInfo, me, otherUserId, userId } from '.storybook/dummies'
 /* eslint-enable import/no-unresolved  */
 import { NetworkStatus } from '@apollo/client'
 import { Meta, Story } from '@storybook/react'
@@ -31,7 +31,7 @@ const Template: Story<ContactInfoStoryProps> = ({ networkStatus, status, blocked
     !includes(networkStatus, NetworkStatus.loading, NetworkStatus.fetchMore, NetworkStatus.refetch, NetworkStatus.poll),
     networkStatus
   )
-  const query = { contactInfo }
+  const query = { me, contactInfo }
 
   return <ContactInfo {...{ ...props, query }} />
 }
