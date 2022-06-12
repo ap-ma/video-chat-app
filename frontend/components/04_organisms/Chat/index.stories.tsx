@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved */
 import { contactInfo, latestMessages, me, otherUserId } from '.storybook/dummies'
-/* eslint-enable import/no-unresolved  */
+/* eslint-enable import/no-unresolved */
 import { Meta, Story } from '@storybook/react'
 import React, { useState } from 'react'
 import { toStr } from 'utils/general/helper'

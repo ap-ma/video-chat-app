@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved */
 import { dummyMutation } from '.storybook/dummies'
-/* eslint-enable import/no-unresolved  */
+/* eslint-enable import/no-unresolved */
 import { Flex, Stack } from '@chakra-ui/react'
 import { Meta, Story } from '@storybook/react'
 import { SignInMutation, SignInMutationVariables } from 'graphql/generated'

@@ -2,7 +2,7 @@
 import { container } from '.storybook/decorators'
 import { dummyMutation, me } from '.storybook/dummies'
 import { Flex } from '@chakra-ui/react'
-/* eslint-enable import/no-unresolved  */
+/* eslint-enable import/no-unresolved */
 import { Meta, Story } from '@storybook/react'
 import { SignOutMutation, SignOutMutationVariables } from 'graphql/generated'
 import React from 'react'

@@ -11,7 +11,7 @@ fi
 # db migration
 chmod 645 ./sh/wait-for-it.sh
 ./sh/wait-for-it.sh mysql:3306 --strict -- \
-  diesel migration run
+  diesel database setup
 
 # auto reloading server
 touch .trigger

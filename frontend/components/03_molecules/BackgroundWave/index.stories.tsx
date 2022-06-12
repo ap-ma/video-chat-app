@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved */
 import { chakraColors } from '.storybook/const'
-/* eslint-enable import/no-unresolved  */
+/* eslint-enable import/no-unresolved */
 import { Box, Flex } from '@chakra-ui/react'
 import { Meta, Story } from '@storybook/react/types-6-0'
 import React from 'react'

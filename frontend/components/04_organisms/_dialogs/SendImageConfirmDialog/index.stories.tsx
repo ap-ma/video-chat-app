@@ -1,5 +1,6 @@
 /* eslint-disable import/no-unresolved */
 import { contactInfo, dummyMutation, pngImage as dataUrl } from '.storybook/dummies'
+/* eslint-enable import/no-unresolved */
 import { Meta, Story } from '@storybook/react'
 import { SendImageMutation, SendImageMutationVariables } from 'graphql/generated'
 import React from 'react'

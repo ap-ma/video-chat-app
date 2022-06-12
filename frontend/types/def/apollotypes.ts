@@ -32,29 +32,29 @@ export type ServerErrors = ReadonlyArray<ServerError>
 /** API 認証エラー配列型定義 */
 export type AuthenticationErrors = ReadonlyArray<AuthenticationError>
 
-/** API 認可エラー配列型定義  */
+/** API 認可エラー配列型定義 */
 export type AuthorizationErrors = ReadonlyArray<AuthorizationError>
 
-/** API 検証エラー配列型定義  */
+/** API 検証エラー配列型定義 */
 export type ValidationErrors = ReadonlyArray<ValidationError>
 
 //  ----------------------------------------------------------------------------
 //  Apollo Client common types
 //  ----------------------------------------------------------------------------
 
-/** Apollo Client readField Param Type  */
+/** Apollo Client readField Param Type */
 export type ReadFieldParam = StoreObject | Reference | undefined
 
-/** Apollo Client Query loading  */
+/** Apollo Client Query loading */
 export type QueryLoading = QueryResult['loading']
 
-/** Apollo Client Query networkStatus  */
+/** Apollo Client Query networkStatus */
 export type QueryNetworkStatus = QueryResult['networkStatus']
 
-/** Apollo Client Query refetch  */
+/** Apollo Client Query refetch */
 export type QueryRefetch<TData, TVariables> = QueryResult<TData, TVariables>['refetch']
 
-/** Apollo Client Query fetchMore  */
+/** Apollo Client Query fetchMore */
 export type QueryFetchMore<TData, TVariables> = QueryResult<TData, TVariables>['fetchMore']
 
 /** Apollo Client LazyQuery query function */

@@ -9,7 +9,7 @@ import {
   otherUserId,
   userId
 } from '.storybook/dummies'
-/* eslint-enable import/no-unresolved  */
+/* eslint-enable import/no-unresolved */
 import { NetworkStatus } from '@apollo/client'
 import { Meta, Story } from '@storybook/react'
 import { CONTACT } from 'const'

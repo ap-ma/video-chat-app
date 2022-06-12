@@ -74,7 +74,7 @@ const MessageListPresenter: React.VFC<PresenterProps> = ({
   <GroupedVirtuoso
     groupCounts={groupCounts}
     groupContent={(index) => (
-      <Box bg='white' py='3px' borderBottom='1px solid #ccc'>
+      <Box bg='white' py='0.5' borderBottom='1px solid #ccc'>
         {dates[index]}
       </Box>
     )}

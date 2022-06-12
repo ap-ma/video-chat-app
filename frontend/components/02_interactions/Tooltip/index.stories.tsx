@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved */
 import { withSytle } from '.storybook/decorators'
-/* eslint-enable import/no-unresolved  */
+/* eslint-enable import/no-unresolved */
 import { Meta, Story } from '@storybook/react'
 import Bubble from 'components/01_atoms/Bubble'
 import React from 'react'

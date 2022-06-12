@@ -1,7 +1,7 @@
 /* eslint-disable import/no-unresolved */
 import { chakraColors } from '.storybook/const'
 import { container } from '.storybook/decorators'
-/* eslint-enable import/no-unresolved  */
+/* eslint-enable import/no-unresolved */
 import { Meta, Story } from '@storybook/react/types-6-0'
 import React from 'react'
 import { NonEmptyArray } from 'types'

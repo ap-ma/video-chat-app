@@ -16,7 +16,7 @@ export type PresenterProps = EditableProps & {
 }
 
 /** Presenter Component */
-const EditablePresenter = forwardRef<HTMLInputElement, PresenterProps>(({ isEditable, ...props }, ref) => (
+const EditablePresenter = forwardRef<HTMLInputElement, Omit<PresenterProps, 'ref'>>(({ isEditable, ...props }, ref) => (
   <Input {...styles.input({ isEditable })} ref={ref} {...props} />
 ))
 

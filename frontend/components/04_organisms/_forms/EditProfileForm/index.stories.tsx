@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved */
 import { dummyMutation, me } from '.storybook/dummies'
-/* eslint-enable import/no-unresolved  */
+/* eslint-enable import/no-unresolved */
 import { Meta, Story } from '@storybook/react'
 import { EditProfileMutation, EditProfileMutationVariables } from 'graphql/generated'
 import React from 'react'

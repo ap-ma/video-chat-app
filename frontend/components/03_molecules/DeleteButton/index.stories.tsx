@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved */
 import { container } from '.storybook/decorators'
-/* eslint-enable import/no-unresolved  */
+/* eslint-enable import/no-unresolved */
 import { Meta, Story } from '@storybook/react'
 import React from 'react'
 import DeleteButton, { DeleteButtonProps } from './index'

@@ -1,7 +1,7 @@
 /* eslint-disable import/no-unresolved */
 import { container } from '.storybook/decorators'
 import { contactInfo, dummyMe, dummyMutation, dummySearchUser, otherUserId, userId } from '.storybook/dummies'
-/* eslint-enable import/no-unresolved  */
+/* eslint-enable import/no-unresolved */
 import { Box } from '@chakra-ui/react'
 import { Meta, Story } from '@storybook/react'
 import {

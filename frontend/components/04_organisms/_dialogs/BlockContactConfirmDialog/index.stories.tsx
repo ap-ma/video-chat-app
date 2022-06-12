@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved */
 import { contactInfo, dummyMutation } from '.storybook/dummies'
-/* eslint-enable import/no-unresolved  */
+/* eslint-enable import/no-unresolved */
 import { Meta, Story } from '@storybook/react'
 import { BlockContactMutation, BlockContactMutationVariables } from 'graphql/generated'
 import React from 'react'
