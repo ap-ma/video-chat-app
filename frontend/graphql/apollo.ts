@@ -1,15 +1,15 @@
 import { ApolloClient, from, InMemoryCache, NormalizedCacheObject, split } from '@apollo/client'
 import { onError } from '@apollo/client/link/error'
 import { RetryLink } from '@apollo/client/link/retry'
-import { WebSocketLink } from '@apollo/client/link/ws'
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
 import { getMainDefinition } from '@apollo/client/utilities'
 import { createUploadLink } from 'apollo-upload-client'
 import { API_URL, API_WS_URL } from 'const'
 import merge from 'deepmerge'
+import { createClient } from 'graphql-ws'
 import isEqual from 'lodash/isEqual'
 import { AppProps } from 'next/app'
 import { useMemo } from 'react'
-import { SubscriptionClient } from 'subscriptions-transport-ws'
 import { isNode, isNullish } from 'utils'
 import { cursorPagination, report } from 'utils/apollo'
 
@@ -49,12 +49,12 @@ function createLink() {
 }
 
 /**
- * WebSocketLinkオブジェクトを生成する
+ * GraphQLWsLinkオブジェクトを生成する
  *
- * @returns WebSocketLink
+ * @returns GraphQLWsLink
  */
 function createWsLink() {
-  return new WebSocketLink(new SubscriptionClient(API_WS_URL))
+  return new GraphQLWsLink(createClient({ url: API_WS_URL }))
 }
 
 /**

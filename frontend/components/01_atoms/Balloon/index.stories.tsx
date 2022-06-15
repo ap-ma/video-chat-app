@@ -2,6 +2,7 @@
 import { chakraColors } from '.storybook/const'
 import { container } from '.storybook/decorators'
 /* eslint-enable import/no-unresolved */
+import { Text } from '@chakra-ui/react'
 import { Meta, Story } from '@storybook/react/types-6-0'
 import React from 'react'
 import { NonEmptyArray } from 'types'
@@ -13,36 +14,46 @@ export default {
   decorators: [(Story) => container({ margin: '50px' })(Story())]
 } as Meta
 
-const triangleMarkPositions: NonEmptyArray<BalloonProps['triangleMarkPosition']> = ['left', 'right', 'none']
+type BalloonStoryProps = BalloonProps & {
+  text: string
+}
 
-const Template: Story<BalloonProps> = ({ children, ...props }) => <Balloon {...props}>{children}</Balloon>
+const tailPositions: NonEmptyArray<BalloonProps['tailPosition']> = ['left', 'right', 'none']
 
-export const Primary = Template.bind({})
+export const Primary: Story<BalloonStoryProps> = ({ text, textColor, ...props }) => {
+  const children = <Text {...{ color: textColor, fontSize: 'sm', whiteSpace: 'pre-wrap' }}>{text}</Text>
+  return <Balloon {...props}>{children}</Balloon>
+}
+
 Primary.storyName = 'プライマリ'
 Primary.argTypes = {
-  triangleMarkPosition: { control: { type: 'select' }, options: triangleMarkPositions },
+  tailPosition: { control: { type: 'select' }, options: tailPositions },
   bgColor: { control: 'color' },
   textColor: { control: 'color' }
 }
 Primary.args = {
-  triangleMarkPosition: 'none',
+  tailPosition: 'none',
   bgColor: '#4299E1',
   textColor: '#ffffff',
   autoSizing: false,
-  children: 'テキストメッセージ'
+  text: 'テキストメッセージ'
 }
 
-export const Chat = Template.bind({})
+export const Chat: Story<BalloonStoryProps> = ({ text, textColor, ...props }) => {
+  const children = <Text {...{ color: textColor, fontSize: 'sm', whiteSpace: 'pre-wrap' }}>{text}</Text>
+  return <Balloon {...props}>{children}</Balloon>
+}
+
 Chat.storyName = 'チャット'
 Chat.argTypes = {
-  triangleMarkPosition: { control: { type: 'select' }, options: triangleMarkPositions },
+  tailPosition: { control: { type: 'select' }, options: tailPositions },
   bgColor: { control: { type: 'select' }, options: chakraColors },
   textColor: { control: { type: 'select' }, options: chakraColors }
 }
 Chat.args = {
-  triangleMarkPosition: 'left',
+  tailPosition: 'left',
   bgColor: 'purple.400',
   textColor: 'white',
   autoSizing: true,
-  children: 'テキストメッセージ'
+  text: 'テキストメッセージ'
 }

@@ -1,32 +1,53 @@
-export const root = {
-  h: 20,
-  ml: { base: 0, md: 72 },
-  pl: 4,
-  pr: { base: 5, md: 4 },
-  bg: 'gray.50',
-  borderBottomWidth: '1px',
-  borderBottomColor: 'gray.200',
-  alignItems: 'center',
-  justifyContent: { base: 'space-between', md: 'flex-end' }
-} as const
+import { PresenterProps } from './index'
 
-export const openButton = {
-  'aria-label': 'open menu',
-  variant: 'outline',
-  mr: { base: '5', md: '2' },
-  d: { base: 'flex', md: 'none' }
-} as const
+export const root = ({ isSender }: Pick<PresenterProps, 'isSender'>) =>
+  ({
+    justifyContent: isSender ? 'end' : 'start'
+  } as const)
 
-export const logo = {
-  d: { base: 'flex', md: 'none' }
-} as const
+export const container = ({ isSender }: Pick<PresenterProps, 'isSender'>) =>
+  ({
+    p: '3',
+    maxW: '60%',
+    flexDirection: isSender ? 'row-reverse' : 'row'
+  } as const)
 
-export const rightContents = {
-  spacing: { base: '2', md: '6' }
-} as const
+export const content = ({ isSender }: Pick<PresenterProps, 'isSender'>) =>
+  ({
+    ml: isSender ? 0 : 3.5,
+    mr: isSender ? 3.5 : 0
+  } as const)
 
-export const searchButton = {
-  'aria-label': 'open menu',
-  variant: 'ghost',
-  size: 'lg'
+export const balloon = ({ isSender }: Pick<PresenterProps, 'isSender'>) =>
+  ({
+    autoSizing: true,
+    tailPosition: isSender ? 'right' : 'left',
+    bgColor: isSender ? '#389fff' : 'blackAlpha.200'
+  } as const)
+
+export const textContent = ({ isSender }: Pick<PresenterProps, 'isSender'>) =>
+  ({
+    color: isSender ? 'white' : 'black',
+    fontSize: 'sm',
+    whiteSpace: 'pre-wrap'
+  } as const)
+
+export const info = ({ isSender }: Pick<PresenterProps, 'isSender'>) =>
+  ({
+    direction: 'column',
+    mt: 'auto',
+    ml: isSender ? 0 : 2,
+    mr: isSender ? 2 : 0
+  } as const)
+
+export const read = ({ isRead }: Pick<PresenterProps, 'isRead'>) =>
+  ({
+    ...infoText,
+    d: isRead ? 'block' : 'none'
+  } as const)
+
+export const infoText = {
+  fontSize: 'xs',
+  lineHeight: 'normal',
+  color: 'gray.500'
 } as const

@@ -48,7 +48,7 @@ export type ContactInfoProps = FlexProps & {
    */
   query: {
     /**
-     * サインインユーザー情報
+     * ユーザー情報
      */
     me: {
       result?: MeQuery['me']

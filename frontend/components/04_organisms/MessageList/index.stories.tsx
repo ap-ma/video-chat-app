@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-import { dummyContactInfo, dummyMutation, otherUserId, userId } from '.storybook/dummies'
+import { dummyContactInfo, dummyMutation, me, otherUserId, userId } from '.storybook/dummies'
 /* eslint-enable import/no-unresolved */
 import { NetworkStatus } from '@apollo/client'
 import { Meta, Story } from '@storybook/react'
@@ -42,7 +42,7 @@ const Template: Story<MessageListStoryProps> = ({
     contactIntoNetworkStatus
   )
 
-  const query = { contactInfo }
+  const query = { me, contactInfo }
 
   // mutation
   const deleteMessage = dummyMutation<

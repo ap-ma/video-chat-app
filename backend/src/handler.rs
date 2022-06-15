@@ -10,13 +10,13 @@ use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse, GraphQLSubscripti
 pub fn register(config: &mut web::ServiceConfig) {
     config.service(
         web::resource("/")
-            .route(web::get().to(playground))
-            .route(web::post().to(index))
             .route(
                 web::get()
                     .guard(guard::Header("upgrade", "websocket"))
                     .to(subscription),
-            ),
+            )
+            .route(web::get().to(playground))
+            .route(web::post().to(index)),
     );
 }
 

@@ -52,7 +52,7 @@ export type MainProps = FlexProps & {
    */
   query: {
     /**
-     * サインインユーザー情報
+     * ユーザー情報
      */
     me: {
       result?: MeQuery['me']
@@ -94,6 +94,7 @@ export type MainProps = FlexProps & {
      * メッセージ削除
      */
     deleteMessage: {
+      result?: DeleteMessageMutation['deleteMessage']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset

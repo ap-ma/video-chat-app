@@ -80,7 +80,7 @@ export type IndexTemplateProps = {
    */
   query: {
     /**
-     * サインインユーザー情報
+     * ユーザー情報
      */
     me: {
       result?: MeQuery['me']
@@ -194,6 +194,7 @@ export type IndexTemplateProps = {
      * メッセージ削除
      */
     deleteMessage: {
+      result?: DeleteMessageMutation['deleteMessage']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset

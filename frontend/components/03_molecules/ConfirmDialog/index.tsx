@@ -54,8 +54,8 @@ const ConfirmDialogPresenter: React.VFC<PresenterProps> = ({ header, body, ok, c
           <Text key={i}>{content}</Text>
         ))}
         <Stack {...styles.actions}>
-          <Button {...cancel} />
           <Button {...ok} />
+          <Button {...cancel} />
         </Stack>
       </AlertDialogBody>
     </AlertDialogContent>

@@ -1,12 +1,16 @@
 /* eslint-disable import/no-unresolved */
-import { dummyContactInfo, dummyMutation, otherUserId, userId } from '.storybook/dummies'
-/* eslint-enable import/no-unresolved */
-import { NetworkStatus } from '@apollo/client'
+import { contactInfo, dummyMutation, me, otherUserId, userId } from '.storybook/dummies'
 import { Meta, Story } from '@storybook/react'
-import { CONTACT } from 'const'
-import { DeleteMessageMutation, DeleteMessageMutationVariables } from 'graphql/generated'
+import { CALL, MESSAGE } from 'const'
+import {
+  Call as CallModel,
+  DeleteMessageMutation,
+  DeleteMessageMutationVariables,
+  Message as MessageModel
+} from 'graphql/generated'
 import React from 'react'
-import { MutaionLoading, QueryLoading, QueryNetworkStatus } from 'types'
+import { MutaionLoading } from 'types'
+import { toStr } from 'utils/general/helper'
 import Message, { MessageProps } from './index'
 
 export default {
@@ -15,34 +19,47 @@ export default {
 } as Meta
 
 type MessageStoryProps = MessageProps & {
-  contactInfoLoading: QueryLoading
-  contactIntoNetworkStatus: QueryNetworkStatus
-  contactInfoStatus: number
-  contactInfoBlocked: boolean
+  isSender: boolean
+  category: MessageModel['category']
+  messageContent: MessageModel['message']
+  messageStatus: MessageModel['status']
+  createdAt: MessageModel['createdAt']
+  callStatus: CallModel['status']
   deleteMessageLoading: MutaionLoading
 }
 
 const Template: Story<MessageStoryProps> = ({
-  contactInfoLoading,
-  contactIntoNetworkStatus,
-  contactInfoStatus,
-  contactInfoBlocked,
+  isSender,
+  category,
+  messageContent,
+  messageStatus,
+  createdAt,
+  callStatus,
   deleteMessageLoading,
   ...props
 }) => {
-  // query
-  const contactInfo = dummyContactInfo(
-    userId,
-    otherUserId,
-    contactInfoStatus,
-    contactInfoBlocked,
-    50,
-    (i) => `chat message${i}`,
-    contactInfoLoading,
-    contactIntoNetworkStatus
-  )
+  const message = {
+    __typename: 'Message',
+    id: toStr(1),
+    txUserId: isSender ? toStr(userId) : toStr(otherUserId),
+    rxUserId: isSender ? toStr(otherUserId) : toStr(userId),
+    category,
+    message: messageContent,
+    status: messageStatus,
+    createdAt: createdAt,
+    call: {
+      __typename: 'Call',
+      id: toStr(1),
+      messageId: toStr(1),
+      status: callStatus,
+      startedAt: '06/24/2022 18:10:14',
+      endedAt: '06/24/2022 18:40:14',
+      callTime: 30
+    }
+  } as const
 
-  const query = { contactInfo }
+  // query
+  const query = { me, contactInfo }
 
   // mutation
   const deleteMessage = dummyMutation<
@@ -53,33 +70,40 @@ const Template: Story<MessageStoryProps> = ({
 
   const mutation = { deleteMessage }
 
-  return <Message {...{ ...props, query, mutation }} />
+  return <Message {...{ ...props, message, query, mutation }} />
 }
-
-const contactStatusLabels: Record<number, string> = {}
-Object.entries(CONTACT.STATUS).forEach(([key, value]) => {
-  contactStatusLabels[value] = key
-})
 
 export const Primary = Template.bind({})
 Primary.storyName = 'プライマリ'
 Primary.argTypes = {
-  contactIntoNetworkStatus: {
-    options: Object.values(NetworkStatus),
+  category: {
+    options: Object.values(MESSAGE.CATEGORY),
     control: {
       type: 'select',
-      labels: Object.fromEntries(Object.entries(NetworkStatus).filter(([key]) => isFinite(Number(key))))
+      labels: Object.fromEntries(Object.entries(MESSAGE.CATEGORY).map(([key, value]) => [value, key]))
     }
   },
-  contactInfoStatus: {
-    options: Object.values(CONTACT.STATUS),
-    control: { type: 'select', labels: contactStatusLabels }
+  messageStatus: {
+    options: Object.values(MESSAGE.STATUS),
+    control: {
+      type: 'select',
+      labels: Object.fromEntries(Object.entries(MESSAGE.STATUS).map(([key, value]) => [value, key]))
+    }
+  },
+  callStatus: {
+    options: Object.values(CALL.STATUS),
+    control: {
+      type: 'select',
+      labels: Object.fromEntries(Object.entries(CALL.STATUS).map(([key, value]) => [value, key]))
+    }
   }
 }
 Primary.args = {
-  contactInfoLoading: false,
-  contactIntoNetworkStatus: NetworkStatus.ready,
-  contactInfoStatus: CONTACT.STATUS.APPROVED,
-  contactInfoBlocked: false,
+  isSender: false,
+  category: MESSAGE.CATEGORY.MESSAGE,
+  messageContent: 'テキストメッセージ',
+  messageStatus: MESSAGE.STATUS.READ,
+  createdAt: '06/24/2022 18:40:14',
+  callStatus: CALL.STATUS.ENDED,
   deleteMessageLoading: false
 }

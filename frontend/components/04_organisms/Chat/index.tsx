@@ -37,7 +37,7 @@ export type ChatProps = {
    */
   query: {
     /**
-     * サインインユーザー情報
+     * ユーザー情報
      */
     me: {
       result?: MeQuery['me']
@@ -60,6 +60,7 @@ export type ChatProps = {
      * メッセージ削除
      */
     deleteMessage: {
+      result?: DeleteMessageMutation['deleteMessage']
       loading: MutaionLoading
       reset: MutaionReset
       mutate: MutateFunction<DeleteMessageMutation, DeleteMessageMutationVariables>
@@ -109,7 +110,11 @@ const ChatPresenter: React.VFC<PresenterProps> = ({
   unblockBoxDisp
 }) => (
   <Fragment>
-    <MessageList {...styles.messageList({ messageListDisp })} query={{ contactInfo }} mutation={{ deleteMessage }} />
+    <MessageList
+      {...styles.messageList({ messageListDisp })}
+      query={{ me, contactInfo }}
+      mutation={{ deleteMessage }}
+    />
     <ApplyContactBox
       {...styles.applyContactBox({ applyBoxDisp })}
       query={{ contactInfo }}

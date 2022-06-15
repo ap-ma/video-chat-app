@@ -7,7 +7,8 @@ import {
   ContactInfoQuery,
   ContactInfoQueryVariables,
   DeleteMessageMutation,
-  DeleteMessageMutationVariables
+  DeleteMessageMutationVariables,
+  MeQuery
 } from 'graphql/generated'
 import groupBy from 'lodash/groupBy'
 import React, { forwardRef, useCallback, useMemo } from 'react'
@@ -30,6 +31,12 @@ export type MessageListProps = ScrollbarProps & {
    */
   query: {
     /**
+     * ユーザー情報
+     */
+    me: {
+      result?: MeQuery['me']
+    }
+    /**
      *  コンタクト情報
      */
     contactInfo: {
@@ -47,6 +54,7 @@ export type MessageListProps = ScrollbarProps & {
      * メッセージ削除
      */
     deleteMessage: {
+      result?: DeleteMessageMutation['deleteMessage']
       loading: MutaionLoading
       reset: MutaionReset
       mutate: MutateFunction<DeleteMessageMutation, DeleteMessageMutationVariables>
@@ -55,7 +63,7 @@ export type MessageListProps = ScrollbarProps & {
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<MessageListProps, 'query'> & {
+export type PresenterProps = MessageListProps & {
   messageList?: ContactInfoQuery['contactInfo']['chat']
   groupCounts: number[]
   dates: string[]
@@ -64,6 +72,7 @@ export type PresenterProps = Omit<MessageListProps, 'query'> & {
 
 /** Presenter Component */
 const MessageListPresenter: React.VFC<PresenterProps> = ({
+  query: { me, contactInfo },
   mutation: { deleteMessage },
   messageList,
   groupCounts,
@@ -92,7 +101,8 @@ const MessageListPresenter: React.VFC<PresenterProps> = ({
 /** Container Component */
 const MessageListContainer: React.VFC<ContainerProps<MessageListProps, PresenterProps>> = ({
   presenter,
-  query: { contactInfo },
+  query: { contactInfo, ...queryRest },
+  mutation: { deleteMessage },
   ...props
 }) => {
   const chat = contactInfo.result?.chat
@@ -110,6 +120,8 @@ const MessageListContainer: React.VFC<ContainerProps<MessageListProps, Presenter
   }, [contactInfo, messageList])
 
   return presenter({
+    query: { contactInfo, ...queryRest },
+    mutation: { deleteMessage },
     messageList,
     groupCounts,
     dates,

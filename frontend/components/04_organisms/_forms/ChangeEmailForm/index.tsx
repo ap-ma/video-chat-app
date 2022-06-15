@@ -35,7 +35,7 @@ export type ChangeEmailFormProps = Omit<ModalProps, 'children'> & {
    */
   query: {
     /**
-     * サインインユーザー情報
+     * ユーザー情報
      */
     me: {
       result?: MeQuery['me']

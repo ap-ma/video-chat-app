@@ -1,4 +1,4 @@
-import { Box, BoxProps, Text, TextProps } from '@chakra-ui/react'
+import { Box, BoxProps, TextProps } from '@chakra-ui/react'
 import { connect } from 'components/hoc'
 import React from 'react'
 import { ChakraColors, ContainerProps } from 'types'
@@ -10,7 +10,7 @@ export type BalloonProps = Omit<BoxProps, 'children' | 'bgColor'> &
     /**
      * 吹き出しの三角マークの位置
      */
-    triangleMarkPosition: 'left' | 'right' | 'none'
+    tailPosition: 'left' | 'right' | 'none'
     /**
      * 吹き出しの背景色
      */
@@ -29,16 +29,9 @@ export type BalloonProps = Omit<BoxProps, 'children' | 'bgColor'> &
 export type PresenterProps = BalloonProps
 
 /** Presenter Component */
-const BalloonPresenter: React.VFC<PresenterProps> = ({
-  triangleMarkPosition,
-  bgColor,
-  textColor,
-  autoSizing,
-  children,
-  ...props
-}) => (
-  <Box {...styles.root({ triangleMarkPosition, bgColor, autoSizing })} {...props}>
-    <Text {...styles.content({ textColor })}>{children}</Text>
+const BalloonPresenter: React.VFC<PresenterProps> = ({ tailPosition, bgColor, autoSizing, children, ...props }) => (
+  <Box {...styles.root({ tailPosition, bgColor, autoSizing })} {...props}>
+    {children}
   </Box>
 )
 

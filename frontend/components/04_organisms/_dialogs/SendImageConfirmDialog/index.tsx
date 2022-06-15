@@ -89,11 +89,11 @@ const SendImageConfirmDialogPresenter: React.VFC<PresenterProps> = ({
         <Text {...styles.text({ isInvalid })}>Would you like to send this image?</Text>
         <Image {...styles.image({ isInvalid })} src={imageSrc} />
         <Stack {...styles.actions}>
-          <Button w='full' isDisabled={loading} onClick={onClose}>
-            Cancel
-          </Button>
           <Button {...styles.ok({ isInvalid })} isLoading={loading} onClick={onOkButtonClick}>
             OK
+          </Button>
+          <Button w='full' isDisabled={loading} onClick={onClose}>
+            Cancel
           </Button>
         </Stack>
       </ModalBody>

@@ -31,7 +31,7 @@ export type ChatListProps = ScrollbarProps & {
    */
   query: {
     /**
-     * サインインユーザー情報
+     * ユーザー情報
      */
     me: {
       result?: MeQuery['me']

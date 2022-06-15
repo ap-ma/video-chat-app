@@ -37,6 +37,18 @@ export const zf = (target: string | number, digit = 0): string => {
 export const padStr = (target: string, padStr: string, digit: number): string => target.padStart(digit, padStr)
 
 /**
+ * 分を表す数値を「hh:mm」形式の文字列に変換して返す
+ *
+ * @param time
+ * @returns
+ */
+export const formatMinTime = (time: number): string => {
+  const hour = Math.floor(time / 60)
+  const min = time % 60
+  return `${hour}:${min}`
+}
+
+/**
  * 指定した範囲の各数値を要素にもつ配列を返す
  *
  * @param start - 範囲の開始数値

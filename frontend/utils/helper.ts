@@ -1,9 +1,9 @@
-import { ALLOWED_IMAGE_EXTS, MESSAGE } from 'const'
-import { LatestMessagesQuery } from 'graphql/generated'
+import { ALLOWED_IMAGE_EXTS, CALL, MESSAGE } from 'const'
+import { ContactInfoQuery, LatestMessagesQuery } from 'graphql/generated'
 import { VALIDATION_ERRORS } from 'messages/error'
 import { CATEGORY_MESSAGE } from 'messages/message'
 import { Unbox } from 'types'
-import { isExtIncluded, toStr } from 'utils/general/helper'
+import { formatMinTime, isExtIncluded, toStr } from 'utils/general/helper'
 import { hasProperty, includes, isNullish } from 'utils/general/object'
 
 /**
@@ -24,6 +24,47 @@ export const getErrMsg = (code: string, values?: Record<string, string | number>
     }
   }
   return message
+}
+
+/**
+ * メッセージのカテゴリに応じた表示メッセージを返す
+ *
+ * @param message - メッセージオブジェクト
+ * @param contactInfo - コンタクト情報オブジェクト
+ * @param userName - サインインユーザー名
+ * @returns 表示メッセージ
+ */
+export const getMessage = (
+  message: Unbox<ContactInfoQuery['contactInfo']['chat']>,
+  contactInfo: ContactInfoQuery['contactInfo'],
+  userName: string
+): string => {
+  // 送信者名
+  const txUser = toStr(message.txUserId === contactInfo.userId ? contactInfo.userName : userName)
+
+  // コンタクト申請, コンタクト承認
+  if (includes(message.category, MESSAGE.CATEGORY.CONTACT_APPLICATION, MESSAGE.CATEGORY.CONTACT_APPROVAL)) {
+    if (hasProperty(CATEGORY_MESSAGE, message.category)) {
+      const dispMessage = toStr(CATEGORY_MESSAGE[message.category])
+      return dispMessage.replace('{tx_user}', txUser).replace('{other_user}', toStr(contactInfo.userName))
+    }
+  }
+
+  // 通話
+  if (MESSAGE.CATEGORY.CALLING === message.category) {
+    if (!isNullish(message.call)) {
+      if (CALL.STATUS.ENDED === message.call.status) {
+        if (!isNullish(message.call.callTime)) return formatMinTime(message.call.callTime)
+      }
+      const CALLING_MESSAGE = CATEGORY_MESSAGE[MESSAGE.CATEGORY.CALLING]
+      if (hasProperty(CALLING_MESSAGE, message.call.status)) {
+        const dispMessage = CALLING_MESSAGE[message.call.status]
+        return dispMessage.replace('{tx_user}', txUser)
+      }
+    }
+  }
+
+  return toStr(message.message)
 }
 
 /**
@@ -50,8 +91,8 @@ export const getLatestMessage = (
     )
   ) {
     if (hasProperty(CATEGORY_MESSAGE, latestMessage.messageCategory)) {
-      const message = toStr(CATEGORY_MESSAGE[latestMessage.messageCategory])
-      return message.replace('{tx_user}', txUser).replace('{other_user}', toStr(latestMessage.userName))
+      const dispMessage = toStr(CATEGORY_MESSAGE[latestMessage.messageCategory])
+      return dispMessage.replace('{tx_user}', txUser).replace('{other_user}', toStr(latestMessage.userName))
     }
   }
 
@@ -60,8 +101,8 @@ export const getLatestMessage = (
     if (!isNullish(latestMessage.call)) {
       const CALLING_MESSAGE = CATEGORY_MESSAGE[MESSAGE.CATEGORY.CALLING]
       if (hasProperty(CALLING_MESSAGE, latestMessage.call.status)) {
-        const message = CALLING_MESSAGE[latestMessage.call.status]
-        return message.replace('{tx_user}', txUser)
+        const dispMessage = CALLING_MESSAGE[latestMessage.call.status]
+        return dispMessage.replace('{tx_user}', txUser)
       }
     }
   }
