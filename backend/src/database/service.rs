@@ -190,14 +190,12 @@ pub fn get_messages(
 
     query = query
         .filter(
-            messages::tx_user_id
+            (messages::tx_user_id
                 .eq(user_id)
-                .or(messages::rx_user_id.eq(user_id)),
-        )
-        .filter(
-            messages::tx_user_id
+                .and(messages::rx_user_id.eq(other_user_id)))
+            .or(messages::tx_user_id
                 .eq(other_user_id)
-                .or(messages::rx_user_id.eq(other_user_id)),
+                .and(messages::rx_user_id.eq(user_id))),
         )
         .filter(messages::status.ne(message_const::status::DELETED))
         .order(messages::id.desc());
@@ -243,14 +241,12 @@ pub fn get_latest_message(
     messages::table
         .left_join(calls::table.on(calls::message_id.eq(messages::id)))
         .filter(
-            messages::tx_user_id
+            (messages::tx_user_id
                 .eq(user_id)
-                .or(messages::rx_user_id.eq(user_id)),
-        )
-        .filter(
-            messages::tx_user_id
+                .and(messages::rx_user_id.eq(other_user_id)))
+            .or(messages::tx_user_id
                 .eq(other_user_id)
-                .or(messages::rx_user_id.eq(other_user_id)),
+                .and(messages::rx_user_id.eq(user_id))),
         )
         .filter(messages::status.ne(message_const::status::DELETED))
         .order(messages::id.desc())
