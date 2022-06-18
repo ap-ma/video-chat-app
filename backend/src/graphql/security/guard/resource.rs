@@ -15,7 +15,7 @@ impl ResourceGuard {
 #[async_trait::async_trait]
 impl Guard for ResourceGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
-        let identity = auth::get_identity(ctx)?;
+        let identity = auth::get_identity_from_session(ctx)?;
         let identity = identity.ok_or_else(|| GraphqlError::AuthenticationError.extend())?;
 
         if identity.id != self.owner_id {

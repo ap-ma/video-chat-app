@@ -111,7 +111,13 @@ impl LatestMessage {
 
     async fn unread_message_count(&self, ctx: &Context<'_>) -> Result<i64> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity(ctx)?.unwrap();
+        let identity = auth::get_identity_from_session(ctx)?;
+
+        let identity = if let Some(identity) = identity {
+            identity
+        } else {
+            auth::get_identity_from_ctx(ctx)?
+        };
 
         if self.tx_user_id == identity.id || message_const::status::READ == self.message_status {
             return Ok(0);

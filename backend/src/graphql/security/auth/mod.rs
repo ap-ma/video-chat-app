@@ -1,4 +1,3 @@
-mod identity;
 mod remember_me;
 
 use crate::constant::system::session::AUTHENTICATED_USER_KEY;
@@ -8,15 +7,27 @@ use crate::shared::Shared;
 use actix_session::Session;
 use async_graphql::{Context, ErrorExtensions, Result};
 
-pub use identity::*;
+pub use crate::identity::*;
 pub use remember_me::*;
 
-pub fn get_identity(ctx: &Context<'_>) -> Result<Option<Identity>> {
-    let session = ctx.data_unchecked::<Shared<Session>>();
+pub fn get_identity_from_ctx(ctx: &Context<'_>) -> Result<Identity> {
+    ctx.data_unchecked::<Option<Identity>>()
+        .clone()
+        .ok_or_else(|| GraphqlError::AuthenticationError.extend())
+}
+
+pub fn get_identity_from_session(ctx: &Context<'_>) -> Result<Option<Identity>> {
+    let session = match ctx.data::<Shared<Session>>() {
+        Ok(shared_session) => shared_session,
+        _ => {
+            return Ok(None);
+        }
+    };
+
     match session.get::<Identity>(AUTHENTICATED_USER_KEY) {
         Ok(maybe_identity) => {
             if maybe_identity.is_none() {
-                return attempt_with_remember_token(ctx);
+                return remember_me::attempt_with_remember_token(ctx);
             }
             Ok(maybe_identity)
         }
@@ -42,9 +53,9 @@ pub fn sign_in(user: &UserEntity, ctx: &Context<'_>) -> Result<()> {
 
 pub fn sign_out(ctx: &Context<'_>) -> Result<()> {
     let session = ctx.data_unchecked::<Shared<Session>>();
-    match get_identity(ctx)? {
+    match get_identity_from_session(ctx)? {
         Some(_) => {
-            purge_remember_token(ctx)?;
+            remember_me::purge_remember_token(ctx)?;
             Ok(session.purge())
         }
         None => Ok(()),

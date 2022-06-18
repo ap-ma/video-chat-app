@@ -1,4 +1,3 @@
-use super::Identity;
 use crate::claims::Claims;
 use crate::constant::system::remember::{
     CIPHER_PASSWORD, DIGEST_SECRET_KEY, MAX_DAYS, TOKEN_COOKIE_NAME,
@@ -9,6 +8,7 @@ use crate::database::service;
 use crate::graphql::common;
 use crate::graphql::security;
 use crate::graphql::security::crypto::hash;
+use crate::identity::Identity;
 use crate::remember_token::RememberToken;
 use actix_web::cookie::{time::Duration, CookieBuilder, SameSite};
 use actix_web::http::header::SET_COOKIE;

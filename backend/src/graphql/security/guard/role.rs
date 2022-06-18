@@ -16,7 +16,7 @@ impl RoleGuard {
 #[async_trait::async_trait]
 impl Guard for RoleGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
-        let identity = auth::get_identity(ctx)?;
+        let identity = auth::get_identity_from_session(ctx)?;
 
         match identity {
             Some(identity) => {

@@ -68,7 +68,7 @@ impl Contact {
 
     async fn latest_message(&self, ctx: &Context<'_>) -> Result<Option<LatestMessage>> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity(ctx)?.unwrap();
+        let identity = auth::get_identity_from_session(ctx)?.unwrap();
 
         let contact_user = common::convert_query_result(
             service::find_user_by_id(self.user_id, &conn),
@@ -93,7 +93,7 @@ impl Contact {
         }
 
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity(ctx)?.unwrap();
+        let identity = auth::get_identity_from_session(ctx)?.unwrap();
         let cursor = match cursor {
             Some(cursor) => Some(common::convert_id(&cursor)?),
             _ => None,

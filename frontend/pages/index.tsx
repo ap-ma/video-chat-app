@@ -8,6 +8,7 @@ import {
   InitDocument,
   InitQuery,
   InitQueryVariables,
+  MutationType,
   useApplyContactMutation,
   useApproveContactMutation,
   useBlockContactMutation,
@@ -222,7 +223,7 @@ const Index: NextPage = () => {
       const messageChanged = data.messageSubscription
       updateMessageCache(client.cache, messageChanged)
       if (isApproveContact(messageChanged)) contactsQuery.refetch()
-      if (contactInfoUserId === messageChanged.txUserId) {
+      if (MutationType.Created === messageChanged.mutationType && contactInfoUserId === messageChanged.txUserId) {
         readMessages({ variables: { otherUserId: messageChanged.txUserId } }).catch(toast('UnexpectedError'))
       }
     }

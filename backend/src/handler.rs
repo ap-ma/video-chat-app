@@ -1,4 +1,6 @@
+use crate::constant::system::session::AUTHENTICATED_USER_KEY;
 use crate::graphql::AppSchema;
+use crate::identity::Identity;
 use crate::remember_token::RememberToken;
 use crate::shared::Shared;
 use actix_session::Session;
@@ -39,8 +41,9 @@ async fn subscription(
     payload: web::Payload,
 ) -> Result<HttpResponse> {
     let mut data = async_graphql::Data::default();
-    let session = Shared::new(session);
-    data.insert(session);
+    if let Ok(identity) = session.get::<Identity>(AUTHENTICATED_USER_KEY) {
+        data.insert(identity);
+    }
 
     GraphQLSubscription::new(Schema::clone(&*schema))
         .with_data(data)
