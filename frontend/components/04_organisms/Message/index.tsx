@@ -107,7 +107,7 @@ const MessageContainer: React.VFC<ContainerProps<MessageProps, PresenterProps>> 
   const isSender = message.txUserId === me.result?.id
   const avatar = (isSender ? me.result?.avatar : contactInfo.result?.userAvatar) ?? undefined
   const content = !isNullish(contactInfo.result) ? getMessage(message, contactInfo.result, toStr(me.result?.name)) : ''
-  const isRead = MESSAGE.STATUS.READ === message.status
+  const isRead = message.txUserId === me.result?.id && MESSAGE.STATUS.READ === message.status
   const time = message.createdAt.substring(11, 16)
 
   // DeleteMessageConfirmDialog modal

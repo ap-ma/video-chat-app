@@ -48,13 +48,7 @@ impl MessageChanged {
 
     async fn latest_message(&self, ctx: &Context<'_>) -> Result<Option<LatestMessage>> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?;
-
-        let identity = if let Some(identity) = identity {
-            identity
-        } else {
-            auth::get_identity_from_ctx(ctx)?
-        };
+        let identity = auth::get_identity(ctx)?;
 
         let other_user_id = if identity.id == self.tx_user_id {
             self.rx_user_id

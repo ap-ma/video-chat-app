@@ -13,9 +13,15 @@ pub struct Query;
 #[Object]
 impl Query {
     async fn is_authenticated(&self, ctx: &Context<'_>) -> Result<bool> {
-        match auth::get_identity_from_session(ctx)? {
-            Some(_) => Ok(true),
-            None => Ok(false),
+        match auth::get_identity(ctx) {
+            Ok(_) => Ok(true),
+            Err(error) => {
+                if GraphqlError::AuthenticationError.extend() == error {
+                    Ok(false)
+                } else {
+                    Err(error)
+                }
+            }
         }
     }
 
@@ -35,7 +41,7 @@ impl Query {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn me(&self, ctx: &Context<'_>) -> Result<User> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
         let user = common::convert_query_result(
             service::find_user_by_id(identity.id, &conn),
             "Failed to get the user",
@@ -47,7 +53,7 @@ impl Query {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn contacts(&self, ctx: &Context<'_>) -> Result<Vec<Contact>> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
         let contacts = common::convert_query_result(
             service::get_contacts(identity.id, &conn),
             "Failed to get contacts",
@@ -59,7 +65,7 @@ impl Query {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn latest_messages(&self, ctx: &Context<'_>) -> Result<Vec<LatestMessage>> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
         let latest_messages = common::convert_query_result(
             service::get_latest_messages_for_each_user(identity.id, &conn),
             "Failed to get latest messages",
@@ -75,7 +81,7 @@ impl Query {
         contact_user_id: Option<ID>,
     ) -> Result<Contact> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         let contact_user_id = match contact_user_id {
             Some(contact_user_id) => common::convert_id(&contact_user_id)?,

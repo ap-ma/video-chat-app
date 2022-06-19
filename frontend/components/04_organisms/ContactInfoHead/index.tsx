@@ -21,8 +21,8 @@ import { ContainerProps, OnOpen, QueryLoading, QueryNetworkStatus } from 'types'
 import { toStr } from 'utils/general/helper'
 import * as styles from './styles'
 
-/** ContactInfo Props */
-export type ContactInfoProps = FlexProps & {
+/** ContactInfoHead Props */
+export type ContactInfoHeadProps = FlexProps & {
   /**
    * 架電ダイアログ onOpen
    */
@@ -64,8 +64,8 @@ export type ContactInfoProps = FlexProps & {
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<ContactInfoProps, 'query'> & {
-  query: Omit<ContactInfoProps['query'], 'me'>
+export type PresenterProps = Omit<ContactInfoHeadProps, 'query'> & {
+  query: Omit<ContactInfoHeadProps['query'], 'me'>
 } & {
   loading: QueryLoading
   disabled: boolean
@@ -76,7 +76,7 @@ export type PresenterProps = Omit<ContactInfoProps, 'query'> & {
 }
 
 /** Presenter Component */
-const ContactInfoPresenter: React.VFC<PresenterProps> = ({
+const ContactInfoHeadPresenter: React.VFC<PresenterProps> = ({
   query: { contactInfo },
   loading,
   disabled,
@@ -120,7 +120,7 @@ const ContactInfoPresenter: React.VFC<PresenterProps> = ({
 )
 
 /** Container Component */
-const ContactInfoContainer: React.VFC<ContainerProps<ContactInfoProps, PresenterProps>> = ({
+const ContactInfoHeadContainer: React.VFC<ContainerProps<ContactInfoHeadProps, PresenterProps>> = ({
   presenter,
   query: { me, contactInfo },
   ...props
@@ -146,5 +146,9 @@ const ContactInfoContainer: React.VFC<ContainerProps<ContactInfoProps, Presenter
   })
 }
 
-/** ContactInfo */
-export default connect<ContactInfoProps, PresenterProps>('ContactInfo', ContactInfoPresenter, ContactInfoContainer)
+/** ContactInfoHead */
+export default connect<ContactInfoHeadProps, PresenterProps>(
+  'ContactInfoHead',
+  ContactInfoHeadPresenter,
+  ContactInfoHeadContainer
+)

@@ -7,20 +7,20 @@ import { CONTACT } from 'const'
 import React from 'react'
 import { QueryNetworkStatus } from 'types'
 import { includes } from 'utils/general/object'
-import ContactInfo, { ContactInfoProps } from './index'
+import ContactInfoHead, { ContactInfoHeadProps } from './index'
 
 export default {
-  title: '04_organisms/ContactInfo',
-  component: ContactInfo
+  title: '04_organisms/ContactInfoHead',
+  component: ContactInfoHead
 } as Meta
 
-type ContactInfoStoryProps = ContactInfoProps & {
+type ContactInfoHeadStoryProps = ContactInfoHeadProps & {
   networkStatus: QueryNetworkStatus
   status: number
   blocked: boolean
 }
 
-const Template: Story<ContactInfoStoryProps> = ({ networkStatus, status, blocked, ...props }) => {
+const Template: Story<ContactInfoHeadStoryProps> = ({ networkStatus, status, blocked, ...props }) => {
   const contactInfo = dummyContactInfo(
     userId,
     otherUserId,
@@ -33,7 +33,7 @@ const Template: Story<ContactInfoStoryProps> = ({ networkStatus, status, blocked
   )
   const query = { me, contactInfo }
 
-  return <ContactInfo {...{ ...props, query }} />
+  return <ContactInfoHead {...{ ...props, query }} />
 }
 
 const contactStatusLabels: Record<number, string> = {}

@@ -46,6 +46,7 @@ import {
 } from 'graphql/generated'
 import React from 'react'
 import {
+  ContactInfoUserId,
   ContainerProps,
   Disclosure,
   LazyQueryFunction,
@@ -56,9 +57,9 @@ import {
   QueryLoading,
   QueryNetworkStatus,
   QueryRefetch,
+  SetContactInfoUserId,
   ValidationErrors
 } from 'types'
-import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 import * as styles from './styles'
 
 /** IndexTemplate Props */

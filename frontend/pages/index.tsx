@@ -34,7 +34,8 @@ import {
 } from 'graphql/generated'
 import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useState } from 'react'
+import { ContactInfoUserId } from 'types'
 import { isNode, isNullish } from 'utils'
 import {
   handle,
@@ -44,7 +45,6 @@ import {
   updateContactCache,
   updateMessageCache
 } from 'utils/apollo'
-import { contactInfoUserIdVar, setContactInfoUserId } from 'utils/apollo/state'
 import { toStr } from 'utils/general/helper'
 
 const Index: NextPage = () => {
@@ -84,7 +84,7 @@ const Index: NextPage = () => {
   //  ----------------------------------------------------------------------------
   //  State Props
   //  ----------------------------------------------------------------------------
-  const contactInfoUserId = contactInfoUserIdVar()
+  const [contactInfoUserId, setContactInfoUserId] = useState<ContactInfoUserId>(undefined)
 
   //  ----------------------------------------------------------------------------
   //  Query Props
@@ -132,7 +132,7 @@ const Index: NextPage = () => {
   // プロフィール編集
   const [editProfile, editProfileMutation] = useEditProfileMutation({
     onCompleted: () => {
-      contactInfo()
+      contactInfo({ variables: { limit: CHAT_LENGTH } })
       toast('EditProfileComplete')()
     }
   })
@@ -205,6 +205,7 @@ const Index: NextPage = () => {
     update: (cache, { data }) => !isNullish(data) && updateContactCache(cache, data.unblockContact, 'ADD'),
     onCompleted: ({ unblockContact }) => {
       if (contactInfoUserId === unblockContact.userId) {
+        contactInfoQuery.refetch({ contactUserId: unblockContact.userId, limit: CHAT_LENGTH })
         readMessages({ variables: { otherUserId: unblockContact.userId } }).catch(toast('UnexpectedError'))
       }
     }

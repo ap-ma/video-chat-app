@@ -132,7 +132,7 @@ impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn edit_profile(&self, ctx: &Context<'_>, input: EditProfileInput) -> Result<User> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         validator::code_validator("code", &input.code, Some(identity.id), &conn)?;
         validator::max_length_validator(
@@ -167,7 +167,7 @@ impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn change_email(&self, ctx: &Context<'_>, email: String) -> Result<bool> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         let user = common::convert_query_result(
             service::find_user_by_id(identity.id, &conn),
@@ -276,7 +276,7 @@ impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn change_password(&self, ctx: &Context<'_>, input: ChangePasswordInput) -> Result<bool> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         let user = common::convert_query_result(
             service::find_user_by_id(identity.id, &conn),
@@ -399,7 +399,7 @@ impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn delete_account(&self, ctx: &Context<'_>) -> Result<bool> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         let change_user = ChangeUserEntity {
             id: identity.id,
@@ -436,7 +436,7 @@ impl Mutation {
         input: SendMessageInput,
     ) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         let contact = service::find_contact_by_id(common::convert_id(&input.contact_id)?, &conn);
         let contact = contact.map_err(|_| {
@@ -468,7 +468,7 @@ impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn send_image(&self, ctx: &Context<'_>, input: SendImageInput) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         let contact = service::find_contact_by_id(common::convert_id(&input.contact_id)?, &conn);
         let contact = contact.map_err(|_| {
@@ -500,7 +500,7 @@ impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn call_offer(&self, ctx: &Context<'_>, input: CallOfferInput) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         let contact = service::find_contact_by_id(common::convert_id(&input.contact_id)?, &conn);
         let contact = contact.map_err(|_| {
@@ -583,7 +583,7 @@ impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn delete_message(&self, ctx: &Context<'_>, message_id: ID) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         let message = service::find_message_by_id(common::convert_id(&message_id)?, &conn);
         let (message, _) = message.map_err(|_| {
@@ -654,7 +654,7 @@ impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn read_messages(&self, ctx: &Context<'_>, other_user_id: ID) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         let other_user_id = common::convert_id(&other_user_id)?;
 
@@ -673,7 +673,7 @@ impl Mutation {
             contact_status = Some(contact.status);
         }
 
-        let targets = common::convert_query_result(
+        let mut targets = common::convert_query_result(
             service::get_unread_messages(identity.id, other_user_id, &conn),
             "Failed to get messages",
         )?;
@@ -682,6 +682,10 @@ impl Mutation {
             service::update_message_to_read(identity.id, other_user_id, &conn),
             "Failed to update messages",
         )?;
+
+        targets
+            .iter_mut()
+            .for_each(|(message, _)| message.status = message_const::status::READ);
 
         let messages = targets.iter().map(Message::from).collect();
         let message_changed = MessageChanged {
@@ -712,7 +716,7 @@ impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn apply_contact(&self, ctx: &Context<'_>, other_user_id: ID) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         let other_user_id = common::convert_id(&other_user_id)?;
 
@@ -738,7 +742,7 @@ impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn approve_contact(&self, ctx: &Context<'_>, message_id: ID) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         let message = service::find_message_by_id(common::convert_id(&message_id)?, &conn);
         let (message, _) = message.map_err(|_| {
@@ -784,7 +788,7 @@ impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn delete_contact(&self, ctx: &Context<'_>, contact_id: ID) -> Result<Contact> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         let contact = service::find_contact_by_id(common::convert_id(&contact_id)?, &conn);
         let contact = contact.map_err(|_| {
@@ -824,7 +828,7 @@ impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn undelete_contact(&self, ctx: &Context<'_>, contact_id: ID) -> Result<Contact> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         let contact = service::find_contact_by_id(common::convert_id(&contact_id)?, &conn);
         let contact = contact.map_err(|_| {
@@ -865,7 +869,7 @@ impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn block_contact(&self, ctx: &Context<'_>, contact_id: ID) -> Result<Contact> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         let contact = service::find_contact_by_id(common::convert_id(&contact_id)?, &conn);
         let contact = contact.map_err(|_| {
@@ -905,7 +909,7 @@ impl Mutation {
     #[graphql(guard = "RoleGuard::new(Role::User)")]
     async fn unblock_contact(&self, ctx: &Context<'_>, contact_id: ID) -> Result<Contact> {
         let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity_from_session(ctx)?.unwrap();
+        let identity = auth::get_identity(ctx)?;
 
         let contact = service::find_contact_by_id(common::convert_id(&contact_id)?, &conn);
         let contact = contact.map_err(|_| {
@@ -974,8 +978,7 @@ fn create_message(
     ctx: &Context<'_>,
 ) -> Result<MessageChanged> {
     let conn = common::get_conn(ctx)?;
-    let identity = auth::get_identity_from_session(ctx)?;
-    let identity = identity.ok_or_else(|| GraphqlError::AuthenticationError.extend())?;
+    let identity = auth::get_identity(ctx)?;
 
     let now = Local::now().naive_local();
     let new_message = NewMessageEntity {

@@ -75,20 +75,24 @@ export const menuIcon = ({ disabled }: Pick<PresenterProps, 'disabled'>): Record
 
 export const deleteMenu = ({ approved }: Pick<PresenterProps, 'approved'>): Record<string, unknown> =>
   ({
+    fontSize: 'sm',
     d: approved ? 'flex' : 'none'
   } as const)
 
 export const undeleteMenu = ({ deleted }: Pick<PresenterProps, 'deleted'>): Record<string, unknown> =>
   ({
+    fontSize: 'sm',
     d: deleted ? 'flex' : 'none'
   } as const)
 
 export const blockMenu = ({ notBlocked }: Pick<PresenterProps, 'notBlocked'>): Record<string, unknown> =>
   ({
+    fontSize: 'sm',
     d: notBlocked ? 'flex' : 'none'
   } as const)
 
 export const unblockMenu = ({ blocked }: Pick<PresenterProps, 'blocked'>): Record<string, unknown> =>
   ({
+    fontSize: 'sm',
     d: blocked ? 'flex' : 'none'
   } as const)

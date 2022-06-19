@@ -1,23 +1,19 @@
-import MessageList from 'components/04_organisms/MessageList'
-import ApplyContactBox from 'components/04_organisms/_boxes/ApplyContactBox'
-import ApproveContactBox from 'components/04_organisms/_boxes/ApproveContactBox'
-import UnblockContactBox from 'components/04_organisms/_boxes/UnblockContactBox'
+import { NetworkStatus } from '@apollo/client'
+import { Box } from '@chakra-ui/react'
+import toast from 'components/01_atoms/Toast'
+import Scrollbar from 'components/02_interactions/Scrollbar'
+import Message from 'components/04_organisms/Message'
 import { connect } from 'components/hoc'
-import { CONTACT, MESSAGE } from 'const'
 import {
-  ApplyContactMutation,
-  ApplyContactMutationVariables,
-  ApproveContactMutation,
-  ApproveContactMutationVariables,
   ContactInfoQuery,
   ContactInfoQueryVariables,
   DeleteMessageMutation,
   DeleteMessageMutationVariables,
-  MeQuery,
-  UnblockContactMutation,
-  UnblockContactMutationVariables
+  MeQuery
 } from 'graphql/generated'
-import React, { Fragment } from 'react'
+import groupBy from 'lodash/groupBy'
+import React, { forwardRef, useCallback, useMemo } from 'react'
+import { GroupedVirtuoso } from 'react-virtuoso'
 import {
   ContainerProps,
   MutaionLoading,
@@ -27,11 +23,10 @@ import {
   QueryLoading,
   QueryNetworkStatus
 } from 'types'
-import { isBlank } from 'utils/general/object'
-import * as styles from './styles'
+import { first, includes, isNonEmptyArray, isNullish } from 'utils/general/object'
 
 /** Chat Props */
-export type ChatProps = {
+export type ChatProps = JSX.IntrinsicElements['div'] & {
   /**
    * Query
    */
@@ -65,102 +60,76 @@ export type ChatProps = {
       reset: MutaionReset
       mutate: MutateFunction<DeleteMessageMutation, DeleteMessageMutationVariables>
     }
-    /**
-     * コンタクト申請
-     */
-    applyContact: {
-      loading: MutaionLoading
-      reset: MutaionReset
-      mutate: MutateFunction<ApplyContactMutation, ApplyContactMutationVariables>
-    }
-    /**
-     * コンタクト承認
-     */
-    approveContact: {
-      loading: MutaionLoading
-      reset: MutaionReset
-      mutate: MutateFunction<ApproveContactMutation, ApproveContactMutationVariables>
-    }
-    /**
-     * コンタクトブロック解除
-     */
-    unblockContact: {
-      loading: MutaionLoading
-      reset: MutaionReset
-      mutate: MutateFunction<UnblockContactMutation, UnblockContactMutationVariables>
-    }
   }
 }
 
 /** Presenter Props */
 export type PresenterProps = ChatProps & {
-  messageListDisp: boolean
-  applyBoxDisp: boolean
-  approveBoxDisp: boolean
-  unblockBoxDisp: boolean
+  messageList?: ContactInfoQuery['contactInfo']['chat']
+  groupCounts: number[]
+  dates: string[]
+  loadMore: () => void
 }
 
 /** Presenter Component */
 const ChatPresenter: React.VFC<PresenterProps> = ({
   query: { me, contactInfo },
-  mutation: { deleteMessage, applyContact, approveContact, unblockContact },
-  messageListDisp,
-  applyBoxDisp,
-  approveBoxDisp,
-  unblockBoxDisp
+  mutation: { deleteMessage },
+  messageList,
+  groupCounts,
+  dates,
+  loadMore,
+  ...props
 }) => (
-  <Fragment>
-    <MessageList
-      {...styles.messageList({ messageListDisp })}
-      query={{ me, contactInfo }}
-      mutation={{ deleteMessage }}
-    />
-    <ApplyContactBox
-      {...styles.applyContactBox({ applyBoxDisp })}
-      query={{ contactInfo }}
-      mutation={{ applyContact }}
-    />
-    <ApproveContactBox
-      {...styles.approveContactBox({ approveBoxDisp })}
-      query={{ me, contactInfo }}
-      mutation={{ approveContact }}
-    />
-    <UnblockContactBox
-      {...styles.unblockContactBox({ unblockBoxDisp })}
-      query={{ contactInfo }}
-      mutation={{ unblockContact }}
-    />
-  </Fragment>
+  <GroupedVirtuoso
+    style={{ ...props }}
+    groupCounts={groupCounts}
+    groupContent={(index) => (
+      <Box bg='white' py='0.5' borderBottom='1px solid #ccc'>
+        {dates[index]}
+      </Box>
+    )}
+    itemContent={(index) => (
+      <Message message={messageList[index]} query={{ me, contactInfo }} mutation={{ deleteMessage }} />
+    )}
+    increaseViewportBy={10000}
+    followOutput
+    components={{
+      Scroller: forwardRef(function Scroller({ style, ...props }, ref) {
+        return <Scrollbar style={{ ...style }} ref={ref} {...props} />
+      })
+    }}
+  />
 )
 
 /** Container Component */
 const ChatContainer: React.VFC<ContainerProps<ChatProps, PresenterProps>> = ({
   presenter,
-  query: { me, contactInfo },
+  query: { contactInfo, ...queryRest },
+  mutation: { deleteMessage },
   ...props
 }) => {
-  const unapproved = CONTACT.STATUS.UNAPPROVED === contactInfo.result?.status
   const chat = contactInfo.result?.chat
+  const messageList = useMemo(() => chat?.slice().reverse(), [chat])
 
-  // display flag
-  const unblockBoxDisp = !!contactInfo.result?.blocked
-  const applyBoxDisp = !unblockBoxDisp && unapproved && isBlank(chat)
-  const approveBoxDisp =
-    !unblockBoxDisp &&
-    unapproved &&
-    !!chat?.some((message) => {
-      const isApplicationMessage = MESSAGE.CATEGORY.CONTACT_APPLICATION === message.category
-      const isReceivedMessage = me.result?.id === message.rxUserId
-      return isApplicationMessage && isReceivedMessage
-    })
-  const messageListDisp = !unblockBoxDisp && !applyBoxDisp && !approveBoxDisp
+  const grouped = useMemo(() => groupBy(messageList, (message) => message.createdAt.substring(0, 10)), [messageList])
+  const groupCounts = useMemo(() => Object.values(grouped).map((messages) => messages.length), [grouped])
+  const dates = useMemo(() => Object.keys(grouped), [grouped])
+
+  const loadMore = useCallback(() => {
+    if (includes(contactInfo.networkStatus, NetworkStatus.fetchMore)) return
+    if (isNullish(messageList) || !isNonEmptyArray(messageList)) return
+    const cursor = first(messageList).id
+    contactInfo.fetchMore({ variables: { cursor } }).catch(toast('UnexpectedError'))
+  }, [contactInfo, messageList])
 
   return presenter({
-    query: { me, contactInfo },
-    messageListDisp,
-    applyBoxDisp,
-    approveBoxDisp,
-    unblockBoxDisp,
+    query: { contactInfo, ...queryRest },
+    mutation: { deleteMessage },
+    messageList,
+    groupCounts,
+    dates,
+    loadMore,
     ...props
   })
 }

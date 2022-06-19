@@ -3,13 +3,12 @@ import ContactCard, { ContactCardProps } from 'components/03_molecules/ContactCa
 import { connect } from 'components/hoc'
 import { ContactInfoQuery, ContactInfoQueryVariables, LatestMessagesQuery, MeQuery } from 'graphql/generated'
 import React from 'react'
-import { ContainerProps, OnClose, QueryRefetch, Unbox } from 'types'
-import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
+import { ContactInfoUserId, ContainerProps, OnClose, QueryRefetch, SetContactInfoUserId, Unbox } from 'types'
 import { toStr } from 'utils/general/helper'
 import { getLatestMessage } from 'utils/helper'
 
-/** ChatList Props */
-export type ChatListProps = ScrollbarProps & {
+/** LatestMessageList Props */
+export type LatestMessageListProps = ScrollbarProps & {
   /**
    * サイドバー onClose
    */
@@ -52,28 +51,28 @@ export type ChatListProps = ScrollbarProps & {
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<ChatListProps, 'onSbClose' | 'state' | 'query'> & {
-  chatList?: (ContactCardProps & { key: Unbox<LatestMessagesQuery['latestMessages']>['userId'] })[]
+export type PresenterProps = Omit<LatestMessageListProps, 'onSbClose' | 'state' | 'query'> & {
+  latestMessageList?: (ContactCardProps & { key: Unbox<LatestMessagesQuery['latestMessages']>['userId'] })[]
 }
 
 /** Presenter Component */
-const ChatListPresenter: React.VFC<PresenterProps> = ({ chatList, ...props }) => (
+const LatestMessageListPresenter: React.VFC<PresenterProps> = ({ latestMessageList, ...props }) => (
   <Scrollbar mt='0.25em' {...props}>
-    {chatList?.map(({ key, ...latestMessage }) => (
+    {latestMessageList?.map(({ key, ...latestMessage }) => (
       <ContactCard key={key} {...latestMessage} />
     ))}
   </Scrollbar>
 )
 
 /** Container Component */
-const ChatListContainer: React.VFC<ContainerProps<ChatListProps, PresenterProps>> = ({
+const LatestMessageListContainer: React.VFC<ContainerProps<LatestMessageListProps, PresenterProps>> = ({
   presenter,
   state: { contactInfoUserId },
   query: { me, latestMessages, contactInfo },
   onSbClose,
   ...props
 }) => {
-  const chatList = latestMessages.result?.map((latestMessage) => ({
+  const latestMessageList = latestMessages.result?.map((latestMessage) => ({
     key: latestMessage.userId,
     image: latestMessage.userAvatar ?? undefined,
     name: toStr(latestMessage.userName),
@@ -87,8 +86,12 @@ const ChatListContainer: React.VFC<ContainerProps<ChatListProps, PresenterProps>
     }
   }))
 
-  return presenter({ chatList, ...props })
+  return presenter({ latestMessageList, ...props })
 }
 
-/** ChatList */
-export default connect<ChatListProps, PresenterProps>('ChatList', ChatListPresenter, ChatListContainer)
+/** LatestMessageList */
+export default connect<LatestMessageListProps, PresenterProps>(
+  'LatestMessageList',
+  LatestMessageListPresenter,
+  LatestMessageListContainer
+)

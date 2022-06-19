@@ -8,13 +8,10 @@ export const root = ({ active }: Pick<PresenterProps, 'active'>): Record<string,
     px: '3',
     marginStart: '1',
     borderRadius: 'lg',
-    role: 'group',
     bg: active ? 'gray.200' : 'white',
     cursor: active ? 'auto' : 'pointer',
     pointerEvents: active ? 'none' : 'auto',
-    _hover: {
-      bg: 'gray.100'
-    }
+    _hover: { bg: 'gray.100' }
   } as const)
 
 export const name = {

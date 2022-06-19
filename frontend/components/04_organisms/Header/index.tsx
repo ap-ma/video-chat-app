@@ -31,6 +31,7 @@ import React, { useMemo } from 'react'
 import { ImSearch } from 'react-icons/im'
 import { RiContactsLine } from 'react-icons/ri'
 import {
+  ContactInfoUserId,
   ContainerProps,
   Disclosure,
   LazyQueryFunction,
@@ -40,9 +41,9 @@ import {
   OnOpen,
   QueryLoading,
   QueryRefetch,
+  SetContactInfoUserId,
   ValidationErrors
 } from 'types'
-import { ContactInfoUserId, SetContactInfoUserId } from 'utils/apollo/state'
 import * as styles from './styles'
 
 /** Header Props */

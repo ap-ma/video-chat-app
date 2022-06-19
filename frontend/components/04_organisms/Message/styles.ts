@@ -22,7 +22,7 @@ export const balloon = ({ isSender }: Pick<PresenterProps, 'isSender'>) =>
   ({
     autoSizing: true,
     tailPosition: isSender ? 'right' : 'left',
-    bgColor: isSender ? '#389fff' : 'blackAlpha.200'
+    bgColor: isSender ? '#389fff' : '#e6e6e6'
   } as const)
 
 export const textContent = ({ isSender }: Pick<PresenterProps, 'isSender'>) =>

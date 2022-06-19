@@ -10,13 +10,39 @@ use async_graphql::{Context, ErrorExtensions, Result};
 pub use crate::identity::*;
 pub use remember_me::*;
 
-pub fn get_identity_from_ctx(ctx: &Context<'_>) -> Result<Identity> {
-    ctx.data_unchecked::<Option<Identity>>()
-        .clone()
-        .ok_or_else(|| GraphqlError::AuthenticationError.extend())
+pub fn sign_in(user: &UserEntity, ctx: &Context<'_>) -> Result<()> {
+    let session = ctx.data_unchecked::<Shared<Session>>();
+    match session.insert(AUTHENTICATED_USER_KEY, &Identity::from(user)) {
+        Ok(()) => Ok(session.renew()),
+        Err(e) => {
+            let m = "Failed to initiate session.";
+            let e = GraphqlError::ServerError(m.into(), e.to_string());
+            Err(e.extend())
+        }
+    }
 }
 
-pub fn get_identity_from_session(ctx: &Context<'_>) -> Result<Option<Identity>> {
+pub fn sign_out(ctx: &Context<'_>) -> Result<()> {
+    let session = ctx.data_unchecked::<Shared<Session>>();
+    match get_identity_from_session(ctx)? {
+        Some(_) => {
+            remember_me::purge_remember_token(ctx)?;
+            Ok(session.purge())
+        }
+        None => Ok(()),
+    }
+}
+
+pub fn get_identity(ctx: &Context<'_>) -> Result<Identity> {
+    let identity = get_identity_from_session(ctx)?;
+    if let Some(identity) = identity {
+        return Ok(identity);
+    }
+
+    get_identity_from_ctx(ctx)
+}
+
+fn get_identity_from_session(ctx: &Context<'_>) -> Result<Option<Identity>> {
     let session = match ctx.data::<Shared<Session>>() {
         Ok(shared_session) => shared_session,
         _ => {
@@ -39,25 +65,9 @@ pub fn get_identity_from_session(ctx: &Context<'_>) -> Result<Option<Identity>> 
     }
 }
 
-pub fn sign_in(user: &UserEntity, ctx: &Context<'_>) -> Result<()> {
-    let session = ctx.data_unchecked::<Shared<Session>>();
-    match session.insert(AUTHENTICATED_USER_KEY, &Identity::from(user)) {
-        Ok(()) => Ok(session.renew()),
-        Err(e) => {
-            let m = "Failed to initiate session.";
-            let e = GraphqlError::ServerError(m.into(), e.to_string());
-            Err(e.extend())
-        }
-    }
-}
-
-pub fn sign_out(ctx: &Context<'_>) -> Result<()> {
-    let session = ctx.data_unchecked::<Shared<Session>>();
-    match get_identity_from_session(ctx)? {
-        Some(_) => {
-            remember_me::purge_remember_token(ctx)?;
-            Ok(session.purge())
-        }
-        None => Ok(()),
-    }
+fn get_identity_from_ctx(ctx: &Context<'_>) -> Result<Identity> {
+    ctx.data::<Option<Identity>>()
+        .ok()
+        .and_then(|identity| identity.clone())
+        .ok_or_else(|| GraphqlError::AuthenticationError.extend())
 }

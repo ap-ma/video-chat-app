@@ -1,6 +1,6 @@
 import { Flex, FlexProps, useDisclosure } from '@chakra-ui/react'
-import Chat from 'components/04_organisms/Chat'
-import ContactInfo from 'components/04_organisms/ContactInfo'
+import ContactInfoBody from 'components/04_organisms/ContactInfoBody'
+import ContactInfoHead from 'components/04_organisms/ContactInfoHead'
 import BlockContactConfirmDialog from 'components/04_organisms/_dialogs/BlockContactConfirmDialog'
 import DeleteContactConfirmDialog from 'components/04_organisms/_dialogs/DeleteContactConfirmDialog'
 import UnblockContactConfirmDialog from 'components/04_organisms/_dialogs/UnblockContactConfirmDialog'
@@ -194,7 +194,7 @@ const MainPresenter: React.VFC<PresenterProps> = ({
   ...props
 }) => (
   <Flex {...styles.root} {...props}>
-    <ContactInfo
+    <ContactInfoHead
       query={{ me, contactInfo }}
       onMccdOpen={mccdOpenDisc.onOpen}
       onDccdOpen={dccdDisc.onOpen}
@@ -202,7 +202,10 @@ const MainPresenter: React.VFC<PresenterProps> = ({
       onBccdOpen={bccdDisc.onOpen}
       onUbccdOpen={ubccdDisc.onOpen}
     />
-    <Chat query={{ me, contactInfo }} mutation={{ deleteMessage, applyContact, approveContact, unblockContact }} />
+    <ContactInfoBody
+      query={{ me, contactInfo }}
+      mutation={{ deleteMessage, applyContact, approveContact, unblockContact }}
+    />
     <SendMessageForm onMccdOpen={mccdOpenDisc.onOpen} query={{ contactInfo }} mutation={{ sendMessage, sendImage }} />
     <DeleteContactConfirmDialog
       query={{ contactInfo }}
