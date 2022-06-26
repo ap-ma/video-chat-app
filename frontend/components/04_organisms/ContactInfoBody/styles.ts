@@ -1,8 +1,8 @@
 import { PresenterProps } from './index'
 
-export const messageList = ({ messageListDisp }: Pick<PresenterProps, 'messageListDisp'>): Record<string, unknown> =>
+export const chat = ({ chatDisp }: Pick<PresenterProps, 'chatDisp'>): Record<string, unknown> =>
   ({
-    display: messageListDisp ? 'block' : 'none'
+    d: chatDisp ? 'block' : 'none'
   } as const)
 
 export const applyContactBox = ({ applyBoxDisp }: Pick<PresenterProps, 'applyBoxDisp'>): Record<string, unknown> =>

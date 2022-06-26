@@ -5,7 +5,7 @@ import { container } from '.storybook/decorators'
 import { Text } from '@chakra-ui/react'
 import { Meta, Story } from '@storybook/react/types-6-0'
 import React from 'react'
-import { NonEmptyArray } from 'types'
+import { ChakraColors, NonEmptyArray } from 'types'
 import Balloon, { BalloonProps } from './index'
 
 export default {
@@ -16,6 +16,7 @@ export default {
 
 type BalloonStoryProps = BalloonProps & {
   text: string
+  textColor?: ChakraColors
 }
 
 const tailPositions: NonEmptyArray<BalloonProps['tailPosition']> = ['left', 'right', 'none']

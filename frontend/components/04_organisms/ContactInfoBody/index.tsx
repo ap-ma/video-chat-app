@@ -94,7 +94,7 @@ export type ContactInfoBodyProps = {
 
 /** Presenter Props */
 export type PresenterProps = ContactInfoBodyProps & {
-  messageListDisp: boolean
+  chatDisp: boolean
   applyBoxDisp: boolean
   approveBoxDisp: boolean
   unblockBoxDisp: boolean
@@ -104,13 +104,13 @@ export type PresenterProps = ContactInfoBodyProps & {
 const ContactInfoBodyPresenter: React.VFC<PresenterProps> = ({
   query: { me, contactInfo },
   mutation: { deleteMessage, applyContact, approveContact, unblockContact },
-  messageListDisp,
+  chatDisp,
   applyBoxDisp,
   approveBoxDisp,
   unblockBoxDisp
 }) => (
   <Fragment>
-    <Chat {...styles.messageList({ messageListDisp })} query={{ me, contactInfo }} mutation={{ deleteMessage }} />
+    <Chat {...styles.chat({ chatDisp })} query={{ me, contactInfo }} mutation={{ deleteMessage }} />
     <ApplyContactBox
       {...styles.applyContactBox({ applyBoxDisp })}
       query={{ contactInfo }}
@@ -149,11 +149,11 @@ const ContactInfoBodyContainer: React.VFC<ContainerProps<ContactInfoBodyProps, P
       const isReceivedMessage = me.result?.id === message.rxUserId
       return isApplicationMessage && isReceivedMessage
     })
-  const messageListDisp = !unblockBoxDisp && !applyBoxDisp && !approveBoxDisp
+  const chatDisp = !unblockBoxDisp && !applyBoxDisp && !approveBoxDisp
 
   return presenter({
     query: { me, contactInfo },
-    messageListDisp,
+    chatDisp,
     applyBoxDisp,
     approveBoxDisp,
     unblockBoxDisp,

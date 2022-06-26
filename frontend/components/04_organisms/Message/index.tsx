@@ -1,22 +1,30 @@
-import { Avatar, AvatarProps, Flex, FlexProps, Text, useDisclosure } from '@chakra-ui/react'
+import { Box, BoxProps } from '@chakra-ui/react'
 import Balloon from 'components/01_atoms/Balloon'
-import DeleteMessageConfirmDialog from 'components/04_organisms/_dialogs/DeleteMessageConfirmDialog'
 import { connect } from 'components/hoc'
 import { MESSAGE } from 'const'
-import { ContactInfoQuery, DeleteMessageMutation, DeleteMessageMutationVariables, MeQuery } from 'graphql/generated'
-import React, { Fragment } from 'react'
-import { ContainerProps, Disclosure, MutaionLoading, MutaionReset, MutateFunction, Unbox } from 'types'
+import { ContactInfoQuery, MeQuery } from 'graphql/generated'
+import React, { ReactText } from 'react'
+import { ContainerProps, DeleteMessageId, OnOpen, SetState, Unbox } from 'types'
 import { toStr } from 'utils/general/helper'
-import { isNullish } from 'utils/general/object'
+import { includes, isNullish, isString } from 'utils/general/object'
 import { getMessage } from 'utils/helper'
 import * as styles from './styles'
+import UsualMsg from './UsualMsg'
 
 /** Message Props */
-export type MessageProps = FlexProps & {
+export type MessageProps = BoxProps & {
   /**
    *  メッセージ
    */
-  message: Unbox<ContactInfoQuery['contactInfo']['chat']>
+  message: string | Unbox<ContactInfoQuery['contactInfo']['chat']>
+  /**
+   * メッセージ削除ダイアログ onOpen
+   */
+  onDmcdOpen: OnOpen
+  /**
+   * メッセージ削除 IDセット関数
+   */
+  setDeleteMessageId: SetState<DeleteMessageId>
   /**
    * Query
    */
@@ -34,94 +42,62 @@ export type MessageProps = FlexProps & {
       result?: ContactInfoQuery['contactInfo']
     }
   }
-  /**
-   * Mutation
-   */
-  mutation: {
-    /**
-     * メッセージ削除
-     */
-    deleteMessage: {
-      result?: DeleteMessageMutation['deleteMessage']
-      loading: MutaionLoading
-      reset: MutaionReset
-      mutate: MutateFunction<DeleteMessageMutation, DeleteMessageMutationVariables>
-    }
-  }
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<MessageProps, 'query'> & {
-  isSender: boolean
-  avatar: AvatarProps['src']
-  content: string
-  isRead: boolean
-  time: string
-  dmcdDisc: Disclosure
+export type PresenterProps = Omit<MessageProps, 'message'> & {
+  isDate: boolean
+  isMessage: boolean
+  isWorkflow: boolean
+  message?: Unbox<ContactInfoQuery['contactInfo']['chat']>
+  text?: ReactText
 }
 
 /** Presenter Component */
 const MessagePresenter: React.VFC<PresenterProps> = ({
   message,
-  mutation: { deleteMessage },
-  isSender,
-  avatar,
-  content,
-  isRead,
-  time,
-  dmcdDisc,
+  onDmcdOpen,
+  setDeleteMessageId,
+  query,
+  isDate,
+  isMessage,
+  isWorkflow,
+  text,
   ...props
 }) => (
-  <Fragment>
-    <Flex {...styles.root({ isSender })} {...props}>
-      <Flex {...styles.container({ isSender })}>
-        <Avatar src={avatar} />
-        <Flex {...styles.content({ isSender })}>
-          <Balloon {...styles.balloon({ isSender })}>
-            <Text {...styles.textContent({ isSender })}>{content}</Text>
-          </Balloon>
-        </Flex>
-        <Flex {...styles.info({ isSender })}>
-          <Text {...styles.read({ isRead })}>Read</Text>
-          <Text {...styles.infoText}>{time}</Text>
-        </Flex>
-      </Flex>
-    </Flex>
-    <DeleteMessageConfirmDialog
-      message={message}
-      mutation={{ deleteMessage }}
-      isOpen={dmcdDisc.isOpen}
-      onClose={dmcdDisc.onClose}
-    />
-  </Fragment>
+  <Box {...styles.root} {...props}>
+    <Box {...styles.date({ isDate })}>{text}</Box>
+    <Balloon {...styles.workflow({ isWorkflow })}>{text}</Balloon>
+    <UsualMsg {...styles.usualMsg({ isMessage })} {...{ message, onDmcdOpen, setDeleteMessageId, query }} />
+  </Box>
 )
 
 /** Container Component */
 const MessageContainer: React.VFC<ContainerProps<MessageProps, PresenterProps>> = ({
   presenter,
-  message,
+  message: msg,
   query: { me, contactInfo },
-  mutation: { deleteMessage },
   ...props
 }) => {
-  const isSender = message.txUserId === me.result?.id
-  const avatar = (isSender ? me.result?.avatar : contactInfo.result?.userAvatar) ?? undefined
-  const content = !isNullish(contactInfo.result) ? getMessage(message, contactInfo.result, toStr(me.result?.name)) : ''
-  const isRead = message.txUserId === me.result?.id && MESSAGE.STATUS.READ === message.status
-  const time = message.createdAt.substring(11, 16)
+  const workflow = [MESSAGE.CATEGORY.CONTACT_APPLICATION, MESSAGE.CATEGORY.CONTACT_APPROVAL]
+  const isDate = isString(msg)
+  const isWorkflow = !isDate && includes(msg.category, ...workflow)
+  const isMessage = !isDate && !isWorkflow
 
-  // DeleteMessageConfirmDialog modal
-  const dmcdDisc = useDisclosure()
+  const message = isMessage ? msg : undefined
+  const text = isDate
+    ? msg
+    : !isNullish(contactInfo.result)
+    ? getMessage(msg, contactInfo.result, toStr(me.result?.name))
+    : undefined
 
   return presenter({
+    query: { me, contactInfo },
+    isDate,
+    isMessage,
+    isWorkflow,
     message,
-    mutation: { deleteMessage },
-    isSender,
-    avatar,
-    content,
-    isRead,
-    time,
-    dmcdDisc,
+    text,
     ...props
   })
 }

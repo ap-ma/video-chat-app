@@ -53,13 +53,16 @@ export const getMessage = (
   // 通話
   if (MESSAGE.CATEGORY.CALLING === message.category) {
     if (!isNullish(message.call)) {
-      if (CALL.STATUS.ENDED === message.call.status) {
-        if (!isNullish(message.call.callTime)) return formatMinTime(message.call.callTime)
-      }
+      const dispMessage: Array<string> = []
       const CALLING_MESSAGE = CATEGORY_MESSAGE[MESSAGE.CATEGORY.CALLING]
       if (hasProperty(CALLING_MESSAGE, message.call.status)) {
-        const dispMessage = CALLING_MESSAGE[message.call.status]
-        return dispMessage.replace('{tx_user}', txUser)
+        dispMessage.push(CALLING_MESSAGE[message.call.status])
+        if (CALL.STATUS.ENDED === message.call.status) {
+          if (!isNullish(message.call.callTime)) {
+            dispMessage.push(formatMinTime(message.call.callTime))
+          }
+        }
+        return dispMessage.join('\n').replace('{tx_user}', txUser)
       }
     }
   }

@@ -82,6 +82,40 @@ impl Contact {
         Ok(latest_message)
     }
 
+    async fn chat_count(&self, ctx: &Context<'_>) -> Result<i64> {
+        if self.blocked {
+            return Ok(0);
+        }
+
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?;
+
+        let count = common::convert_query_result(
+            service::get_message_count(identity.id, self.user_id, &conn),
+            "Failed to get chat count",
+        )?;
+
+        Ok(count)
+    }
+
+    async fn chat_date_count(&self, ctx: &Context<'_>) -> Result<i64> {
+        if self.blocked {
+            return Ok(0);
+        }
+
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?;
+
+        let date_count = common::convert_query_result(
+            service::get_message_date_count(identity.id, self.user_id, &conn),
+            "Failed to get chat date count",
+        )?;
+
+        let date_count = date_count.first().map_or(0, |count| count.date_count);
+
+        Ok(date_count)
+    }
+
     async fn chat(
         &self,
         ctx: &Context<'_>,

@@ -1,11 +1,11 @@
-import { Dispatch, SetStateAction } from 'react'
+import { Contact, Message } from 'graphql/generated'
 
 //  ----------------------------------------------------------------------------
 //  Local state types
 //  ----------------------------------------------------------------------------
 
 /** Local State ContactInfoUserId */
-export type ContactInfoUserId = string | undefined
+export type ContactInfoUserId = Contact['userId'] | undefined
 
-/** Local State Set ContactInfoUserId */
-export type SetContactInfoUserId = Dispatch<SetStateAction<ContactInfoUserId>>
+/** Local State DeleteMessageId */
+export type DeleteMessageId = Message['id'] | undefined

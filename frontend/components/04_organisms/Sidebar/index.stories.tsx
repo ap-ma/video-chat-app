@@ -4,6 +4,7 @@ import { contactInfo, contacts, latestMessages, me, otherUserId } from '.storybo
 /* eslint-enable import/no-unresolved */
 import { Meta, Story } from '@storybook/react'
 import React, { useState } from 'react'
+import { ContactInfoUserId } from 'types'
 import { toStr } from 'utils/general/helper'
 import Sidebar, { SidebarProps } from './index'
 
@@ -15,7 +16,7 @@ export default {
 } as Meta
 
 const Template: Story<SidebarProps> = ({ ...props }) => {
-  const [contactUserId, setContactUserId] = useState(toStr(otherUserId))
+  const [contactUserId, setContactUserId] = useState<ContactInfoUserId>(toStr(otherUserId))
   const state = { contactInfoUserId: { state: contactUserId, setContactInfoUserId: setContactUserId } }
   const query = { me, contacts, latestMessages, contactInfo }
 

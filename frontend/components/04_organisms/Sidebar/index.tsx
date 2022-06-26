@@ -11,7 +11,7 @@ import {
   MeQuery
 } from 'graphql/generated'
 import React from 'react'
-import { ContactInfoUserId, ContainerProps, OnClose, QueryRefetch, SetContactInfoUserId } from 'types'
+import { ContactInfoUserId, ContainerProps, OnClose, QueryRefetch, SetState } from 'types'
 import * as styles from './styles'
 
 /** Sidebar Props */
@@ -29,7 +29,7 @@ export type SidebarProps = BoxProps & {
      */
     contactInfoUserId: {
       state: ContactInfoUserId
-      setContactInfoUserId: SetContactInfoUserId
+      setContactInfoUserId: SetState<ContactInfoUserId>
     }
   }
   /**

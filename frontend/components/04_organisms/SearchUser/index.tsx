@@ -22,14 +22,7 @@ import {
 } from 'graphql/generated'
 import React, { useCallback, useMemo, useState } from 'react'
 import { FieldErrors, SubmitHandler, useForm, UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
-import {
-  ContactInfoUserId,
-  ContainerProps,
-  LazyQueryFunction,
-  QueryLoading,
-  QueryRefetch,
-  SetContactInfoUserId
-} from 'types'
+import { ContactInfoUserId, ContainerProps, LazyQueryFunction, QueryLoading, QueryRefetch, SetState } from 'types'
 import { toStr } from 'utils/general/helper'
 import { hasValue, isNullish } from 'utils/general/object'
 import * as styles from './styles'
@@ -46,7 +39,7 @@ export type SearchUserProps = Omit<ModalProps, 'children'> & {
      */
     contactInfoUserId: {
       state: ContactInfoUserId
-      setContactInfoUserId: SetContactInfoUserId
+      setContactInfoUserId: SetState<ContactInfoUserId>
     }
   }
   /**

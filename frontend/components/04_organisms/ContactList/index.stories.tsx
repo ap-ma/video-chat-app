@@ -4,6 +4,7 @@ import { contactInfo, contacts, me, otherUserId } from '.storybook/dummies'
 /* eslint-enable import/no-unresolved */
 import { Meta, Story } from '@storybook/react'
 import React, { useState } from 'react'
+import { ContactInfoUserId } from 'types'
 import { toStr } from 'utils/general/helper'
 import ContactList, { ContactListProps } from './index'
 
@@ -18,7 +19,7 @@ export default {
 } as Meta
 
 const Template: Story<ContactListProps> = ({ ...props }) => {
-  const [contactUserId, setContactUserId] = useState(toStr(otherUserId))
+  const [contactUserId, setContactUserId] = useState<ContactInfoUserId>(toStr(otherUserId))
   const state = { contactInfoUserId: { state: contactUserId, setContactInfoUserId: setContactUserId } }
   const query = { me, contacts, contactInfo }
 

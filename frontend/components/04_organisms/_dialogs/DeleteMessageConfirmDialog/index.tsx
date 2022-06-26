@@ -2,7 +2,7 @@ import { ButtonProps } from '@chakra-ui/react'
 import toast from 'components/01_atoms/Toast'
 import ConfirmDialog, { ConfirmDialogProps } from 'components/03_molecules/ConfirmDialog'
 import { connect } from 'components/hoc'
-import { DeleteMessageMutation, DeleteMessageMutationVariables, Message } from 'graphql/generated'
+import { DeleteMessageMutation, DeleteMessageMutationVariables } from 'graphql/generated'
 import React from 'react'
 import { ContainerProps, MutaionLoading, MutaionReset, MutateFunction } from 'types'
 import { toStr } from 'utils/general/helper'
@@ -13,9 +13,9 @@ export type DeleteMessageConfirmDialogProps = Omit<
   'children' | 'header' | 'body' | 'ok' | 'cancel'
 > & {
   /**
-   *  メッセージ
+   *  メッセージID
    */
-  message?: Message
+  messageId?: string
   /**
    * Mutation
    */
@@ -56,12 +56,11 @@ const DeleteMessageConfirmDialogPresenter: React.VFC<PresenterProps> = ({
 /** Container Component */
 const DeleteMessageConfirmDialogContainer: React.VFC<
   ContainerProps<DeleteMessageConfirmDialogProps, PresenterProps>
-> = ({ presenter, message, mutation: { deleteMessage }, ...props }) => {
+> = ({ presenter, messageId, mutation: { deleteMessage }, ...props }) => {
   const loading = deleteMessage.loading
   const onOkButtonClick = () => {
-    const messageId = toStr(message?.id)
     deleteMessage.reset()
-    deleteMessage.mutate({ variables: { messageId } }).catch(toast('UnexpectedError'))
+    deleteMessage.mutate({ variables: { messageId: toStr(messageId) } }).catch(toast('UnexpectedError'))
   }
   return presenter({ loading, onOkButtonClick, ...props })
 }

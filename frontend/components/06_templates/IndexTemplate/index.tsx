@@ -57,7 +57,7 @@ import {
   QueryLoading,
   QueryNetworkStatus,
   QueryRefetch,
-  SetContactInfoUserId,
+  SetState,
   ValidationErrors
 } from 'types'
 import * as styles from './styles'
@@ -73,7 +73,7 @@ export type IndexTemplateProps = {
      */
     contactInfoUserId: {
       state: ContactInfoUserId
-      setContactInfoUserId: SetContactInfoUserId
+      setContactInfoUserId: SetState<ContactInfoUserId>
     }
   }
   /**

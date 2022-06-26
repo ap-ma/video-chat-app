@@ -1,4 +1,4 @@
-import { ForwardRefExoticComponent, PropsWithoutRef, RefAttributes } from 'react'
+import { Dispatch, ForwardRefExoticComponent, PropsWithoutRef, RefAttributes, SetStateAction } from 'react'
 
 //  ----------------------------------------------------------------------------
 //  Application common types
@@ -12,6 +12,9 @@ export type ContainerProps<ComponentProps, PresenterProps> = ComponentProps & {
 //  ----------------------------------------------------------------------------
 //  React common types
 //  ----------------------------------------------------------------------------
+
+/** React useState SetState */
+export type SetState<T> = Dispatch<SetStateAction<T>>
 
 /** React forwardRef Component */
 export type ForwardRefComponent<T, P> = ForwardRefExoticComponent<RefAttributes<T> & PropsWithoutRef<P>>

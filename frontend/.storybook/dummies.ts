@@ -211,7 +211,12 @@ export function dummyContactInfo(
       txUserId: r ? toStr(userId) : toStr(otherUserId),
       rxUserId: r ? toStr(otherUserId) : toStr(userId),
       category: category,
-      message: category === MESSAGE.CATEGORY.MESSAGE ? messageGen(i) : undefined,
+      message:
+        category === MESSAGE.CATEGORY.MESSAGE
+          ? messageGen(i)
+          : category === MESSAGE.CATEGORY.IMAGE_TRANSMISSION
+          ? 'https://upload.wikimedia.org/wikipedia/commons/1/1b/080103_hakkai_fuji.jpg'
+          : undefined,
       status: MESSAGE.STATUS.READ,
       createdAt: '06/24/2022 18:40:14',
       call:
@@ -239,7 +244,9 @@ export function dummyContactInfo(
     userAvatar: illustya[0],
     status: contactStatus,
     blocked,
-    chat
+    chat,
+    chatCount: chatLen,
+    chatDateCount: 1
   }
 
   const refetch = (() => {

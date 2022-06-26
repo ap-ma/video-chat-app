@@ -46,7 +46,7 @@ import {
   UndeleteContactMutationVariables
 } from 'graphql/generated'
 import React, { useState } from 'react'
-import { MutaionLoading, QueryLoading, QueryNetworkStatus } from 'types'
+import { ContactInfoUserId, MutaionLoading, QueryLoading, QueryNetworkStatus } from 'types'
 import { toStr } from 'utils/general/helper'
 import IndexTemplate, { IndexTemplateProps } from './index'
 
@@ -106,7 +106,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
   ...props
 }) => {
   // state
-  const [contactUserId, setContactUserId] = useState(toStr(otherUserId))
+  const [contactUserId, setContactUserId] = useState<ContactInfoUserId>(toStr(otherUserId))
   const state = { contactInfoUserId: { state: contactUserId, setContactInfoUserId: setContactUserId } }
 
   // query

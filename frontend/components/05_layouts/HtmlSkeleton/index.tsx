@@ -8,7 +8,7 @@ import { isNullish, isReactElement } from 'utils/general/object'
 import Title, { TitleProps } from './Title'
 
 /** HtmlSkeleton Props */
-export type HtmlSkeletonProps = WithChildren & BoxProps
+export type HtmlSkeletonProps = WithChildren & Omit<BoxProps, 'children'>
 /** Presenter Props */
 export type PresenterProps = HtmlSkeletonProps & { title?: TitleProps['children']; description: string }
 

@@ -207,6 +207,39 @@ pub fn get_messages(
     query.load(conn)
 }
 
+pub fn get_message_count(
+    user_id: u64,
+    other_user_id: u64,
+    conn: &MysqlConnection,
+) -> QueryResult<i64> {
+    messages::table
+        .filter(
+            (messages::tx_user_id
+                .eq(user_id)
+                .and(messages::rx_user_id.eq(other_user_id)))
+            .or(messages::tx_user_id
+                .eq(other_user_id)
+                .and(messages::rx_user_id.eq(user_id))),
+        )
+        .filter(messages::status.ne(message_const::status::DELETED))
+        .count()
+        .first(conn)
+}
+
+pub fn get_message_date_count(
+    user_id: u64,
+    other_user_id: u64,
+    conn: &MysqlConnection,
+) -> QueryResult<Vec<MessageDateCount>> {
+    diesel::sql_query(include_str!("./sql/get_message_date_count.sql"))
+        .bind::<Unsigned<Bigint>, _>(user_id)
+        .bind::<Unsigned<Bigint>, _>(other_user_id)
+        .bind::<Unsigned<Bigint>, _>(other_user_id)
+        .bind::<Unsigned<Bigint>, _>(user_id)
+        .bind::<Integer, _>(message_const::status::DELETED)
+        .load(conn)
+}
+
 pub fn get_unread_message_count(
     user_id: u64,
     other_user_id: u64,

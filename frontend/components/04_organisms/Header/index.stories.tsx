@@ -17,7 +17,7 @@ import {
   SignOutMutationVariables
 } from 'graphql/generated'
 import React, { useState } from 'react'
-import { MutaionLoading, QueryLoading } from 'types'
+import { ContactInfoUserId, MutaionLoading, QueryLoading } from 'types'
 import { toStr } from 'utils/general/helper'
 import Header, { HeaderProps } from './index'
 
@@ -58,7 +58,7 @@ const Template: Story<HeaderStoryProps> = ({
   ...props
 }) => {
   // state
-  const [contactUserId, setContactUserId] = useState(toStr(otherUserId))
+  const [contactUserId, setContactUserId] = useState<ContactInfoUserId>(toStr(otherUserId))
   const state = { contactInfoUserId: { state: contactUserId, setContactInfoUserId: setContactUserId } }
 
   // query

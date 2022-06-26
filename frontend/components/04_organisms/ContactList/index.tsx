@@ -6,7 +6,7 @@ import { connect } from 'components/hoc'
 import { ContactInfoQuery, ContactInfoQueryVariables, ContactsQuery, MeQuery } from 'graphql/generated'
 import React, { Fragment } from 'react'
 import { useForm, UseFormRegister } from 'react-hook-form'
-import { ContactInfoUserId, ContainerProps, OnClose, QueryRefetch, SetContactInfoUserId, Unbox } from 'types'
+import { ContactInfoUserId, ContainerProps, OnClose, QueryRefetch, SetState, Unbox } from 'types'
 import { toStr } from 'utils/general/helper'
 import * as styles from './styles'
 import { FormSchema, schema } from './validation'
@@ -26,7 +26,7 @@ export type ContactListProps = ScrollbarProps & {
      */
     contactInfoUserId: {
       state: ContactInfoUserId
-      setContactInfoUserId: SetContactInfoUserId
+      setContactInfoUserId: SetState<ContactInfoUserId>
     }
   }
   /**

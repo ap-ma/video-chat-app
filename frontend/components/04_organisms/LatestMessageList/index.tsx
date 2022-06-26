@@ -3,7 +3,7 @@ import ContactCard, { ContactCardProps } from 'components/03_molecules/ContactCa
 import { connect } from 'components/hoc'
 import { ContactInfoQuery, ContactInfoQueryVariables, LatestMessagesQuery, MeQuery } from 'graphql/generated'
 import React from 'react'
-import { ContactInfoUserId, ContainerProps, OnClose, QueryRefetch, SetContactInfoUserId, Unbox } from 'types'
+import { ContactInfoUserId, ContainerProps, OnClose, QueryRefetch, SetState, Unbox } from 'types'
 import { toStr } from 'utils/general/helper'
 import { getLatestMessage } from 'utils/helper'
 
@@ -22,7 +22,7 @@ export type LatestMessageListProps = ScrollbarProps & {
      */
     contactInfoUserId: {
       state: ContactInfoUserId
-      setContactInfoUserId: SetContactInfoUserId
+      setContactInfoUserId: SetState<ContactInfoUserId>
     }
   }
   /**

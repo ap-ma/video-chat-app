@@ -67,6 +67,8 @@ export type Contact = {
   __typename?: 'Contact'
   blocked: Scalars['Boolean']
   chat: Array<Message>
+  chatCount: Scalars['Int']
+  chatDateCount: Scalars['Int']
   id: Scalars['ID']
   latestMessage?: Maybe<LatestMessage>
   status: Scalars['Int']
@@ -384,6 +386,8 @@ export type ContactFieldsWithLatestMessageFragment = {
 
 export type ContactFieldsWithChatFragment = {
   __typename: 'Contact'
+  chatCount: number
+  chatDateCount: number
   id: string
   userId: string
   userCode: string
@@ -1313,6 +1317,8 @@ export type InitQuery = {
   }>
   contactInfo: {
     __typename: 'Contact'
+    chatCount: number
+    chatDateCount: number
     id: string
     userId: string
     userCode: string
@@ -1354,6 +1360,8 @@ export type ContactInfoQuery = {
   __typename?: 'Query'
   contactInfo: {
     __typename: 'Contact'
+    chatCount: number
+    chatDateCount: number
     id: string
     userId: string
     userCode: string
@@ -1647,6 +1655,8 @@ export const MessageFieldsFragmentDoc = gql`
 export const ContactFieldsWithChatFragmentDoc = gql`
   fragment ContactFieldsWithChat on Contact {
     ...ContactFields
+    chatCount
+    chatDateCount
     chat(cursor: $cursor, limit: $limit) {
       ...MessageFields
     }

@@ -1,6 +1,14 @@
 import { NonEmptyArray, Unbox } from 'types'
 
 /**
+ * 値が文字列か否かを示す真偽値を返す
+ *
+ * @param argment - 判定対象の値
+ * @returns 文字列か否かを示す真偽値
+ */
+export const isString = (argment: unknown): argment is string => typeof argment === 'string'
+
+/**
  * 値がオブジェクトか否かを示す真偽値を返す
  *
  * @param argment - 判定対象の値

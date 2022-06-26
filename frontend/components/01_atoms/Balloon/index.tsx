@@ -16,10 +16,6 @@ export type BalloonProps = Omit<BoxProps, 'children' | 'bgColor'> &
      */
     bgColor?: ChakraColors
     /**
-     * 吹き出しの文字色
-     */
-    textColor?: ChakraColors
-    /**
      * テキストに合わせて横幅を伸縮させるか否か
      */
     autoSizing?: boolean
@@ -39,10 +35,9 @@ const BalloonPresenter: React.VFC<PresenterProps> = ({ tailPosition, bgColor, au
 const BalloonContainer: React.VFC<ContainerProps<BalloonProps, PresenterProps>> = ({
   presenter,
   bgColor = 'gray.50',
-  textColor = 'black',
   ...props
 }) => {
-  return presenter({ bgColor, textColor, ...props })
+  return presenter({ bgColor, ...props })
 }
 
 /** Balloon */

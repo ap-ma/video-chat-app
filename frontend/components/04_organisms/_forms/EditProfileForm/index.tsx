@@ -24,7 +24,7 @@ import { useSetError } from 'components/hooks'
 import { VALIDATION_USER_COMMENT_MAX_LEN } from 'const'
 import { EditProfileMutation, EditProfileMutationVariables, MeQuery } from 'graphql/generated'
 import { nanoid } from 'nanoid'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { Key, useCallback, useMemo, useState } from 'react'
 import { FieldErrors, SubmitHandler, useForm, UseFormHandleSubmit, UseFormRegister } from 'react-hook-form'
 import { ContainerProps, MutaionLoading, MutaionReset, MutateFunction, ValidationErrors } from 'types'
 import { imageCompression, toStr } from 'utils/general/helper'
@@ -65,7 +65,7 @@ export type EditProfileFormProps = Omit<ModalProps, 'children'> & {
 /** Presenter Props */
 export type PresenterProps = Omit<EditProfileFormProps, 'query' | 'mutation'> & {
   avatar: AvatarEditorProps['avatar']
-  avatarEditorKey: string
+  avatarEditorKey: Key
   edit: boolean
   loading: MutaionLoading
   errors: string[]

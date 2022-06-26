@@ -205,7 +205,7 @@ const Index: NextPage = () => {
     update: (cache, { data }) => !isNullish(data) && updateContactCache(cache, data.unblockContact, 'ADD'),
     onCompleted: ({ unblockContact }) => {
       if (contactInfoUserId === unblockContact.userId) {
-        contactInfoQuery.refetch({ contactUserId: unblockContact.userId, limit: CHAT_LENGTH })
+        contactInfoQuery.refetch({ contactUserId: unblockContact.userId })
         readMessages({ variables: { otherUserId: unblockContact.userId } }).catch(toast('UnexpectedError'))
       }
     }
@@ -309,6 +309,7 @@ const Index: NextPage = () => {
         mutate: sendImage
       },
       deleteMessage: {
+        result: deleteMessageMutation.data?.deleteMessage,
         loading: deleteMessageMutation.loading,
         errors: isValidationErrors(deleteMessageResult) ? deleteMessageResult : undefined,
         reset: deleteMessageMutation.reset,

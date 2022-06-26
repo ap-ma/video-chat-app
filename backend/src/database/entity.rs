@@ -3,7 +3,7 @@ use super::schema::{
 };
 use chrono::NaiveDateTime;
 use diesel::dsl::SqlTypeOf;
-use diesel::sql_types::Nullable;
+use diesel::sql_types::{BigInt, Nullable};
 
 #[derive(Identifiable, Queryable)]
 #[table_name = "users"]
@@ -123,6 +123,12 @@ pub struct ChangeMessageEntity {
     pub message: Option<Option<String>>,
     pub status: Option<i32>,
     pub updated_at: Option<NaiveDateTime>,
+}
+
+#[derive(QueryableByName)]
+pub struct MessageDateCount {
+    #[sql_type = "BigInt"]
+    pub date_count: i64,
 }
 
 #[derive(QueryableByName)]

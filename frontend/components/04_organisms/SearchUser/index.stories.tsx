@@ -3,7 +3,7 @@ import { contactInfo, dummySearchUser, otherUserId } from '.storybook/dummies'
 /* eslint-enable import/no-unresolved */
 import { Meta, Story } from '@storybook/react'
 import React, { useState } from 'react'
-import { MutaionLoading } from 'types'
+import { ContactInfoUserId, MutaionLoading } from 'types'
 import { toStr } from 'utils/general/helper'
 import SearchUser, { SearchUserProps } from './index'
 
@@ -19,7 +19,7 @@ type SearchUserStoryProps = SearchUserProps & {
 
 const Template: Story<SearchUserStoryProps> = ({ loading, result, ...props }) => {
   // state
-  const [contactUserId, setContactUserId] = useState(toStr(otherUserId))
+  const [contactUserId, setContactUserId] = useState<ContactInfoUserId>(toStr(otherUserId))
   const state = { contactInfoUserId: { state: contactUserId, setContactInfoUserId: setContactUserId } }
 
   // query
