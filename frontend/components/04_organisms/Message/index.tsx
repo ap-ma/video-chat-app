@@ -66,9 +66,9 @@ const MessagePresenter: React.VFC<PresenterProps> = ({
   ...props
 }) => (
   <Box {...styles.root} {...props}>
-    <Box {...styles.date({ isDate })}>{text}</Box>
-    <Balloon {...styles.workflow({ isWorkflow })}>{text}</Balloon>
-    <UsualMsg {...styles.usualMsg({ isMessage })} {...{ message, onDmcdOpen, setDeleteMessageId, query }} />
+    {isDate && <Box {...styles.date}>{text}</Box>}
+    {isWorkflow && <Balloon {...styles.workflow}>{text}</Balloon>}
+    {isMessage && <UsualMsg {...{ message, onDmcdOpen, setDeleteMessageId, query }} />}
   </Box>
 )
 

@@ -151,7 +151,7 @@ export function updateMessageCache(cache: ApolloCache<unknown>, messageChanged: 
  */
 export function updateContactCache(
   cache: ApolloCache<unknown>,
-  contact: Optional<Contact, 'chat'>,
+  contact: Optional<Contact, 'chat' | 'chatCount' | 'chatDateCount'>,
   operation: 'ADD' | 'DELETE'
 ): void {
   // コンタクト一覧の更新
@@ -165,7 +165,7 @@ export function updateContactCache(
 
         // コンタクト一覧に追加
         if (operation === 'ADD') {
-          const newContactRef = cache.writeFragment<Optional<Contact, 'chat'>>({
+          const newContactRef = cache.writeFragment<typeof contact>({
             data: contact,
             fragment: ContactFieldsFragmentDoc
           })

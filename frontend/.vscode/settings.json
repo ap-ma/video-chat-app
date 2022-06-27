@@ -15,7 +15,7 @@
   // コードアクション 拡張機能がコードへの指摘をユーザーに示す機能
   "editor.codeActionsOnSave": [
     // import文を保存時に自動ソート
-    "source.organizeImports",
+    // "source.organizeImports",
     // 保存時のソース自動修正
     "source.fixAll.eslint"
   ]

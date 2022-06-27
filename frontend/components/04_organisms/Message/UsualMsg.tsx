@@ -78,14 +78,18 @@ const UsualMsgPresenter: React.VFC<PresenterProps> = ({
   ...props
 }) => (
   <MessageShowcase {...styles.showcase({ isSender, isImage })} {...{ avatar, isRead, time, onBalloonClick }} {...props}>
-    <Text {...styles.textMsg({ isText, isSender })}>{text}</Text>
-    <Box {...styles.imageMsg({ isImage })}>
-      <Image src={imageSrc} {...styles.image} />
-    </Box>
-    <HStack {...styles.callMsg({ isCall })}>
-      <Icon as={AiFillPhone} boxSize={7} />
-      <Text {...styles.callInfo}>{callInfo}</Text>
-    </HStack>
+    {isText && <Text {...styles.textMsg({ isSender })}>{text}</Text>}
+    {isImage && (
+      <Box {...styles.imageMsg}>
+        <Image src={imageSrc} {...styles.image} />
+      </Box>
+    )}
+    {isCall && (
+      <HStack {...styles.callMsg}>
+        <Icon as={AiFillPhone} boxSize={7} />
+        <Text {...styles.callInfo}>{callInfo}</Text>
+      </HStack>
+    )}
   </MessageShowcase>
 )
 

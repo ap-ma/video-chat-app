@@ -7,6 +7,7 @@ import React from 'react'
 import { RiCheckboxCircleLine } from 'react-icons/ri'
 import { ContainerProps } from 'types'
 import * as styles from './styles'
+
 /** EmailVerificationSuccessDialog Props */
 export type EmailVerificationSuccessDialogProps = Omit<ModalProps, 'children'>
 

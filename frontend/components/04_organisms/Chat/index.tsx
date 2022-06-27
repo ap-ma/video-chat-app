@@ -1,4 +1,3 @@
-import { NetworkStatus } from '@apollo/client'
 import { Box, BoxProps, useDisclosure } from '@chakra-ui/react'
 import toast from 'components/01_atoms/Toast'
 import Message, { MessageProps } from 'components/04_organisms/Message'
@@ -27,7 +26,8 @@ import {
   QueryNetworkStatus,
   SetState
 } from 'types'
-import { hasValue, includes, isBlank, isNonEmptyArray, isNullish, isString } from 'utils/general/object'
+import { hasValue, isBlank, isNonEmptyArray, isNullish, isString } from 'utils/general/object'
+import Header from './Header'
 
 /** Chat Props */
 export type ChatProps = BoxProps & {
@@ -70,6 +70,7 @@ export type ChatProps = BoxProps & {
 /** Presenter Props */
 export type PresenterProps = ChatProps & {
   virtuosoKey: Key
+  loading: boolean
   messageList?: MessageProps['message'][]
   firstItemIndex: VirtuosoProps<unknown, unknown>['firstItemIndex']
   initialTopMostItemIndex: VirtuosoProps<unknown, unknown>['initialTopMostItemIndex']
@@ -84,6 +85,7 @@ const ChatPresenter: React.VFC<PresenterProps> = ({
   query: { me, contactInfo },
   mutation: { deleteMessage },
   virtuosoKey,
+  loading,
   messageList,
   firstItemIndex,
   initialTopMostItemIndex,
@@ -96,8 +98,11 @@ const ChatPresenter: React.VFC<PresenterProps> = ({
   <Box h='full' {...props}>
     <Virtuoso
       key={virtuosoKey}
-      increaseViewportBy={500}
+      context={{ loading }}
+      increaseViewportBy={1000}
       startReached={loadMore}
+      followOutput='smooth'
+      components={{ Header }}
       data={messageList}
       firstItemIndex={firstItemIndex}
       initialTopMostItemIndex={initialTopMostItemIndex}
@@ -128,6 +133,7 @@ const ChatContainer: React.VFC<ContainerProps<ChatProps, PresenterProps>> = ({
 }) => {
   // list
   const [virtuosoKey, setVirtuosoKey] = useState(nanoid())
+  const [loading, setLoading] = useState(false)
   useMemo(() => {
     if (!isNullish(contactInfo.result?.id)) setVirtuosoKey(nanoid())
   }, [contactInfo.result?.id])
@@ -151,11 +157,14 @@ const ChatContainer: React.VFC<ContainerProps<ChatProps, PresenterProps>> = ({
   }, [messageList])
 
   const loadMore = useCallback(() => {
-    if (includes(contactInfo.networkStatus, NetworkStatus.fetchMore)) return
     if (isNullish(messageList) || !isNonEmptyArray(messageList)) return
+    setLoading(true)
     const firstItem = messageList.find((message) => !isString(message))
     const cursor = (firstItem as Exclude<typeof firstItem, string | undefined>).id
-    contactInfo.fetchMore({ variables: { cursor } }).catch(toast('UnexpectedError'))
+    contactInfo
+      .fetchMore({ variables: { cursor } })
+      .then(() => setLoading(false))
+      .catch(toast('UnexpectedError'))
   }, [contactInfo, messageList])
 
   // DeleteMessageConfirmDialog modal
@@ -171,6 +180,7 @@ const ChatContainer: React.VFC<ContainerProps<ChatProps, PresenterProps>> = ({
     query: { contactInfo, ...queryRest },
     mutation: { deleteMessage },
     virtuosoKey,
+    loading,
     messageList,
     firstItemIndex,
     initialTopMostItemIndex,
