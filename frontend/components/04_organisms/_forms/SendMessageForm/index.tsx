@@ -46,9 +46,9 @@ import { FormSchema, schema } from './validation'
 /** SendMessageForm Props */
 export type SendMessageFormProps = BoxProps & {
   /**
-   * 架電ダイアログ onOpen
+   * 通話架電ダイアログ onOpen
    */
-  onMccdOpen: OnOpen
+  onRucdOpen: OnOpen
   /**
    * Query
    */
@@ -105,7 +105,7 @@ const SendMessageFormPresenter: React.VFC<PresenterProps> = ({
   query: { contactInfo },
   mutation: { sendImage },
   rows,
-  onMccdOpen,
+  onRucdOpen,
   loading,
   disabled,
   errors,
@@ -125,9 +125,9 @@ const SendMessageFormPresenter: React.VFC<PresenterProps> = ({
         <IconButton
           icon={<AiOutlinePhone />}
           {...styles.phoneIcon}
-          aria-label='make a call'
+          aria-label='ring up'
           disabled={disabled}
-          onClick={onMccdOpen}
+          onClick={onRucdOpen}
         />
         <IconButton
           icon={<IoMdSend />}

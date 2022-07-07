@@ -1,0 +1,11 @@
+fragment SignalFields on Signal {
+  __typename
+  callId
+  txUserId
+  txUserName
+  txUserAvatar
+  rxUserId
+  sdp
+  candidate
+  signalType
+}

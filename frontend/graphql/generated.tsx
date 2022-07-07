@@ -34,27 +34,10 @@ export type CallStartedAtArgs = {
   format?: InputMaybe<Scalars['String']>
 }
 
-export type CallEvent = {
-  __typename?: 'CallEvent'
+export type CandidateInput = {
   callId: Scalars['ID']
-  data: Scalars['String']
-  eventType: CallEventType
-  rxUserId: Scalars['ID']
-  txUserId: Scalars['ID']
-}
-
-export enum CallEventType {
-  Answer = 'ANSWER',
-  Call = 'CALL',
-  Candidate = 'CANDIDATE',
-  Cast = 'CAST',
-  End = 'END',
-  Offer = 'OFFER'
-}
-
-export type CallOfferInput = {
-  contactId: Scalars['ID']
-  data: Scalars['String']
+  candidate: Scalars['String']
+  otherUserId: Scalars['ID']
 }
 
 export type ChangePasswordInput = {
@@ -145,7 +128,8 @@ export type Mutation = {
   applyContact: MessageChanged
   approveContact: MessageChanged
   blockContact: Contact
-  callOffer: MessageChanged
+  cancel: MessageChanged
+  candidate: Scalars['Boolean']
   changeEmail: Scalars['Boolean']
   changePassword: Scalars['Boolean']
   deleteAccount: Scalars['Boolean']
@@ -153,8 +137,11 @@ export type Mutation = {
   deleteMessage: MessageChanged
   editProfile: User
   forgotPassword: Scalars['Boolean']
+  hangUp: MessageChanged
+  pickUp: MessageChanged
   readMessages: MessageChanged
   resetPassword: Scalars['Boolean']
+  ringUp: MessageChanged
   sendImage: MessageChanged
   sendMessage: MessageChanged
   signIn: Scalars['Boolean']
@@ -177,8 +164,12 @@ export type MutationBlockContactArgs = {
   contactId: Scalars['ID']
 }
 
-export type MutationCallOfferArgs = {
-  input: CallOfferInput
+export type MutationCancelArgs = {
+  callId: Scalars['ID']
+}
+
+export type MutationCandidateArgs = {
+  input: CandidateInput
 }
 
 export type MutationChangeEmailArgs = {
@@ -205,12 +196,24 @@ export type MutationForgotPasswordArgs = {
   email: Scalars['String']
 }
 
+export type MutationHangUpArgs = {
+  callId: Scalars['ID']
+}
+
+export type MutationPickUpArgs = {
+  input: PickUpInput
+}
+
 export type MutationReadMessagesArgs = {
   otherUserId: Scalars['ID']
 }
 
 export type MutationResetPasswordArgs = {
   input: ResetPasswordInput
+}
+
+export type MutationRingUpArgs = {
+  input: RingUpInput
 }
 
 export type MutationSendImageArgs = {
@@ -247,6 +250,11 @@ export enum MutationType {
   Updated = 'UPDATED'
 }
 
+export type PickUpInput = {
+  callId: Scalars['ID']
+  sdp: Scalars['String']
+}
+
 export type Query = {
   __typename?: 'Query'
   contactInfo: Contact
@@ -276,6 +284,11 @@ export type ResetPasswordInput = {
   token: Scalars['String']
 }
 
+export type RingUpInput = {
+  contactId: Scalars['ID']
+  sdp: Scalars['String']
+}
+
 export type SendImageInput = {
   contactId: Scalars['ID']
   image: Scalars['Upload']
@@ -302,10 +315,30 @@ export type SignUpInput = {
   passwordConfirm: Scalars['String']
 }
 
+export type Signal = {
+  __typename?: 'Signal'
+  callId: Scalars['ID']
+  candidate?: Maybe<Scalars['String']>
+  rxUserId: Scalars['ID']
+  sdp?: Maybe<Scalars['String']>
+  signalType: SignalType
+  txUserAvatar?: Maybe<Scalars['String']>
+  txUserId: Scalars['ID']
+  txUserName?: Maybe<Scalars['String']>
+}
+
+export enum SignalType {
+  Answer = 'ANSWER',
+  Cancel = 'CANCEL',
+  Candidate = 'CANDIDATE',
+  Close = 'CLOSE',
+  Offer = 'OFFER'
+}
+
 export type Subscription = {
   __typename?: 'Subscription'
-  callEventSubscription: CallEvent
   messageSubscription: MessageChanged
+  signalingSubscription: Signal
 }
 
 export type User = {
@@ -316,15 +349,6 @@ export type User = {
   email: Scalars['String']
   id: Scalars['ID']
   name?: Maybe<Scalars['String']>
-}
-
-export type CallEventFieldsFragment = {
-  __typename: 'CallEvent'
-  callId: string
-  txUserId: string
-  rxUserId: string
-  data: string
-  eventType: CallEventType
 }
 
 export type CallFieldsFragment = {
@@ -531,6 +555,18 @@ export type MessageFieldsFragment = {
   } | null
 }
 
+export type SignalFieldsFragment = {
+  __typename: 'Signal'
+  callId: string
+  txUserId: string
+  txUserName?: string | null
+  txUserAvatar?: string | null
+  rxUserId: string
+  sdp?: string | null
+  candidate?: string | null
+  signalType: SignalType
+}
+
 export type OtherUserFieldsFragment = {
   __typename: 'User'
   id: string
@@ -725,14 +761,14 @@ export type BlockContactMutation = {
   }
 }
 
-export type CallOfferMutationVariables = Exact<{
-  input: CallOfferInput
+export type CancelMutationVariables = Exact<{
+  callId: Scalars['ID']
   dateTimeFormat?: InputMaybe<Scalars['String']>
 }>
 
-export type CallOfferMutation = {
+export type CancelMutation = {
   __typename?: 'Mutation'
-  callOffer: {
+  cancel: {
     __typename: 'MessageChanged'
     txUserId: string
     rxUserId: string
@@ -802,6 +838,12 @@ export type CallOfferMutation = {
     } | null
   }
 }
+
+export type CandidateMutationVariables = Exact<{
+  input: CandidateInput
+}>
+
+export type CandidateMutation = { __typename?: 'Mutation'; candidate: boolean }
 
 export type ChangeEmailMutationVariables = Exact<{
   email: Scalars['String']
@@ -939,6 +981,162 @@ export type ForgotPasswordMutationVariables = Exact<{
 
 export type ForgotPasswordMutation = { __typename?: 'Mutation'; forgotPassword: boolean }
 
+export type HangUpMutationVariables = Exact<{
+  callId: Scalars['ID']
+  dateTimeFormat?: InputMaybe<Scalars['String']>
+}>
+
+export type HangUpMutation = {
+  __typename?: 'Mutation'
+  hangUp: {
+    __typename: 'MessageChanged'
+    txUserId: string
+    rxUserId: string
+    contactId?: string | null
+    contactStatus?: number | null
+    mutationType: MutationType
+    message?: {
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    } | null
+    messages?: Array<{
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    }> | null
+    latestMessage?: {
+      __typename: 'LatestMessage'
+      userId: string
+      userCode: string
+      userName?: string | null
+      userAvatar?: string | null
+      messageId: string
+      txUserId: string
+      messageCategory: number
+      message?: string | null
+      messageStatus: number
+      createdAt: string
+      unreadMessageCount: number
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    } | null
+  }
+}
+
+export type PickUpMutationVariables = Exact<{
+  input: PickUpInput
+  dateTimeFormat?: InputMaybe<Scalars['String']>
+}>
+
+export type PickUpMutation = {
+  __typename?: 'Mutation'
+  pickUp: {
+    __typename: 'MessageChanged'
+    txUserId: string
+    rxUserId: string
+    contactId?: string | null
+    contactStatus?: number | null
+    mutationType: MutationType
+    message?: {
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    } | null
+    messages?: Array<{
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    }> | null
+    latestMessage?: {
+      __typename: 'LatestMessage'
+      userId: string
+      userCode: string
+      userName?: string | null
+      userAvatar?: string | null
+      messageId: string
+      txUserId: string
+      messageCategory: number
+      message?: string | null
+      messageStatus: number
+      createdAt: string
+      unreadMessageCount: number
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    } | null
+  }
+}
+
 export type ReadMessagesMutationVariables = Exact<{
   otherUserId: Scalars['ID']
   dateTimeFormat?: InputMaybe<Scalars['String']>
@@ -1022,6 +1220,84 @@ export type ResetPasswordMutationVariables = Exact<{
 }>
 
 export type ResetPasswordMutation = { __typename?: 'Mutation'; resetPassword: boolean }
+
+export type RingUpMutationVariables = Exact<{
+  input: RingUpInput
+  dateTimeFormat?: InputMaybe<Scalars['String']>
+}>
+
+export type RingUpMutation = {
+  __typename?: 'Mutation'
+  ringUp: {
+    __typename: 'MessageChanged'
+    txUserId: string
+    rxUserId: string
+    contactId?: string | null
+    contactStatus?: number | null
+    mutationType: MutationType
+    message?: {
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    } | null
+    messages?: Array<{
+      __typename: 'Message'
+      id: string
+      txUserId: string
+      rxUserId: string
+      category: number
+      message?: string | null
+      status: number
+      createdAt: string
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    }> | null
+    latestMessage?: {
+      __typename: 'LatestMessage'
+      userId: string
+      userCode: string
+      userName?: string | null
+      userAvatar?: string | null
+      messageId: string
+      txUserId: string
+      messageCategory: number
+      message?: string | null
+      messageStatus: number
+      createdAt: string
+      unreadMessageCount: number
+      call?: {
+        __typename: 'Call'
+        id: string
+        messageId: string
+        status: number
+        startedAt?: string | null
+        endedAt?: string | null
+        callTime?: number | null
+      } | null
+    } | null
+  }
+}
 
 export type SendImageMutationVariables = Exact<{
   input: SendImageInput
@@ -1481,20 +1757,6 @@ export type SearchUserQuery = {
   } | null
 }
 
-export type CallEventSubscriptionVariables = Exact<{ [key: string]: never }>
-
-export type CallEventSubscription = {
-  __typename?: 'Subscription'
-  callEventSubscription: {
-    __typename: 'CallEvent'
-    callId: string
-    txUserId: string
-    rxUserId: string
-    data: string
-    eventType: CallEventType
-  }
-}
-
 export type MessageSubscriptionVariables = Exact<{
   dateTimeFormat?: InputMaybe<Scalars['String']>
 }>
@@ -1572,16 +1834,23 @@ export type MessageSubscription = {
   }
 }
 
-export const CallEventFieldsFragmentDoc = gql`
-  fragment CallEventFields on CallEvent {
-    __typename
-    callId
-    txUserId
-    rxUserId
-    data
-    eventType
+export type SignalingSubscriptionVariables = Exact<{ [key: string]: never }>
+
+export type SignalingSubscription = {
+  __typename?: 'Subscription'
+  signalingSubscription: {
+    __typename: 'Signal'
+    callId: string
+    txUserId: string
+    txUserName?: string | null
+    txUserAvatar?: string | null
+    rxUserId: string
+    sdp?: string | null
+    candidate?: string | null
+    signalType: SignalType
   }
-`
+}
+
 export const ContactFieldsFragmentDoc = gql`
   fragment ContactFields on Contact {
     __typename
@@ -1684,6 +1953,19 @@ export const MessageChangedFieldsFragmentDoc = gql`
   }
   ${MessageFieldsFragmentDoc}
   ${LatestMessageFieldsFragmentDoc}
+`
+export const SignalFieldsFragmentDoc = gql`
+  fragment SignalFields on Signal {
+    __typename
+    callId
+    txUserId
+    txUserName
+    txUserAvatar
+    rxUserId
+    sdp
+    candidate
+    signalType
+  }
 `
 export const OtherUserFieldsFragmentDoc = gql`
   fragment OtherUserFields on User {
@@ -1821,43 +2103,74 @@ export type BlockContactMutationOptions = Apollo.BaseMutationOptions<
   BlockContactMutation,
   BlockContactMutationVariables
 >
-export const CallOfferDocument = gql`
-  mutation CallOffer($input: CallOfferInput!, $dateTimeFormat: String) {
-    callOffer(input: $input) {
+export const CancelDocument = gql`
+  mutation Cancel($callId: ID!, $dateTimeFormat: String) {
+    cancel(callId: $callId) {
       ...MessageChangedFields
     }
   }
   ${MessageChangedFieldsFragmentDoc}
 `
-export type CallOfferMutationFn = Apollo.MutationFunction<CallOfferMutation, CallOfferMutationVariables>
+export type CancelMutationFn = Apollo.MutationFunction<CancelMutation, CancelMutationVariables>
 
 /**
- * __useCallOfferMutation__
+ * __useCancelMutation__
  *
- * To run a mutation, you first call `useCallOfferMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCallOfferMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCancelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCancelMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [callOfferMutation, { data, loading, error }] = useCallOfferMutation({
+ * const [cancelMutation, { data, loading, error }] = useCancelMutation({
  *   variables: {
- *      input: // value for 'input'
+ *      callId: // value for 'callId'
  *      dateTimeFormat: // value for 'dateTimeFormat'
  *   },
  * });
  */
-export function useCallOfferMutation(
-  baseOptions?: Apollo.MutationHookOptions<CallOfferMutation, CallOfferMutationVariables>
+export function useCancelMutation(baseOptions?: Apollo.MutationHookOptions<CancelMutation, CancelMutationVariables>) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<CancelMutation, CancelMutationVariables>(CancelDocument, options)
+}
+export type CancelMutationHookResult = ReturnType<typeof useCancelMutation>
+export type CancelMutationResult = Apollo.MutationResult<CancelMutation>
+export type CancelMutationOptions = Apollo.BaseMutationOptions<CancelMutation, CancelMutationVariables>
+export const CandidateDocument = gql`
+  mutation Candidate($input: CandidateInput!) {
+    candidate(input: $input)
+  }
+`
+export type CandidateMutationFn = Apollo.MutationFunction<CandidateMutation, CandidateMutationVariables>
+
+/**
+ * __useCandidateMutation__
+ *
+ * To run a mutation, you first call `useCandidateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCandidateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [candidateMutation, { data, loading, error }] = useCandidateMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCandidateMutation(
+  baseOptions?: Apollo.MutationHookOptions<CandidateMutation, CandidateMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<CallOfferMutation, CallOfferMutationVariables>(CallOfferDocument, options)
+  return Apollo.useMutation<CandidateMutation, CandidateMutationVariables>(CandidateDocument, options)
 }
-export type CallOfferMutationHookResult = ReturnType<typeof useCallOfferMutation>
-export type CallOfferMutationResult = Apollo.MutationResult<CallOfferMutation>
-export type CallOfferMutationOptions = Apollo.BaseMutationOptions<CallOfferMutation, CallOfferMutationVariables>
+export type CandidateMutationHookResult = ReturnType<typeof useCandidateMutation>
+export type CandidateMutationResult = Apollo.MutationResult<CandidateMutation>
+export type CandidateMutationOptions = Apollo.BaseMutationOptions<CandidateMutation, CandidateMutationVariables>
 export const ChangeEmailDocument = gql`
   mutation ChangeEmail($email: String!) {
     changeEmail(email: $email)
@@ -2113,6 +2426,76 @@ export type ForgotPasswordMutationOptions = Apollo.BaseMutationOptions<
   ForgotPasswordMutation,
   ForgotPasswordMutationVariables
 >
+export const HangUpDocument = gql`
+  mutation HangUp($callId: ID!, $dateTimeFormat: String) {
+    hangUp(callId: $callId) {
+      ...MessageChangedFields
+    }
+  }
+  ${MessageChangedFieldsFragmentDoc}
+`
+export type HangUpMutationFn = Apollo.MutationFunction<HangUpMutation, HangUpMutationVariables>
+
+/**
+ * __useHangUpMutation__
+ *
+ * To run a mutation, you first call `useHangUpMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useHangUpMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [hangUpMutation, { data, loading, error }] = useHangUpMutation({
+ *   variables: {
+ *      callId: // value for 'callId'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
+ *   },
+ * });
+ */
+export function useHangUpMutation(baseOptions?: Apollo.MutationHookOptions<HangUpMutation, HangUpMutationVariables>) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<HangUpMutation, HangUpMutationVariables>(HangUpDocument, options)
+}
+export type HangUpMutationHookResult = ReturnType<typeof useHangUpMutation>
+export type HangUpMutationResult = Apollo.MutationResult<HangUpMutation>
+export type HangUpMutationOptions = Apollo.BaseMutationOptions<HangUpMutation, HangUpMutationVariables>
+export const PickUpDocument = gql`
+  mutation PickUp($input: PickUpInput!, $dateTimeFormat: String) {
+    pickUp(input: $input) {
+      ...MessageChangedFields
+    }
+  }
+  ${MessageChangedFieldsFragmentDoc}
+`
+export type PickUpMutationFn = Apollo.MutationFunction<PickUpMutation, PickUpMutationVariables>
+
+/**
+ * __usePickUpMutation__
+ *
+ * To run a mutation, you first call `usePickUpMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePickUpMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [pickUpMutation, { data, loading, error }] = usePickUpMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
+ *   },
+ * });
+ */
+export function usePickUpMutation(baseOptions?: Apollo.MutationHookOptions<PickUpMutation, PickUpMutationVariables>) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<PickUpMutation, PickUpMutationVariables>(PickUpDocument, options)
+}
+export type PickUpMutationHookResult = ReturnType<typeof usePickUpMutation>
+export type PickUpMutationResult = Apollo.MutationResult<PickUpMutation>
+export type PickUpMutationOptions = Apollo.BaseMutationOptions<PickUpMutation, PickUpMutationVariables>
 export const ReadMessagesDocument = gql`
   mutation ReadMessages($otherUserId: ID!, $dateTimeFormat: String) {
     readMessages(otherUserId: $otherUserId) {
@@ -2189,6 +2572,41 @@ export type ResetPasswordMutationOptions = Apollo.BaseMutationOptions<
   ResetPasswordMutation,
   ResetPasswordMutationVariables
 >
+export const RingUpDocument = gql`
+  mutation RingUp($input: RingUpInput!, $dateTimeFormat: String) {
+    ringUp(input: $input) {
+      ...MessageChangedFields
+    }
+  }
+  ${MessageChangedFieldsFragmentDoc}
+`
+export type RingUpMutationFn = Apollo.MutationFunction<RingUpMutation, RingUpMutationVariables>
+
+/**
+ * __useRingUpMutation__
+ *
+ * To run a mutation, you first call `useRingUpMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRingUpMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [ringUpMutation, { data, loading, error }] = useRingUpMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *      dateTimeFormat: // value for 'dateTimeFormat'
+ *   },
+ * });
+ */
+export function useRingUpMutation(baseOptions?: Apollo.MutationHookOptions<RingUpMutation, RingUpMutationVariables>) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<RingUpMutation, RingUpMutationVariables>(RingUpDocument, options)
+}
+export type RingUpMutationHookResult = ReturnType<typeof useRingUpMutation>
+export type RingUpMutationResult = Apollo.MutationResult<RingUpMutation>
+export type RingUpMutationOptions = Apollo.BaseMutationOptions<RingUpMutation, RingUpMutationVariables>
 export const SendImageDocument = gql`
   mutation SendImage($input: SendImageInput!, $dateTimeFormat: String) {
     sendImage(input: $input) {
@@ -2796,38 +3214,6 @@ export function useSearchUserLazyQuery(
 export type SearchUserQueryHookResult = ReturnType<typeof useSearchUserQuery>
 export type SearchUserLazyQueryHookResult = ReturnType<typeof useSearchUserLazyQuery>
 export type SearchUserQueryResult = Apollo.QueryResult<SearchUserQuery, SearchUserQueryVariables>
-export const CallEventDocument = gql`
-  subscription CallEvent {
-    callEventSubscription {
-      ...CallEventFields
-    }
-  }
-  ${CallEventFieldsFragmentDoc}
-`
-
-/**
- * __useCallEventSubscription__
- *
- * To run a query within a React component, call `useCallEventSubscription` and pass it any options that fit your needs.
- * When your component renders, `useCallEventSubscription` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useCallEventSubscription({
- *   variables: {
- *   },
- * });
- */
-export function useCallEventSubscription(
-  baseOptions?: Apollo.SubscriptionHookOptions<CallEventSubscription, CallEventSubscriptionVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useSubscription<CallEventSubscription, CallEventSubscriptionVariables>(CallEventDocument, options)
-}
-export type CallEventSubscriptionHookResult = ReturnType<typeof useCallEventSubscription>
-export type CallEventSubscriptionResult = Apollo.SubscriptionResult<CallEventSubscription>
 export const MessageDocument = gql`
   subscription Message($dateTimeFormat: String) {
     messageSubscription {
@@ -2861,3 +3247,35 @@ export function useMessageSubscription(
 }
 export type MessageSubscriptionHookResult = ReturnType<typeof useMessageSubscription>
 export type MessageSubscriptionResult = Apollo.SubscriptionResult<MessageSubscription>
+export const SignalingDocument = gql`
+  subscription Signaling {
+    signalingSubscription {
+      ...SignalFields
+    }
+  }
+  ${SignalFieldsFragmentDoc}
+`
+
+/**
+ * __useSignalingSubscription__
+ *
+ * To run a query within a React component, call `useSignalingSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useSignalingSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSignalingSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSignalingSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<SignalingSubscription, SignalingSubscriptionVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useSubscription<SignalingSubscription, SignalingSubscriptionVariables>(SignalingDocument, options)
+}
+export type SignalingSubscriptionHookResult = ReturnType<typeof useSignalingSubscription>
+export type SignalingSubscriptionResult = Apollo.SubscriptionResult<SignalingSubscription>

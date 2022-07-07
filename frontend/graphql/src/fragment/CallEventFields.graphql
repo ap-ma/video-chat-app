@@ -1,8 +1,0 @@
-fragment CallEventFields on CallEvent {
-  __typename
-  callId
-  txUserId
-  rxUserId
-  data
-  eventType
-}

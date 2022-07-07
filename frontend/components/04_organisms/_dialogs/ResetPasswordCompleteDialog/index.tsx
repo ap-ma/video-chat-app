@@ -9,7 +9,6 @@ import * as styles from './styles'
 
 /** ResetPasswordCompleteDialog Props */
 export type ResetPasswordCompleteDialogProps = Omit<ModalProps, 'children'>
-
 /** Presenter Props */
 export type PresenterProps = ResetPasswordCompleteDialogProps
 

@@ -36,9 +36,9 @@ pub mod message {
 pub mod call {
     pub mod status {
         pub const OFFER: i32 = 1;
-        pub const _DURING: i32 = 2;
-        pub const _ENDED: i32 = 3;
-        pub const _CANCELED: i32 = 4;
+        pub const BUSY: i32 = 2;
+        pub const ENDED: i32 = 3;
+        pub const CANCELED: i32 = 4;
     }
 }
 
@@ -73,6 +73,9 @@ pub mod error {
     pub const V_MESSAGE_ID_INVALID: &str = "V_MESSAGE_ID_INVALID";
     pub const V_MESSAGE_DELETED: &str = "V_MESSAGE_DELETED";
     pub const V_MESSAGE_NOT_APPLICATION: &str = "V_MESSAGE_NOT_APPLICATION";
+    pub const V_CALL_ID_INVALID: &str = "V_CALL_ID_INVALID";
+    pub const V_CALL_NOT_OFFER: &str = "V_CALL_NOT_OFFER";
+    pub const V_CALL_NOT_BUSY: &str = "V_CALL_NOT_BUSY";
 }
 
 pub mod system {

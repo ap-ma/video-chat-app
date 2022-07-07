@@ -157,7 +157,7 @@ export const CALL = {
     /** 呼出 */
     OFFER: 1,
     /** 通話中 */
-    DURING: 2,
+    BUSY: 2,
     /** 通話終了 */
     ENDED: 3,
     /** キャンセル */

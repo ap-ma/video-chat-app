@@ -97,7 +97,7 @@ pub fn find_contact_by_id(contact_id: u64, conn: &MysqlConnection) -> QueryResul
     contacts::table.find(contact_id).first(conn)
 }
 
-pub fn find_contact_with_user(
+pub fn find_contact_by_user_id(
     user_id: u64,
     contact_user_id: u64,
     conn: &MysqlConnection,
@@ -308,12 +308,18 @@ pub fn create_call(new_call: NewCallEntity, conn: &MysqlConnection) -> QueryResu
     calls.find(call_id).first(conn)
 }
 
-pub fn _update_call(change_call: ChangeCallEntity, conn: &MysqlConnection) -> QueryResult<usize> {
+pub fn update_call(change_call: ChangeCallEntity, conn: &MysqlConnection) -> QueryResult<usize> {
     diesel::update(&change_call).set(&change_call).execute(conn)
 }
 
-pub fn _find_call_by_id(call_id: u64, conn: &MysqlConnection) -> QueryResult<CallEntity> {
-    calls::table.find(call_id).first(conn)
+pub fn find_call_by_id(
+    call_id: u64,
+    conn: &MysqlConnection,
+) -> QueryResult<(CallEntity, MessageEntity)> {
+    calls::table
+        .find(call_id)
+        .inner_join(messages::table.on(messages::id.eq(calls::message_id)))
+        .first(conn)
 }
 
 pub fn create_email_verification_token(

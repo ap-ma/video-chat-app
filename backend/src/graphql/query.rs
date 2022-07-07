@@ -88,7 +88,7 @@ impl Query {
             None => identity.id,
         };
 
-        match service::find_contact_with_user(identity.id, contact_user_id, &conn).ok() {
+        match service::find_contact_by_user_id(identity.id, contact_user_id, &conn).ok() {
             Some(contact) => Ok(Contact::from(&contact)),
             // コンタクト未登録時もチャット画面を表示
             None => {

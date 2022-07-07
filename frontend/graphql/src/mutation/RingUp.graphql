@@ -1,0 +1,10 @@
+input RingUpInput {
+  contactId: ID!
+  sdp: String!
+}
+
+mutation RingUp($input: RingUpInput!, $dateTimeFormat: String) {
+  ringUp(input: $input) {
+    ...MessageChangedFields
+  }
+}

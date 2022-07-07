@@ -1,4 +1,12 @@
-import { MutationResult, MutationTuple, QueryResult, QueryTuple, Reference, StoreObject } from '@apollo/client'
+import {
+  MutationResult,
+  MutationTuple,
+  QueryResult,
+  QueryTuple,
+  Reference,
+  StoreObject,
+  SubscriptionResult
+} from '@apollo/client'
 import { GraphQLError } from 'graphql'
 
 //  ----------------------------------------------------------------------------
@@ -68,3 +76,6 @@ export type MutaionReset = MutationResult['reset']
 
 /** Apollo Client Mutation mutate function */
 export type MutateFunction<TData, TVariables> = MutationTuple<TData, TVariables>[0]
+
+/** Apollo Client Subscription loading */
+export type SubscriptionLoading = SubscriptionResult['loading']

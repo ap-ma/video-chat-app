@@ -10,7 +10,6 @@ import * as styles from './styles'
 
 /** EmailVerificationSuccessDialog Props */
 export type EmailVerificationSuccessDialogProps = Omit<ModalProps, 'children'>
-
 /** Presenter Props */
 export type PresenterProps = EmailVerificationSuccessDialogProps
 

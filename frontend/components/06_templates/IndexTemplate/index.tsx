@@ -11,6 +11,8 @@ import {
   ApproveContactMutationVariables,
   BlockContactMutation,
   BlockContactMutationVariables,
+  CancelMutation,
+  CancelMutationVariables,
   ChangeEmailMutation,
   ChangeEmailMutationVariables,
   ChangePasswordMutation,
@@ -27,16 +29,23 @@ import {
   DeleteMessageMutationVariables,
   EditProfileMutation,
   EditProfileMutationVariables,
+  HangUpMutation,
+  HangUpMutationVariables,
   LatestMessagesQuery,
   LatestMessagesQueryVariables,
   MeQuery,
   MeQueryVariables,
+  PickUpMutation,
+  PickUpMutationVariables,
+  RingUpMutation,
+  RingUpMutationVariables,
   SearchUserQuery,
   SearchUserQueryVariables,
   SendImageMutation,
   SendImageMutationVariables,
   SendMessageMutation,
   SendMessageMutationVariables,
+  SignalingSubscription,
   SignOutMutation,
   SignOutMutationVariables,
   UnblockContactMutation,
@@ -49,6 +58,7 @@ import {
   ContactInfoUserId,
   ContainerProps,
   Disclosure,
+  IsCalling,
   LazyQueryFunction,
   MutaionLoading,
   MutaionReset,
@@ -58,6 +68,7 @@ import {
   QueryNetworkStatus,
   QueryRefetch,
   SetState,
+  SubscriptionLoading,
   ValidationErrors
 } from 'types'
 import * as styles from './styles'
@@ -74,6 +85,13 @@ export type IndexTemplateProps = {
     contactInfoUserId: {
       state: ContactInfoUserId
       setContactInfoUserId: SetState<ContactInfoUserId>
+    }
+    /**
+     *  通話中フラグ
+     */
+    isCalling: {
+      state: IsCalling
+      setIsCalling: SetState<IsCalling>
     }
   }
   /**
@@ -192,6 +210,46 @@ export type IndexTemplateProps = {
       mutate: MutateFunction<SendImageMutation, SendImageMutationVariables>
     }
     /**
+     * 通話架電
+     */
+    ringUp: {
+      result?: RingUpMutation['ringUp']
+      loading: MutaionLoading
+      errors?: ValidationErrors
+      reset: MutaionReset
+      mutate: MutateFunction<RingUpMutation, RingUpMutationVariables>
+    }
+    /**
+     * 通話応答
+     */
+    pickUp: {
+      result?: PickUpMutation['pickUp']
+      loading: MutaionLoading
+      errors?: ValidationErrors
+      reset: MutaionReset
+      mutate: MutateFunction<PickUpMutation, PickUpMutationVariables>
+    }
+    /**
+     * 通話終了
+     */
+    hangUp: {
+      result?: HangUpMutation['hangUp']
+      loading: MutaionLoading
+      errors?: ValidationErrors
+      reset: MutaionReset
+      mutate: MutateFunction<HangUpMutation, HangUpMutationVariables>
+    }
+    /**
+     * 通話キャンセル
+     */
+    cancel: {
+      result?: CancelMutation['cancel']
+      loading: MutaionLoading
+      errors?: ValidationErrors
+      reset: MutaionReset
+      mutate: MutateFunction<CancelMutation, CancelMutationVariables>
+    }
+    /**
      * メッセージ削除
      */
     deleteMessage: {
@@ -262,6 +320,18 @@ export type IndexTemplateProps = {
       mutate: MutateFunction<UnblockContactMutation, UnblockContactMutationVariables>
     }
   }
+  /**
+   * Subscription
+   */
+  subscription: {
+    /**
+     * シグナリング
+     */
+    signaling: {
+      result?: SignalingSubscription['signalingSubscription']
+      loading: SubscriptionLoading
+    }
+  }
 }
 
 /** Presenter Props */
@@ -271,7 +341,7 @@ export type PresenterProps = IndexTemplateProps & {
 
 /** Presenter Component */
 const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
-  state,
+  state: { contactInfoUserId, isCalling },
   query: { me, contacts, latestMessages, contactInfo, searchUser },
   mutation: {
     signOut,
@@ -281,6 +351,10 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
     deleteAccount,
     sendMessage,
     sendImage,
+    ringUp,
+    pickUp,
+    hangUp,
+    cancel,
     deleteMessage,
     applyContact,
     approveContact,
@@ -289,6 +363,7 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
     blockContact,
     unblockContact
   },
+  subscription: { signaling },
   sbDisc
 }) => (
   <HtmlSkeleton>
@@ -296,26 +371,35 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
     <Box minH='100vh'>
       <Sidebar
         {...styles.mdSidebar}
-        state={state}
+        state={{ contactInfoUserId }}
         query={{ me, contacts, latestMessages, contactInfo }}
         onClose={sbDisc.onClose}
       />
       <Drawer {...styles.drawer} isOpen={sbDisc.isOpen} onClose={sbDisc.onClose} onOverlayClick={sbDisc.onClose}>
         <DrawerContent>
-          <Sidebar state={state} query={{ me, contacts, latestMessages, contactInfo }} onClose={sbDisc.onClose} />
+          <Sidebar
+            state={{ contactInfoUserId }}
+            query={{ me, contacts, latestMessages, contactInfo }}
+            onClose={sbDisc.onClose}
+          />
         </DrawerContent>
       </Drawer>
       <Header
         onSbOpen={sbDisc.onOpen}
-        state={state}
+        state={{ contactInfoUserId }}
         query={{ me, contactInfo, searchUser }}
         mutation={{ signOut, editProfile, changeEmail, changePassword, deleteAccount }}
       />
       <Main
+        state={{ isCalling }}
         query={{ me, contactInfo }}
         mutation={{
           sendMessage,
           sendImage,
+          ringUp,
+          pickUp,
+          hangUp,
+          cancel,
           deleteMessage,
           applyContact,
           approveContact,
@@ -324,6 +408,7 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
           blockContact,
           unblockContact
         }}
+        subscription={{ signaling }}
       />
     </Box>
   </HtmlSkeleton>

@@ -54,7 +54,8 @@ export const image = {
 
 export const callMsg = {
   alignItems: 'center',
-  spacing: 2
+  spacing: 2,
+  pr: 1
 } as const
 
 export const callInfo = {

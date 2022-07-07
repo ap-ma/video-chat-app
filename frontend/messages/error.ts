@@ -49,5 +49,11 @@ export const VALIDATION_ERRORS = {
   // メッセージ削除済
   V_MESSAGE_DELETED: 'Message has already been deleted.',
   // メッセージがコンタクト申請でない
-  V_MESSAGE_NOT_APPLICATION: 'Message is not a contact application message.'
+  V_MESSAGE_NOT_APPLICATION: 'Message is not a contact application message.',
+  // 通話ID不正
+  V_CALL_ID_INVALID: 'Invalid call id.',
+  // 通話のステータスがオファーでない
+  V_CALL_NOT_OFFER: 'Call is not a offer.',
+  // 通話のステータスが通話中でない
+  V_CALL_NOT_BUSY: 'V_CALL_NOT_BUSY'
 } as const

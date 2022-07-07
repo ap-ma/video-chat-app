@@ -1,0 +1,9 @@
+input CandidateInput {
+  callId: ID!
+  other_user_id: ID!
+  candidate: String!
+}
+
+mutation Candidate($input: CandidateInput!) {
+  candidate(input: $input)
+}

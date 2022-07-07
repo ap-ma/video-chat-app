@@ -3,6 +3,7 @@ const path = require('path')
 module.exports = {
   stories: ['../**/*.stories.mdx', '../**/*.stories.@(js|jsx|ts|tsx)'],
   addons: ['@storybook/addon-links', '@storybook/addon-essentials'],
+  staticDirs: ['../public'],
   // `configType` has a value of 'DEVELOPMENT' or 'PRODUCTION'
   webpackFinal: async (config, { configType }) => ({
     ...config,

@@ -12,6 +12,7 @@ import {
   useApplyContactMutation,
   useApproveContactMutation,
   useBlockContactMutation,
+  useCancelMutation,
   useChangeEmailMutation,
   useChangePasswordMutation,
   useContactInfoLazyQuery,
@@ -21,13 +22,17 @@ import {
   useDeleteContactMutation,
   useDeleteMessageMutation,
   useEditProfileMutation,
+  useHangUpMutation,
   useLatestMessagesQuery,
   useMeQuery,
   useMessageSubscription,
+  usePickUpMutation,
   useReadMessagesMutation,
+  useRingUpMutation,
   useSearchUserLazyQuery,
   useSendImageMutation,
   useSendMessageMutation,
+  useSignalingSubscription,
   useSignOutMutation,
   useUnblockContactMutation,
   useUndeleteContactMutation
@@ -35,7 +40,7 @@ import {
 import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import React, { useState } from 'react'
-import { ContactInfoUserId } from 'types'
+import { ContactInfoUserId, IsCalling } from 'types'
 import { isNode, isNullish } from 'utils'
 import {
   handle,
@@ -84,7 +89,12 @@ const Index: NextPage = () => {
   //  ----------------------------------------------------------------------------
   //  State Props
   //  ----------------------------------------------------------------------------
+
+  // コンタクト情報 ユーザーID
   const [contactInfoUserId, setContactInfoUserId] = useState<ContactInfoUserId>(undefined)
+
+  // 通話中フラグ
+  const [isCalling, setIsCalling] = useState<IsCalling>(false)
 
   //  ----------------------------------------------------------------------------
   //  Query Props
@@ -163,6 +173,24 @@ const Index: NextPage = () => {
   })
   const sendImageResult = handle(sendImageMutation.error, handler)
 
+  // 通話通話架電
+  const [ringUp, ringUpMutation] = useRingUpMutation({
+    update: (cache, { data }) => !isNullish(data) && updateMessageCache(cache, data.ringUp)
+  })
+  const ringUpResult = handle(ringUpMutation.error, handler)
+
+  // 通話応答
+  const [pickUp, pickUpMutation] = usePickUpMutation()
+  const pickUpResult = handle(pickUpMutation.error, handler)
+
+  // 通話終了
+  const [hangUp, hangUpMutation] = useHangUpMutation()
+  const hangUpResult = handle(hangUpMutation.error, handler)
+
+  // 通話キャンセル
+  const [cancel, cancelMutation] = useCancelMutation()
+  const cancelResult = handle(cancelMutation.error, handler)
+
   // メッセージ削除
   const [deleteMessage, deleteMessageMutation] = useDeleteMessageMutation({
     update: (cache, { data }) => !isNullish(data) && updateMessageCache(cache, data.deleteMessage)
@@ -216,7 +244,7 @@ const Index: NextPage = () => {
   //  Subscription
   //  ----------------------------------------------------------------------------
 
-  // メッセージ購読
+  // メッセージ変更
   const messageSubscription = useMessageSubscription({
     skip: isNode(),
     onSubscriptionData: ({ client, subscriptionData: { data } }) => {
@@ -231,6 +259,10 @@ const Index: NextPage = () => {
   })
   handle(messageSubscription.error, handler)
 
+  // シグナリング
+  const signalingSubscription = useSignalingSubscription({ skip: isNode() })
+  handle(signalingSubscription.error, handler)
+
   //  ----------------------------------------------------------------------------
 
   // IndexTemplate Props
@@ -239,6 +271,10 @@ const Index: NextPage = () => {
       contactInfoUserId: {
         state: contactInfoUserId,
         setContactInfoUserId
+      },
+      isCalling: {
+        state: isCalling,
+        setIsCalling
       }
     },
     query: {
@@ -308,6 +344,34 @@ const Index: NextPage = () => {
         reset: sendImageMutation.reset,
         mutate: sendImage
       },
+      ringUp: {
+        result: ringUpMutation.data?.ringUp,
+        loading: ringUpMutation.loading,
+        errors: isValidationErrors(ringUpResult) ? ringUpResult : undefined,
+        reset: ringUpMutation.reset,
+        mutate: ringUp
+      },
+      pickUp: {
+        result: pickUpMutation.data?.pickUp,
+        loading: pickUpMutation.loading,
+        errors: isValidationErrors(pickUpResult) ? pickUpResult : undefined,
+        reset: pickUpMutation.reset,
+        mutate: pickUp
+      },
+      hangUp: {
+        result: hangUpMutation.data?.hangUp,
+        loading: hangUpMutation.loading,
+        errors: isValidationErrors(hangUpResult) ? hangUpResult : undefined,
+        reset: hangUpMutation.reset,
+        mutate: hangUp
+      },
+      cancel: {
+        result: cancelMutation.data?.cancel,
+        loading: cancelMutation.loading,
+        errors: isValidationErrors(cancelResult) ? cancelResult : undefined,
+        reset: cancelMutation.reset,
+        mutate: cancel
+      },
       deleteMessage: {
         result: deleteMessageMutation.data?.deleteMessage,
         loading: deleteMessageMutation.loading,
@@ -356,6 +420,12 @@ const Index: NextPage = () => {
         errors: isValidationErrors(unblockContactResult) ? unblockContactResult : undefined,
         reset: unblockContactMutation.reset,
         mutate: unblockContact
+      }
+    },
+    subscription: {
+      signaling: {
+        result: signalingSubscription.data?.signalingSubscription,
+        ...signalingSubscription
       }
     }
   }

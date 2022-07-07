@@ -1,0 +1,5 @@
+mutation Cancel($callId: ID!, $dateTimeFormat: String) {
+  cancel(callId: $callId) {
+    ...MessageChangedFields
+  }
+}

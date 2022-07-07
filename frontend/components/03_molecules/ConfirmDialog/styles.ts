@@ -14,7 +14,7 @@ export const content = {
 } as const
 
 export const header = {
-  pb: 4,
+  pb: 2,
   fontSize: { base: 'xl', sm: '2xl' },
   textAlign: 'center'
 } as const

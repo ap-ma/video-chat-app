@@ -8,7 +8,6 @@ import * as styles from './styles'
 
 /** EmailVerificationFailureDialog Props */
 export type EmailVerificationFailureDialogProps = Omit<ModalProps, 'children'>
-
 /** Presenter Props */
 export type PresenterProps = EmailVerificationFailureDialogProps
 

@@ -5,6 +5,7 @@ import {
   dummyMe,
   dummyMutation,
   dummySearchUser,
+  dummySignaling,
   latestMessages,
   otherUserId,
   userId
@@ -20,6 +21,8 @@ import {
   ApproveContactMutationVariables,
   BlockContactMutation,
   BlockContactMutationVariables,
+  CancelMutation,
+  CancelMutationVariables,
   ChangeEmailMutation,
   ChangeEmailMutationVariables,
   ChangePasswordMutation,
@@ -32,12 +35,19 @@ import {
   DeleteMessageMutationVariables,
   EditProfileMutation,
   EditProfileMutationVariables,
+  HangUpMutation,
+  HangUpMutationVariables,
+  PickUpMutation,
+  PickUpMutationVariables,
   ReadMessagesMutation,
   ReadMessagesMutationVariables,
+  RingUpMutation,
+  RingUpMutationVariables,
   SendImageMutation,
   SendImageMutationVariables,
   SendMessageMutation,
   SendMessageMutationVariables,
+  SignalType,
   SignOutMutation,
   SignOutMutationVariables,
   UnblockContactMutation,
@@ -46,7 +56,14 @@ import {
   UndeleteContactMutationVariables
 } from 'graphql/generated'
 import React, { useState } from 'react'
-import { ContactInfoUserId, MutaionLoading, QueryLoading, QueryNetworkStatus } from 'types'
+import {
+  ContactInfoUserId,
+  IsCalling,
+  MutaionLoading,
+  QueryLoading,
+  QueryNetworkStatus,
+  SubscriptionLoading
+} from 'types'
 import { toStr } from 'utils/general/helper'
 import IndexTemplate, { IndexTemplateProps } from './index'
 
@@ -70,6 +87,10 @@ type IndexTemplateStoryProps = IndexTemplateProps & {
   deleteAccountLoading: MutaionLoading
   sendMessageLoading: MutaionLoading
   sendImageLoading: MutaionLoading
+  ringUpLoading: MutaionLoading
+  pickUpLoading: MutaionLoading
+  hangUpLoading: MutaionLoading
+  cancelLoading: MutaionLoading
   deleteMessageLoading: MutaionLoading
   readMessagesLoading: MutaionLoading
   applyContactLoading: MutaionLoading
@@ -78,6 +99,8 @@ type IndexTemplateStoryProps = IndexTemplateProps & {
   undeleteContactLoading: MutaionLoading
   blockContactLoading: MutaionLoading
   unblockContactLoading: MutaionLoading
+  signalingLoading: SubscriptionLoading
+  signalingType: SignalType
 }
 
 const Template: Story<IndexTemplateStoryProps> = ({
@@ -95,6 +118,10 @@ const Template: Story<IndexTemplateStoryProps> = ({
   deleteAccountLoading,
   sendMessageLoading,
   sendImageLoading,
+  ringUpLoading,
+  pickUpLoading,
+  hangUpLoading,
+  cancelLoading,
   deleteMessageLoading,
   readMessagesLoading,
   applyContactLoading,
@@ -103,11 +130,16 @@ const Template: Story<IndexTemplateStoryProps> = ({
   undeleteContactLoading,
   blockContactLoading,
   unblockContactLoading,
+  signalingLoading,
+  signalingType,
   ...props
 }) => {
   // state
   const [contactUserId, setContactUserId] = useState<ContactInfoUserId>(toStr(otherUserId))
-  const state = { contactInfoUserId: { state: contactUserId, setContactInfoUserId: setContactUserId } }
+  const contactInfoUserId = { state: contactUserId, setContactInfoUserId: setContactUserId }
+  const [calling, setIsCalling] = useState<IsCalling>(false)
+  const isCalling = { state: calling, setIsCalling }
+  const state = { contactInfoUserId, isCalling }
 
   // query
   const me = dummyMe(userId, meLoading, undefined)
@@ -176,6 +208,30 @@ const Template: Story<IndexTemplateStoryProps> = ({
     sendImageLoading
   )
 
+  const ringUp = dummyMutation<RingUpMutation['ringUp'], RingUpMutation, RingUpMutationVariables>(
+    'RingUp',
+    undefined,
+    ringUpLoading
+  )
+
+  const pickUp = dummyMutation<PickUpMutation['pickUp'], PickUpMutation, PickUpMutationVariables>(
+    'PickUp',
+    undefined,
+    pickUpLoading
+  )
+
+  const hangUp = dummyMutation<HangUpMutation['hangUp'], HangUpMutation, HangUpMutationVariables>(
+    'HangUp',
+    undefined,
+    hangUpLoading
+  )
+
+  const cancel = dummyMutation<CancelMutation['cancel'], CancelMutation, CancelMutationVariables>(
+    'Cancel',
+    undefined,
+    cancelLoading
+  )
+
   const deleteMessage = dummyMutation<
     DeleteMessageMutation['deleteMessage'],
     DeleteMessageMutation,
@@ -232,6 +288,10 @@ const Template: Story<IndexTemplateStoryProps> = ({
     deleteAccount,
     sendMessage,
     sendImage,
+    ringUp,
+    pickUp,
+    hangUp,
+    cancel,
     deleteMessage,
     readMessages,
     applyContact,
@@ -242,7 +302,11 @@ const Template: Story<IndexTemplateStoryProps> = ({
     unblockContact
   }
 
-  return <IndexTemplate {...{ ...props, state, query, mutation }} />
+  // subscription
+  const signaling = dummySignaling(userId, otherUserId, signalingLoading, signalingType)
+  const subscription = { signaling }
+
+  return <IndexTemplate {...{ ...props, state, query, mutation, subscription }} />
 }
 
 const contactStatusLabels: Record<number, string> = {}
@@ -263,6 +327,13 @@ Primary.argTypes = {
   contactInfoStatus: {
     options: Object.values(CONTACT.STATUS),
     control: { type: 'select', labels: contactStatusLabels }
+  },
+  signalingType: {
+    options: Object.values(SignalType),
+    control: {
+      type: 'select',
+      labels: Object.fromEntries(Object.entries(SignalType).filter(([key]) => isFinite(Number(key))))
+    }
   }
 }
 Primary.args = {
@@ -279,6 +350,10 @@ Primary.args = {
   deleteAccountLoading: false,
   sendMessageLoading: false,
   sendImageLoading: false,
+  ringUpLoading: false,
+  pickUpLoading: false,
+  hangUpLoading: false,
+  cancelLoading: false,
   deleteMessageLoading: false,
   readMessagesLoading: false,
   applyContactLoading: false,
@@ -286,5 +361,7 @@ Primary.args = {
   deleteContactLoading: false,
   undeleteContactLoading: false,
   blockContactLoading: false,
-  unblockContactLoading: false
+  unblockContactLoading: false,
+  signalingLoading: false,
+  signalingType: SignalType.Close
 }

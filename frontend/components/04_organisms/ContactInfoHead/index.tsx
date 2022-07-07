@@ -24,9 +24,9 @@ import * as styles from './styles'
 /** ContactInfoHead Props */
 export type ContactInfoHeadProps = FlexProps & {
   /**
-   * 架電ダイアログ onOpen
+   * 通話架電ダイアログ onOpen
    */
-  onMccdOpen: OnOpen
+  onRucdOpen: OnOpen
   /**
    * コンタクト削除ダイアログ onOpen
    */
@@ -84,7 +84,7 @@ const ContactInfoHeadPresenter: React.VFC<PresenterProps> = ({
   deleted,
   notBlocked,
   blocked,
-  onMccdOpen,
+  onRucdOpen,
   onDccdOpen,
   onUdccdOpen,
   onBccdOpen,
@@ -98,7 +98,7 @@ const ContactInfoHeadPresenter: React.VFC<PresenterProps> = ({
       <Text {...styles.comment}>{contactInfo.result?.userComment}</Text>
     </Box>
     <Spinner {...styles.spinner({ loading })} />
-    <IconButton icon={<AiOutlinePhone />} {...styles.phoneIcon} aria-label='make a call' onClick={onMccdOpen} />
+    <IconButton icon={<AiOutlinePhone />} {...styles.phoneIcon} aria-label='ring up' onClick={onRucdOpen} />
     <Menu>
       <MenuButton as={IconButton} icon={<AiOutlineMenu />} {...styles.menuIcon({ disabled })} />
       <MenuList>

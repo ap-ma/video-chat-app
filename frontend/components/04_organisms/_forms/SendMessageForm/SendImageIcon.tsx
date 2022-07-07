@@ -1,19 +1,11 @@
-import {
-  IconButton,
-  IconButtonProps,
-  Input,
-  InputProps,
-  useBreakpointValue,
-  useDisclosure,
-  useMergeRefs
-} from '@chakra-ui/react'
+import { IconButton, IconButtonProps, Input, InputProps, useBreakpointValue, useDisclosure } from '@chakra-ui/react'
 import SendImageConfirmDialog, {
   SendImageConfirmDialogProps
 } from 'components/04_organisms/_dialogs/SendImageConfirmDialog'
-import { connectRef } from 'components/hoc'
+import { connect } from 'components/hoc'
 import { ALLOWED_IMAGE_EXTS } from 'const'
 import { ContactInfoQuery, SendImageMutation, SendImageMutationVariables } from 'graphql/generated'
-import React, { forwardRef, Fragment, Ref, useCallback, useMemo, useRef } from 'react'
+import React, { Fragment, Ref, useCallback, useMemo, useRef } from 'react'
 import { AiOutlineFileImage } from 'react-icons/ai'
 import {
   ContainerProps,
@@ -28,8 +20,8 @@ import {
 import { hasValue, isNullish } from 'utils/general/object'
 import * as styles from './styles'
 
-/** SendImageForm Props */
-export type SendImageFormProps = Optional<IconButtonProps, 'aria-label'> & {
+/** SendImageIcon Props */
+export type SendImageIconProps = Optional<IconButtonProps, 'aria-label'> & {
   /**
    * Query
    */
@@ -60,8 +52,8 @@ export type SendImageFormProps = Optional<IconButtonProps, 'aria-label'> & {
 }
 
 /** Presenter Props */
-export type PresenterProps = SendImageFormProps & {
-  ref: Ref<HTMLInputElement>
+export type PresenterProps = SendImageIconProps & {
+  fileInputRef: Ref<HTMLInputElement>
   sicdDisc: Disclosure
   isCentered: SendImageConfirmDialogProps['isCentered']
   image: SendImageConfirmDialogProps['image']
@@ -70,83 +62,89 @@ export type PresenterProps = SendImageFormProps & {
 }
 
 /** Presenter Component */
-const SendImageFormPresenter = forwardRef<HTMLInputElement, Omit<PresenterProps, 'ref'>>(
-  ({ query, mutation, sicdDisc, isCentered, image, onImageIconClick, onImageChange, ...props }, ref) => (
-    <Fragment>
-      <IconButton
-        icon={<AiOutlineFileImage />}
-        {...styles.imageIcon}
-        aria-label='send image'
-        onClick={onImageIconClick}
-        {...props}
-      />
-      <Input {...styles.fileInput(ALLOWED_IMAGE_EXTS)} ref={ref} onChange={onImageChange} />
-      <SendImageConfirmDialog
-        {...{ isCentered, query, mutation, image }}
-        isOpen={sicdDisc.isOpen}
-        onClose={sicdDisc.onClose}
-      />
-    </Fragment>
-  )
+const SendImageIconPresenter: React.VFC<PresenterProps> = ({
+  query,
+  mutation,
+  fileInputRef,
+  sicdDisc,
+  isCentered,
+  image,
+  onImageIconClick,
+  onImageChange,
+  ...props
+}) => (
+  <Fragment>
+    <IconButton
+      icon={<AiOutlineFileImage />}
+      {...styles.imageIcon}
+      aria-label='send image'
+      onClick={onImageIconClick}
+      {...props}
+    />
+    <Input {...styles.fileInput(ALLOWED_IMAGE_EXTS)} ref={fileInputRef} onChange={onImageChange} />
+    <SendImageConfirmDialog
+      {...{ isCentered, query, mutation, image }}
+      isOpen={sicdDisc.isOpen}
+      onClose={sicdDisc.onClose}
+    />
+  </Fragment>
 )
 
 /** Container Component */
-const SendImageFormContainer = forwardRef<HTMLInputElement, ContainerProps<SendImageFormProps, PresenterProps>>(
-  ({ presenter, mutation: { sendImage }, ...props }, ref) => {
-    // modal prop isCentered
-    const isCentered = useBreakpointValue({ base: true, sm: false })
+const SendImageIconContainer: React.VFC<ContainerProps<SendImageIconProps, PresenterProps>> = ({
+  presenter,
+  mutation: { sendImage },
+  ...props
+}) => {
+  // modal prop isCentered
+  const isCentered = useBreakpointValue({ base: true, sm: false })
 
-    // SendImageConfirmDialog modal
-    const { onClose: onSicdClose, ...sicdDiscRest } = useDisclosure()
+  // SendImageConfirmDialog modal
+  const { onClose: onSicdClose, ...sicdDiscRest } = useDisclosure()
 
-    // file input
-    const fileInputRef = useRef<HTMLInputElement>(null)
-    const image = fileInputRef.current?.files?.item(0)
-    const onImageIconClick = () => fileInputRef.current?.click()
+  // file input
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const image = fileInputRef.current?.files?.item(0)
+  const onImageIconClick = () => fileInputRef.current?.click()
 
-    // SendImageConfirmDialog onClose
-    const onClose = useCallback(() => {
-      onSicdClose()
-      const input = fileInputRef.current
-      if (!isNullish(input)) input.value = ''
-    }, [onSicdClose])
+  // SendImageConfirmDialog onClose
+  const onClose = useCallback(() => {
+    onSicdClose()
+    const input = fileInputRef.current
+    if (!isNullish(input)) input.value = ''
+  }, [onSicdClose])
 
-    // SendImageConfirmDialog useDisclosure
-    const sicdDisc = useMemo(() => {
-      return { onClose, ...sicdDiscRest }
-    }, [onClose, sicdDiscRest])
+  // SendImageConfirmDialog useDisclosure
+  const sicdDisc = useMemo(() => {
+    return { onClose, ...sicdDiscRest }
+  }, [onClose, sicdDiscRest])
 
-    // file onChange
-    const onImageChange: PresenterProps['onImageChange'] = (event) => {
-      const image = event.target.files?.item(0)
-      if (!isNullish(image)) sicdDisc.onOpen()
-    }
-
-    // mutate onComplete
-    useMemo(() => {
-      if (hasValue(sendImage.result)) onClose()
-    }, [onClose, sendImage.result])
-
-    return presenter({
-      mutation: { sendImage },
-      ref: useMergeRefs<HTMLInputElement>(ref, fileInputRef),
-      sicdDisc,
-      isCentered,
-      image,
-      onImageIconClick,
-      onImageChange,
-      ...props
-    })
+  // file onChange
+  const onImageChange: PresenterProps['onImageChange'] = (event) => {
+    const image = event.target.files?.item(0)
+    if (!isNullish(image)) sicdDisc.onOpen()
   }
-)
 
-// display name
-SendImageFormPresenter.displayName = 'SendImageFormPresenter'
-SendImageFormContainer.displayName = 'SendImageFormContainer'
+  // mutate onComplete
+  useMemo(() => {
+    if (hasValue(sendImage.result)) onClose()
+  }, [onClose, sendImage.result])
 
-/** SendImageForm */
-export default connectRef<HTMLInputElement, SendImageFormProps, PresenterProps>(
-  'SendImageForm',
-  SendImageFormPresenter,
-  SendImageFormContainer
+  return presenter({
+    mutation: { sendImage },
+    fileInputRef,
+    sicdDisc,
+    isCentered,
+    image,
+    onImageIconClick,
+    onImageChange,
+    ...props
+  })
+}
+
+/** SendImageIcon */
+export default connect<SendImageIconProps, PresenterProps>(
+  'SendImageIcon',
+  SendImageIconPresenter,
+  SendImageIconContainer
 )

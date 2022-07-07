@@ -1,5 +1,5 @@
 use super::common::SimpleBroker;
-use super::model::{CallEvent, MessageChanged};
+use super::model::{MessageChanged, Signal};
 use super::security::auth::{self, Role};
 use super::security::guard::RoleGuard;
 use async_graphql::*;
@@ -24,12 +24,12 @@ impl Subscription {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn call_event_subscription(
+    async fn signaling_subscription(
         &self,
         ctx: &Context<'_>,
-    ) -> Result<impl Stream<Item = CallEvent>> {
+    ) -> Result<impl Stream<Item = Signal>> {
         let identity = auth::get_identity(ctx)?;
-        let stream = SimpleBroker::<CallEvent>::subscribe().filter(move |event| {
+        let stream = SimpleBroker::<Signal>::subscribe().filter(move |event| {
             let res = event.tx_user_id != identity.id && event.rx_user_id == identity.id;
             async move { res }
         });

@@ -117,11 +117,10 @@ const SendImageConfirmDialogContainer: React.VFC<ContainerProps<SendImageConfirm
   // state
   const [imageSrc, setImageSrc] = useState<PresenterProps['imageSrc']>(undefined)
   useMemo(() => {
-    if (!isNullish(image)) {
-      fileToDataURL(image)
-        .then((dataUrl) => setImageSrc(dataUrl))
-        .catch(() => setImageSrc(undefined))
-    }
+    if (isNullish(image)) return
+    fileToDataURL(image)
+      .then((dataUrl) => setImageSrc(dataUrl))
+      .catch(() => setImageSrc(undefined))
   }, [image])
 
   // status

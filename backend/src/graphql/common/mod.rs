@@ -21,13 +21,12 @@ pub enum MutationType {
 }
 
 #[derive(Enum, Eq, PartialEq, Copy, Clone)]
-pub enum CallEventType {
-    Cast,
-    Call,
+pub enum SignalType {
     Offer,
     Answer,
+    Close,
+    Cancel,
     Candidate,
-    End,
 }
 
 pub fn get_conn(ctx: &Context<'_>) -> Result<PooledConnection<ConnectionManager<MysqlConnection>>> {

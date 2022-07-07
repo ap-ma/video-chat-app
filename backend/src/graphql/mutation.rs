@@ -1,9 +1,9 @@
-use super::common::{self, mail_builder, CallEventType, MutationType, SimpleBroker};
+use super::common::{self, mail_builder, MutationType, SignalType, SimpleBroker};
 use super::form::{
-    CallOfferInput, ChangePasswordInput, EditProfileInput, ResetPasswordInput, SendImageInput,
-    SendMessageInput, SignInInput, SignUpInput,
+    CandidateInput, ChangePasswordInput, EditProfileInput, PickUpInput, ResetPasswordInput,
+    RingUpInput, SendImageInput, SendMessageInput, SignInInput, SignUpInput,
 };
-use super::model::{CallEvent, Contact, Message, MessageChanged, User};
+use super::model::{Contact, Message, MessageChanged, Signal, User};
 use super::security::auth::{self, Role};
 use super::security::{self, crypto::hash, validator, RoleGuard};
 use super::GraphqlError;
@@ -16,8 +16,8 @@ use crate::constant::{
     user as user_const,
 };
 use crate::database::entity::{
-    ChangeContactEntity, ChangeMessageEntity, ChangeUserEntity, ContactEntity, NewCallEntity,
-    NewContactEntity, NewEmailVerificationTokenEntity, NewMessageEntity,
+    ChangeCallEntity, ChangeContactEntity, ChangeMessageEntity, ChangeUserEntity, ContactEntity,
+    NewCallEntity, NewContactEntity, NewEmailVerificationTokenEntity, NewMessageEntity,
     NewPasswordResetTokenEntity, NewUserEntity,
 };
 use crate::database::service;
@@ -498,16 +498,21 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn call_offer(&self, ctx: &Context<'_>, input: CallOfferInput) -> Result<MessageChanged> {
+    async fn ring_up(&self, ctx: &Context<'_>, input: RingUpInput) -> Result<MessageChanged> {
         let conn = common::get_conn(ctx)?;
         let identity = auth::get_identity(ctx)?;
+
+        let user = common::convert_query_result(
+            service::find_user_by_id(identity.id, &conn),
+            "Failed to get the user",
+        )?;
 
         let contact = service::find_contact_by_id(common::convert_id(&input.contact_id)?, &conn);
         let contact = contact.map_err(|_| {
             GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId").extend()
         })?;
 
-        if contact.user_id != identity.id {
+        if contact.user_id != user.id {
             let e = GraphqlError::ValidationError(error::V_CONTACT_ID_INVALID.into(), "contactId");
             return Err(e.extend());
         }
@@ -519,7 +524,7 @@ impl Mutation {
 
         let now = Local::now().naive_local();
         let new_message = NewMessageEntity {
-            tx_user_id: identity.id,
+            tx_user_id: user.id,
             rx_user_id: contact.contact_user_id,
             category: message_const::category::CALLING,
             message: None,
@@ -545,18 +550,21 @@ impl Mutation {
             "Failed to create call",
         )?;
 
-        let call_event = CallEvent {
+        let signal = Signal {
             call_id: call.id,
             tx_user_id: message.tx_user_id,
+            tx_user_name: user.name,
+            tx_user_avatar: user.avatar,
             rx_user_id: message.rx_user_id,
-            data: input.data,
-            event_type: CallEventType::Offer,
+            sdp: Some(input.sdp),
+            candidate: None,
+            signal_type: SignalType::Offer,
         };
 
         let message = Message::from(&(message, Some(call)));
         let message_changed = MessageChanged {
-            tx_user_id: message.tx_user_id,
-            rx_user_id: message.rx_user_id,
+            tx_user_id: signal.tx_user_id,
+            rx_user_id: signal.rx_user_id,
             contact_id: Some(contact.id),
             contact_status: Some(contact.status),
             message: Some(message),
@@ -564,7 +572,7 @@ impl Mutation {
             mutation_type: MutationType::Created,
         };
 
-        let rx_user_contact = service::find_contact_with_user(
+        let rx_user_contact = service::find_contact_by_user_id(
             message_changed.rx_user_id,
             message_changed.tx_user_id,
             &conn,
@@ -572,12 +580,243 @@ impl Mutation {
 
         if let Some(rx_user_contact) = rx_user_contact.ok() {
             if !(rx_user_contact.0.blocked) {
-                publish_call_event(&call_event);
+                publish_signal(&signal);
                 publish_message(&message_changed);
             }
         }
 
         Ok(message_changed)
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn pick_up(&self, ctx: &Context<'_>, input: PickUpInput) -> Result<MessageChanged> {
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?;
+
+        let call = service::find_call_by_id(common::convert_id(&input.call_id)?, &conn);
+        let (call, message) = call.map_err(|_| {
+            GraphqlError::ValidationError(error::V_CALL_ID_INVALID.into(), "callId").extend()
+        })?;
+
+        if message.rx_user_id != identity.id {
+            let e = GraphqlError::ValidationError(error::V_CALL_ID_INVALID.into(), "callId");
+            return Err(e.extend());
+        }
+
+        if call_const::status::OFFER != call.status {
+            let e = GraphqlError::ValidationError(error::V_CALL_NOT_OFFER.into(), "callId");
+            return Err(e.extend());
+        }
+
+        let now = Local::now().naive_local();
+        let change_call = ChangeCallEntity {
+            id: call.id,
+            status: Some(call_const::status::BUSY),
+            started_at: Some(Some(now)),
+            updated_at: Some(now),
+            ..Default::default()
+        };
+
+        common::convert_query_result(
+            service::update_call(change_call, &conn),
+            "Failed to update call",
+        )?;
+
+        let signal = Signal {
+            call_id: call.id,
+            tx_user_id: identity.id,
+            tx_user_name: None,
+            tx_user_avatar: None,
+            rx_user_id: message.tx_user_id,
+            sdp: Some(input.sdp),
+            candidate: None,
+            signal_type: SignalType::Answer,
+        };
+
+        let (message, call) = common::convert_query_result(
+            service::find_message_by_id(message.id, &conn),
+            "Failed to get message",
+        )?;
+
+        let message = Message::from(&(message, call));
+        let message_changed = MessageChanged {
+            tx_user_id: signal.tx_user_id,
+            rx_user_id: signal.rx_user_id,
+            contact_id: None,
+            contact_status: None,
+            message: Some(message),
+            messages: None,
+            mutation_type: MutationType::Updated,
+        };
+
+        publish_signal(&signal);
+        publish_message(&message_changed);
+
+        Ok(message_changed)
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn hang_up(&self, ctx: &Context<'_>, call_id: ID) -> Result<MessageChanged> {
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?;
+
+        let call = service::find_call_by_id(common::convert_id(&call_id)?, &conn);
+        let (call, message) = call.map_err(|_| {
+            GraphqlError::ValidationError(error::V_CALL_ID_INVALID.into(), "callId").extend()
+        })?;
+
+        if message.tx_user_id != identity.id && message.rx_user_id != identity.id {
+            let e = GraphqlError::ValidationError(error::V_CALL_ID_INVALID.into(), "callId");
+            return Err(e.extend());
+        }
+
+        if call_const::status::BUSY != call.status {
+            let e = GraphqlError::ValidationError(error::V_CALL_NOT_BUSY.into(), "callId");
+            return Err(e.extend());
+        }
+
+        let now = Local::now().naive_local();
+        let change_call = ChangeCallEntity {
+            id: call.id,
+            status: Some(call_const::status::ENDED),
+            ended_at: Some(Some(now)),
+            updated_at: Some(now),
+            ..Default::default()
+        };
+
+        common::convert_query_result(
+            service::update_call(change_call, &conn),
+            "Failed to update call",
+        )?;
+
+        let other_user_id = if message.tx_user_id == identity.id {
+            message.rx_user_id
+        } else {
+            message.tx_user_id
+        };
+
+        let signal = Signal {
+            call_id: call.id,
+            tx_user_id: identity.id,
+            tx_user_name: None,
+            tx_user_avatar: None,
+            rx_user_id: other_user_id,
+            sdp: None,
+            candidate: None,
+            signal_type: SignalType::Close,
+        };
+
+        let (message, call) = common::convert_query_result(
+            service::find_message_by_id(message.id, &conn),
+            "Failed to get message",
+        )?;
+
+        let message = Message::from(&(message, call));
+        let message_changed = MessageChanged {
+            tx_user_id: signal.tx_user_id,
+            rx_user_id: signal.rx_user_id,
+            contact_id: None,
+            contact_status: None,
+            message: Some(message),
+            messages: None,
+            mutation_type: MutationType::Updated,
+        };
+
+        publish_signal(&signal);
+        publish_message(&message_changed);
+
+        Ok(message_changed)
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn cancel(&self, ctx: &Context<'_>, call_id: ID) -> Result<MessageChanged> {
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?;
+
+        let call = service::find_call_by_id(common::convert_id(&call_id)?, &conn);
+        let (call, message) = call.map_err(|_| {
+            GraphqlError::ValidationError(error::V_CALL_ID_INVALID.into(), "callId").extend()
+        })?;
+
+        if message.tx_user_id != identity.id && message.rx_user_id != identity.id {
+            let e = GraphqlError::ValidationError(error::V_CALL_ID_INVALID.into(), "callId");
+            return Err(e.extend());
+        }
+
+        if call_const::status::OFFER != call.status {
+            let e = GraphqlError::ValidationError(error::V_CALL_NOT_OFFER.into(), "callId");
+            return Err(e.extend());
+        }
+
+        let now = Local::now().naive_local();
+        let change_call = ChangeCallEntity {
+            id: call.id,
+            status: Some(call_const::status::CANCELED),
+            updated_at: Some(now),
+            ..Default::default()
+        };
+
+        common::convert_query_result(
+            service::update_call(change_call, &conn),
+            "Failed to update call",
+        )?;
+
+        let other_user_id = if message.tx_user_id == identity.id {
+            message.rx_user_id
+        } else {
+            message.tx_user_id
+        };
+
+        let signal = Signal {
+            call_id: call.id,
+            tx_user_id: identity.id,
+            tx_user_name: None,
+            tx_user_avatar: None,
+            rx_user_id: other_user_id,
+            sdp: None,
+            candidate: None,
+            signal_type: SignalType::Cancel,
+        };
+
+        let (message, call) = common::convert_query_result(
+            service::find_message_by_id(message.id, &conn),
+            "Failed to get message",
+        )?;
+
+        let message = Message::from(&(message, call));
+        let message_changed = MessageChanged {
+            tx_user_id: signal.tx_user_id,
+            rx_user_id: signal.rx_user_id,
+            contact_id: None,
+            contact_status: None,
+            message: Some(message),
+            messages: None,
+            mutation_type: MutationType::Updated,
+        };
+
+        publish_signal(&signal);
+        publish_message(&message_changed);
+
+        Ok(message_changed)
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn candidate(&self, ctx: &Context<'_>, input: CandidateInput) -> Result<bool> {
+        let identity = auth::get_identity(ctx)?;
+        let signal = Signal {
+            call_id: common::convert_id(&input.call_id)?,
+            tx_user_id: identity.id,
+            tx_user_name: None,
+            tx_user_avatar: None,
+            rx_user_id: common::convert_id(&input.other_user_id)?,
+            sdp: None,
+            candidate: Some(input.candidate),
+            signal_type: SignalType::Candidate,
+        };
+
+        publish_signal(&signal);
+
+        Ok(true)
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
@@ -603,7 +842,7 @@ impl Mutation {
         let mut contact_id = None;
         let mut contact_status = None;
 
-        let contact = service::find_contact_with_user(identity.id, message.rx_user_id, &conn);
+        let contact = service::find_contact_by_user_id(identity.id, message.rx_user_id, &conn);
         if let Ok((contact, _)) = contact {
             contact_id = Some(contact.id);
             contact_status = Some(contact.status);
@@ -626,17 +865,18 @@ impl Mutation {
             "Failed to get message",
         )?;
 
+        let message = Message::from(&(message, call));
         let message_changed = MessageChanged {
             tx_user_id: message.tx_user_id,
             rx_user_id: message.rx_user_id,
             contact_id,
             contact_status,
-            message: Some(Message::from(&(message, call))),
+            message: Some(message),
             messages: None,
             mutation_type: MutationType::Deleted,
         };
 
-        let rx_user_contact = service::find_contact_with_user(
+        let rx_user_contact = service::find_contact_by_user_id(
             message_changed.tx_user_id,
             message_changed.rx_user_id,
             &conn,
@@ -661,7 +901,7 @@ impl Mutation {
         let mut contact_id = None;
         let mut contact_status = None;
 
-        let contact = service::find_contact_with_user(identity.id, other_user_id, &conn);
+        let contact = service::find_contact_by_user_id(identity.id, other_user_id, &conn);
         if let Ok((contact, _)) = contact {
             if contact.blocked {
                 let m = error::V_CONTACT_BLOCKED;
@@ -698,7 +938,7 @@ impl Mutation {
             mutation_type: MutationType::Updated,
         };
 
-        let contact_user_contact = service::find_contact_with_user(
+        let contact_user_contact = service::find_contact_by_user_id(
             message_changed.rx_user_id,
             message_changed.tx_user_id,
             &conn,
@@ -720,7 +960,7 @@ impl Mutation {
 
         let other_user_id = common::convert_id(&other_user_id)?;
 
-        let contact = service::find_contact_with_user(identity.id, other_user_id, &conn);
+        let contact = service::find_contact_by_user_id(identity.id, other_user_id, &conn);
         if contact.is_ok() {
             let m = error::V_CONTACT_REGISTERED;
             let e = GraphqlError::ValidationError(m.into(), "otherUserId");
@@ -761,7 +1001,7 @@ impl Mutation {
             return Err(e.extend());
         }
 
-        let contact = service::find_contact_with_user(identity.id, message.tx_user_id, &conn);
+        let contact = service::find_contact_by_user_id(identity.id, message.tx_user_id, &conn);
         if contact.is_ok() {
             let e = GraphqlError::ValidationError(error::V_CONTACT_REGISTERED.into(), "messageId");
             return Err(e.extend());
@@ -818,7 +1058,7 @@ impl Mutation {
         )?;
 
         let contact = common::convert_query_result(
-            service::find_contact_with_user(identity.id, contact.contact_user_id, &conn),
+            service::find_contact_by_user_id(identity.id, contact.contact_user_id, &conn),
             "Failed to get contact",
         )?;
 
@@ -859,7 +1099,7 @@ impl Mutation {
         )?;
 
         let contact = common::convert_query_result(
-            service::find_contact_with_user(identity.id, contact.contact_user_id, &conn),
+            service::find_contact_by_user_id(identity.id, contact.contact_user_id, &conn),
             "Failed to get contact",
         )?;
 
@@ -899,7 +1139,7 @@ impl Mutation {
         )?;
 
         let contact = common::convert_query_result(
-            service::find_contact_with_user(identity.id, contact.contact_user_id, &conn),
+            service::find_contact_by_user_id(identity.id, contact.contact_user_id, &conn),
             "Failed to get contact",
         )?;
 
@@ -940,7 +1180,7 @@ impl Mutation {
         )?;
 
         let contact = common::convert_query_result(
-            service::find_contact_with_user(identity.id, contact.contact_user_id, &conn),
+            service::find_contact_by_user_id(identity.id, contact.contact_user_id, &conn),
             "Failed to get contact",
         )?;
 
@@ -1007,7 +1247,7 @@ fn create_message(
         mutation_type: MutationType::Created,
     };
 
-    let rx_user_contact = service::find_contact_with_user(
+    let rx_user_contact = service::find_contact_by_user_id(
         message_changed.rx_user_id,
         message_changed.tx_user_id,
         &conn,
@@ -1026,6 +1266,6 @@ fn publish_message(message_changed: &MessageChanged) {
     SimpleBroker::publish(message_changed.clone());
 }
 
-fn publish_call_event(call_event: &CallEvent) {
-    SimpleBroker::publish(call_event.clone());
+fn publish_signal(signal: &Signal) {
+    SimpleBroker::publish(signal.clone());
 }
