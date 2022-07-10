@@ -23,6 +23,8 @@ import {
   BlockContactMutationVariables,
   CancelMutation,
   CancelMutationVariables,
+  CandidateMutation,
+  CandidateMutationVariables,
   ChangeEmailMutation,
   ChangeEmailMutationVariables,
   ChangePasswordMutation,
@@ -57,8 +59,8 @@ import {
 } from 'graphql/generated'
 import React, { useState } from 'react'
 import {
+  CallType,
   ContactInfoUserId,
-  IsCalling,
   MutaionLoading,
   QueryLoading,
   QueryNetworkStatus,
@@ -91,6 +93,7 @@ type IndexTemplateStoryProps = IndexTemplateProps & {
   pickUpLoading: MutaionLoading
   hangUpLoading: MutaionLoading
   cancelLoading: MutaionLoading
+  candidateLoading: MutaionLoading
   deleteMessageLoading: MutaionLoading
   readMessagesLoading: MutaionLoading
   applyContactLoading: MutaionLoading
@@ -122,6 +125,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
   pickUpLoading,
   hangUpLoading,
   cancelLoading,
+  candidateLoading,
   deleteMessageLoading,
   readMessagesLoading,
   applyContactLoading,
@@ -137,9 +141,9 @@ const Template: Story<IndexTemplateStoryProps> = ({
   // state
   const [contactUserId, setContactUserId] = useState<ContactInfoUserId>(toStr(otherUserId))
   const contactInfoUserId = { state: contactUserId, setContactInfoUserId: setContactUserId }
-  const [calling, setIsCalling] = useState<IsCalling>(false)
-  const isCalling = { state: calling, setIsCalling }
-  const state = { contactInfoUserId, isCalling }
+  const [calling, setCallType] = useState<CallType>(CallType.Close)
+  const callType = { state: calling, setCallType }
+  const state = { contactInfoUserId, callType }
 
   // query
   const me = dummyMe(userId, meLoading, undefined)
@@ -232,6 +236,12 @@ const Template: Story<IndexTemplateStoryProps> = ({
     cancelLoading
   )
 
+  const candidate = dummyMutation<CandidateMutation['candidate'], CandidateMutation, CandidateMutationVariables>(
+    'Candidate',
+    undefined,
+    candidateLoading
+  )
+
   const deleteMessage = dummyMutation<
     DeleteMessageMutation['deleteMessage'],
     DeleteMessageMutation,
@@ -292,6 +302,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
     pickUp,
     hangUp,
     cancel,
+    candidate,
     deleteMessage,
     readMessages,
     applyContact,
@@ -354,6 +365,7 @@ Primary.args = {
   pickUpLoading: false,
   hangUpLoading: false,
   cancelLoading: false,
+  candidateLoading: false,
   deleteMessageLoading: false,
   readMessagesLoading: false,
   applyContactLoading: false,

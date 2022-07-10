@@ -12,7 +12,21 @@ import {
   useBoolean
 } from '@chakra-ui/react'
 import { connect } from 'components/hoc'
-import React, { Ref, useRef } from 'react'
+import {
+  CancelMutation,
+  CancelMutationVariables,
+  CandidateMutation,
+  CandidateMutationVariables,
+  ContactInfoQuery,
+  HangUpMutation,
+  HangUpMutationVariables,
+  PickUpMutation,
+  PickUpMutationVariables,
+  RingUpMutation,
+  RingUpMutationVariables,
+  SignalingSubscription
+} from 'graphql/generated'
+import React, { Ref, useMemo, useRef } from 'react'
 import {
   BsFillCameraVideoFill,
   BsFillCameraVideoOffFill,
@@ -20,14 +34,87 @@ import {
   BsFillMicMuteFill,
   BsSquareFill
 } from 'react-icons/bs'
-import { ContainerProps } from 'types'
+import { CallType, ContainerProps, MutateFunction, SetState, SubscriptionLoading } from 'types'
+import { isNullish } from 'utils/general/object'
+import { WebRTC } from 'utils/webrtc'
 import * as styles from './styles'
 
 /** Calling Props */
-export type CallingProps = Omit<ModalProps, 'children'>
+export type CallingProps = Omit<ModalProps, 'children'> & {
+  /**
+   * Local State
+   */
+  state: {
+    /**
+     *  通話タイプ
+     */
+    callType: {
+      state: CallType
+      setCallType: SetState<CallType>
+    }
+  }
+  /**
+   * Query
+   */
+  query: {
+    /**
+     *  コンタクト情報
+     */
+    contactInfo: {
+      result?: ContactInfoQuery['contactInfo']
+    }
+  }
+  /**
+   * Mutation
+   */
+  mutation: {
+    /**
+     * 通話架電
+     */
+    ringUp: {
+      mutate: MutateFunction<RingUpMutation, RingUpMutationVariables>
+    }
+    /**
+     * 通話応答
+     */
+    pickUp: {
+      mutate: MutateFunction<PickUpMutation, PickUpMutationVariables>
+    }
+    /**
+     * 通話終了
+     */
+    hangUp: {
+      mutate: MutateFunction<HangUpMutation, HangUpMutationVariables>
+    }
+    /**
+     * 通話キャンセル
+     */
+    cancel: {
+      mutate: MutateFunction<CancelMutation, CancelMutationVariables>
+    }
+    /**
+     * ICE Candidate
+     */
+    candidate: {
+      mutate: MutateFunction<CandidateMutation, CandidateMutationVariables>
+    }
+  }
+  /**
+   * Subscription
+   */
+  subscription: {
+    /**
+     * シグナリング
+     */
+    signaling: {
+      result?: SignalingSubscription['signalingSubscription']
+      loading: SubscriptionLoading
+    }
+  }
+}
 
 /** Presenter Props */
-export type PresenterProps = CallingProps & {
+export type PresenterProps = Omit<CallingProps, 'state' | 'query' | 'mutation' | 'subscription'> & {
   micState: boolean
   cameraState: boolean
   remoteVideoRef: Ref<HTMLVideoElement>
@@ -92,18 +179,86 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
   presenter,
   isOpen,
   onClose,
+  state: { callType },
+  query: { contactInfo },
+  mutation: { ringUp, pickUp, hangUp, cancel, candidate },
+  subscription: { signaling },
   ...props
 }) => {
+  const session = useRef<WebRTC | null>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
   const localVideoRef = useRef<HTMLVideoElement>(null)
-
-  const [micState, setMicState] = useBoolean(false)
+  const [micState, setMicState] = useBoolean(true)
   const [cameraState, setCameraState] = useBoolean(false)
-  const onMicButtonClick = () => setMicState.toggle()
-  const onCameraButtonClick = () => setCameraState.toggle()
-  const onHangUpButtonClick = () => {
-    setTimeout(onClose, 200)
+
+  // MicButton onClick
+  const onMicButtonClick = () => {
+    const connection = session.current
+    if (isNullish(connection)) return
+    connection.setMicState = !micState
+    setMicState.toggle()
   }
+
+  // CameraButton onClick
+  const onCameraButtonClick = () => {
+    const connection = session.current
+    if (isNullish(connection)) return
+    connection.setCameraState = !cameraState
+    setCameraState.toggle()
+  }
+
+  // HangUpButton onClick
+  const onHangUpButtonClick = () => {
+    const connection = session.current
+    if (isNullish(connection)) return
+    connection.hangUp()
+  }
+
+  // 通話モード変更時
+  useMemo(() => {
+    // 通話切断時
+    if (CallType.Close === callType.state) {
+      session.current = null
+      setTimeout(onClose, 200)
+      return
+    }
+
+    // RTCPeerConnection
+    const connection = new WebRTC(
+      callType.state,
+      callType.setCallType,
+      ringUp.mutate,
+      pickUp.mutate,
+      hangUp.mutate,
+      cancel.mutate,
+      candidate.mutate,
+      remoteVideoRef.current,
+      localVideoRef.current,
+      micState,
+      cameraState
+    )
+
+    session.current = connection
+
+    // 通話架電時
+    if (CallType.Offer === callType.state) {
+      if (!isNullish(contactInfo.result)) {
+        connection.offer(contactInfo.result.id, contactInfo.result.userId)
+      }
+    }
+
+    // 通話応答時
+    if (CallType.Answer === callType.state) {
+      if (!isNullish(signaling.result)) connection.answer(signaling.result)
+    }
+  }, [callType.state]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // シグナリング
+  useMemo(() => {
+    const connection = session.current
+    if (isNullish(connection) || isNullish(signaling.result)) return
+    connection.signaling(signaling.result)
+  }, [signaling.result])
 
   return presenter({
     isOpen,

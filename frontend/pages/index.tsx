@@ -13,6 +13,7 @@ import {
   useApproveContactMutation,
   useBlockContactMutation,
   useCancelMutation,
+  useCandidateMutation,
   useChangeEmailMutation,
   useChangePasswordMutation,
   useContactInfoLazyQuery,
@@ -40,7 +41,7 @@ import {
 import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import React, { useState } from 'react'
-import { ContactInfoUserId, IsCalling } from 'types'
+import { CallType, ContactInfoUserId } from 'types'
 import { isNode, isNullish } from 'utils'
 import {
   handle,
@@ -93,8 +94,8 @@ const Index: NextPage = () => {
   // コンタクト情報 ユーザーID
   const [contactInfoUserId, setContactInfoUserId] = useState<ContactInfoUserId>(undefined)
 
-  // 通話中フラグ
-  const [isCalling, setIsCalling] = useState<IsCalling>(false)
+  // 通話タイプ
+  const [callType, setCallType] = useState<CallType>(CallType.Close)
 
   //  ----------------------------------------------------------------------------
   //  Query Props
@@ -191,6 +192,10 @@ const Index: NextPage = () => {
   const [cancel, cancelMutation] = useCancelMutation()
   const cancelResult = handle(cancelMutation.error, handler)
 
+  // ICE Candidate
+  const [candidate, candidateMutation] = useCandidateMutation()
+  const candidateResult = handle(candidateMutation.error, handler)
+
   // メッセージ削除
   const [deleteMessage, deleteMessageMutation] = useDeleteMessageMutation({
     update: (cache, { data }) => !isNullish(data) && updateMessageCache(cache, data.deleteMessage)
@@ -272,9 +277,9 @@ const Index: NextPage = () => {
         state: contactInfoUserId,
         setContactInfoUserId
       },
-      isCalling: {
-        state: isCalling,
-        setIsCalling
+      callType: {
+        state: callType,
+        setCallType
       }
     },
     query: {
@@ -371,6 +376,13 @@ const Index: NextPage = () => {
         errors: isValidationErrors(cancelResult) ? cancelResult : undefined,
         reset: cancelMutation.reset,
         mutate: cancel
+      },
+      candidate: {
+        result: candidateMutation.data?.candidate,
+        loading: candidateMutation.loading,
+        errors: isValidationErrors(candidateResult) ? candidateResult : undefined,
+        reset: candidateMutation.reset,
+        mutate: candidate
       },
       deleteMessage: {
         result: deleteMessageMutation.data?.deleteMessage,

@@ -3,7 +3,7 @@ import { dummyMutation, signaling } from '.storybook/dummies'
 /* eslint-enable import/no-unresolved */
 import { Meta, Story } from '@storybook/react'
 import React, { useState } from 'react'
-import { IsCalling, MutaionLoading } from 'types'
+import { CallType, MutaionLoading } from 'types'
 import ReceiveCall, { ReceiveCallProps } from './index'
 
 import { CancelMutation, CancelMutationVariables } from 'graphql/generated'
@@ -23,8 +23,8 @@ type ReceiveCallStoryProps = ReceiveCallProps & {
 
 const Template: Story<ReceiveCallStoryProps> = ({ loading, ...props }) => {
   // state
-  const [isCalling, setIsCalling] = useState<IsCalling>(false)
-  const state = { isCalling: { state: isCalling, setIsCalling } }
+  const [callType, setCallType] = useState<CallType>(CallType.Close)
+  const state = { callType: { state: callType, setCallType } }
 
   // mutation
   const cancel = dummyMutation<CancelMutation['cancel'], CancelMutation, CancelMutationVariables>(

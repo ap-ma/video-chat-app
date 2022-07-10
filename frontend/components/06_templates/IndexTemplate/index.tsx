@@ -13,6 +13,8 @@ import {
   BlockContactMutationVariables,
   CancelMutation,
   CancelMutationVariables,
+  CandidateMutation,
+  CandidateMutationVariables,
   ChangeEmailMutation,
   ChangeEmailMutationVariables,
   ChangePasswordMutation,
@@ -55,10 +57,10 @@ import {
 } from 'graphql/generated'
 import React from 'react'
 import {
+  CallType,
   ContactInfoUserId,
   ContainerProps,
   Disclosure,
-  IsCalling,
   LazyQueryFunction,
   MutaionLoading,
   MutaionReset,
@@ -87,11 +89,11 @@ export type IndexTemplateProps = {
       setContactInfoUserId: SetState<ContactInfoUserId>
     }
     /**
-     *  通話中フラグ
+     *  通話タイプ
      */
-    isCalling: {
-      state: IsCalling
-      setIsCalling: SetState<IsCalling>
+    callType: {
+      state: CallType
+      setCallType: SetState<CallType>
     }
   }
   /**
@@ -250,6 +252,16 @@ export type IndexTemplateProps = {
       mutate: MutateFunction<CancelMutation, CancelMutationVariables>
     }
     /**
+     * ICE Candidate
+     */
+    candidate: {
+      result?: CandidateMutation['candidate']
+      loading: MutaionLoading
+      errors?: ValidationErrors
+      reset: MutaionReset
+      mutate: MutateFunction<CandidateMutation, CandidateMutationVariables>
+    }
+    /**
      * メッセージ削除
      */
     deleteMessage: {
@@ -341,7 +353,7 @@ export type PresenterProps = IndexTemplateProps & {
 
 /** Presenter Component */
 const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
-  state: { contactInfoUserId, isCalling },
+  state: { contactInfoUserId, callType },
   query: { me, contacts, latestMessages, contactInfo, searchUser },
   mutation: {
     signOut,
@@ -355,6 +367,7 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
     pickUp,
     hangUp,
     cancel,
+    candidate,
     deleteMessage,
     applyContact,
     approveContact,
@@ -391,7 +404,7 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
         mutation={{ signOut, editProfile, changeEmail, changePassword, deleteAccount }}
       />
       <Main
-        state={{ isCalling }}
+        state={{ callType }}
         query={{ me, contactInfo }}
         mutation={{
           sendMessage,
@@ -400,6 +413,7 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
           pickUp,
           hangUp,
           cancel,
+          candidate,
           deleteMessage,
           applyContact,
           approveContact,

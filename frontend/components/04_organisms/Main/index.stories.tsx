@@ -14,6 +14,8 @@ import {
   BlockContactMutationVariables,
   CancelMutation,
   CancelMutationVariables,
+  CandidateMutation,
+  CandidateMutationVariables,
   DeleteContactMutation,
   DeleteContactMutationVariables,
   DeleteMessageMutation,
@@ -37,7 +39,7 @@ import {
   UndeleteContactMutationVariables
 } from 'graphql/generated'
 import React, { useState } from 'react'
-import { IsCalling, MutaionLoading, QueryLoading, QueryNetworkStatus, SubscriptionLoading } from 'types'
+import { CallType, MutaionLoading, QueryLoading, QueryNetworkStatus, SubscriptionLoading } from 'types'
 import Main, { MainProps } from './index'
 
 export default {
@@ -65,6 +67,7 @@ type MainStoryProps = MainProps & {
   pickUpLoading: MutaionLoading
   hangUpLoading: MutaionLoading
   cancelLoading: MutaionLoading
+  candidateLoading: MutaionLoading
   deleteMessageLoading: MutaionLoading
   readMessagesLoading: MutaionLoading
   applyContactLoading: MutaionLoading
@@ -88,6 +91,7 @@ const Template: Story<MainStoryProps> = ({
   pickUpLoading,
   hangUpLoading,
   cancelLoading,
+  candidateLoading,
   deleteMessageLoading,
   readMessagesLoading,
   applyContactLoading,
@@ -101,8 +105,8 @@ const Template: Story<MainStoryProps> = ({
   ...props
 }) => {
   // state
-  const [isCalling, setIsCalling] = useState<IsCalling>(false)
-  const state = { isCalling: { state: isCalling, setIsCalling } }
+  const [callType, setCallType] = useState<CallType>(CallType.Close)
+  const state = { callType: { state: callType, setCallType } }
 
   // query
   const contactInfo = dummyContactInfo(
@@ -153,6 +157,12 @@ const Template: Story<MainStoryProps> = ({
     'Cancel',
     undefined,
     cancelLoading
+  )
+
+  const candidate = dummyMutation<CandidateMutation['candidate'], CandidateMutation, CandidateMutationVariables>(
+    'Candidate',
+    undefined,
+    candidateLoading
   )
 
   const deleteMessage = dummyMutation<
@@ -210,6 +220,7 @@ const Template: Story<MainStoryProps> = ({
     pickUp,
     hangUp,
     cancel,
+    candidate,
     deleteMessage,
     readMessages,
     applyContact,
@@ -265,6 +276,7 @@ Primary.args = {
   pickUpLoading: false,
   hangUpLoading: false,
   cancelLoading: false,
+  candidateLoading: false,
   deleteMessageLoading: false,
   readMessagesLoading: false,
   applyContactLoading: false,

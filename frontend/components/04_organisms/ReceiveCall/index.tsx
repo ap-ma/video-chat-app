@@ -15,7 +15,7 @@ import { connect } from 'components/hoc'
 import { CancelMutation, CancelMutationVariables, SignalingSubscription } from 'graphql/generated'
 import React from 'react'
 import { ImPhone, ImPhoneHangUp } from 'react-icons/im'
-import { ContainerProps, IsCalling, MutaionLoading, MutaionReset, MutateFunction, OnOpen, SetState } from 'types'
+import { CallType, ContainerProps, MutaionLoading, MutaionReset, MutateFunction, OnOpen, SetState } from 'types'
 import { toStr } from 'utils/general/helper'
 import { isNullish } from 'utils/general/object'
 import * as styles from './styles'
@@ -31,10 +31,10 @@ export type ReceiveCallProps = Omit<ModalProps, 'children'> & {
    */
   state: {
     /**
-     *  通話中フラグ
+     *  通話タイプ
      */
-    isCalling: {
-      setIsCalling: SetState<IsCalling>
+    callType: {
+      setCallType: SetState<CallType>
     }
   }
   /**
@@ -122,7 +122,7 @@ const ReceiveCallPresenter: React.VFC<PresenterProps> = ({
 const ReceiveCallContainer: React.VFC<ContainerProps<ReceiveCallProps, PresenterProps>> = ({
   presenter,
   onCallingOpen,
-  state: { isCalling },
+  state: { callType },
   mutation: { cancel },
   subscription: { signaling },
   ...props
@@ -135,7 +135,7 @@ const ReceiveCallContainer: React.VFC<ContainerProps<ReceiveCallProps, Presenter
 
   // onClick accept button
   const onAcceptButtonClick = () => {
-    isCalling.setIsCalling(true)
+    callType.setCallType(CallType.Answer)
     onCallingOpen()
   }
 

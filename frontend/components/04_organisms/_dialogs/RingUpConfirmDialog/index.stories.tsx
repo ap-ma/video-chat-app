@@ -1,6 +1,6 @@
 import { Meta, Story } from '@storybook/react'
 import React, { useState } from 'react'
-import { IsCalling } from 'types'
+import { CallType } from 'types'
 import RingUpConfirmDialog, { RingUpConfirmDialogProps } from './index'
 
 export default {
@@ -13,8 +13,8 @@ export default {
 } as Meta
 
 const Template: Story<RingUpConfirmDialogProps> = ({ ...props }) => {
-  const [isCalling, setIsCalling] = useState<IsCalling>(false)
-  const state = { isCalling: { state: isCalling, setIsCalling } }
+  const [callType, setCallType] = useState<CallType>(CallType.Close)
+  const state = { callType: { state: callType, setCallType } }
   return <RingUpConfirmDialog {...{ ...props, state }} />
 }
 
