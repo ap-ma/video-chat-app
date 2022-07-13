@@ -5,9 +5,47 @@ import {
   QueryTuple,
   Reference,
   StoreObject,
-  SubscriptionResult
+  SubscriptionResult,
+  useApolloClient
 } from '@apollo/client'
 import { GraphQLError } from 'graphql'
+
+//  ----------------------------------------------------------------------------
+//  Apollo Client common types
+//  ----------------------------------------------------------------------------
+
+/** Apollo Client */
+export type ApolloClient = ReturnType<typeof useApolloClient>
+
+/** Apollo Client readField Param Type */
+export type ReadFieldParam = StoreObject | Reference | undefined
+
+/** Apollo Client Query loading */
+export type QueryLoading = QueryResult['loading']
+
+/** Apollo Client Query networkStatus */
+export type QueryNetworkStatus = QueryResult['networkStatus']
+
+/** Apollo Client Query refetch */
+export type QueryRefetch<TData, TVariables> = QueryResult<TData, TVariables>['refetch']
+
+/** Apollo Client Query fetchMore */
+export type QueryFetchMore<TData, TVariables> = QueryResult<TData, TVariables>['fetchMore']
+
+/** Apollo Client LazyQuery query function */
+export type LazyQueryFunction<TData, TVariables> = QueryTuple<TData, TVariables>[0]
+
+/** Apollo Client Mutation loading */
+export type MutaionLoading = MutationResult['loading']
+
+/** Apollo Client Mutation reset */
+export type MutaionReset = MutationResult['reset']
+
+/** Apollo Client Mutation mutate function */
+export type MutateFunction<TData, TVariables> = MutationTuple<TData, TVariables>[0]
+
+/** Apollo Client Subscription loading */
+export type SubscriptionLoading = SubscriptionResult['loading']
 
 //  ----------------------------------------------------------------------------
 //  GraphQL Error types
@@ -45,37 +83,3 @@ export type AuthorizationErrors = ReadonlyArray<AuthorizationError>
 
 /** API 検証エラー配列型定義 */
 export type ValidationErrors = ReadonlyArray<ValidationError>
-
-//  ----------------------------------------------------------------------------
-//  Apollo Client common types
-//  ----------------------------------------------------------------------------
-
-/** Apollo Client readField Param Type */
-export type ReadFieldParam = StoreObject | Reference | undefined
-
-/** Apollo Client Query loading */
-export type QueryLoading = QueryResult['loading']
-
-/** Apollo Client Query networkStatus */
-export type QueryNetworkStatus = QueryResult['networkStatus']
-
-/** Apollo Client Query refetch */
-export type QueryRefetch<TData, TVariables> = QueryResult<TData, TVariables>['refetch']
-
-/** Apollo Client Query fetchMore */
-export type QueryFetchMore<TData, TVariables> = QueryResult<TData, TVariables>['fetchMore']
-
-/** Apollo Client LazyQuery query function */
-export type LazyQueryFunction<TData, TVariables> = QueryTuple<TData, TVariables>[0]
-
-/** Apollo Client Mutation loading */
-export type MutaionLoading = MutationResult['loading']
-
-/** Apollo Client Mutation reset */
-export type MutaionReset = MutationResult['reset']
-
-/** Apollo Client Mutation mutate function */
-export type MutateFunction<TData, TVariables> = MutationTuple<TData, TVariables>[0]
-
-/** Apollo Client Subscription loading */
-export type SubscriptionLoading = SubscriptionResult['loading']

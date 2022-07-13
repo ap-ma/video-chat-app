@@ -1,18 +1,18 @@
 /* eslint-disable import/no-unresolved */
-import { contactInfo, dummyMutation, dummySignaling, otherUserId, userId } from '.storybook/dummies'
+import { contactInfo, dummyMutation, dummySignaling, iceCandidate, otherUserId, userId } from '.storybook/dummies'
 /* eslint-enable import/no-unresolved */
 import { Meta, Story } from '@storybook/react'
 import {
   CancelMutation,
   CancelMutationVariables,
-  CandidateMutation,
-  CandidateMutationVariables,
   HangUpMutation,
   HangUpMutationVariables,
   PickUpMutation,
   PickUpMutationVariables,
   RingUpMutation,
   RingUpMutationVariables,
+  SendIceCandidateMutation,
+  SendIceCandidateMutationVariables,
   SignalType
 } from 'graphql/generated'
 import React, { useState } from 'react'
@@ -30,7 +30,7 @@ type CallingStoryProps = CallingProps & {
   pickUpLoading: MutaionLoading
   hangUpLoading: MutaionLoading
   cancelLoading: MutaionLoading
-  candidateLoading: MutaionLoading
+  sendIceCandidateLoading: MutaionLoading
   signalingLoading: SubscriptionLoading
   signalingType: SignalType
 }
@@ -40,7 +40,7 @@ const Template: Story<CallingStoryProps> = ({
   pickUpLoading,
   hangUpLoading,
   cancelLoading,
-  candidateLoading,
+  sendIceCandidateLoading,
   signalingLoading,
   signalingType,
   ...props
@@ -77,23 +77,23 @@ const Template: Story<CallingStoryProps> = ({
     cancelLoading
   )
 
-  const candidate = dummyMutation<CandidateMutation['candidate'], CandidateMutation, CandidateMutationVariables>(
-    'Candidate',
-    undefined,
-    candidateLoading
-  )
+  const sendIceCandidate = dummyMutation<
+    SendIceCandidateMutation['sendIceCandidate'],
+    SendIceCandidateMutation,
+    SendIceCandidateMutationVariables
+  >('SendIceCandidate', undefined, sendIceCandidateLoading)
 
   const mutation = {
     ringUp,
     pickUp,
     hangUp,
     cancel,
-    candidate
+    sendIceCandidate
   }
 
   // subscription
   const signaling = dummySignaling(userId, otherUserId, signalingLoading, signalingType)
-  const subscription = { signaling }
+  const subscription = { signaling, iceCandidate }
 
   return <Calling {...{ ...props, state, query, mutation, subscription }} />
 }
@@ -115,7 +115,7 @@ Primary.args = {
   pickUpLoading: false,
   hangUpLoading: false,
   cancelLoading: false,
-  candidateLoading: false,
+  sendIceCandidateLoading: false,
   signalingLoading: false,
   signalingType: SignalType.Close
 }

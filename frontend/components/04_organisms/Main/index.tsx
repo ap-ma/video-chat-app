@@ -21,8 +21,6 @@ import {
   Call,
   CancelMutation,
   CancelMutationVariables,
-  CandidateMutation,
-  CandidateMutationVariables,
   ContactInfoQuery,
   ContactInfoQueryVariables,
   DeleteContactMutation,
@@ -31,11 +29,14 @@ import {
   DeleteMessageMutationVariables,
   HangUpMutation,
   HangUpMutationVariables,
+  IceCandidateSubscription,
   MeQuery,
   PickUpMutation,
   PickUpMutationVariables,
   RingUpMutation,
   RingUpMutationVariables,
+  SendIceCandidateMutation,
+  SendIceCandidateMutationVariables,
   SendImageMutation,
   SendImageMutationVariables,
   SendMessageMutation,
@@ -49,6 +50,7 @@ import {
 } from 'graphql/generated'
 import React, { Fragment, useMemo, useState } from 'react'
 import {
+  ApolloClient,
   CallType,
   ContainerProps,
   Disclosure,
@@ -67,6 +69,10 @@ import * as styles from './styles'
 
 /** Main Props */
 export type MainProps = FlexProps & {
+  /**
+   * ApolloClient
+   */
+  apolloClient: ApolloClient
   /**
    * Local State
    */
@@ -163,14 +169,14 @@ export type MainProps = FlexProps & {
       mutate: MutateFunction<CancelMutation, CancelMutationVariables>
     }
     /**
-     * ICE Candidate
+     * ICE Candidate 送信
      */
-    candidate: {
-      result?: CandidateMutation['candidate']
+    sendIceCandidate: {
+      result?: SendIceCandidateMutation['sendIceCandidate']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      mutate: MutateFunction<CandidateMutation, CandidateMutationVariables>
+      mutate: MutateFunction<SendIceCandidateMutation, SendIceCandidateMutationVariables>
     }
     /**
      * メッセージ削除
@@ -254,11 +260,19 @@ export type MainProps = FlexProps & {
       result?: SignalingSubscription['signalingSubscription']
       loading: SubscriptionLoading
     }
+    /**
+     * ICE Candidate
+     */
+    iceCandidate: {
+      result?: IceCandidateSubscription['iceCandidateSubscription']
+      loading: SubscriptionLoading
+    }
   }
 }
 
 /** Presenter Props */
 export type PresenterProps = MainProps & {
+  rcCallId?: Call['id']
   callingDisc: Disclosure
   rcDisc: Disclosure
   rucdDisc: Disclosure
@@ -270,6 +284,7 @@ export type PresenterProps = MainProps & {
 
 /** Presenter Component */
 const MainPresenter: React.VFC<PresenterProps> = ({
+  apolloClient,
   state: { callType },
   query: { me, contactInfo },
   mutation: {
@@ -279,7 +294,7 @@ const MainPresenter: React.VFC<PresenterProps> = ({
     pickUp,
     hangUp,
     cancel,
-    candidate,
+    sendIceCandidate,
     deleteMessage,
     applyContact,
     approveContact,
@@ -288,7 +303,8 @@ const MainPresenter: React.VFC<PresenterProps> = ({
     blockContact,
     unblockContact
   },
-  subscription: { signaling },
+  subscription: { signaling, iceCandidate },
+  rcCallId,
   callingDisc,
   rcDisc,
   rucdDisc,
@@ -316,10 +332,12 @@ const MainPresenter: React.VFC<PresenterProps> = ({
     </Flex>
     {/* modal */}
     <Calling
+      rcCallId={rcCallId}
+      apolloClient={apolloClient}
       state={{ callType }}
       query={{ contactInfo }}
-      mutation={{ ringUp, pickUp, hangUp, cancel, candidate }}
-      subscription={{ signaling }}
+      mutation={{ ringUp, pickUp, hangUp, cancel, sendIceCandidate }}
+      subscription={{ signaling, iceCandidate }}
       isOpen={callingDisc.isOpen}
       onClose={callingDisc.onClose}
     />
@@ -379,24 +397,28 @@ const MainContainer: React.VFC<ContainerProps<MainProps, PresenterProps>> = ({
     cancel,
     ...mutationRest
   },
-  subscription: { signaling },
+  subscription: { signaling, ...subscriptionRest },
   ...props
 }) => {
+  // state
+  const [rcCallId, setRcCallId] = useState<Call['id'] | undefined>(undefined)
+
   // Calling
   const callingDisc = useDisclosure()
 
   // ReceiveCall
   const rcDisc = useDisclosure()
-  const [rcCallId, setRcCallId] = useState<Call['id'] | undefined>(undefined)
   const onRcClose = rcDisc.onClose
+  const canceltResult = cancel.result
   const callTypeState = callType.state
   const signalingResult = signaling.result
   useMemo(() => {
+    if (hasValue(canceltResult)) onRcClose()
     if (CallType.Answer === callTypeState) onRcClose()
     if (SignalType.Cancel === signalingResult?.signalType) {
       if (rcCallId === signalingResult?.callId) onRcClose()
     }
-  }, [onRcClose, callTypeState, signalingResult, rcCallId])
+  }, [onRcClose, canceltResult, callTypeState, signalingResult, rcCallId])
 
   // Receive a Call
   useMemo(() => {
@@ -465,7 +487,8 @@ const MainContainer: React.VFC<ContainerProps<MainProps, PresenterProps>> = ({
       cancel,
       ...mutationRest
     },
-    subscription: { signaling },
+    subscription: { signaling, ...subscriptionRest },
+    rcCallId,
     callingDisc,
     rcDisc,
     rucdDisc,

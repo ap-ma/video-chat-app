@@ -13,20 +13,22 @@ import {
 } from '@chakra-ui/react'
 import { connect } from 'components/hoc'
 import {
+  Call,
   CancelMutation,
   CancelMutationVariables,
-  CandidateMutation,
-  CandidateMutationVariables,
   ContactInfoQuery,
   HangUpMutation,
   HangUpMutationVariables,
+  IceCandidateSubscription,
   PickUpMutation,
   PickUpMutationVariables,
   RingUpMutation,
   RingUpMutationVariables,
+  SendIceCandidateMutation,
+  SendIceCandidateMutationVariables,
   SignalingSubscription
 } from 'graphql/generated'
-import React, { Ref, useMemo, useRef } from 'react'
+import React, { Ref, useCallback, useMemo, useRef } from 'react'
 import {
   BsFillCameraVideoFill,
   BsFillCameraVideoOffFill,
@@ -34,13 +36,21 @@ import {
   BsFillMicMuteFill,
   BsSquareFill
 } from 'react-icons/bs'
-import { CallType, ContainerProps, MutateFunction, SetState, SubscriptionLoading } from 'types'
+import { ApolloClient, CallType, ContainerProps, MutateFunction, SetState, SubscriptionLoading } from 'types'
 import { isNullish } from 'utils/general/object'
 import { WebRTC } from 'utils/webrtc'
 import * as styles from './styles'
 
 /** Calling Props */
 export type CallingProps = Omit<ModalProps, 'children'> & {
+  /**
+   * 応答 Call ID
+   */
+  rcCallId?: Call['id']
+  /**
+   * ApolloClient
+   */
+  apolloClient: ApolloClient
   /**
    * Local State
    */
@@ -93,10 +103,10 @@ export type CallingProps = Omit<ModalProps, 'children'> & {
       mutate: MutateFunction<CancelMutation, CancelMutationVariables>
     }
     /**
-     * ICE Candidate
+     * ICE Candidate 送信
      */
-    candidate: {
-      mutate: MutateFunction<CandidateMutation, CandidateMutationVariables>
+    sendIceCandidate: {
+      mutate: MutateFunction<SendIceCandidateMutation, SendIceCandidateMutationVariables>
     }
   }
   /**
@@ -110,11 +120,21 @@ export type CallingProps = Omit<ModalProps, 'children'> & {
       result?: SignalingSubscription['signalingSubscription']
       loading: SubscriptionLoading
     }
+    /**
+     * ICE Candidate
+     */
+    iceCandidate: {
+      result?: IceCandidateSubscription['iceCandidateSubscription']
+      loading: SubscriptionLoading
+    }
   }
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<CallingProps, 'state' | 'query' | 'mutation' | 'subscription'> & {
+export type PresenterProps = Omit<
+  CallingProps,
+  'rcCallId' | 'apolloClient' | 'state' | 'query' | 'mutation' | 'subscription'
+> & {
   micState: boolean
   cameraState: boolean
   remoteVideoRef: Ref<HTMLVideoElement>
@@ -179,17 +199,19 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
   presenter,
   isOpen,
   onClose,
+  rcCallId,
+  apolloClient,
   state: { callType },
   query: { contactInfo },
-  mutation: { ringUp, pickUp, hangUp, cancel, candidate },
-  subscription: { signaling },
+  mutation: { ringUp, pickUp, hangUp, cancel, sendIceCandidate },
+  subscription: { signaling, iceCandidate },
   ...props
 }) => {
   const session = useRef<WebRTC | null>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
   const localVideoRef = useRef<HTMLVideoElement>(null)
   const [micState, setMicState] = useBoolean(true)
-  const [cameraState, setCameraState] = useBoolean(false)
+  const [cameraState, setCameraState] = useBoolean(true)
 
   // MicButton onClick
   const onMicButtonClick = () => {
@@ -215,9 +237,9 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
   }
 
   // 通話モード変更時
-  useMemo(() => {
-    // 通話切断時
+  const onCloseComplete = useCallback(() => {
     if (CallType.Close === callType.state) {
+      // 通話切断時
       session.current = null
       setTimeout(onClose, 200)
       return
@@ -231,7 +253,7 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
       pickUp.mutate,
       hangUp.mutate,
       cancel.mutate,
-      candidate.mutate,
+      sendIceCandidate.mutate,
       remoteVideoRef.current,
       localVideoRef.current,
       micState,
@@ -249,6 +271,11 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
 
     // 通話応答時
     if (CallType.Answer === callType.state) {
+      // const offerSignal = apolloClient.readQuery<ContactInfoQuery, ContactInfoQueryVariables>({
+      //   query: ContactInfoDocument,
+      //   variables: { contactUserId: otherUserId }
+      // })
+
       if (!isNullish(signaling.result)) connection.answer(signaling.result)
     }
   }, [callType.state]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -260,9 +287,17 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
     connection.signaling(signaling.result)
   }, [signaling.result])
 
+  // ICE Candidate
+  useMemo(() => {
+    const connection = session.current
+    if (isNullish(connection) || isNullish(iceCandidate.result)) return
+    connection.addIceCandidate(iceCandidate.result)
+  }, [iceCandidate.result])
+
   return presenter({
     isOpen,
     onClose,
+    onCloseComplete,
     micState,
     cameraState,
     remoteVideoRef,

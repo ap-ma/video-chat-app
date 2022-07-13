@@ -13,7 +13,6 @@ import {
   useApproveContactMutation,
   useBlockContactMutation,
   useCancelMutation,
-  useCandidateMutation,
   useChangeEmailMutation,
   useChangePasswordMutation,
   useContactInfoLazyQuery,
@@ -24,6 +23,7 @@ import {
   useDeleteMessageMutation,
   useEditProfileMutation,
   useHangUpMutation,
+  useIceCandidateSubscription,
   useLatestMessagesQuery,
   useMeQuery,
   useMessageSubscription,
@@ -31,6 +31,7 @@ import {
   useReadMessagesMutation,
   useRingUpMutation,
   useSearchUserLazyQuery,
+  useSendIceCandidateMutation,
   useSendImageMutation,
   useSendMessageMutation,
   useSignalingSubscription,
@@ -192,9 +193,9 @@ const Index: NextPage = () => {
   const [cancel, cancelMutation] = useCancelMutation()
   const cancelResult = handle(cancelMutation.error, handler)
 
-  // ICE Candidate
-  const [candidate, candidateMutation] = useCandidateMutation()
-  const candidateResult = handle(candidateMutation.error, handler)
+  // ICE Candidate 送信
+  const [sendIceCandidate, sendIceCandidateMutation] = useSendIceCandidateMutation()
+  const sendIceCandidateResult = handle(sendIceCandidateMutation.error, handler)
 
   // メッセージ削除
   const [deleteMessage, deleteMessageMutation] = useDeleteMessageMutation({
@@ -268,10 +269,15 @@ const Index: NextPage = () => {
   const signalingSubscription = useSignalingSubscription({ skip: isNode() })
   handle(signalingSubscription.error, handler)
 
+  // ICE Candidate
+  const iceCandidateSubscription = useIceCandidateSubscription({ skip: isNode() })
+  handle(iceCandidateSubscription.error, handler)
+
   //  ----------------------------------------------------------------------------
 
   // IndexTemplate Props
   const props: IndexTemplateProps = {
+    apolloClient,
     state: {
       contactInfoUserId: {
         state: contactInfoUserId,
@@ -377,12 +383,12 @@ const Index: NextPage = () => {
         reset: cancelMutation.reset,
         mutate: cancel
       },
-      candidate: {
-        result: candidateMutation.data?.candidate,
-        loading: candidateMutation.loading,
-        errors: isValidationErrors(candidateResult) ? candidateResult : undefined,
-        reset: candidateMutation.reset,
-        mutate: candidate
+      sendIceCandidate: {
+        result: sendIceCandidateMutation.data?.sendIceCandidate,
+        loading: sendIceCandidateMutation.loading,
+        errors: isValidationErrors(sendIceCandidateResult) ? sendIceCandidateResult : undefined,
+        reset: sendIceCandidateMutation.reset,
+        mutate: sendIceCandidate
       },
       deleteMessage: {
         result: deleteMessageMutation.data?.deleteMessage,
@@ -438,6 +444,10 @@ const Index: NextPage = () => {
       signaling: {
         result: signalingSubscription.data?.signalingSubscription,
         ...signalingSubscription
+      },
+      iceCandidate: {
+        result: iceCandidateSubscription.data?.iceCandidateSubscription,
+        ...iceCandidateSubscription
       }
     }
   }

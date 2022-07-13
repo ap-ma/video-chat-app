@@ -1,5 +1,13 @@
 /* eslint-disable import/no-unresolved */
-import { dummyContactInfo, dummyMutation, dummySignaling, me, otherUserId, userId } from '.storybook/dummies'
+import {
+  dummyContactInfo,
+  dummyMutation,
+  dummySignaling,
+  iceCandidate,
+  me,
+  otherUserId,
+  userId
+} from '.storybook/dummies'
 /* eslint-enable import/no-unresolved */
 import { NetworkStatus } from '@apollo/client'
 import { Box } from '@chakra-ui/react'
@@ -14,8 +22,6 @@ import {
   BlockContactMutationVariables,
   CancelMutation,
   CancelMutationVariables,
-  CandidateMutation,
-  CandidateMutationVariables,
   DeleteContactMutation,
   DeleteContactMutationVariables,
   DeleteMessageMutation,
@@ -28,6 +34,8 @@ import {
   ReadMessagesMutationVariables,
   RingUpMutation,
   RingUpMutationVariables,
+  SendIceCandidateMutation,
+  SendIceCandidateMutationVariables,
   SendImageMutation,
   SendImageMutationVariables,
   SendMessageMutation,
@@ -67,7 +75,7 @@ type MainStoryProps = MainProps & {
   pickUpLoading: MutaionLoading
   hangUpLoading: MutaionLoading
   cancelLoading: MutaionLoading
-  candidateLoading: MutaionLoading
+  sendIceCandidateLoading: MutaionLoading
   deleteMessageLoading: MutaionLoading
   readMessagesLoading: MutaionLoading
   applyContactLoading: MutaionLoading
@@ -91,7 +99,7 @@ const Template: Story<MainStoryProps> = ({
   pickUpLoading,
   hangUpLoading,
   cancelLoading,
-  candidateLoading,
+  sendIceCandidateLoading,
   deleteMessageLoading,
   readMessagesLoading,
   applyContactLoading,
@@ -159,11 +167,11 @@ const Template: Story<MainStoryProps> = ({
     cancelLoading
   )
 
-  const candidate = dummyMutation<CandidateMutation['candidate'], CandidateMutation, CandidateMutationVariables>(
-    'Candidate',
-    undefined,
-    candidateLoading
-  )
+  const sendIceCandidate = dummyMutation<
+    SendIceCandidateMutation['sendIceCandidate'],
+    SendIceCandidateMutation,
+    SendIceCandidateMutationVariables
+  >('SendIceCandidate', undefined, sendIceCandidateLoading)
 
   const deleteMessage = dummyMutation<
     DeleteMessageMutation['deleteMessage'],
@@ -220,7 +228,7 @@ const Template: Story<MainStoryProps> = ({
     pickUp,
     hangUp,
     cancel,
-    candidate,
+    sendIceCandidate,
     deleteMessage,
     readMessages,
     applyContact,
@@ -233,7 +241,7 @@ const Template: Story<MainStoryProps> = ({
 
   // subscription
   const signaling = dummySignaling(userId, otherUserId, signalingLoading, signalingType)
-  const subscription = { signaling }
+  const subscription = { signaling, iceCandidate }
 
   return <Main {...{ ...props, state, query, mutation, subscription }} />
 }
@@ -276,7 +284,7 @@ Primary.args = {
   pickUpLoading: false,
   hangUpLoading: false,
   cancelLoading: false,
-  candidateLoading: false,
+  sendIceCandidateLoading: false,
   deleteMessageLoading: false,
   readMessagesLoading: false,
   applyContactLoading: false,

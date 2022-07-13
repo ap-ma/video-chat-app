@@ -6,6 +6,5 @@ fragment SignalFields on Signal {
   txUserAvatar
   rxUserId
   sdp
-  candidate
   signalType
 }

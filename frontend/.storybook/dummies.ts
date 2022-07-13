@@ -11,7 +11,8 @@ import {
   SearchUserQuery,
   SearchUserQueryVariables,
   SignalingSubscription,
-  SignalType
+  SignalType,
+  IceCandidateSubscription
 } from 'graphql/generated'
 import { toStr, zf } from 'utils/general/helper'
 import {
@@ -318,12 +319,33 @@ export function dummySignaling(
     txUserAvatar: illustya[0],
     rxUserId: toStr(otherUserId),
     sdp: '',
-    candidate: undefined,
     signalType: type
   } as const
 
   return {
     result: signaling,
+    loading: !!loading
+  }
+}
+
+export function dummyIceCandidate(
+  userId: number,
+  otherUserId: number,
+  loading: SubscriptionLoading
+): {
+  result: IceCandidateSubscription['iceCandidateSubscription']
+  loading: SubscriptionLoading
+} {
+  const iceCandidate = {
+    __typename: 'IceCandidate',
+    callId: '1',
+    txUserId: toStr(userId),
+    rxUserId: toStr(otherUserId),
+    candidate: ''
+  } as const
+
+  return {
+    result: iceCandidate,
     loading: !!loading
   }
 }
@@ -366,6 +388,9 @@ export const contactInfo = dummyContactInfo(userId, otherUserId, 2, false, 50, (
 
 /** Signaling */
 export const signaling = dummySignaling(userId, otherUserId, false, SignalType.Offer)
+
+/** IceCandidate */
+export const iceCandidate = dummyIceCandidate(userId, otherUserId, false)
 
 //  ----------------------------------------------------------------------------
 //  temp data

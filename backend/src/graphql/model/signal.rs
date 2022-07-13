@@ -9,7 +9,6 @@ pub struct Signal {
     pub tx_user_avatar: Option<String>,
     pub rx_user_id: u64,
     pub sdp: Option<String>,
-    pub candidate: Option<String>,
     pub signal_type: SignalType,
 }
 
@@ -37,10 +36,6 @@ impl Signal {
 
     async fn sdp(&self) -> Option<&str> {
         self.sdp.as_deref()
-    }
-
-    async fn candidate(&self) -> Option<&str> {
-        self.candidate.as_deref()
     }
 
     async fn signal_type(&self) -> SignalType {

@@ -34,12 +34,6 @@ export type CallStartedAtArgs = {
   format?: InputMaybe<Scalars['String']>
 }
 
-export type CandidateInput = {
-  callId: Scalars['ID']
-  candidate: Scalars['String']
-  otherUserId: Scalars['ID']
-}
-
 export type ChangePasswordInput = {
   newPassword: Scalars['String']
   newPasswordConfirm: Scalars['String']
@@ -73,6 +67,14 @@ export type EditProfileInput = {
   comment?: InputMaybe<Scalars['String']>
   isAvatarEdited?: InputMaybe<Scalars['Boolean']>
   name: Scalars['String']
+}
+
+export type IceCandidate = {
+  __typename?: 'IceCandidate'
+  callId: Scalars['ID']
+  candidate: Scalars['String']
+  rxUserId: Scalars['ID']
+  txUserId: Scalars['ID']
 }
 
 export type LatestMessage = {
@@ -129,7 +131,6 @@ export type Mutation = {
   approveContact: MessageChanged
   blockContact: Contact
   cancel: MessageChanged
-  candidate: Scalars['Boolean']
   changeEmail: Scalars['Boolean']
   changePassword: Scalars['Boolean']
   deleteAccount: Scalars['Boolean']
@@ -142,6 +143,7 @@ export type Mutation = {
   readMessages: MessageChanged
   resetPassword: Scalars['Boolean']
   ringUp: MessageChanged
+  sendIceCandidate: Scalars['Boolean']
   sendImage: MessageChanged
   sendMessage: MessageChanged
   signIn: Scalars['Boolean']
@@ -166,10 +168,6 @@ export type MutationBlockContactArgs = {
 
 export type MutationCancelArgs = {
   callId: Scalars['ID']
-}
-
-export type MutationCandidateArgs = {
-  input: CandidateInput
 }
 
 export type MutationChangeEmailArgs = {
@@ -214,6 +212,10 @@ export type MutationResetPasswordArgs = {
 
 export type MutationRingUpArgs = {
   input: RingUpInput
+}
+
+export type MutationSendIceCandidateArgs = {
+  input: SendIceCandidateInput
 }
 
 export type MutationSendImageArgs = {
@@ -289,6 +291,12 @@ export type RingUpInput = {
   sdp: Scalars['String']
 }
 
+export type SendIceCandidateInput = {
+  callId: Scalars['ID']
+  candidate: Scalars['String']
+  otherUserId: Scalars['ID']
+}
+
 export type SendImageInput = {
   contactId: Scalars['ID']
   image: Scalars['Upload']
@@ -318,7 +326,6 @@ export type SignUpInput = {
 export type Signal = {
   __typename?: 'Signal'
   callId: Scalars['ID']
-  candidate?: Maybe<Scalars['String']>
   rxUserId: Scalars['ID']
   sdp?: Maybe<Scalars['String']>
   signalType: SignalType
@@ -330,13 +337,13 @@ export type Signal = {
 export enum SignalType {
   Answer = 'ANSWER',
   Cancel = 'CANCEL',
-  Candidate = 'CANDIDATE',
   Close = 'CLOSE',
   Offer = 'OFFER'
 }
 
 export type Subscription = {
   __typename?: 'Subscription'
+  iceCandidateSubscription: IceCandidate
   messageSubscription: MessageChanged
   signalingSubscription: Signal
 }
@@ -439,6 +446,14 @@ export type ContactFieldsWithChatFragment = {
       callTime?: number | null
     } | null
   }>
+}
+
+export type IceCandidateFieldsFragment = {
+  __typename: 'IceCandidate'
+  callId: string
+  txUserId: string
+  rxUserId: string
+  candidate: string
 }
 
 export type LatestMessageFieldsFragment = {
@@ -563,7 +578,6 @@ export type SignalFieldsFragment = {
   txUserAvatar?: string | null
   rxUserId: string
   sdp?: string | null
-  candidate?: string | null
   signalType: SignalType
 }
 
@@ -838,12 +852,6 @@ export type CancelMutation = {
     } | null
   }
 }
-
-export type CandidateMutationVariables = Exact<{
-  input: CandidateInput
-}>
-
-export type CandidateMutation = { __typename?: 'Mutation'; candidate: boolean }
 
 export type ChangeEmailMutationVariables = Exact<{
   email: Scalars['String']
@@ -1298,6 +1306,12 @@ export type RingUpMutation = {
     } | null
   }
 }
+
+export type SendIceCandidateMutationVariables = Exact<{
+  input: SendIceCandidateInput
+}>
+
+export type SendIceCandidateMutation = { __typename?: 'Mutation'; sendIceCandidate: boolean }
 
 export type SendImageMutationVariables = Exact<{
   input: SendImageInput
@@ -1757,6 +1771,19 @@ export type SearchUserQuery = {
   } | null
 }
 
+export type IceCandidateSubscriptionVariables = Exact<{ [key: string]: never }>
+
+export type IceCandidateSubscription = {
+  __typename?: 'Subscription'
+  iceCandidateSubscription: {
+    __typename: 'IceCandidate'
+    callId: string
+    txUserId: string
+    rxUserId: string
+    candidate: string
+  }
+}
+
 export type MessageSubscriptionVariables = Exact<{
   dateTimeFormat?: InputMaybe<Scalars['String']>
 }>
@@ -1846,7 +1873,6 @@ export type SignalingSubscription = {
     txUserAvatar?: string | null
     rxUserId: string
     sdp?: string | null
-    candidate?: string | null
     signalType: SignalType
   }
 }
@@ -1933,6 +1959,15 @@ export const ContactFieldsWithChatFragmentDoc = gql`
   ${ContactFieldsFragmentDoc}
   ${MessageFieldsFragmentDoc}
 `
+export const IceCandidateFieldsFragmentDoc = gql`
+  fragment IceCandidateFields on IceCandidate {
+    __typename
+    callId
+    txUserId
+    rxUserId
+    candidate
+  }
+`
 export const MessageChangedFieldsFragmentDoc = gql`
   fragment MessageChangedFields on MessageChanged {
     __typename
@@ -1963,7 +1998,6 @@ export const SignalFieldsFragmentDoc = gql`
     txUserAvatar
     rxUserId
     sdp
-    candidate
     signalType
   }
 `
@@ -2138,39 +2172,6 @@ export function useCancelMutation(baseOptions?: Apollo.MutationHookOptions<Cance
 export type CancelMutationHookResult = ReturnType<typeof useCancelMutation>
 export type CancelMutationResult = Apollo.MutationResult<CancelMutation>
 export type CancelMutationOptions = Apollo.BaseMutationOptions<CancelMutation, CancelMutationVariables>
-export const CandidateDocument = gql`
-  mutation Candidate($input: CandidateInput!) {
-    candidate(input: $input)
-  }
-`
-export type CandidateMutationFn = Apollo.MutationFunction<CandidateMutation, CandidateMutationVariables>
-
-/**
- * __useCandidateMutation__
- *
- * To run a mutation, you first call `useCandidateMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCandidateMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [candidateMutation, { data, loading, error }] = useCandidateMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useCandidateMutation(
-  baseOptions?: Apollo.MutationHookOptions<CandidateMutation, CandidateMutationVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<CandidateMutation, CandidateMutationVariables>(CandidateDocument, options)
-}
-export type CandidateMutationHookResult = ReturnType<typeof useCandidateMutation>
-export type CandidateMutationResult = Apollo.MutationResult<CandidateMutation>
-export type CandidateMutationOptions = Apollo.BaseMutationOptions<CandidateMutation, CandidateMutationVariables>
 export const ChangeEmailDocument = gql`
   mutation ChangeEmail($email: String!) {
     changeEmail(email: $email)
@@ -2607,6 +2608,48 @@ export function useRingUpMutation(baseOptions?: Apollo.MutationHookOptions<RingU
 export type RingUpMutationHookResult = ReturnType<typeof useRingUpMutation>
 export type RingUpMutationResult = Apollo.MutationResult<RingUpMutation>
 export type RingUpMutationOptions = Apollo.BaseMutationOptions<RingUpMutation, RingUpMutationVariables>
+export const SendIceCandidateDocument = gql`
+  mutation SendIceCandidate($input: SendIceCandidateInput!) {
+    sendIceCandidate(input: $input)
+  }
+`
+export type SendIceCandidateMutationFn = Apollo.MutationFunction<
+  SendIceCandidateMutation,
+  SendIceCandidateMutationVariables
+>
+
+/**
+ * __useSendIceCandidateMutation__
+ *
+ * To run a mutation, you first call `useSendIceCandidateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendIceCandidateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendIceCandidateMutation, { data, loading, error }] = useSendIceCandidateMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSendIceCandidateMutation(
+  baseOptions?: Apollo.MutationHookOptions<SendIceCandidateMutation, SendIceCandidateMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<SendIceCandidateMutation, SendIceCandidateMutationVariables>(
+    SendIceCandidateDocument,
+    options
+  )
+}
+export type SendIceCandidateMutationHookResult = ReturnType<typeof useSendIceCandidateMutation>
+export type SendIceCandidateMutationResult = Apollo.MutationResult<SendIceCandidateMutation>
+export type SendIceCandidateMutationOptions = Apollo.BaseMutationOptions<
+  SendIceCandidateMutation,
+  SendIceCandidateMutationVariables
+>
 export const SendImageDocument = gql`
   mutation SendImage($input: SendImageInput!, $dateTimeFormat: String) {
     sendImage(input: $input) {
@@ -3214,6 +3257,41 @@ export function useSearchUserLazyQuery(
 export type SearchUserQueryHookResult = ReturnType<typeof useSearchUserQuery>
 export type SearchUserLazyQueryHookResult = ReturnType<typeof useSearchUserLazyQuery>
 export type SearchUserQueryResult = Apollo.QueryResult<SearchUserQuery, SearchUserQueryVariables>
+export const IceCandidateDocument = gql`
+  subscription IceCandidate {
+    iceCandidateSubscription {
+      ...IceCandidateFields
+    }
+  }
+  ${IceCandidateFieldsFragmentDoc}
+`
+
+/**
+ * __useIceCandidateSubscription__
+ *
+ * To run a query within a React component, call `useIceCandidateSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useIceCandidateSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useIceCandidateSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useIceCandidateSubscription(
+  baseOptions?: Apollo.SubscriptionHookOptions<IceCandidateSubscription, IceCandidateSubscriptionVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useSubscription<IceCandidateSubscription, IceCandidateSubscriptionVariables>(
+    IceCandidateDocument,
+    options
+  )
+}
+export type IceCandidateSubscriptionHookResult = ReturnType<typeof useIceCandidateSubscription>
+export type IceCandidateSubscriptionResult = Apollo.SubscriptionResult<IceCandidateSubscription>
 export const MessageDocument = gql`
   subscription Message($dateTimeFormat: String) {
     messageSubscription {

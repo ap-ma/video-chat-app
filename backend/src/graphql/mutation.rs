@@ -1,9 +1,9 @@
 use super::common::{self, mail_builder, MutationType, SignalType, SimpleBroker};
 use super::form::{
-    CandidateInput, ChangePasswordInput, EditProfileInput, PickUpInput, ResetPasswordInput,
-    RingUpInput, SendImageInput, SendMessageInput, SignInInput, SignUpInput,
+    ChangePasswordInput, EditProfileInput, PickUpInput, ResetPasswordInput, RingUpInput,
+    SendIceCandidateInput, SendImageInput, SendMessageInput, SignInInput, SignUpInput,
 };
-use super::model::{Contact, Message, MessageChanged, Signal, User};
+use super::model::{Contact, IceCandidate, Message, MessageChanged, Signal, User};
 use super::security::auth::{self, Role};
 use super::security::{self, crypto::hash, validator, RoleGuard};
 use super::GraphqlError;
@@ -557,7 +557,6 @@ impl Mutation {
             tx_user_avatar: user.avatar,
             rx_user_id: message.rx_user_id,
             sdp: Some(input.sdp),
-            candidate: None,
             signal_type: SignalType::Offer,
         };
 
@@ -629,7 +628,6 @@ impl Mutation {
             tx_user_avatar: None,
             rx_user_id: message.tx_user_id,
             sdp: Some(input.sdp),
-            candidate: None,
             signal_type: SignalType::Answer,
         };
 
@@ -702,7 +700,6 @@ impl Mutation {
             tx_user_avatar: None,
             rx_user_id: other_user_id,
             sdp: None,
-            candidate: None,
             signal_type: SignalType::Close,
         };
 
@@ -774,7 +771,6 @@ impl Mutation {
             tx_user_avatar: None,
             rx_user_id: other_user_id,
             sdp: None,
-            candidate: None,
             signal_type: SignalType::Cancel,
         };
 
@@ -801,20 +797,20 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn candidate(&self, ctx: &Context<'_>, input: CandidateInput) -> Result<bool> {
+    async fn send_ice_candidate(
+        &self,
+        ctx: &Context<'_>,
+        input: SendIceCandidateInput,
+    ) -> Result<bool> {
         let identity = auth::get_identity(ctx)?;
-        let signal = Signal {
+        let candidate = IceCandidate {
             call_id: common::convert_id(&input.call_id)?,
             tx_user_id: identity.id,
-            tx_user_name: None,
-            tx_user_avatar: None,
             rx_user_id: common::convert_id(&input.other_user_id)?,
-            sdp: None,
-            candidate: Some(input.candidate),
-            signal_type: SignalType::Candidate,
+            candidate: input.candidate,
         };
 
-        publish_signal(&signal);
+        publish_candidate(&candidate);
 
         Ok(true)
     }
@@ -1267,5 +1263,9 @@ fn publish_message(message_changed: &MessageChanged) {
 }
 
 fn publish_signal(signal: &Signal) {
+    SimpleBroker::publish(signal.clone());
+}
+
+fn publish_candidate(signal: &IceCandidate) {
     SimpleBroker::publish(signal.clone());
 }

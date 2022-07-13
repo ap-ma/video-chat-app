@@ -30,7 +30,9 @@ function createCache() {
       Contact: { keyFields: ['id', 'userId'], fields: { chat: cursorPagination() } },
       LatestMessage: { keyFields: ['userId'] },
       MessageChanged: { keyFields: false },
-      CallEvent: { keyFields: false }
+      CallEvent: { keyFields: false },
+      Signal: { keyFields: ['callId'] },
+      Candidate: { keyFields: ['callId'] }
     }
   })
 }

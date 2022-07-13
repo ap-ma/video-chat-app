@@ -1,15 +1,17 @@
+/* eslint-disable promise/catch-or-return, promise/always-return */
 import toast from 'components/01_atoms/Toast'
 import {
   CancelMutation,
   CancelMutationVariables,
-  CandidateMutation,
-  CandidateMutationVariables,
   HangUpMutation,
   HangUpMutationVariables,
+  IceCandidateSubscription,
   PickUpMutation,
   PickUpMutationVariables,
   RingUpMutation,
   RingUpMutationVariables,
+  SendIceCandidateMutation,
+  SendIceCandidateMutationVariables,
   SignalingSubscription,
   SignalType
 } from 'graphql/generated'
@@ -22,7 +24,7 @@ export class WebRTC {
   protected connection?: RTCPeerConnection
 
   /** Local MediaStream */
-  protected localMediaStream?: MediaStream
+  protected localMediaStream: Promise<MediaStream>
 
   /** call id */
   protected callId?: string
@@ -42,7 +44,7 @@ export class WebRTC {
    * @param pickUpMutation - 通話応答 mutation
    * @param hangUpMutation - 通話終了 mutation
    * @param cancelMutation - 通話キャンセル mutation
-   * @param candidateMutation - ICE Candidate 送信 mutation
+   * @param sendIceCandidateMutation - ICE Candidate 送信 mutation
    * @param remoteVideo - リモート VideoElement
    * @param localVideo - ローカル VideoElement
    * @param micState - マイク on/off state
@@ -55,18 +57,23 @@ export class WebRTC {
     protected pickUpMutation: MutateFunction<PickUpMutation, PickUpMutationVariables>,
     protected hangUpMutation: MutateFunction<HangUpMutation, HangUpMutationVariables>,
     protected cancelMutation: MutateFunction<CancelMutation, CancelMutationVariables>,
-    protected candidateMutation: MutateFunction<CandidateMutation, CandidateMutationVariables>,
+    protected sendIceCandidateMutation: MutateFunction<SendIceCandidateMutation, SendIceCandidateMutationVariables>,
     protected remoteVideo: HTMLVideoElement | null,
     protected localVideo: HTMLVideoElement | null,
     micState: boolean,
     cameraState: boolean
   ) {
-    // ローカルのMediaStream取得
-    this.setLocalMediaStream(micState, cameraState)
+    // ローカルのMediaStreamの取得
+    this.localMediaStream = navigator.mediaDevices.getUserMedia({
+      audio: micState,
+      video: cameraState && { facingMode: 'user' }
+    })
 
     // ローカルのVideoElementの再生
     if (!isNullish(this.localVideo)) {
-      WebRTC.playVideo(this.localVideo, this.localMediaStream)
+      this.localMediaStream.then((stream) => {
+        if (!isNullish(this.localVideo)) WebRTC.playVideo(this.localVideo, stream)
+      })
     }
   }
 
@@ -121,16 +128,22 @@ export class WebRTC {
       this.answered = true
     }
 
-    // ICE Candidate取得時
-    if (SignalType.Candidate == signal.signalType) {
-      const candidate = JSON.parse(toStr(signal.candidate)) as RTCIceCandidate
-      this.connection?.addIceCandidate(new RTCIceCandidate(candidate))
-    }
-
     // Close/Cancel取得時
     if (includes(signal.signalType, SignalType.Close, SignalType.Cancel)) {
       this.purge()
     }
+  }
+
+  /**
+   * ICE Candidate追加処理
+   *
+   * @param iceCandidate - ICE Candidateオブジェクト
+   * @returns void
+   */
+  public addIceCandidate(iceCandidate: IceCandidateSubscription['iceCandidateSubscription']): void {
+    if (this.callId !== iceCandidate.callId) return
+    const candidate = JSON.parse(iceCandidate.candidate) as RTCIceCandidate
+    this.connection?.addIceCandidate(new RTCIceCandidate(candidate))
   }
 
   /**
@@ -162,7 +175,9 @@ export class WebRTC {
    * @param enabled - on/off state
    */
   public set setMicState(enabled: boolean) {
-    this.localMediaStream?.getAudioTracks().forEach((track) => (track.enabled = enabled))
+    this.localMediaStream.then((stream) => {
+      stream.getAudioTracks().forEach((track) => (track.enabled = enabled))
+    })
   }
 
   /**
@@ -171,7 +186,9 @@ export class WebRTC {
    * @param enabled -on/off state
    */
   public set setCameraState(enabled: boolean) {
-    this.localMediaStream?.getVideoTracks().forEach((track) => (track.enabled = enabled))
+    this.localMediaStream.then((stream) => {
+      stream.getVideoTracks().forEach((track) => (track.enabled = enabled))
+    })
   }
 
   /**
@@ -191,7 +208,7 @@ export class WebRTC {
       if (isNullish(evt.candidate) || isNullish(this.callId) || isNullish(this.otherUserId)) return
       const candidate = JSON.stringify(evt.candidate)
       const input = { callId: this.callId, otherUserId: this.otherUserId, candidate }
-      this.candidateMutation({ variables: { input } }).catch(toast('UnexpectedError'))
+      this.sendIceCandidateMutation({ variables: { input } }).catch(toast('UnexpectedError'))
     }
 
     // Offer ネゴシエーション
@@ -222,25 +239,13 @@ export class WebRTC {
     }
 
     // ローカル MediaStream
-    this.localMediaStream?.getTracks().forEach((track) => {
-      if (!isNullish(this.localMediaStream)) conn.addTrack(track, this.localMediaStream)
-    })
+    this.localMediaStream.then((stream) =>
+      stream.getTracks().forEach((track) => {
+        if (!isNullish(this.localMediaStream)) conn.addTrack(track, stream)
+      })
+    )
 
     return conn
-  }
-
-  /**
-   * ローカルのMediaStreamの設定
-   *
-   * @param micState - マイク on/off state
-   * @param cameraState - カメラ on/off state
-   * @returns Promise<void>
-   */
-  protected async setLocalMediaStream(micState: boolean, cameraState: boolean): Promise<void> {
-    this.localMediaStream = await navigator.mediaDevices.getUserMedia({
-      audio: micState,
-      video: cameraState && { facingMode: 'user' }
-    })
   }
 
   /**

@@ -45,7 +45,7 @@ export const padStr = (target: string, padStr: string, digit: number): string =>
 export const formatMinTime = (time: number): string => {
   const hour = Math.floor(time / 60)
   const min = time % 60
-  return `${hour}:${min}`
+  return `${zf(hour, 2)}:${zf(min, 2)}`
 }
 
 /**

@@ -19,7 +19,6 @@ export function useSetError<T>(
   errors: ValidationErrors | undefined,
   values?: Record<string, Parameters<typeof getErrMsg>[1]>
 ): Array<string> {
-  /* eslint-disable react-hooks/exhaustive-deps */
   return useMemo(() => {
     const characteristic: Array<string> = []
     errors?.forEach((error) => {
@@ -33,6 +32,5 @@ export function useSetError<T>(
     })
 
     return characteristic
-  }, [errors])
-  /* eslint-enable react-hooks/exhaustive-deps */
+  }, [errors]) // eslint-disable-line react-hooks/exhaustive-deps
 }

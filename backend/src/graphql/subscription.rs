@@ -1,5 +1,5 @@
 use super::common::SimpleBroker;
-use super::model::{MessageChanged, Signal};
+use super::model::{IceCandidate, MessageChanged, Signal};
 use super::security::auth::{self, Role};
 use super::security::guard::RoleGuard;
 use async_graphql::*;
@@ -30,6 +30,20 @@ impl Subscription {
     ) -> Result<impl Stream<Item = Signal>> {
         let identity = auth::get_identity(ctx)?;
         let stream = SimpleBroker::<Signal>::subscribe().filter(move |event| {
+            let res = event.tx_user_id != identity.id && event.rx_user_id == identity.id;
+            async move { res }
+        });
+
+        Ok(stream)
+    }
+
+    #[graphql(guard = "RoleGuard::new(Role::User)")]
+    async fn ice_candidate_subscription(
+        &self,
+        ctx: &Context<'_>,
+    ) -> Result<impl Stream<Item = IceCandidate>> {
+        let identity = auth::get_identity(ctx)?;
+        let stream = SimpleBroker::<IceCandidate>::subscribe().filter(move |event| {
             let res = event.tx_user_id != identity.id && event.rx_user_id == identity.id;
             async move { res }
         });

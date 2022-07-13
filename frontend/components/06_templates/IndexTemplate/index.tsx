@@ -13,8 +13,6 @@ import {
   BlockContactMutationVariables,
   CancelMutation,
   CancelMutationVariables,
-  CandidateMutation,
-  CandidateMutationVariables,
   ChangeEmailMutation,
   ChangeEmailMutationVariables,
   ChangePasswordMutation,
@@ -33,6 +31,7 @@ import {
   EditProfileMutationVariables,
   HangUpMutation,
   HangUpMutationVariables,
+  IceCandidateSubscription,
   LatestMessagesQuery,
   LatestMessagesQueryVariables,
   MeQuery,
@@ -43,6 +42,8 @@ import {
   RingUpMutationVariables,
   SearchUserQuery,
   SearchUserQueryVariables,
+  SendIceCandidateMutation,
+  SendIceCandidateMutationVariables,
   SendImageMutation,
   SendImageMutationVariables,
   SendMessageMutation,
@@ -57,6 +58,7 @@ import {
 } from 'graphql/generated'
 import React from 'react'
 import {
+  ApolloClient,
   CallType,
   ContactInfoUserId,
   ContainerProps,
@@ -77,6 +79,10 @@ import * as styles from './styles'
 
 /** IndexTemplate Props */
 export type IndexTemplateProps = {
+  /**
+   * ApolloClient
+   */
+  apolloClient: ApolloClient
   /**
    * Local State
    */
@@ -252,14 +258,14 @@ export type IndexTemplateProps = {
       mutate: MutateFunction<CancelMutation, CancelMutationVariables>
     }
     /**
-     * ICE Candidate
+     * ICE Candidate 送信
      */
-    candidate: {
-      result?: CandidateMutation['candidate']
+    sendIceCandidate: {
+      result?: SendIceCandidateMutation['sendIceCandidate']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      mutate: MutateFunction<CandidateMutation, CandidateMutationVariables>
+      mutate: MutateFunction<SendIceCandidateMutation, SendIceCandidateMutationVariables>
     }
     /**
      * メッセージ削除
@@ -343,6 +349,13 @@ export type IndexTemplateProps = {
       result?: SignalingSubscription['signalingSubscription']
       loading: SubscriptionLoading
     }
+    /**
+     * ICE Candidate
+     */
+    iceCandidate: {
+      result?: IceCandidateSubscription['iceCandidateSubscription']
+      loading: SubscriptionLoading
+    }
   }
 }
 
@@ -353,6 +366,7 @@ export type PresenterProps = IndexTemplateProps & {
 
 /** Presenter Component */
 const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
+  apolloClient,
   state: { contactInfoUserId, callType },
   query: { me, contacts, latestMessages, contactInfo, searchUser },
   mutation: {
@@ -367,7 +381,7 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
     pickUp,
     hangUp,
     cancel,
-    candidate,
+    sendIceCandidate,
     deleteMessage,
     applyContact,
     approveContact,
@@ -376,7 +390,7 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
     blockContact,
     unblockContact
   },
-  subscription: { signaling },
+  subscription: { signaling, iceCandidate },
   sbDisc
 }) => (
   <HtmlSkeleton>
@@ -404,6 +418,7 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
         mutation={{ signOut, editProfile, changeEmail, changePassword, deleteAccount }}
       />
       <Main
+        apolloClient={apolloClient}
         state={{ callType }}
         query={{ me, contactInfo }}
         mutation={{
@@ -413,7 +428,7 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
           pickUp,
           hangUp,
           cancel,
-          candidate,
+          sendIceCandidate,
           deleteMessage,
           applyContact,
           approveContact,
@@ -422,7 +437,7 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
           blockContact,
           unblockContact
         }}
-        subscription={{ signaling }}
+        subscription={{ signaling, iceCandidate }}
       />
     </Box>
   </HtmlSkeleton>

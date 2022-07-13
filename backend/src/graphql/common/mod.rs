@@ -26,7 +26,6 @@ pub enum SignalType {
     Answer,
     Close,
     Cancel,
-    Candidate,
 }
 
 pub fn get_conn(ctx: &Context<'_>) -> Result<PooledConnection<ConnectionManager<MysqlConnection>>> {

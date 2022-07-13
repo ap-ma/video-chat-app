@@ -6,6 +6,7 @@ import {
   dummyMutation,
   dummySearchUser,
   dummySignaling,
+  iceCandidate,
   latestMessages,
   otherUserId,
   userId
@@ -23,8 +24,6 @@ import {
   BlockContactMutationVariables,
   CancelMutation,
   CancelMutationVariables,
-  CandidateMutation,
-  CandidateMutationVariables,
   ChangeEmailMutation,
   ChangeEmailMutationVariables,
   ChangePasswordMutation,
@@ -45,6 +44,8 @@ import {
   ReadMessagesMutationVariables,
   RingUpMutation,
   RingUpMutationVariables,
+  SendIceCandidateMutation,
+  SendIceCandidateMutationVariables,
   SendImageMutation,
   SendImageMutationVariables,
   SendMessageMutation,
@@ -93,7 +94,7 @@ type IndexTemplateStoryProps = IndexTemplateProps & {
   pickUpLoading: MutaionLoading
   hangUpLoading: MutaionLoading
   cancelLoading: MutaionLoading
-  candidateLoading: MutaionLoading
+  sendIceCandidateLoading: MutaionLoading
   deleteMessageLoading: MutaionLoading
   readMessagesLoading: MutaionLoading
   applyContactLoading: MutaionLoading
@@ -125,7 +126,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
   pickUpLoading,
   hangUpLoading,
   cancelLoading,
-  candidateLoading,
+  sendIceCandidateLoading,
   deleteMessageLoading,
   readMessagesLoading,
   applyContactLoading,
@@ -236,11 +237,11 @@ const Template: Story<IndexTemplateStoryProps> = ({
     cancelLoading
   )
 
-  const candidate = dummyMutation<CandidateMutation['candidate'], CandidateMutation, CandidateMutationVariables>(
-    'Candidate',
-    undefined,
-    candidateLoading
-  )
+  const sendIceCandidate = dummyMutation<
+    SendIceCandidateMutation['sendIceCandidate'],
+    SendIceCandidateMutation,
+    SendIceCandidateMutationVariables
+  >('SendIceCandidate', undefined, sendIceCandidateLoading)
 
   const deleteMessage = dummyMutation<
     DeleteMessageMutation['deleteMessage'],
@@ -302,7 +303,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
     pickUp,
     hangUp,
     cancel,
-    candidate,
+    sendIceCandidate,
     deleteMessage,
     readMessages,
     applyContact,
@@ -315,7 +316,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
 
   // subscription
   const signaling = dummySignaling(userId, otherUserId, signalingLoading, signalingType)
-  const subscription = { signaling }
+  const subscription = { signaling, iceCandidate }
 
   return <IndexTemplate {...{ ...props, state, query, mutation, subscription }} />
 }
@@ -365,7 +366,7 @@ Primary.args = {
   pickUpLoading: false,
   hangUpLoading: false,
   cancelLoading: false,
-  candidateLoading: false,
+  sendIceCandidateLoading: false,
   deleteMessageLoading: false,
   readMessagesLoading: false,
   applyContactLoading: false,
