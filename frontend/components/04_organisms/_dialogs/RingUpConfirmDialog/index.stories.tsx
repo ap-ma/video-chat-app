@@ -6,10 +6,7 @@ import RingUpConfirmDialog, { RingUpConfirmDialogProps } from './index'
 export default {
   title: '04_organisms/dialogs/RingUpConfirmDialog',
   component: RingUpConfirmDialog,
-  argTypes: {
-    onCallingOpen: { action: 'clicked' },
-    onClose: { action: 'clicked' }
-  }
+  argTypes: { onClose: { action: 'clicked' } }
 } as Meta
 
 const Template: Story<RingUpConfirmDialogProps> = ({ ...props }) => {

@@ -1,9 +1,6 @@
 import { Flex, FlexProps, useDisclosure } from '@chakra-ui/react'
-import toast from 'components/01_atoms/Toast'
-import Calling from 'components/04_organisms/Calling'
 import ContactInfoBody from 'components/04_organisms/ContactInfoBody'
 import ContactInfoHead from 'components/04_organisms/ContactInfoHead'
-import ReceiveCall from 'components/04_organisms/ReceiveCall'
 import BlockContactConfirmDialog from 'components/04_organisms/_dialogs/BlockContactConfirmDialog'
 import DeleteContactConfirmDialog from 'components/04_organisms/_dialogs/DeleteContactConfirmDialog'
 import RingUpConfirmDialog from 'components/04_organisms/_dialogs/RingUpConfirmDialog'
@@ -18,39 +15,24 @@ import {
   ApproveContactMutationVariables,
   BlockContactMutation,
   BlockContactMutationVariables,
-  Call,
-  CancelMutation,
-  CancelMutationVariables,
   ContactInfoQuery,
   ContactInfoQueryVariables,
   DeleteContactMutation,
   DeleteContactMutationVariables,
   DeleteMessageMutation,
   DeleteMessageMutationVariables,
-  HangUpMutation,
-  HangUpMutationVariables,
-  IceCandidateSubscription,
   MeQuery,
-  PickUpMutation,
-  PickUpMutationVariables,
-  RingUpMutation,
-  RingUpMutationVariables,
-  SendIceCandidateMutation,
-  SendIceCandidateMutationVariables,
   SendImageMutation,
   SendImageMutationVariables,
   SendMessageMutation,
   SendMessageMutationVariables,
-  SignalingSubscription,
-  SignalType,
   UnblockContactMutation,
   UnblockContactMutationVariables,
   UndeleteContactMutation,
   UndeleteContactMutationVariables
 } from 'graphql/generated'
-import React, { Fragment, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import {
-  ApolloClient,
   CallType,
   ContainerProps,
   Disclosure,
@@ -61,18 +43,13 @@ import {
   QueryLoading,
   QueryNetworkStatus,
   SetState,
-  SubscriptionLoading,
   ValidationErrors
 } from 'types'
-import { hasValue, isNullish } from 'utils/general/object'
+import { hasValue } from 'utils/general/object'
 import * as styles from './styles'
 
 /** Main Props */
 export type MainProps = FlexProps & {
-  /**
-   * ApolloClient
-   */
-  apolloClient: ApolloClient
   /**
    * Local State
    */
@@ -127,56 +104,6 @@ export type MainProps = FlexProps & {
       errors?: ValidationErrors
       reset: MutaionReset
       mutate: MutateFunction<SendImageMutation, SendImageMutationVariables>
-    }
-    /**
-     * 通話架電
-     */
-    ringUp: {
-      result?: RingUpMutation['ringUp']
-      loading: MutaionLoading
-      errors?: ValidationErrors
-      reset: MutaionReset
-      mutate: MutateFunction<RingUpMutation, RingUpMutationVariables>
-    }
-    /**
-     * 通話応答
-     */
-    pickUp: {
-      result?: PickUpMutation['pickUp']
-      loading: MutaionLoading
-      errors?: ValidationErrors
-      reset: MutaionReset
-      mutate: MutateFunction<PickUpMutation, PickUpMutationVariables>
-    }
-    /**
-     * 通話終了
-     */
-    hangUp: {
-      result?: HangUpMutation['hangUp']
-      loading: MutaionLoading
-      errors?: ValidationErrors
-      reset: MutaionReset
-      mutate: MutateFunction<HangUpMutation, HangUpMutationVariables>
-    }
-    /**
-     * 通話キャンセル
-     */
-    cancel: {
-      result?: CancelMutation['cancel']
-      loading: MutaionLoading
-      errors?: ValidationErrors
-      reset: MutaionReset
-      mutate: MutateFunction<CancelMutation, CancelMutationVariables>
-    }
-    /**
-     * ICE Candidate 送信
-     */
-    sendIceCandidate: {
-      result?: SendIceCandidateMutation['sendIceCandidate']
-      loading: MutaionLoading
-      errors?: ValidationErrors
-      reset: MutaionReset
-      mutate: MutateFunction<SendIceCandidateMutation, SendIceCandidateMutationVariables>
     }
     /**
      * メッセージ削除
@@ -249,32 +176,10 @@ export type MainProps = FlexProps & {
       mutate: MutateFunction<UnblockContactMutation, UnblockContactMutationVariables>
     }
   }
-  /**
-   * Subscription
-   */
-  subscription: {
-    /**
-     * シグナリング
-     */
-    signaling: {
-      result?: SignalingSubscription['signalingSubscription']
-      loading: SubscriptionLoading
-    }
-    /**
-     * ICE Candidate
-     */
-    iceCandidate: {
-      result?: IceCandidateSubscription['iceCandidateSubscription']
-      loading: SubscriptionLoading
-    }
-  }
 }
 
 /** Presenter Props */
 export type PresenterProps = MainProps & {
-  rcCallId?: Call['id']
-  callingDisc: Disclosure
-  rcDisc: Disclosure
   rucdDisc: Disclosure
   dccdDisc: Disclosure
   udccdDisc: Disclosure
@@ -284,17 +189,11 @@ export type PresenterProps = MainProps & {
 
 /** Presenter Component */
 const MainPresenter: React.VFC<PresenterProps> = ({
-  apolloClient,
   state: { callType },
   query: { me, contactInfo },
   mutation: {
     sendMessage,
     sendImage,
-    ringUp,
-    pickUp,
-    hangUp,
-    cancel,
-    sendIceCandidate,
     deleteMessage,
     applyContact,
     approveContact,
@@ -303,10 +202,6 @@ const MainPresenter: React.VFC<PresenterProps> = ({
     blockContact,
     unblockContact
   },
-  subscription: { signaling, iceCandidate },
-  rcCallId,
-  callingDisc,
-  rcDisc,
   rucdDisc,
   dccdDisc,
   udccdDisc,
@@ -314,47 +209,22 @@ const MainPresenter: React.VFC<PresenterProps> = ({
   ubccdDisc,
   ...props
 }) => (
-  <Fragment>
-    <Flex {...styles.root} {...props}>
-      <ContactInfoHead
-        query={{ me, contactInfo }}
-        onRucdOpen={rucdDisc.onOpen}
-        onDccdOpen={dccdDisc.onOpen}
-        onUdccdOpen={udccdDisc.onOpen}
-        onBccdOpen={bccdDisc.onOpen}
-        onUbccdOpen={ubccdDisc.onOpen}
-      />
-      <ContactInfoBody
-        query={{ me, contactInfo }}
-        mutation={{ deleteMessage, applyContact, approveContact, unblockContact }}
-      />
-      <SendMessageForm onRucdOpen={rucdDisc.onOpen} query={{ contactInfo }} mutation={{ sendMessage, sendImage }} />
-    </Flex>
+  <Flex {...styles.root} {...props}>
+    <ContactInfoHead
+      query={{ me, contactInfo }}
+      onRucdOpen={rucdDisc.onOpen}
+      onDccdOpen={dccdDisc.onOpen}
+      onUdccdOpen={udccdDisc.onOpen}
+      onBccdOpen={bccdDisc.onOpen}
+      onUbccdOpen={ubccdDisc.onOpen}
+    />
+    <ContactInfoBody
+      query={{ me, contactInfo }}
+      mutation={{ deleteMessage, applyContact, approveContact, unblockContact }}
+    />
+    <SendMessageForm onRucdOpen={rucdDisc.onOpen} query={{ contactInfo }} mutation={{ sendMessage, sendImage }} />
     {/* modal */}
-    <Calling
-      rcCallId={rcCallId}
-      apolloClient={apolloClient}
-      state={{ callType }}
-      query={{ contactInfo }}
-      mutation={{ ringUp, pickUp, hangUp, cancel, sendIceCandidate }}
-      subscription={{ signaling, iceCandidate }}
-      isOpen={callingDisc.isOpen}
-      onClose={callingDisc.onClose}
-    />
-    <RingUpConfirmDialog
-      onCallingOpen={callingDisc.onOpen}
-      state={{ callType }}
-      isOpen={rucdDisc.isOpen}
-      onClose={rucdDisc.onClose}
-    />
-    <ReceiveCall
-      onCallingOpen={callingDisc.onOpen}
-      state={{ callType }}
-      mutation={{ cancel }}
-      subscription={{ signaling }}
-      isOpen={rcDisc.isOpen}
-      onClose={rcDisc.onClose}
-    />
+    <RingUpConfirmDialog state={{ callType }} isOpen={rucdDisc.isOpen} onClose={rucdDisc.onClose} />
     <DeleteContactConfirmDialog
       query={{ contactInfo }}
       mutation={{ deleteContact }}
@@ -379,68 +249,23 @@ const MainPresenter: React.VFC<PresenterProps> = ({
       isOpen={ubccdDisc.isOpen}
       onClose={ubccdDisc.onClose}
     />
-  </Fragment>
+  </Flex>
 )
 
 /** Container Component */
 const MainContainer: React.VFC<ContainerProps<MainProps, PresenterProps>> = ({
   presenter,
   state: { callType },
-  query: { contactInfo, ...queryRest },
-  mutation: {
-    applyContact,
-    approveContact,
-    deleteContact,
-    undeleteContact,
-    blockContact,
-    unblockContact,
-    cancel,
-    ...mutationRest
-  },
-  subscription: { signaling, ...subscriptionRest },
+  mutation: { deleteContact, undeleteContact, blockContact, unblockContact, ...mutationRest },
   ...props
 }) => {
-  // state
-  const [rcCallId, setRcCallId] = useState<Call['id'] | undefined>(undefined)
-
-  // Calling
-  const callingDisc = useDisclosure()
-
-  // ReceiveCall
-  const rcDisc = useDisclosure()
-  const onRcClose = rcDisc.onClose
-  const canceltResult = cancel.result
-  const callTypeState = callType.state
-  const signalingResult = signaling.result
-  useMemo(() => {
-    if (hasValue(canceltResult)) onRcClose()
-    if (CallType.Answer === callTypeState) onRcClose()
-    if (SignalType.Cancel === signalingResult?.signalType) {
-      if (rcCallId === signalingResult?.callId) onRcClose()
-    }
-  }, [onRcClose, canceltResult, callTypeState, signalingResult, rcCallId])
-
-  // Receive a Call
-  useMemo(() => {
-    if (isNullish(signalingResult)) return
-    if (SignalType.Offer !== signalingResult.signalType) return
-    // 通話中、通話架電中、通話受信中 以外
-    if (CallType.Close === callTypeState && !rcDisc.isOpen) {
-      setRcCallId(signalingResult.callId)
-      return rcDisc.onOpen()
-    }
-    const callId = signalingResult.callId
-    cancel.reset()
-    cancel.mutate({ variables: { callId } }).catch(toast('UnexpectedError'))
-  }, [signalingResult]) // eslint-disable-line react-hooks/exhaustive-deps
-
   // RingUpConfirmDialog modal
   const rucdDisc = useDisclosure()
   const onRucdClose = rucdDisc.onClose
-  const callTypeDisciscOpen = callingDisc.isOpen
+  const callTypeState = callType.state
   useMemo(() => {
-    if (callTypeDisciscOpen) onRucdClose()
-  }, [onRucdClose, callTypeDisciscOpen])
+    if (CallType.Offer === callTypeState) onRucdClose()
+  }, [onRucdClose, callTypeState])
 
   // DeleteContactConfirmDialog modal
   const dccdDisc = useDisclosure()
@@ -476,21 +301,13 @@ const MainContainer: React.VFC<ContainerProps<MainProps, PresenterProps>> = ({
 
   return presenter({
     state: { callType },
-    query: { contactInfo, ...queryRest },
     mutation: {
-      applyContact,
-      approveContact,
       deleteContact,
       undeleteContact,
       blockContact,
       unblockContact,
-      cancel,
       ...mutationRest
     },
-    subscription: { signaling, ...subscriptionRest },
-    rcCallId,
-    callingDisc,
-    rcDisc,
     rucdDisc,
     dccdDisc,
     udccdDisc,

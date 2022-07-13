@@ -11,10 +11,7 @@ import { CancelMutation, CancelMutationVariables } from 'graphql/generated'
 export default {
   title: '04_organisms/ReceiveCall',
   component: ReceiveCall,
-  argTypes: {
-    onCallingOpen: { action: 'clicked' },
-    onClose: { action: 'clicked' }
-  }
+  argTypes: { onClose: { action: 'clicked' } }
 } as Meta
 
 type ReceiveCallStoryProps = ReceiveCallProps & {

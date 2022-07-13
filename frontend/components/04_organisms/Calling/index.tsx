@@ -28,7 +28,7 @@ import {
   SendIceCandidateMutationVariables,
   SignalingSubscription
 } from 'graphql/generated'
-import React, { Ref, useCallback, useMemo, useRef } from 'react'
+import React, { Ref, useMemo, useRef } from 'react'
 import {
   BsFillCameraVideoFill,
   BsFillCameraVideoOffFill,
@@ -197,8 +197,6 @@ const CallingPresenter: React.VFC<PresenterProps> = ({
 /** Container Component */
 const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> = ({
   presenter,
-  isOpen,
-  onClose,
   rcCallId,
   apolloClient,
   state: { callType },
@@ -237,11 +235,10 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
   }
 
   // 通話モード変更時
-  const onCloseComplete = useCallback(() => {
+  useMemo(() => {
     if (CallType.Close === callType.state) {
       // 通話切断時
       session.current = null
-      setTimeout(onClose, 200)
       return
     }
 
@@ -295,9 +292,6 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
   }, [iceCandidate.result])
 
   return presenter({
-    isOpen,
-    onClose,
-    onCloseComplete,
     micState,
     cameraState,
     remoteVideoRef,

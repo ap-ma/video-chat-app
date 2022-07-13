@@ -1,6 +1,9 @@
 import { Box, Drawer, DrawerContent, useDisclosure } from '@chakra-ui/react'
+import toast from 'components/01_atoms/Toast'
+import Calling from 'components/04_organisms/Calling'
 import Header from 'components/04_organisms/Header'
 import Main from 'components/04_organisms/Main'
+import ReceiveCall from 'components/04_organisms/ReceiveCall'
 import Sidebar from 'components/04_organisms/Sidebar'
 import HtmlSkeleton, { Title } from 'components/05_layouts/HtmlSkeleton'
 import { connect } from 'components/hoc'
@@ -11,6 +14,7 @@ import {
   ApproveContactMutationVariables,
   BlockContactMutation,
   BlockContactMutationVariables,
+  Call,
   CancelMutation,
   CancelMutationVariables,
   ChangeEmailMutation,
@@ -49,6 +53,7 @@ import {
   SendMessageMutation,
   SendMessageMutationVariables,
   SignalingSubscription,
+  SignalType,
   SignOutMutation,
   SignOutMutationVariables,
   UnblockContactMutation,
@@ -56,7 +61,7 @@ import {
   UndeleteContactMutation,
   UndeleteContactMutationVariables
 } from 'graphql/generated'
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import {
   ApolloClient,
   CallType,
@@ -75,6 +80,7 @@ import {
   SubscriptionLoading,
   ValidationErrors
 } from 'types'
+import { includes, isNullish } from 'utils/general/object'
 import * as styles from './styles'
 
 /** IndexTemplate Props */
@@ -361,7 +367,10 @@ export type IndexTemplateProps = {
 
 /** Presenter Props */
 export type PresenterProps = IndexTemplateProps & {
+  rcCallId?: Call['id']
   sbDisc: Disclosure
+  callingDisc: Disclosure
+  rcDisc: Disclosure
 }
 
 /** Presenter Component */
@@ -391,7 +400,10 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
     unblockContact
   },
   subscription: { signaling, iceCandidate },
-  sbDisc
+  rcCallId,
+  sbDisc,
+  callingDisc,
+  rcDisc
 }) => (
   <HtmlSkeleton>
     <Title>Home</Title>
@@ -418,17 +430,11 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
         mutation={{ signOut, editProfile, changeEmail, changePassword, deleteAccount }}
       />
       <Main
-        apolloClient={apolloClient}
         state={{ callType }}
         query={{ me, contactInfo }}
         mutation={{
           sendMessage,
           sendImage,
-          ringUp,
-          pickUp,
-          hangUp,
-          cancel,
-          sendIceCandidate,
           deleteMessage,
           applyContact,
           approveContact,
@@ -437,7 +443,23 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
           blockContact,
           unblockContact
         }}
+      />
+      <Calling
+        rcCallId={rcCallId}
+        apolloClient={apolloClient}
+        state={{ callType }}
+        query={{ contactInfo }}
+        mutation={{ ringUp, pickUp, hangUp, cancel, sendIceCandidate }}
         subscription={{ signaling, iceCandidate }}
+        isOpen={callingDisc.isOpen}
+        onClose={callingDisc.onClose}
+      />
+      <ReceiveCall
+        state={{ callType }}
+        mutation={{ cancel }}
+        subscription={{ signaling }}
+        isOpen={rcDisc.isOpen}
+        onClose={rcDisc.onClose}
       />
     </Box>
   </HtmlSkeleton>
@@ -446,11 +468,62 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
 /** Container Component */
 const IndexTemplateContainer: React.VFC<ContainerProps<IndexTemplateProps, PresenterProps>> = ({
   presenter,
+  state: { callType, ...stateRest },
+  mutation: { cancel, ...mutationRest },
+  subscription: { signaling, ...subscriptionRest },
   ...props
 }) => {
+  // state
+  const [rcCallId, setRcCallId] = useState<Call['id'] | undefined>(undefined)
+
   // Sidebar
   const sbDisc = useDisclosure()
-  return presenter({ sbDisc, ...props })
+
+  // Calling
+  const callingDisc = useDisclosure()
+  const callTypeState = callType.state
+  const onCallingClose = callingDisc.onClose
+  const onCallingOpen = callingDisc.onOpen
+  useMemo(() => {
+    if (CallType.Close === callTypeState) setTimeout(onCallingClose, 200)
+    if (includes(callTypeState, CallType.Offer, CallType.Answer)) onCallingOpen()
+  }, [callTypeState, onCallingClose, onCallingOpen])
+
+  // ReceiveCall
+  const rcDisc = useDisclosure()
+  const onRcClose = rcDisc.onClose
+  const signalingResult = signaling.result
+  useMemo(() => {
+    if (CallType.Answer === callTypeState) onRcClose()
+    if (SignalType.Cancel === signalingResult?.signalType) {
+      if (rcCallId === signalingResult?.callId) onRcClose()
+    }
+  }, [onRcClose, callTypeState, signalingResult, rcCallId])
+
+  // Receive a Call
+  useMemo(() => {
+    if (isNullish(signalingResult)) return
+    if (SignalType.Offer !== signalingResult.signalType) return
+    // 通話中、通話架電中、通話受信中 以外
+    if (CallType.Close === callTypeState && !rcDisc.isOpen) {
+      setRcCallId(signalingResult.callId)
+      return rcDisc.onOpen()
+    }
+    const callId = signalingResult.callId
+    cancel.reset()
+    cancel.mutate({ variables: { callId } }).catch(toast('UnexpectedError'))
+  }, [signalingResult]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return presenter({
+    state: { callType, ...stateRest },
+    mutation: { cancel, ...mutationRest },
+    subscription: { signaling, ...subscriptionRest },
+    rcCallId,
+    sbDisc,
+    callingDisc,
+    rcDisc,
+    ...props
+  })
 }
 
 /** IndexTemplate */

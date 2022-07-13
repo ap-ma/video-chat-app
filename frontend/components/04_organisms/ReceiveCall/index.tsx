@@ -15,17 +15,13 @@ import { connect } from 'components/hoc'
 import { CancelMutation, CancelMutationVariables, SignalingSubscription } from 'graphql/generated'
 import React from 'react'
 import { ImPhone, ImPhoneHangUp } from 'react-icons/im'
-import { CallType, ContainerProps, MutaionLoading, MutaionReset, MutateFunction, OnOpen, SetState } from 'types'
+import { CallType, ContainerProps, MutaionLoading, MutaionReset, MutateFunction, SetState } from 'types'
 import { toStr } from 'utils/general/helper'
 import { isNullish } from 'utils/general/object'
 import * as styles from './styles'
 
 /** ReceiveCall Props */
 export type ReceiveCallProps = Omit<ModalProps, 'children'> & {
-  /**
-   * 通話画面 onOpen
-   */
-  onCallingOpen: OnOpen
   /**
    * Local State
    */
@@ -65,7 +61,7 @@ export type ReceiveCallProps = Omit<ModalProps, 'children'> & {
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<ReceiveCallProps, 'onCallingOpen' | 'state' | 'mutation'> & {
+export type PresenterProps = Omit<ReceiveCallProps, 'state' | 'mutation'> & {
   loading: MutaionLoading
   onAcceptButtonClick: IconButtonProps['onClick']
   onDeclineButtonClick: IconButtonProps['onClick']
@@ -121,7 +117,7 @@ const ReceiveCallPresenter: React.VFC<PresenterProps> = ({
 /** Container Component */
 const ReceiveCallContainer: React.VFC<ContainerProps<ReceiveCallProps, PresenterProps>> = ({
   presenter,
-  onCallingOpen,
+  onClose,
   state: { callType },
   mutation: { cancel },
   subscription: { signaling },
@@ -134,10 +130,7 @@ const ReceiveCallContainer: React.VFC<ContainerProps<ReceiveCallProps, Presenter
   const loading = cancel.loading
 
   // onClick accept button
-  const onAcceptButtonClick = () => {
-    callType.setCallType(CallType.Answer)
-    onCallingOpen()
-  }
+  const onAcceptButtonClick = () => callType.setCallType(CallType.Answer)
 
   // onClick decline button
   const onDeclineButtonClick = () => {
@@ -145,9 +138,11 @@ const ReceiveCallContainer: React.VFC<ContainerProps<ReceiveCallProps, Presenter
     const callId = signaling.result.callId
     cancel.reset()
     cancel.mutate({ variables: { callId } }).catch(toast('UnexpectedError'))
+    onClose()
   }
 
   return presenter({
+    onClose,
     isCentered,
     loading,
     onAcceptButtonClick,

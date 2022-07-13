@@ -1,13 +1,5 @@
 /* eslint-disable import/no-unresolved */
-import {
-  dummyContactInfo,
-  dummyMutation,
-  dummySignaling,
-  iceCandidate,
-  me,
-  otherUserId,
-  userId
-} from '.storybook/dummies'
+import { dummyContactInfo, dummyMutation, me, otherUserId, userId } from '.storybook/dummies'
 /* eslint-enable import/no-unresolved */
 import { NetworkStatus } from '@apollo/client'
 import { Box } from '@chakra-ui/react'
@@ -20,34 +12,23 @@ import {
   ApproveContactMutationVariables,
   BlockContactMutation,
   BlockContactMutationVariables,
-  CancelMutation,
-  CancelMutationVariables,
   DeleteContactMutation,
   DeleteContactMutationVariables,
   DeleteMessageMutation,
   DeleteMessageMutationVariables,
-  HangUpMutation,
-  HangUpMutationVariables,
-  PickUpMutation,
-  PickUpMutationVariables,
   ReadMessagesMutation,
   ReadMessagesMutationVariables,
-  RingUpMutation,
-  RingUpMutationVariables,
-  SendIceCandidateMutation,
-  SendIceCandidateMutationVariables,
   SendImageMutation,
   SendImageMutationVariables,
   SendMessageMutation,
   SendMessageMutationVariables,
-  SignalType,
   UnblockContactMutation,
   UnblockContactMutationVariables,
   UndeleteContactMutation,
   UndeleteContactMutationVariables
 } from 'graphql/generated'
 import React, { useState } from 'react'
-import { CallType, MutaionLoading, QueryLoading, QueryNetworkStatus, SubscriptionLoading } from 'types'
+import { CallType, MutaionLoading, QueryLoading, QueryNetworkStatus } from 'types'
 import Main, { MainProps } from './index'
 
 export default {
@@ -71,11 +52,6 @@ type MainStoryProps = MainProps & {
   contactInfoBlocked: boolean
   sendMessageLoading: MutaionLoading
   sendImageLoading: MutaionLoading
-  ringUpLoading: MutaionLoading
-  pickUpLoading: MutaionLoading
-  hangUpLoading: MutaionLoading
-  cancelLoading: MutaionLoading
-  sendIceCandidateLoading: MutaionLoading
   deleteMessageLoading: MutaionLoading
   readMessagesLoading: MutaionLoading
   applyContactLoading: MutaionLoading
@@ -84,8 +60,6 @@ type MainStoryProps = MainProps & {
   undeleteContactLoading: MutaionLoading
   blockContactLoading: MutaionLoading
   unblockContactLoading: MutaionLoading
-  signalingLoading: SubscriptionLoading
-  signalingType: SignalType
 }
 
 const Template: Story<MainStoryProps> = ({
@@ -95,11 +69,6 @@ const Template: Story<MainStoryProps> = ({
   contactInfoBlocked,
   sendMessageLoading,
   sendImageLoading,
-  ringUpLoading,
-  pickUpLoading,
-  hangUpLoading,
-  cancelLoading,
-  sendIceCandidateLoading,
   deleteMessageLoading,
   readMessagesLoading,
   applyContactLoading,
@@ -108,8 +77,6 @@ const Template: Story<MainStoryProps> = ({
   undeleteContactLoading,
   blockContactLoading,
   unblockContactLoading,
-  signalingLoading,
-  signalingType,
   ...props
 }) => {
   // state
@@ -142,36 +109,6 @@ const Template: Story<MainStoryProps> = ({
     undefined,
     sendImageLoading
   )
-
-  const ringUp = dummyMutation<RingUpMutation['ringUp'], RingUpMutation, RingUpMutationVariables>(
-    'RingUp',
-    undefined,
-    ringUpLoading
-  )
-
-  const pickUp = dummyMutation<PickUpMutation['pickUp'], PickUpMutation, PickUpMutationVariables>(
-    'PickUp',
-    undefined,
-    pickUpLoading
-  )
-
-  const hangUp = dummyMutation<HangUpMutation['hangUp'], HangUpMutation, HangUpMutationVariables>(
-    'HangUp',
-    undefined,
-    hangUpLoading
-  )
-
-  const cancel = dummyMutation<CancelMutation['cancel'], CancelMutation, CancelMutationVariables>(
-    'Cancel',
-    undefined,
-    cancelLoading
-  )
-
-  const sendIceCandidate = dummyMutation<
-    SendIceCandidateMutation['sendIceCandidate'],
-    SendIceCandidateMutation,
-    SendIceCandidateMutationVariables
-  >('SendIceCandidate', undefined, sendIceCandidateLoading)
 
   const deleteMessage = dummyMutation<
     DeleteMessageMutation['deleteMessage'],
@@ -224,11 +161,6 @@ const Template: Story<MainStoryProps> = ({
   const mutation = {
     sendMessage,
     sendImage,
-    ringUp,
-    pickUp,
-    hangUp,
-    cancel,
-    sendIceCandidate,
     deleteMessage,
     readMessages,
     applyContact,
@@ -239,11 +171,7 @@ const Template: Story<MainStoryProps> = ({
     unblockContact
   }
 
-  // subscription
-  const signaling = dummySignaling(userId, otherUserId, signalingLoading, signalingType)
-  const subscription = { signaling, iceCandidate }
-
-  return <Main {...{ ...props, state, query, mutation, subscription }} />
+  return <Main {...{ ...props, state, query, mutation }} />
 }
 
 const contactStatusLabels: Record<number, string> = {}
@@ -264,13 +192,6 @@ Primary.argTypes = {
   contactInfoStatus: {
     options: Object.values(CONTACT.STATUS),
     control: { type: 'select', labels: contactStatusLabels }
-  },
-  signalingType: {
-    options: Object.values(SignalType),
-    control: {
-      type: 'select',
-      labels: Object.fromEntries(Object.entries(SignalType).filter(([key]) => isFinite(Number(key))))
-    }
   }
 }
 Primary.args = {
@@ -280,11 +201,6 @@ Primary.args = {
   contactInfoBlocked: false,
   sendMessageLoading: false,
   sendImageLoading: false,
-  ringUpLoading: false,
-  pickUpLoading: false,
-  hangUpLoading: false,
-  cancelLoading: false,
-  sendIceCandidateLoading: false,
   deleteMessageLoading: false,
   readMessagesLoading: false,
   applyContactLoading: false,
@@ -292,7 +208,5 @@ Primary.args = {
   deleteContactLoading: false,
   undeleteContactLoading: false,
   blockContactLoading: false,
-  unblockContactLoading: false,
-  signalingLoading: false,
-  signalingType: SignalType.Close
+  unblockContactLoading: false
 }

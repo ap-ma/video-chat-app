@@ -2,15 +2,11 @@ import { ButtonProps } from '@chakra-ui/react'
 import ConfirmDialog, { ConfirmDialogProps } from 'components/03_molecules/ConfirmDialog'
 import { connect } from 'components/hoc'
 import React from 'react'
-import { CallType, ContainerProps, OnOpen, SetState } from 'types'
+import { CallType, ContainerProps, SetState } from 'types'
 import * as styles from './styles'
 
 /** RingUpConfirmDialog Props */
 export type RingUpConfirmDialogProps = Omit<ConfirmDialogProps, 'children' | 'header' | 'body' | 'ok' | 'cancel'> & {
-  /**
-   * 通話画面 onOpen
-   */
-  onCallingOpen: OnOpen
   /**
    * Local State
    */
@@ -25,7 +21,7 @@ export type RingUpConfirmDialogProps = Omit<ConfirmDialogProps, 'children' | 'he
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<RingUpConfirmDialogProps, 'onCallingOpen' | 'state'> & {
+export type PresenterProps = Omit<RingUpConfirmDialogProps, 'state'> & {
   onOkButtonClick: ButtonProps['onClick']
 }
 
@@ -43,15 +39,10 @@ const RingUpConfirmDialogPresenter: React.VFC<PresenterProps> = ({ onClose, onOk
 /** Container Component */
 const RingUpConfirmDialogContainer: React.VFC<ContainerProps<RingUpConfirmDialogProps, PresenterProps>> = ({
   presenter,
-  onCallingOpen,
   state: { callType },
   ...props
 }) => {
-  const onOkButtonClick = () => {
-    callType.setCallType(CallType.Offer)
-    onCallingOpen()
-  }
-
+  const onOkButtonClick = () => callType.setCallType(CallType.Offer)
   return presenter({ onOkButtonClick, ...props })
 }
 
