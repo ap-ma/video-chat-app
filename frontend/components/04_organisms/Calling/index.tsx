@@ -1,16 +1,4 @@
-import {
-  AspectRatio,
-  HStack,
-  IconButton,
-  IconButtonProps,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalOverlay,
-  ModalProps,
-  Stack,
-  useBoolean
-} from '@chakra-ui/react'
+import { AspectRatio, Box, BoxProps, HStack, IconButton, IconButtonProps, Stack, useBoolean } from '@chakra-ui/react'
 import { connect } from 'components/hoc'
 import {
   Call,
@@ -26,6 +14,7 @@ import {
   RingUpMutationVariables,
   SendIceCandidateMutation,
   SendIceCandidateMutationVariables,
+  SignalFieldsFragmentDoc,
   SignalingSubscription
 } from 'graphql/generated'
 import React, { Ref, useMemo, useRef } from 'react'
@@ -42,7 +31,7 @@ import { WebRTC } from 'utils/webrtc'
 import * as styles from './styles'
 
 /** Calling Props */
-export type CallingProps = Omit<ModalProps, 'children'> & {
+export type CallingProps = BoxProps & {
   /**
    * 応答 Call ID
    */
@@ -155,43 +144,38 @@ const CallingPresenter: React.VFC<PresenterProps> = ({
   onHangUpButtonClick,
   ...props
 }) => (
-  <Modal size='full' {...props}>
-    <ModalOverlay bg='white' />
-    <ModalContent {...styles.content}>
-      <ModalBody {...styles.body}>
-        <Stack {...styles.container}>
-          <Stack {...styles.screen}>
-            <AspectRatio {...styles.video}>
-              <video poster='/black.png' ref={remoteVideoRef}></video>
-            </AspectRatio>
-            <AspectRatio {...styles.video}>
-              <video poster='/black.png' ref={localVideoRef}></video>
-            </AspectRatio>
-          </Stack>
-          <HStack {...styles.actions}>
-            <IconButton
-              {...styles.mediaButton}
-              aria-label='mic'
-              icon={micState ? <BsFillMicFill /> : <BsFillMicMuteFill />}
-              onClick={onMicButtonClick}
-            />
-            <IconButton
-              {...styles.mediaButton}
-              aria-label='camera'
-              icon={cameraState ? <BsFillCameraVideoFill /> : <BsFillCameraVideoOffFill />}
-              onClick={onCameraButtonClick}
-            />
-            <IconButton
-              {...styles.hangUpButton}
-              aria-label='hang up'
-              icon={<BsSquareFill />}
-              onClick={onHangUpButtonClick}
-            />
-          </HStack>
-        </Stack>
-      </ModalBody>
-    </ModalContent>
-  </Modal>
+  <Box {...styles.root} {...props}>
+    <Stack {...styles.container}>
+      <Stack {...styles.screen}>
+        <AspectRatio {...styles.video}>
+          <video poster='/black.png' ref={remoteVideoRef}></video>
+        </AspectRatio>
+        <AspectRatio {...styles.video}>
+          <video poster='/black.png' ref={localVideoRef} muted></video>
+        </AspectRatio>
+      </Stack>
+      <HStack {...styles.actions}>
+        <IconButton
+          {...styles.mediaButton}
+          aria-label='mic'
+          icon={micState ? <BsFillMicFill /> : <BsFillMicMuteFill />}
+          onClick={onMicButtonClick}
+        />
+        <IconButton
+          {...styles.mediaButton}
+          aria-label='camera'
+          icon={cameraState ? <BsFillCameraVideoFill /> : <BsFillCameraVideoOffFill />}
+          onClick={onCameraButtonClick}
+        />
+        <IconButton
+          {...styles.hangUpButton}
+          aria-label='hang up'
+          icon={<BsSquareFill />}
+          onClick={onHangUpButtonClick}
+        />
+      </HStack>
+    </Stack>
+  </Box>
 )
 
 /** Container Component */
@@ -268,12 +252,11 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
 
     // 通話応答時
     if (CallType.Answer === callType.state) {
-      // const offerSignal = apolloClient.readQuery<ContactInfoQuery, ContactInfoQueryVariables>({
-      //   query: ContactInfoDocument,
-      //   variables: { contactUserId: otherUserId }
-      // })
-
-      if (!isNullish(signaling.result)) connection.answer(signaling.result)
+      const answerdCallSignal = apolloClient.readFragment<SignalingSubscription['signalingSubscription']>({
+        id: `Signal:{"callId":"${rcCallId}"}`,
+        fragment: SignalFieldsFragmentDoc
+      })
+      if (!isNullish(answerdCallSignal)) connection.answer(answerdCallSignal)
     }
   }, [callType.state]) // eslint-disable-line react-hooks/exhaustive-deps
 

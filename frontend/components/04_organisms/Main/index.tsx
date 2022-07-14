@@ -222,7 +222,7 @@ const MainPresenter: React.VFC<PresenterProps> = ({
       query={{ me, contactInfo }}
       mutation={{ deleteMessage, applyContact, approveContact, unblockContact }}
     />
-    <SendMessageForm onRucdOpen={rucdDisc.onOpen} query={{ contactInfo }} mutation={{ sendMessage, sendImage }} />
+    <SendMessageForm onRucdOpen={rucdDisc.onOpen} query={{ me, contactInfo }} mutation={{ sendMessage, sendImage }} />
     {/* modal */}
     <RingUpConfirmDialog state={{ callType }} isOpen={rucdDisc.isOpen} onClose={rucdDisc.onClose} />
     <DeleteContactConfirmDialog

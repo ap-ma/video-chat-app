@@ -13,10 +13,11 @@ import {
   RingUpMutationVariables,
   SendIceCandidateMutation,
   SendIceCandidateMutationVariables,
+  SignalingSubscription,
   SignalType
 } from 'graphql/generated'
 import React, { useState } from 'react'
-import { CallType, MutaionLoading, SubscriptionLoading } from 'types'
+import { ApolloClient, CallType, MutaionLoading, SubscriptionLoading } from 'types'
 import Calling, { CallingProps } from './index'
 
 export default {
@@ -95,7 +96,12 @@ const Template: Story<CallingStoryProps> = ({
   const signaling = dummySignaling(userId, otherUserId, signalingLoading, signalingType)
   const subscription = { signaling, iceCandidate }
 
-  return <Calling {...{ ...props, state, query, mutation, subscription }} />
+  // apolloClient
+  const apolloClient = {
+    readFragment: (): SignalingSubscription['signalingSubscription'] => ({ ...signaling.result })
+  } as unknown as ApolloClient
+
+  return <Calling {...{ ...props, apolloClient, state, query, mutation, subscription }} />
 }
 
 export const Primary = Template.bind({})
@@ -110,7 +116,6 @@ Primary.argTypes = {
   }
 }
 Primary.args = {
-  isOpen: true,
   ringUpLoading: false,
   pickUpLoading: false,
   hangUpLoading: false,

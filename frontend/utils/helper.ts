@@ -3,7 +3,7 @@ import { ContactInfoQuery, LatestMessagesQuery } from 'graphql/generated'
 import { VALIDATION_ERRORS } from 'messages/error'
 import { CATEGORY_MESSAGE } from 'messages/message'
 import { Unbox } from 'types'
-import { formatMinTime, isExtIncluded, toStr } from 'utils/general/helper'
+import { formatSecTime, isExtIncluded, toStr } from 'utils/general/helper'
 import { hasProperty, includes, isNullish } from 'utils/general/object'
 
 /**
@@ -59,7 +59,7 @@ export const getMessage = (
         dispMessage.push(CALLING_MESSAGE[message.call.status])
         if (CALL.STATUS.ENDED === message.call.status) {
           if (!isNullish(message.call.callTime)) {
-            dispMessage.push(formatMinTime(message.call.callTime))
+            dispMessage.push(formatSecTime(message.call.callTime))
           }
         }
         return dispMessage.join('\n').replace('{tx_user}', txUser)

@@ -12,7 +12,7 @@ export const CATEGORY_MESSAGE = {
     // 呼出
     [CALL.STATUS.OFFER]: 'Calling: Ringing up',
     // 通話中
-    [CALL.STATUS.DURING]: 'Calling: During',
+    [CALL.STATUS.BUSY]: 'Calling: Busy',
     // 通話終了
     [CALL.STATUS.ENDED]: 'Calling: Ended',
     // キャンセル

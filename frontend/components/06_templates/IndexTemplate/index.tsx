@@ -1,4 +1,4 @@
-import { Box, Drawer, DrawerContent, useDisclosure } from '@chakra-ui/react'
+import { Box, Drawer, DrawerContent, useBoolean, useDisclosure } from '@chakra-ui/react'
 import toast from 'components/01_atoms/Toast'
 import Calling from 'components/04_organisms/Calling'
 import Header from 'components/04_organisms/Header'
@@ -369,8 +369,8 @@ export type IndexTemplateProps = {
 export type PresenterProps = IndexTemplateProps & {
   rcCallId?: Call['id']
   sbDisc: Disclosure
-  callingDisc: Disclosure
   rcDisc: Disclosure
+  dispCalling: boolean
 }
 
 /** Presenter Component */
@@ -402,8 +402,8 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
   subscription: { signaling, iceCandidate },
   rcCallId,
   sbDisc,
-  callingDisc,
-  rcDisc
+  rcDisc,
+  dispCalling
 }) => (
   <HtmlSkeleton>
     <Title>Home</Title>
@@ -444,24 +444,23 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
           unblockContact
         }}
       />
-      <Calling
-        rcCallId={rcCallId}
-        apolloClient={apolloClient}
-        state={{ callType }}
-        query={{ contactInfo }}
-        mutation={{ ringUp, pickUp, hangUp, cancel, sendIceCandidate }}
-        subscription={{ signaling, iceCandidate }}
-        isOpen={callingDisc.isOpen}
-        onClose={callingDisc.onClose}
-      />
-      <ReceiveCall
-        state={{ callType }}
-        mutation={{ cancel }}
-        subscription={{ signaling }}
-        isOpen={rcDisc.isOpen}
-        onClose={rcDisc.onClose}
-      />
     </Box>
+    <Calling
+      rcCallId={rcCallId}
+      apolloClient={apolloClient}
+      state={{ callType }}
+      query={{ contactInfo }}
+      mutation={{ ringUp, pickUp, hangUp, cancel, sendIceCandidate }}
+      subscription={{ signaling, iceCandidate }}
+      {...styles.calling({ dispCalling })}
+    />
+    <ReceiveCall
+      state={{ callType }}
+      mutation={{ cancel }}
+      subscription={{ signaling }}
+      isOpen={rcDisc.isOpen}
+      onClose={rcDisc.onClose}
+    />
   </HtmlSkeleton>
 )
 
@@ -479,19 +478,10 @@ const IndexTemplateContainer: React.VFC<ContainerProps<IndexTemplateProps, Prese
   // Sidebar
   const sbDisc = useDisclosure()
 
-  // Calling
-  const callingDisc = useDisclosure()
-  const callTypeState = callType.state
-  const onCallingClose = callingDisc.onClose
-  const onCallingOpen = callingDisc.onOpen
-  useMemo(() => {
-    if (CallType.Close === callTypeState) setTimeout(onCallingClose, 200)
-    if (includes(callTypeState, CallType.Offer, CallType.Answer)) onCallingOpen()
-  }, [callTypeState, onCallingClose, onCallingOpen])
-
   // ReceiveCall
   const rcDisc = useDisclosure()
   const onRcClose = rcDisc.onClose
+  const callTypeState = callType.state
   const signalingResult = signaling.result
   useMemo(() => {
     if (CallType.Answer === callTypeState) onRcClose()
@@ -514,14 +504,21 @@ const IndexTemplateContainer: React.VFC<ContainerProps<IndexTemplateProps, Prese
     cancel.mutate({ variables: { callId } }).catch(toast('UnexpectedError'))
   }, [signalingResult]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Calling
+  const [dispCalling, setDispCalling] = useBoolean(false)
+  useMemo(() => {
+    if (CallType.Close === callTypeState) setTimeout(setDispCalling.off, 200)
+    if (includes(callTypeState, CallType.Offer, CallType.Answer)) setDispCalling.on()
+  }, [callTypeState]) // eslint-disable-line react-hooks/exhaustive-deps
+
   return presenter({
     state: { callType, ...stateRest },
     mutation: { cancel, ...mutationRest },
     subscription: { signaling, ...subscriptionRest },
     rcCallId,
     sbDisc,
-    callingDisc,
     rcDisc,
+    dispCalling,
     ...props
   })
 }

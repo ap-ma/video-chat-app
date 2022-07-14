@@ -69,6 +69,7 @@ export type PresenterProps = Omit<ContactInfoHeadProps, 'query'> & {
 } & {
   loading: QueryLoading
   disabled: boolean
+  notCallable: boolean
   approved: boolean
   deleted: boolean
   notBlocked: boolean
@@ -80,6 +81,7 @@ const ContactInfoHeadPresenter: React.VFC<PresenterProps> = ({
   query: { contactInfo },
   loading,
   disabled,
+  notCallable,
   approved,
   deleted,
   notBlocked,
@@ -98,7 +100,12 @@ const ContactInfoHeadPresenter: React.VFC<PresenterProps> = ({
       <Text {...styles.comment}>{contactInfo.result?.userComment}</Text>
     </Box>
     <Spinner {...styles.spinner({ loading })} />
-    <IconButton icon={<AiOutlinePhone />} {...styles.phoneIcon} aria-label='ring up' onClick={onRucdOpen} />
+    <IconButton
+      icon={<AiOutlinePhone />}
+      {...styles.phoneIcon({ notCallable })}
+      aria-label='ring up'
+      onClick={onRucdOpen}
+    />
     <Menu>
       <MenuButton as={IconButton} icon={<AiOutlineMenu />} {...styles.menuIcon({ disabled })} />
       <MenuList>
@@ -133,11 +140,13 @@ const ContactInfoHeadContainer: React.VFC<ContainerProps<ContactInfoHeadProps, P
   const deleted = CONTACT.STATUS.DELETED === contactInfo.result?.status
   const notBlocked = CONTACT.STATUS.UNAPPROVED !== contactInfo.result?.status && !contactInfo.result?.blocked
   const blocked = CONTACT.STATUS.UNAPPROVED !== contactInfo.result?.status && !!contactInfo.result?.blocked
+  const notCallable = me.result?.id === contactInfo.result?.userId || blocked
 
   return presenter({
     query: { contactInfo },
     loading,
     disabled,
+    notCallable,
     approved,
     deleted,
     notBlocked,

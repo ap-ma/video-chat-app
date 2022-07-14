@@ -49,16 +49,18 @@ export const comment = {
   lineHeight: 'normal'
 } as const
 
-export const phoneIcon = {
-  size: 'sm',
-  fontSize: 'xl',
-  color: 'gray.700',
-  bg: 'transparent',
-  ml: 'auto',
-  d: { base: 'inline-flex', md: 'none' },
-  _hover: { bg: 'transparent' },
-  _focus: { border: 0 }
-} as const
+export const phoneIcon = ({ notCallable }: Pick<PresenterProps, 'notCallable'>): Record<string, unknown> =>
+  ({
+    size: 'sm',
+    fontSize: 'xl',
+    color: 'gray.700',
+    bg: 'transparent',
+    ml: 'auto',
+    d: { base: 'inline-flex', md: 'none' },
+    disabled: notCallable,
+    _hover: { bg: 'transparent' },
+    _focus: { border: 0 }
+  } as const)
 
 export const menuIcon = ({ disabled }: Pick<PresenterProps, 'disabled'>): Record<string, unknown> =>
   ({

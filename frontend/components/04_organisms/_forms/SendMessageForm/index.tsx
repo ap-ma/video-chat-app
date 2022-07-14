@@ -18,6 +18,7 @@ import { useSetError } from 'components/hooks'
 import { CONTACT } from 'const'
 import {
   ContactInfoQuery,
+  MeQuery,
   SendImageMutation,
   SendImageMutationVariables,
   SendMessageMutation,
@@ -54,6 +55,12 @@ export type SendMessageFormProps = BoxProps & {
    */
   query: {
     /**
+     * ユーザー情報
+     */
+    me: {
+      result?: MeQuery['me']
+    }
+    /**
      *  コンタクト情報
      */
     contactInfo: {
@@ -88,11 +95,13 @@ export type SendMessageFormProps = BoxProps & {
 }
 
 /** Presenter Props */
-export type PresenterProps = Omit<SendMessageFormProps, 'mutation'> & {
+export type PresenterProps = Omit<SendMessageFormProps, 'query' | 'mutation'> & {
+  query: Omit<SendMessageFormProps['query'], 'me'>
   mutation: Omit<SendMessageFormProps['mutation'], 'sendMessage'>
 } & {
   rows: TextareaProps['rows']
   loading: MutaionLoading
+  notCallable: boolean
   disabled: boolean
   errors: string[]
   fieldErrors: FieldErrors<FormSchema>
@@ -107,6 +116,7 @@ const SendMessageFormPresenter: React.VFC<PresenterProps> = ({
   rows,
   onRucdOpen,
   loading,
+  notCallable,
   disabled,
   errors,
   fieldErrors,
@@ -126,7 +136,7 @@ const SendMessageFormPresenter: React.VFC<PresenterProps> = ({
           icon={<AiOutlinePhone />}
           {...styles.phoneIcon}
           aria-label='ring up'
-          disabled={disabled}
+          disabled={notCallable}
           onClick={onRucdOpen}
         />
         <IconButton
@@ -145,7 +155,7 @@ const SendMessageFormPresenter: React.VFC<PresenterProps> = ({
 /** Container Component */
 const SendMessageFormContainer: React.VFC<ContainerProps<SendMessageFormProps, PresenterProps>> = ({
   presenter,
-  query: { contactInfo },
+  query: { me, contactInfo },
   mutation: { sendMessage, sendImage },
   ...props
 }) => {
@@ -167,6 +177,7 @@ const SendMessageFormContainer: React.VFC<ContainerProps<SendMessageFormProps, P
     loading ||
     contactInfoLoading ||
     sendImage.loading
+  const notCallable = me.result?.id === contactInfo.result?.userId || disabled
   const fieldErrors = formState.errors
   const fields = Object.keys(schema.shape)
   const sendMessageErrors = useSetError<FormSchema>(fields, setError, sendMessage.errors)
@@ -196,6 +207,7 @@ const SendMessageFormContainer: React.VFC<ContainerProps<SendMessageFormProps, P
     mutation: { sendImage },
     rows,
     loading,
+    notCallable,
     disabled,
     errors,
     fieldErrors,

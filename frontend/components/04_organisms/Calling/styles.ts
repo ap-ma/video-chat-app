@@ -1,18 +1,18 @@
-export const content = {
+export const root = {
+  pos: 'absolute',
+  zIndex: 1,
+  top: 0,
+  w: 'full',
   h: 'full',
-  bg: 'blackAlpha.800',
-  borderRadius: 0
-} as const
-
-export const body = {
-  h: 'full',
-  p: { base: 10, lg: 20 }
+  bg: 'white'
 } as const
 
 export const container = {
   h: 'full',
+  p: { base: 10, lg: 20 },
   justifyContent: 'center',
-  spacing: { base: 10, sm: 12, md: 16 }
+  spacing: { base: 10, sm: 12, md: 16 },
+  bg: 'blackAlpha.800'
 } as const
 
 export const screen = {

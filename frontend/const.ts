@@ -26,6 +26,9 @@ export const API_URL = (
 /** システム API WebSocket URL */
 export const API_WS_URL = process.env.NEXT_PUBLIC_API_WS_URL as string
 
+/** システム ICE Server url */
+export const ICE_SERVER_URL = process.env.NEXT_PUBLIC_ICE_SERVER_URL as string
+
 //  ----------------------------------------------------------------------------
 //  Validation const value
 //  ----------------------------------------------------------------------------

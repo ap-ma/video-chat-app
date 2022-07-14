@@ -53,7 +53,7 @@ impl Call {
             let started_at = self.started_at.unwrap();
             let ended_at = self.ended_at.unwrap();
             let call_time = ended_at - started_at;
-            return Some(call_time.num_minutes());
+            return Some(call_time.num_seconds());
         }
 
         None

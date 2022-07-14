@@ -1,5 +1,6 @@
 /* eslint-disable promise/catch-or-return, promise/always-return */
 import toast from 'components/01_atoms/Toast'
+import { ICE_SERVER_URL } from 'const'
 import {
   CancelMutation,
   CancelMutationVariables,
@@ -24,7 +25,7 @@ export class WebRTC {
   protected connection?: RTCPeerConnection
 
   /** Local MediaStream */
-  protected localMediaStream: Promise<MediaStream>
+  protected localMediaStream?: Promise<MediaStream>
 
   /** call id */
   protected callId?: string
@@ -96,6 +97,7 @@ export class WebRTC {
    * @returns Promise<void>
    */
   public async answer(signal: SignalingSubscription['signalingSubscription']): Promise<void> {
+    if (SignalType.Close === signal.signalType) this.purge()
     if (SignalType.Offer !== signal.signalType) return
     const conn = this.createConnection()
     const sessionDesc = JSON.parse(toStr(signal.sdp)) as RTCSessionDescription
@@ -175,7 +177,7 @@ export class WebRTC {
    * @param enabled - on/off state
    */
   public set setMicState(enabled: boolean) {
-    this.localMediaStream.then((stream) => {
+    this.localMediaStream?.then((stream) => {
       stream.getAudioTracks().forEach((track) => (track.enabled = enabled))
     })
   }
@@ -186,7 +188,7 @@ export class WebRTC {
    * @param enabled -on/off state
    */
   public set setCameraState(enabled: boolean) {
-    this.localMediaStream.then((stream) => {
+    this.localMediaStream?.then((stream) => {
       stream.getVideoTracks().forEach((track) => (track.enabled = enabled))
     })
   }
@@ -200,7 +202,7 @@ export class WebRTC {
   private createConnection(contactId?: string): RTCPeerConnection {
     // RTCPeerConnection
     const conn = new RTCPeerConnection({
-      iceServers: [{ urls: 'stun:stun.webrtc.ecl.ntt.com:3478' }]
+      iceServers: [{ urls: ICE_SERVER_URL }]
     })
 
     // ICE Candidate 収集時イベント
@@ -225,12 +227,16 @@ export class WebRTC {
 
     // ICE state 変更時
     conn.oniceconnectionstatechange = () => {
-      if (!includes(conn.iceConnectionState, 'failed', 'disconnected')) return
+      if ('failed' === conn.iceConnectionState) this.hangUp()
       if ('disconnected' === conn.iceConnectionState) {
-        if (isNullish(conn.connectionState)) return
-        if (!includes(conn.connectionState, 'failed', 'close')) return
+        const timer = setInterval(() => {
+          if ('disconnected' !== conn.iceConnectionState) clearInterval(timer)
+          if (isNullish(conn.connectionState)) return
+          if (!includes(conn.connectionState, 'failed', 'close')) return
+          clearInterval(timer)
+          this.hangUp()
+        }, 500)
       }
-      this.hangUp()
     }
 
     // リモート MediStreamTrack 受信時
@@ -239,7 +245,7 @@ export class WebRTC {
     }
 
     // ローカル MediaStream
-    this.localMediaStream.then((stream) =>
+    this.localMediaStream?.then((stream) =>
       stream.getTracks().forEach((track) => {
         if (!isNullish(this.localMediaStream)) conn.addTrack(track, stream)
       })
@@ -249,17 +255,19 @@ export class WebRTC {
   }
 
   /**
-   * 各参照/エレメント クリア処理
+   * 終了処理
    *
    * @returns void
    */
   protected purge(): void {
-    if (isNullish(this.connection)) return
-    this.connection.close()
-    this.connection = undefined
+    this.setCallTypeFunc(CallType.Close)
+    if (!isNullish(this.localMediaStream)) this.localMediaStream = undefined
     if (!isNullish(this.remoteVideo)) WebRTC.clearVideo(this.remoteVideo)
     if (!isNullish(this.localVideo)) WebRTC.clearVideo(this.localVideo)
-    this.setCallTypeFunc(CallType.Close)
+    if (!isNullish(this.connection)) {
+      this.connection.close()
+      this.connection = undefined
+    }
   }
 
   /**

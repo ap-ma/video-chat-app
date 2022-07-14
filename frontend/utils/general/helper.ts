@@ -37,15 +37,15 @@ export const zf = (target: string | number, digit = 0): string => {
 export const padStr = (target: string, padStr: string, digit: number): string => target.padStart(digit, padStr)
 
 /**
- * 分を表す数値を「hh:mm」形式の文字列に変換して返す
+ * 秒を表す数値を「mm:ss」形式の文字列に変換して返す
  *
  * @param time
  * @returns
  */
-export const formatMinTime = (time: number): string => {
-  const hour = Math.floor(time / 60)
-  const min = time % 60
-  return `${zf(hour, 2)}:${zf(min, 2)}`
+export const formatSecTime = (time: number): string => {
+  const min = Math.floor(time / 60)
+  const sec = time % 60
+  return `${zf(min, 2)}:${zf(sec, 2)}`
 }
 
 /**
