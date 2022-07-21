@@ -1,5 +1,6 @@
 /target
 /cache
+/*.json
 .trigger
 .env
 .env.prod

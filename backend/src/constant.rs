@@ -109,6 +109,24 @@ pub mod system {
             .expect("CORS_MAX_AGE is invalid")
     });
 
+    pub mod gcp {
+        use super::Lazy;
+
+        pub static BUCKET_NAME: Lazy<String> =
+            Lazy::new(|| std::env::var("BUCKET_NAME").expect("Unable to get BUCKET_NAME"));
+
+        pub static OBJECT_URL_MAX_AGE: Lazy<u32> = Lazy::new(|| {
+            std::env::var("OBJECT_URL_MAX_AGE")
+                .expect("Unable to get OBJECT_URL_MAX_AGE")
+                .parse::<u32>()
+                .expect("OBJECT_URL_MAX_AGE is invalid")
+        });
+
+        pub const AVATAR_FILE_PREFIX: &str = "profile";
+
+        pub const MESSAGE_FILE_PREFIX: &str = "message";
+    }
+
     pub mod mail {
         use super::Lazy;
 

@@ -1,6 +1,9 @@
 use super::Call;
+use crate::constant::message as message_const;
 use crate::constant::system::DEFAULT_DATETIME_FORMAT;
 use crate::database::entity::{CallEntity, MessageEntity};
+use crate::graphql::common;
+use crate::graphql::GraphqlError;
 use async_graphql::*;
 use chrono::NaiveDateTime;
 
@@ -49,8 +52,21 @@ impl Message {
         self.category
     }
 
-    async fn message(&self) -> Option<&str> {
-        self.message.as_deref()
+    async fn message(&self) -> Result<Option<String>> {
+        if message_const::category::IMAGE_TRANSMISSION == self.category {
+            if let Some(filename) = self.message.clone() {
+                let filename =
+                    common::get_image_file_path(&filename, self.tx_user_id, self.rx_user_id);
+                let signed_url = common::file_download_url(&filename).await.map_err(|e| {
+                    let m = "Failed to generate signed URL.";
+                    GraphqlError::ServerError(m.into(), e.message).extend()
+                })?;
+
+                return Ok(Some(signed_url));
+            };
+        };
+
+        Ok(self.message.clone())
     }
 
     async fn status(&self) -> i32 {

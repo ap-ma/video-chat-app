@@ -15,6 +15,7 @@ async-graphql = { version = "3.0.38", features = ["log"] }
 async-graphql-actix-web = "3.0.38"
 base64 = "0.13.0"
 chrono = "0.4.19"
+cloud-storage = { version = "0.11.0", features = ["global-client"] }
 diesel = { version = "1.4.8", features = ["mysql", "r2d2", "chrono"] }
 diesel_migrations = "1.4.0"
 dotenv = "0.15.0"

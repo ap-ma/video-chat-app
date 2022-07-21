@@ -5,13 +5,23 @@ WebRTCを用いたビデオチャットアプリです。
 APIランタイムにGraphQLを用いています。
 
 ### 動作確認
-`backend`ディレクトリ内の`.env.dev`ファイルに、  
-メール送信時に使用するSMTPサーバーの以下情報を設定します。
+本アプリは画像ファイルのストレージとしてGoogle Cloud Storage(GCS)を使用しています。  
+GCSにてバケットを作成し、`backend`ディレクトリ内`.env.dev`ファイルの「**BUCKET_NAME**」にバケット名を指定します。  
+さらに、サービスアカウントを作成し「*Service Account Token Creator*」と「*Storage Object Admin*」のロールを付与します。  
+作成したサービスアカウントの鍵ファイルをJSON形式で生成し、`backend`ディレクトリに配置します。  
+保存したJSONファイル名を`.env.dev`ファイルの「**SERVICE_ACCOUNT**」に指定します。  
+  * BUCKET_NAME … 画像ストレージとして使用するGCSバケット名
+  * SERVICE_ACCOUNT … サービスアカウントの鍵ファイル
+___
+
+また、同`.env.dev`ファイルに、メール送信時に使用するSMTPサーバーの以下情報を設定します。
   * MAIL_HOST … SMTPホスト名
   * MAIL_USERNAME … SMTPユーザー名
   * MAIL_PASSWORD … SMTPパスワード
+___
 
-以下ファイルを実行して、開発環境を起動します。
+以上でアプリの設定が完了となります。  
+プロジェクトのルートディレクトリ内の以下ファイルを実行して、開発環境を起動します。
 ```
 setup.sh or .bat
 ```
@@ -34,6 +44,7 @@ setup.sh or .bat
   * Async Graphql: https://async-graphql.github.io/async-graphql/en/index.html
   * Redis: https://redis.io/
   * MySQL: https://www.mysql.com/
+  * WebRTC API: https://developer.mozilla.org/ja/docs/Web/API/WebRTC_API
   * React: https://reactjs.org/
   * Next.js: https://nextjs.org/
   * Apollo Client (React): https://www.apollographql.com/docs/react/

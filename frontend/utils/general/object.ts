@@ -112,10 +112,8 @@ export const includes = (valueToFind: unknown, ...targetArray: readonly unknown[
  * @param key - 検索するプロパティ名
  * @returns プロパティを持つか否かを示す真偽値
  */
-export const hasProperty = <K extends string | number>(
-  target: Record<K, unknown>,
-  key: string | number
-): key is keyof typeof target => key in target
+export const hasProperty = <K extends string | number>(target: Record<K, unknown>, key: string | number): key is K =>
+  key in target
 
 /**
  * 要素を持つ配列の最初の要素を返す

@@ -236,9 +236,7 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
       cancel.mutate,
       sendIceCandidate.mutate,
       remoteVideoRef.current,
-      localVideoRef.current,
-      micState,
-      cameraState
+      localVideoRef.current
     )
 
     session.current = connection

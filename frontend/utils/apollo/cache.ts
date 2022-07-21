@@ -16,6 +16,7 @@ import {
   MessageFieldsFragmentDoc,
   MutationType
 } from 'graphql/generated'
+import groupBy from 'lodash/groupBy'
 import { Optional, ReadFieldParam } from 'types'
 import { isNullish } from 'utils/general/object'
 import { isApproveContact } from './utils'
@@ -136,6 +137,15 @@ export function updateMessageCache(cache: ApolloCache<unknown>, messageChanged: 
         })
 
         return newChat
+      },
+      chatCount(existingChatCount, { readField }) {
+        const chat = readField('chat', existingChatCount) as ContactInfoQuery['contactInfo']['chat']
+        return !isNullish(chat) ? chat.length : 0
+      },
+      chatDateCount(existingChatDateCount, { readField }) {
+        const chat = readField('chat', existingChatDateCount) as ContactInfoQuery['contactInfo']['chat']
+        const grouped = groupBy(chat, (message) => message.createdAt.substring(0, 10))
+        return grouped.length
       }
     }
   })

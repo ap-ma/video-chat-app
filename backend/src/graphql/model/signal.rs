@@ -1,4 +1,6 @@
+use crate::graphql::common;
 use crate::graphql::common::SignalType;
+use crate::graphql::GraphqlError;
 use async_graphql::*;
 
 #[derive(Clone)]
@@ -26,8 +28,17 @@ impl Signal {
         self.tx_user_name.as_deref()
     }
 
-    async fn tx_user_avatar(&self) -> Option<&str> {
-        self.tx_user_avatar.as_deref()
+    async fn tx_user_avatar(&self) -> Result<Option<String>> {
+        if let Some(filename) = self.tx_user_avatar.clone() {
+            let filename = common::get_avatar_file_path(&filename, self.tx_user_id);
+            let signed_url = common::file_download_url(&filename).await.map_err(|e| {
+                let m = "Failed to generate signed URL.";
+                GraphqlError::ServerError(m.into(), e.message).extend()
+            })?;
+            return Ok(Some(signed_url));
+        };
+
+        Ok(None)
     }
 
     async fn rx_user_id(&self) -> ID {

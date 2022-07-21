@@ -1,5 +1,7 @@
 use crate::database::entity::UserEntity;
+use crate::graphql::common;
 use crate::graphql::security::guard::ResourceGuard;
+use crate::graphql::GraphqlError;
 use async_graphql::*;
 
 #[derive(Clone, Debug)]
@@ -48,7 +50,16 @@ impl User {
         self.comment.as_deref()
     }
 
-    async fn avatar(&self) -> Option<&str> {
-        self.avatar.as_deref()
+    async fn avatar(&self) -> Result<Option<String>> {
+        if let Some(filename) = self.avatar.clone() {
+            let filename = common::get_avatar_file_path(&filename, self.id);
+            let signed_url = common::file_download_url(&filename).await.map_err(|e| {
+                let m = "Failed to generate signed URL.";
+                GraphqlError::ServerError(m.into(), e.message).extend()
+            })?;
+            return Ok(Some(signed_url));
+        };
+
+        Ok(None)
     }
 }

@@ -202,12 +202,12 @@ const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, P
   })
 
   // mutate
-  const signUpMutation: SubmitHandler<FormSchema> = (input) => {
+  const editProfileMutation: SubmitHandler<FormSchema> = (input) => {
     editProfile.reset()
     const avatar = (input.avatar as FileList).item(0)
     const compressed = isNullish(avatar) ? Promise.resolve(undefined) : imageCompression(avatar)
     const mutate = (avatar?: unknown) =>
-      editProfile.mutate({ variables: { input: { ...input, avatar: avatar instanceof File ? avatar : undefined } } })
+      editProfile.mutate({ variables: { input: { ...input, avatar: avatar instanceof Blob ? avatar : undefined } } })
     compressed.then(mutate, mutate).catch(toast('ValidationError'))
   }
 
@@ -229,7 +229,7 @@ const EditProfileFormContainer: React.VFC<ContainerProps<EditProfileFormProps, P
   }, [reset, defaultValues])
 
   // onClick save button
-  const onSaveButtonClick = handleSubmit(signUpMutation)
+  const onSaveButtonClick = handleSubmit(editProfileMutation)
 
   // mutate onComplete
   const editProfileResult = editProfile.result

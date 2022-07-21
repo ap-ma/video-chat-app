@@ -169,7 +169,7 @@ const SignupFormContainer: React.VFC<ContainerProps<SignupFormProps, PresenterPr
     const avatar = (input.avatar as FileList).item(0)
     const compressed = isNullish(avatar) ? Promise.resolve(undefined) : imageCompression(avatar)
     const mutate = (avatar?: unknown) =>
-      signUp.mutate({ variables: { input: { ...input, avatar: avatar instanceof File ? avatar : undefined } } })
+      signUp.mutate({ variables: { input: { ...input, avatar: avatar instanceof Blob ? avatar : undefined } } })
     compressed.then(mutate, mutate).catch(toast('ValidationError'))
   }
 

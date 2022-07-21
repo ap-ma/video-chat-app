@@ -3,6 +3,7 @@ use crate::database::entity::{ContactEntity, UserEntity};
 use crate::database::service;
 use crate::graphql::common;
 use crate::graphql::security::auth;
+use crate::graphql::GraphqlError;
 use async_graphql::*;
 
 #[derive(Clone, Debug)]
@@ -54,8 +55,17 @@ impl Contact {
         self.user_comment.as_deref()
     }
 
-    async fn user_avatar(&self) -> Option<&str> {
-        self.user_avatar.as_deref()
+    async fn user_avatar(&self) -> Result<Option<String>> {
+        if let Some(filename) = self.user_avatar.clone() {
+            let filename = common::get_avatar_file_path(&filename, self.user_id);
+            let signed_url = common::file_download_url(&filename).await.map_err(|e| {
+                let m = "Failed to generate signed URL.";
+                GraphqlError::ServerError(m.into(), e.message).extend()
+            })?;
+            return Ok(Some(signed_url));
+        };
+
+        Ok(None)
     }
 
     async fn status(&self) -> i32 {
@@ -80,6 +90,31 @@ impl Contact {
             .map(|(message, call)| LatestMessage::from(&(contact_user, message, call)));
 
         Ok(latest_message)
+    }
+
+    async fn chat(
+        &self,
+        ctx: &Context<'_>,
+        cursor: Option<ID>,
+        limit: Option<i64>,
+    ) -> Result<Vec<Message>> {
+        if self.blocked {
+            return Ok(Vec::new());
+        }
+
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?;
+        let cursor = match cursor {
+            Some(cursor) => Some(common::convert_id(&cursor)?),
+            _ => None,
+        };
+
+        let messages = common::convert_query_result(
+            service::get_messages(identity.id, self.user_id, cursor, limit, &conn),
+            "Failed to get chat",
+        )?;
+
+        Ok(messages.iter().map(Message::from).collect())
     }
 
     async fn chat_count(&self, ctx: &Context<'_>) -> Result<i64> {
@@ -114,30 +149,5 @@ impl Contact {
         let date_count = date_count.first().map_or(0, |count| count.date_count);
 
         Ok(date_count)
-    }
-
-    async fn chat(
-        &self,
-        ctx: &Context<'_>,
-        cursor: Option<ID>,
-        limit: Option<i64>,
-    ) -> Result<Vec<Message>> {
-        if self.blocked {
-            return Ok(Vec::new());
-        }
-
-        let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity(ctx)?;
-        let cursor = match cursor {
-            Some(cursor) => Some(common::convert_id(&cursor)?),
-            _ => None,
-        };
-
-        let messages = common::convert_query_result(
-            service::get_messages(identity.id, self.user_id, cursor, limit, &conn),
-            "Failed to get chat",
-        )?;
-
-        Ok(messages.iter().map(Message::from).collect())
     }
 }

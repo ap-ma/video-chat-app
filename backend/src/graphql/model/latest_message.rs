@@ -4,6 +4,7 @@ use crate::database::entity::{CallEntity, LatestMessageEntity, MessageEntity, Us
 use crate::database::service;
 use crate::graphql::common;
 use crate::graphql::security::auth;
+use crate::graphql::GraphqlError;
 use async_graphql::*;
 use chrono::NaiveDateTime;
 
@@ -80,8 +81,17 @@ impl LatestMessage {
         self.user_name.as_deref()
     }
 
-    async fn user_avatar(&self) -> Option<&str> {
-        self.user_avatar.as_deref()
+    async fn user_avatar(&self) -> Result<Option<String>> {
+        if let Some(filename) = self.user_avatar.clone() {
+            let filename = common::get_avatar_file_path(&filename, self.user_id);
+            let signed_url = common::file_download_url(&filename).await.map_err(|e| {
+                let m = "Failed to generate signed URL.";
+                GraphqlError::ServerError(m.into(), e.message).extend()
+            })?;
+            return Ok(Some(signed_url));
+        };
+
+        Ok(None)
     }
 
     async fn message_id(&self) -> ID {

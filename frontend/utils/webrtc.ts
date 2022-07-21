@@ -48,8 +48,6 @@ export class WebRTC {
    * @param sendIceCandidateMutation - ICE Candidate 送信 mutation
    * @param remoteVideo - リモート VideoElement
    * @param localVideo - ローカル VideoElement
-   * @param micState - マイク on/off state
-   * @param cameraState - カメラ on/off state
    */
   constructor(
     protected callType: CallType,
@@ -60,14 +58,12 @@ export class WebRTC {
     protected cancelMutation: MutateFunction<CancelMutation, CancelMutationVariables>,
     protected sendIceCandidateMutation: MutateFunction<SendIceCandidateMutation, SendIceCandidateMutationVariables>,
     protected remoteVideo: HTMLVideoElement | null,
-    protected localVideo: HTMLVideoElement | null,
-    micState: boolean,
-    cameraState: boolean
+    protected localVideo: HTMLVideoElement | null
   ) {
     // ローカルのMediaStreamの取得
     this.localMediaStream = navigator.mediaDevices.getUserMedia({
-      audio: micState,
-      video: cameraState && { facingMode: 'user' }
+      audio: true,
+      video: { facingMode: 'user' }
     })
 
     // ローカルのVideoElementの再生
@@ -245,11 +241,13 @@ export class WebRTC {
     }
 
     // ローカル MediaStream
-    this.localMediaStream?.then((stream) =>
-      stream.getTracks().forEach((track) => {
-        if (!isNullish(this.localMediaStream)) conn.addTrack(track, stream)
-      })
-    )
+    this.localMediaStream
+      ?.then((stream) =>
+        stream.getTracks().forEach((track) => {
+          if (!isNullish(this.localMediaStream)) conn.addTrack(track, stream)
+        })
+      )
+      .catch(() => this.hangUp())
 
     return conn
   }
@@ -261,9 +259,12 @@ export class WebRTC {
    */
   protected purge(): void {
     this.setCallTypeFunc(CallType.Close)
-    if (!isNullish(this.localMediaStream)) this.localMediaStream = undefined
     if (!isNullish(this.remoteVideo)) WebRTC.clearVideo(this.remoteVideo)
     if (!isNullish(this.localVideo)) WebRTC.clearVideo(this.localVideo)
+    if (!isNullish(this.localMediaStream)) {
+      this.localMediaStream.then((stream) => stream.getTracks().forEach((track) => track.stop()))
+      this.localMediaStream = undefined
+    }
     if (!isNullish(this.connection)) {
       this.connection.close()
       this.connection = undefined
