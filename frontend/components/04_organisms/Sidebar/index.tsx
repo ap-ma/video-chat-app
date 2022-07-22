@@ -1,4 +1,4 @@
-import { Box, BoxProps, CloseButton, Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
+import { Box, BoxProps, CloseButton, Flex, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react'
 import AppLogo from 'components/01_atoms/AppLogo'
 import ContactList from 'components/04_organisms/ContactList'
 import LatestMessageList from 'components/04_organisms/LatestMessageList'
@@ -12,6 +12,8 @@ import {
 } from 'graphql/generated'
 import React from 'react'
 import { ContactInfoUserId, ContainerProps, OnClose, QueryRefetch, SetState } from 'types'
+import { toStr } from 'utils/general/helper'
+import { isNullish } from 'utils/general/object'
 import * as styles from './styles'
 
 /** Sidebar Props */
@@ -64,13 +66,14 @@ export type SidebarProps = BoxProps & {
 }
 
 /** Presenter Props */
-export type PresenterProps = SidebarProps
+export type PresenterProps = SidebarProps & { count: string }
 
 /** Presenter Component */
 const SidebarPresenter: React.VFC<PresenterProps> = ({
   state,
   query: { me, contacts, latestMessages, contactInfo },
   onClose,
+  count,
   ...props
 }) => (
   <Box {...styles.root} {...props}>
@@ -78,10 +81,15 @@ const SidebarPresenter: React.VFC<PresenterProps> = ({
       <AppLogo />
       <CloseButton {...styles.close} onClick={onClose} />
     </Flex>
-    <Tabs isFitted {...styles.tab}>
+    <Tabs isFitted {...styles.tabs}>
       <TabList>
-        <Tab py='1'>Contacts</Tab>
-        <Tab py='1'>Chats</Tab>
+        <Tab {...styles.tab}>
+          <Text>Contacts</Text>
+        </Tab>
+        <Tab {...styles.tab}>
+          <Text>Chats</Text>
+          <Text {...styles.count({ count })}>{count}</Text>
+        </Tab>
       </TabList>
       <TabPanels>
         <TabPanel {...styles.panel}>
@@ -101,8 +109,19 @@ const SidebarPresenter: React.VFC<PresenterProps> = ({
 )
 
 /** Container Component */
-const SidebarContainer: React.VFC<ContainerProps<SidebarProps, PresenterProps>> = ({ presenter, ...props }) => {
-  return presenter({ ...props })
+const SidebarContainer: React.VFC<ContainerProps<SidebarProps, PresenterProps>> = ({
+  presenter,
+  query: { latestMessages, ...queryRest },
+  ...props
+}) => {
+  const unreadCount = latestMessages.result?.reduce((sum, ls) => sum + ls.unreadMessageCount, 0) ?? 0
+  const count = !isNullish(unreadCount) && unreadCount > 99 ? '99+' : toStr(unreadCount)
+
+  return presenter({
+    query: { latestMessages, ...queryRest },
+    count,
+    ...props
+  })
 }
 
 /** Sidebar */

@@ -18,7 +18,7 @@ pub fn register(config: &mut web::ServiceConfig) {
                     .guard(guard::Header("upgrade", "websocket"))
                     .to(subscription),
             )
-            .route(web::get().to(playground)),
+            .route(web::get().to(_playground)),
     );
 }
 
@@ -50,7 +50,7 @@ async fn subscription(
         .start(&http_req, payload)
 }
 
-async fn playground() -> HttpResponse {
+async fn _playground() -> HttpResponse {
     HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
         .body(playground_source(

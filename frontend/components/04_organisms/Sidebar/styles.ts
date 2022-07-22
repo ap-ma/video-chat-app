@@ -1,3 +1,6 @@
+import { hasValue } from 'utils/general/object'
+import { PresenterProps } from './index'
+
 export const root = {
   h: 'full',
   w: { base: 'full', md: 72 },
@@ -22,9 +25,26 @@ export const close = {
   d: { base: 'flex', md: 'none' }
 } as const
 
-export const tab = {
+export const tabs = {
   variant: 'enclosed-colored'
 } as const
+
+export const tab = {
+  pos: 'relative',
+  py: '1'
+} as const
+
+export const count = ({ count }: Pick<PresenterProps, 'count'>) =>
+  ({
+    color: 'white',
+    bg: 'blue.400',
+    pos: 'absolute',
+    right: '3.5',
+    px: '6px',
+    fontSize: 'xs',
+    borderRadius: '50%',
+    d: hasValue(count) && count !== '0' ? 'block' : 'none'
+  } as const)
 
 export const panel = {
   p: '0',
