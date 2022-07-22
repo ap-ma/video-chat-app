@@ -1950,11 +1950,11 @@ export const MessageFieldsFragmentDoc = gql`
 export const ContactFieldsWithChatFragmentDoc = gql`
   fragment ContactFieldsWithChat on Contact {
     ...ContactFields
+    chatCount
+    chatDateCount
     chat(cursor: $cursor, limit: $limit) {
       ...MessageFields
     }
-    chatCount
-    chatDateCount
   }
   ${ContactFieldsFragmentDoc}
   ${MessageFieldsFragmentDoc}

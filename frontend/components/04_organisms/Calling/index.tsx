@@ -251,7 +251,7 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
     // 通話応答時
     if (CallType.Answer === callType.state) {
       const answerdCallSignal = apolloClient.readFragment<SignalingSubscription['signalingSubscription']>({
-        id: `Signal:{"callId":"${rcCallId}"}`,
+        id: rcCallId,
         fragment: SignalFieldsFragmentDoc
       })
       if (!isNullish(answerdCallSignal)) connection.answer(answerdCallSignal)

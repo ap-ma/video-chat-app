@@ -16,7 +16,6 @@ import {
   MessageFieldsFragmentDoc,
   MutationType
 } from 'graphql/generated'
-import groupBy from 'lodash/groupBy'
 import { Optional, ReadFieldParam } from 'types'
 import { isNullish } from 'utils/general/object'
 import { isApproveContact } from './utils'
@@ -86,6 +85,9 @@ export function updateMessageCache(cache: ApolloCache<unknown>, messageChanged: 
     }
   })
 
+  // 更新時はコンタクト情報キャッシュへの明示的な処理なし
+  if (MutationType.Updated === messageChanged.mutationType) return
+
   // キャッシュに保存されているコンタクトユーザーの取得
   const contactInfo = cache.readQuery<ContactInfoQuery, ContactInfoQueryVariables>({
     query: ContactInfoDocument,
@@ -108,6 +110,26 @@ export function updateMessageCache(cache: ApolloCache<unknown>, messageChanged: 
         return isApproveContact(messageChanged) && !isNullish(messageChanged.contactStatus)
           ? messageChanged.contactStatus
           : existingStatus
+      },
+      chatCount(existingChatCount) {
+        if (MutationType.Created === messageChanged.mutationType) existingChatCount++
+        if (MutationType.Deleted === messageChanged.mutationType) existingChatCount--
+        return existingChatCount
+      },
+      chatDateCount(existingChatDateCount) {
+        if (!isNullish(messageChanged.message)) {
+          const createdDate = messageChanged.message.createdAt.substring(0, 10)
+          const chat = contactInfo.contactInfo.chat
+          const sameDate = chat.filter((message) => createdDate === message.createdAt.substring(0, 10))
+          if (MutationType.Created === messageChanged.mutationType) {
+            if (sameDate.length === 0) existingChatDateCount++
+          }
+          if (MutationType.Deleted === messageChanged.mutationType) {
+            if (sameDate.length === 1) existingChatDateCount--
+          }
+        }
+
+        return existingChatDateCount
       },
       chat(existingChat = [], { readField }) {
         // メッセージ新規作成
@@ -137,15 +159,6 @@ export function updateMessageCache(cache: ApolloCache<unknown>, messageChanged: 
         })
 
         return newChat
-      },
-      chatCount(existingChatCount, { readField }) {
-        const chat = readField('chat', existingChatCount) as ContactInfoQuery['contactInfo']['chat']
-        return !isNullish(chat) ? chat.length : 0
-      },
-      chatDateCount(existingChatDateCount, { readField }) {
-        const chat = readField('chat', existingChatDateCount) as ContactInfoQuery['contactInfo']['chat']
-        const grouped = groupBy(chat, (message) => message.createdAt.substring(0, 10))
-        return grouped.length
       }
     }
   })

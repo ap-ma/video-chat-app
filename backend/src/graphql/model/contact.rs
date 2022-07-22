@@ -92,31 +92,6 @@ impl Contact {
         Ok(latest_message)
     }
 
-    async fn chat(
-        &self,
-        ctx: &Context<'_>,
-        cursor: Option<ID>,
-        limit: Option<i64>,
-    ) -> Result<Vec<Message>> {
-        if self.blocked {
-            return Ok(Vec::new());
-        }
-
-        let conn = common::get_conn(ctx)?;
-        let identity = auth::get_identity(ctx)?;
-        let cursor = match cursor {
-            Some(cursor) => Some(common::convert_id(&cursor)?),
-            _ => None,
-        };
-
-        let messages = common::convert_query_result(
-            service::get_messages(identity.id, self.user_id, cursor, limit, &conn),
-            "Failed to get chat",
-        )?;
-
-        Ok(messages.iter().map(Message::from).collect())
-    }
-
     async fn chat_count(&self, ctx: &Context<'_>) -> Result<i64> {
         if self.blocked {
             return Ok(0);
@@ -149,5 +124,30 @@ impl Contact {
         let date_count = date_count.first().map_or(0, |count| count.date_count);
 
         Ok(date_count)
+    }
+
+    async fn chat(
+        &self,
+        ctx: &Context<'_>,
+        cursor: Option<ID>,
+        limit: Option<i64>,
+    ) -> Result<Vec<Message>> {
+        if self.blocked {
+            return Ok(Vec::new());
+        }
+
+        let conn = common::get_conn(ctx)?;
+        let identity = auth::get_identity(ctx)?;
+        let cursor = match cursor {
+            Some(cursor) => Some(common::convert_id(&cursor)?),
+            _ => None,
+        };
+
+        let messages = common::convert_query_result(
+            service::get_messages(identity.id, self.user_id, cursor, limit, &conn),
+            "Failed to get chat",
+        )?;
+
+        Ok(messages.iter().map(Message::from).collect())
     }
 }

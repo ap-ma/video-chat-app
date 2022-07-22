@@ -19,9 +19,9 @@ fragment ContactFieldsWithLatestMessage on Contact {
 
 fragment ContactFieldsWithChat on Contact {
   ...ContactFields
+  chatCount
+  chatDateCount
   chat(cursor: $cursor, limit: $limit) {
     ...MessageFields
   }
-  chatCount
-  chatDateCount
 }

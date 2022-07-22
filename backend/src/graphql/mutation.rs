@@ -139,10 +139,9 @@ impl Mutation {
             Ok(user.id)
         })?;
 
-        // upload file
         if let Some((data, filename, content_type)) = avatar_file {
-            let filename = common::get_avatar_file_path(&filename, user_id);
-            let upload_result = common::file_upload(data, &filename, &content_type).await;
+            let path = common::get_avatar_file_path(&filename, user_id);
+            let upload_result = common::file_upload(data, &path, &content_type).await;
             upload_result.map_err(|e| {
                 GraphqlError::ServerError("Failed to file upload.".into(), e.message).extend()
             })?;
@@ -196,10 +195,9 @@ impl Mutation {
             "Failed to get the user",
         )?;
 
-        // upload file
         if let Some((data, filename, content_type)) = avatar_file {
-            let filename = common::get_avatar_file_path(&filename, user.id);
-            let upload_result = common::file_upload(data, &filename, &content_type).await;
+            let path = common::get_avatar_file_path(&filename, user.id);
+            let upload_result = common::file_upload(data, &path, &content_type).await;
             upload_result.map_err(|e| {
                 GraphqlError::ServerError("Failed to file upload.".into(), e.message).extend()
             })?;
@@ -534,22 +532,21 @@ impl Mutation {
             GraphqlError::ServerError(m.into(), e.message).extend()
         })?;
 
+        let (data, filename, content_type) = image_file;
+        let path = common::get_image_file_path(&filename, identity.id, contact.contact_user_id);
+        let upload_result = common::file_upload(data, &path, &content_type).await;
+        upload_result.map_err(|e| {
+            GraphqlError::ServerError("Failed to file upload.".into(), e.message).extend()
+        })?;
+
         let message_changed = create_message(
             contact.contact_user_id,
             message_const::category::IMAGE_TRANSMISSION,
-            Some(image_file.1.clone()),
+            Some(filename),
             Some(contact.id),
             Some(contact.status),
             ctx,
         )?;
-
-        // upload file
-        let (data, filename, content_type) = image_file;
-        let filename = common::get_image_file_path(&filename, identity.id, contact.user_id);
-        let upload_result = common::file_upload(data, &filename, &content_type).await;
-        upload_result.map_err(|e| {
-            GraphqlError::ServerError("Failed to file upload.".into(), e.message).extend()
-        })?;
 
         Ok(message_changed)
     }
@@ -1029,6 +1026,8 @@ impl Mutation {
             ctx,
         )?;
 
+        publish_message(&message_changed);
+
         Ok(message_changed)
     }
 
@@ -1061,10 +1060,10 @@ impl Mutation {
         }
 
         let message_changed = conn.transaction::<_, Error, _>(|| {
-            let contact = create_contact(identity.id, message.rx_user_id, ctx)?;
-            create_contact(message.rx_user_id, identity.id, ctx)?;
+            let contact = create_contact(identity.id, message.tx_user_id, ctx)?;
+            create_contact(contact.contact_user_id, contact.user_id, ctx)?;
             let message_changed = create_message(
-                message.rx_user_id,
+                contact.contact_user_id,
                 message_const::category::CONTACT_APPROVAL,
                 None,
                 Some(contact.id),

@@ -467,13 +467,14 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
 /** Container Component */
 const IndexTemplateContainer: React.VFC<ContainerProps<IndexTemplateProps, PresenterProps>> = ({
   presenter,
+  apolloClient,
   state: { callType, ...stateRest },
   mutation: { cancel, ...mutationRest },
   subscription: { signaling, ...subscriptionRest },
   ...props
 }) => {
   // state
-  const [rcCallId, setRcCallId] = useState<Call['id'] | undefined>(undefined)
+  const [rcCallId, setRcCallId] = useState<string | undefined>(undefined)
 
   // Sidebar
   const sbDisc = useDisclosure()
@@ -486,7 +487,7 @@ const IndexTemplateContainer: React.VFC<ContainerProps<IndexTemplateProps, Prese
   useMemo(() => {
     if (CallType.Answer === callTypeState) onRcClose()
     if (SignalType.Cancel === signalingResult?.signalType) {
-      if (rcCallId === signalingResult?.callId) onRcClose()
+      if (rcCallId === apolloClient.cache.identify(signalingResult)) onRcClose()
     }
   }, [onRcClose, callTypeState, signalingResult, rcCallId])
 
@@ -496,7 +497,7 @@ const IndexTemplateContainer: React.VFC<ContainerProps<IndexTemplateProps, Prese
     if (SignalType.Offer !== signalingResult.signalType) return
     // 通話中、通話架電中、通話受信中 以外
     if (CallType.Close === callTypeState && !rcDisc.isOpen) {
-      setRcCallId(signalingResult.callId)
+      setRcCallId(apolloClient.cache.identify(signalingResult))
       return rcDisc.onOpen()
     }
     const callId = signalingResult.callId
@@ -512,6 +513,7 @@ const IndexTemplateContainer: React.VFC<ContainerProps<IndexTemplateProps, Prese
   }, [callTypeState]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return presenter({
+    apolloClient,
     state: { callType, ...stateRest },
     mutation: { cancel, ...mutationRest },
     subscription: { signaling, ...subscriptionRest },
