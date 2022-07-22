@@ -175,14 +175,17 @@ impl Mutation {
             avatar_file = Some(avatar);
         }
 
-        let change_user = ChangeUserEntity {
+        let mut change_user = ChangeUserEntity {
             id: identity.id,
             code: Some(input.code),
             name: Some(Some(input.name)),
             comment: Some(input.comment),
-            avatar: Some(avatar_filename),
             updated_at: Some(Local::now().naive_local()),
             ..Default::default()
+        };
+
+        if input.is_avatar_edited.unwrap_or(false) {
+            change_user.avatar = Some(avatar_filename);
         };
 
         common::convert_query_result(
@@ -338,14 +341,14 @@ impl Mutation {
             &input.new_password_confirm,
         )?;
 
-        let password = security::password_hash(input.password.as_str()).map_err(|e| {
+        let new_password = security::password_hash(input.new_password.as_str()).map_err(|e| {
             let m = "Failed to create password hash.";
             GraphqlError::ServerError(m.into(), e.to_string()).extend()
         })?;
 
         let change_user = ChangeUserEntity {
             id: identity.id,
-            password: Some(password),
+            password: Some(new_password),
             updated_at: Some(Local::now().naive_local()),
             ..Default::default()
         };

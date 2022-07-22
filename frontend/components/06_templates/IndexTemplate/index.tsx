@@ -481,36 +481,36 @@ const IndexTemplateContainer: React.VFC<ContainerProps<IndexTemplateProps, Prese
 
   // ReceiveCall
   const rcDisc = useDisclosure()
-  const onRcClose = rcDisc.onClose
-  const callTypeState = callType.state
-  const signalingResult = signaling.result
   useMemo(() => {
-    if (CallType.Answer === callTypeState) onRcClose()
-    if (SignalType.Cancel === signalingResult?.signalType) {
-      if (rcCallId === apolloClient.cache.identify(signalingResult)) onRcClose()
+    if (CallType.Answer === callType.state) rcDisc.onClose()
+    if (SignalType.Cancel === signaling.result?.signalType) {
+      if (rcCallId === apolloClient.cache.identify(signaling.result)) rcDisc.onClose()
     }
-  }, [onRcClose, callTypeState, signalingResult, rcCallId])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [callType.state, signaling.result, rcCallId, rcDisc.onClose])
 
   // Receive a Call
   useMemo(() => {
-    if (isNullish(signalingResult)) return
-    if (SignalType.Offer !== signalingResult.signalType) return
+    if (isNullish(signaling.result)) return
+    if (SignalType.Offer !== signaling.result.signalType) return
     // 通話中、通話架電中、通話受信中 以外
-    if (CallType.Close === callTypeState && !rcDisc.isOpen) {
-      setRcCallId(apolloClient.cache.identify(signalingResult))
+    if (CallType.Close === callType.state && !rcDisc.isOpen) {
+      setRcCallId(apolloClient.cache.identify(signaling.result))
       return rcDisc.onOpen()
     }
-    const callId = signalingResult.callId
+    const callId = signaling.result.callId
     cancel.reset()
     cancel.mutate({ variables: { callId } }).catch(toast('UnexpectedError'))
-  }, [signalingResult]) // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signaling.result])
 
   // Calling
   const [dispCalling, setDispCalling] = useBoolean(false)
   useMemo(() => {
-    if (CallType.Close === callTypeState) setTimeout(setDispCalling.off, 200)
-    if (includes(callTypeState, CallType.Offer, CallType.Answer)) setDispCalling.on()
-  }, [callTypeState]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (CallType.Close === callType.state) setTimeout(setDispCalling.off, 200)
+    if (includes(callType.state, CallType.Offer, CallType.Answer)) setDispCalling.on()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [callType.state])
 
   return presenter({
     apolloClient,

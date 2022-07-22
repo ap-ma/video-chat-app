@@ -6,15 +6,15 @@ APIランタイムにGraphQLを用いています。
 
 ### 動作確認
 本アプリは画像ファイルのストレージとしてGoogle Cloud Storage(GCS)を使用しています。  
-GCSにてバケットを作成し、`backend`ディレクトリ内`.env.dev`ファイルの「**BUCKET_NAME**」にバケット名を指定します。  
-さらに、サービスアカウントを作成し「*Service Account Token Creator*」と「*Storage Object Admin*」のロールを付与します。  
-作成したサービスアカウントの鍵ファイルをJSON形式で生成し、`backend`ディレクトリに配置します。  
-保存したJSONファイル名を`.env.dev`ファイルの「**SERVICE_ACCOUNT**」に指定します。  
+`backend`ディレクトリ内`.env.dev`ファイルの「**BUCKET_NAME**」にGCSバケット名を指定します。  
+また、「*Service Account Token Creator*」と「*Storage Object Admin*」のロールを持つサービスアカウントを用意し、  
+サービスアカウントのJSON形式の鍵ファイルを`backend`ディレクトリに配置します。  
+配置したJSONファイル名を`.env.dev`ファイルの「**SERVICE_ACCOUNT**」に指定します。  
   * BUCKET_NAME … 画像ストレージとして使用するGCSバケット名
-  * SERVICE_ACCOUNT … サービスアカウントの鍵ファイル
+  * SERVICE_ACCOUNT … サービスアカウントの鍵ファイル名
 ___
 
-また、同`.env.dev`ファイルに、メール送信時に使用するSMTPサーバーの以下情報を設定します。
+加えて、同`.env.dev`ファイルに、メール送信時に使用するSMTPサーバーの以下情報を設定します。
   * MAIL_HOST … SMTPホスト名
   * MAIL_USERNAME … SMTPユーザー名
   * MAIL_PASSWORD … SMTPパスワード

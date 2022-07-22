@@ -170,11 +170,10 @@ const ChatContainer: React.VFC<ContainerProps<ChatProps, PresenterProps>> = ({
   // DeleteMessageConfirmDialog modal
   const [deleteMessageId, setDeleteMessageId] = useState<DeleteMessageId>(undefined)
   const dmcdDisc = useDisclosure()
-  const onDmcdClose = dmcdDisc.onClose
-  const deleteMessageResult = deleteMessage.result
   useMemo(() => {
-    if (hasValue(deleteMessageResult)) onDmcdClose()
-  }, [onDmcdClose, deleteMessageResult])
+    if (hasValue(deleteMessage.result)) dmcdDisc.onClose()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deleteMessage.result, dmcdDisc.onClose])
 
   return presenter({
     query: { contactInfo, ...queryRest },

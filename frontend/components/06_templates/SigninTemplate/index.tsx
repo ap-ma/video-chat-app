@@ -109,7 +109,7 @@ const SigninTemplatePresenter: React.VFC<PresenterProps> = ({
 /** Container Component */
 const SigninTemplateContainer: React.VFC<ContainerProps<SigninTemplateProps, PresenterProps>> = ({
   presenter,
-  mutation,
+  mutation: { signUp, signIn, forgotPassword },
   ...props
 }) => {
   // Signup modal
@@ -117,36 +117,32 @@ const SigninTemplateContainer: React.VFC<ContainerProps<SigninTemplateProps, Pre
   const sucdDisc = useDisclosure()
 
   // Signup onComplete
-  const onSufClose = sufDisc.onClose
-  const onSucdOpen = sucdDisc.onOpen
-  const signUpResult = mutation.signUp.result
   useMemo(() => {
-    if (signUpResult) {
-      onSufClose()
-      onSucdOpen()
+    if (signUp.result) {
+      sufDisc.onClose()
+      sucdDisc.onOpen()
     }
-  }, [onSufClose, onSucdOpen, signUpResult])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signUp.result, sufDisc.onClose, sucdDisc.onOpen])
 
   // ForgotPassword modal
   const fpfDisc = useDisclosure()
   const fpcdDisc = useDisclosure()
 
   // ForgotPassword onComplete
-  const onFpfClose = fpfDisc.onClose
-  const onFpcdOpen = fpcdDisc.onOpen
-  const forgotPasswordResult = mutation.forgotPassword.result
   useMemo(() => {
-    if (forgotPasswordResult) {
-      onFpfClose()
-      onFpcdOpen()
+    if (forgotPassword.result) {
+      fpfDisc.onClose()
+      fpcdDisc.onOpen()
     }
-  }, [onFpfClose, onFpcdOpen, forgotPasswordResult])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [forgotPassword.result, fpfDisc.onClose, fpcdDisc.onOpen])
 
   // status
-  const disabled = mutation.signIn.loading || !!mutation.signIn.result
+  const disabled = signIn.loading || !!signIn.result
 
   return presenter({
-    mutation,
+    mutation: { signUp, signIn, forgotPassword },
     disabled,
     // SignUp
     sufDisc,

@@ -256,7 +256,8 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
       })
       if (!isNullish(answerdCallSignal)) connection.answer(answerdCallSignal)
     }
-  }, [callType.state]) // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [callType.state])
 
   // シグナリング
   useMemo(() => {

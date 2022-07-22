@@ -261,43 +261,38 @@ const MainContainer: React.VFC<ContainerProps<MainProps, PresenterProps>> = ({
 }) => {
   // RingUpConfirmDialog modal
   const rucdDisc = useDisclosure()
-  const onRucdClose = rucdDisc.onClose
-  const callTypeState = callType.state
   useMemo(() => {
-    if (CallType.Offer === callTypeState) onRucdClose()
-  }, [onRucdClose, callTypeState])
+    if (CallType.Offer === callType.state) rucdDisc.onClose()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [callType.state, rucdDisc.onClose])
 
   // DeleteContactConfirmDialog modal
   const dccdDisc = useDisclosure()
-  const onDccdClose = dccdDisc.onClose
-  const deleteContactResult = deleteContact.result
   useMemo(() => {
-    if (hasValue(deleteContactResult)) onDccdClose()
-  }, [onDccdClose, deleteContactResult])
+    if (hasValue(deleteContact.result)) dccdDisc.onClose()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deleteContact.result, dccdDisc.onClose])
 
   // UndeleteContactConfirmDialog modal
   const udccdDisc = useDisclosure()
-  const onUdccdClose = udccdDisc.onClose
-  const undeleteContactResult = undeleteContact.result
   useMemo(() => {
-    if (hasValue(undeleteContactResult)) onUdccdClose()
-  }, [onUdccdClose, undeleteContactResult])
+    if (hasValue(undeleteContact.result)) udccdDisc.onClose()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [undeleteContact.result, udccdDisc.onClose])
 
   // BlockContactConfirmDialog modal
   const bccdDisc = useDisclosure()
-  const onBccdClose = bccdDisc.onClose
-  const blockContactResult = blockContact.result
   useMemo(() => {
-    if (hasValue(blockContactResult)) onBccdClose()
-  }, [onBccdClose, blockContactResult])
+    if (hasValue(blockContact.result)) bccdDisc.onClose()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blockContact.result, bccdDisc.onClose])
 
   // UnblockContactConfirmDialog modal
   const ubccdDisc = useDisclosure()
-  const onUbccdClose = ubccdDisc.onClose
-  const unblockContactResult = unblockContact.result
   useMemo(() => {
-    if (hasValue(unblockContactResult)) onUbccdClose()
-  }, [onUbccdClose, unblockContactResult])
+    if (hasValue(unblockContact.result)) ubccdDisc.onClose()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unblockContact.result, ubccdDisc.onClose])
 
   return presenter({
     state: { callType },

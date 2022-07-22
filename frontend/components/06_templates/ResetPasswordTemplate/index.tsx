@@ -64,11 +64,10 @@ const ResetPasswordTemplateContainer: React.VFC<ContainerProps<ResetPasswordTemp
   const rpcdDisc = useDisclosure()
 
   // ResetPassword onComplete
-  const onRpcdOpen = rpcdDisc.onOpen
-  const resetPasswordResult = mutation.resetPassword.result
   useMemo(() => {
-    if (resetPasswordResult) onRpcdOpen()
-  }, [onRpcdOpen, resetPasswordResult])
+    if (mutation.resetPassword.result) rpcdDisc.onOpen()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mutation.resetPassword.result, rpcdDisc.onOpen])
 
   return presenter({
     mutation,

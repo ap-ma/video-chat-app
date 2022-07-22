@@ -225,30 +225,26 @@ const HeaderContainer: React.VFC<ContainerProps<HeaderProps, PresenterProps>> = 
   }, [onCefOpen, cefDiscRest, query.me])
 
   // ChangeEmail onComplete
-  const onCefClose = cefDisc.onClose
-  const onCecdOpen = cecdDisc.onOpen
-  const changeEmailResult = mutation.changeEmail.result
   useMemo(() => {
-    if (changeEmailResult) {
-      onCefClose()
-      onCecdOpen()
+    if (mutation.changeEmail.result) {
+      cefDisc.onClose()
+      cecdDisc.onOpen()
     }
-  }, [onCefClose, onCecdOpen, changeEmailResult])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mutation.changeEmail.result, cefDisc.onClose, cecdDisc.onOpen])
 
   // ChangePassword modal
   const cpfDisc = useDisclosure()
   const cpcdDisc = useDisclosure()
 
   // ChangePassword onComplete
-  const onCpfClose = cpfDisc.onClose
-  const onCpcdOpen = cpcdDisc.onOpen
-  const changePasswordResult = mutation.changePassword.result
   useMemo(() => {
-    if (changePasswordResult) {
-      onCpfClose()
-      onCpcdOpen()
+    if (mutation.changePassword.result) {
+      cpfDisc.onClose()
+      cpcdDisc.onOpen()
     }
-  }, [onCpfClose, onCpcdOpen, changePasswordResult])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mutation.changePassword.result, cpfDisc.onClose, cpcdDisc.onOpen])
 
   // DeleteAccountConfirmDialog modal
   const dacdDisc = useDisclosure()
