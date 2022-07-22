@@ -144,7 +144,7 @@ const Index: NextPage = () => {
   // プロフィール編集
   const [editProfile, editProfileMutation] = useEditProfileMutation({
     onCompleted: () => {
-      contactInfo({ variables: { limit: CHAT_LENGTH } })
+      contactInfo({ variables: { contactUserId: toStr(meQuery.data?.me.id), limit: CHAT_LENGTH } })
       toast('EditProfileComplete')()
     }
   })
@@ -212,7 +212,10 @@ const Index: NextPage = () => {
   // コンタクト承認
   const [approveContact, approveContactMutation] = useApproveContactMutation({
     update: (cache, { data }) => !isNullish(data) && updateMessageCache(cache, data.approveContact),
-    onCompleted: () => contactsQuery.refetch()
+    onCompleted: () => {
+      contactsQuery.refetch()
+      contactInfo({ variables: { contactUserId: toStr(contactInfoUserId), limit: CHAT_LENGTH } })
+    }
   })
   const approveContactResult = handle(approveContactMutation.error, handler)
 
@@ -257,7 +260,10 @@ const Index: NextPage = () => {
       if (isNullish(data)) return
       const messageChanged = data.messageSubscription
       updateMessageCache(client.cache, messageChanged)
-      if (isApproveContact(messageChanged)) contactsQuery.refetch()
+      if (isApproveContact(messageChanged)) {
+        contactsQuery.refetch()
+        contactInfo({ variables: { contactUserId: toStr(contactInfoUserId), limit: CHAT_LENGTH } })
+      }
       if (MutationType.Created === messageChanged.mutationType && contactInfoUserId === messageChanged.txUserId) {
         readMessages({ variables: { otherUserId: messageChanged.txUserId } }).catch(toast('UnexpectedError'))
       }
