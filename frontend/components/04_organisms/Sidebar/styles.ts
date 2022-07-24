@@ -34,7 +34,7 @@ export const tab = {
   py: '1'
 } as const
 
-export const count = ({ count }: Pick<PresenterProps, 'count'>) =>
+export const unreadCount = ({ unreadCount }: Pick<PresenterProps, 'unreadCount'>) =>
   ({
     color: 'white',
     bg: 'blue.400',
@@ -43,7 +43,7 @@ export const count = ({ count }: Pick<PresenterProps, 'count'>) =>
     px: '6px',
     fontSize: 'xs',
     borderRadius: '50%',
-    d: hasValue(count) && count !== '0' ? 'block' : 'none'
+    d: hasValue(unreadCount) && unreadCount !== '0' ? 'block' : 'none'
   } as const)
 
 export const panel = {

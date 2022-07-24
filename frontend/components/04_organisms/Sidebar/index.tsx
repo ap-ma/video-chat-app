@@ -10,10 +10,9 @@ import {
   LatestMessagesQuery,
   MeQuery
 } from 'graphql/generated'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { ContactInfoUserId, ContainerProps, OnClose, QueryRefetch, SetState } from 'types'
 import { toStr } from 'utils/general/helper'
-import { isNullish } from 'utils/general/object'
 import * as styles from './styles'
 
 /** Sidebar Props */
@@ -66,14 +65,14 @@ export type SidebarProps = BoxProps & {
 }
 
 /** Presenter Props */
-export type PresenterProps = SidebarProps & { count: string }
+export type PresenterProps = SidebarProps & { unreadCount: string }
 
 /** Presenter Component */
 const SidebarPresenter: React.VFC<PresenterProps> = ({
   state,
   query: { me, contacts, latestMessages, contactInfo },
   onClose,
-  count,
+  unreadCount,
   ...props
 }) => (
   <Box {...styles.root} {...props}>
@@ -88,7 +87,7 @@ const SidebarPresenter: React.VFC<PresenterProps> = ({
         </Tab>
         <Tab {...styles.tab}>
           <Text>Chats</Text>
-          <Text {...styles.count({ count })}>{count}</Text>
+          <Text {...styles.unreadCount({ unreadCount })}>{unreadCount}</Text>
         </Tab>
       </TabList>
       <TabPanels>
@@ -114,12 +113,14 @@ const SidebarContainer: React.VFC<ContainerProps<SidebarProps, PresenterProps>> 
   query: { latestMessages, ...queryRest },
   ...props
 }) => {
-  const unreadCount = latestMessages.result?.reduce((sum, ls) => sum + ls.unreadMessageCount, 0) ?? 0
-  const count = !isNullish(unreadCount) && unreadCount > 99 ? '99+' : toStr(unreadCount)
+  const unreadCount = useMemo(() => {
+    const count = latestMessages.result?.reduce((sum, ls) => sum + ls.unreadMessageCount, 0) ?? 0
+    return count > 99 ? '99+' : toStr(count)
+  }, [latestMessages.result])
 
   return presenter({
     query: { latestMessages, ...queryRest },
-    count,
+    unreadCount,
     ...props
   })
 }
