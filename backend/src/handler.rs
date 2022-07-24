@@ -41,6 +41,8 @@ async fn subscription(
     payload: web::Payload,
 ) -> Result<HttpResponse> {
     let mut data = async_graphql::Data::default();
+    let remember_token = RememberToken::new(&http_req);
+    data.insert(remember_token);
     if let Ok(identity) = session.get::<Identity>(AUTHENTICATED_USER_KEY) {
         data.insert(identity);
     }

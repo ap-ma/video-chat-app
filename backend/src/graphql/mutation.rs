@@ -21,6 +21,7 @@ use crate::database::entity::{
     NewPasswordResetTokenEntity, NewUserEntity,
 };
 use crate::database::service;
+use crate::identity::Identity;
 use async_graphql::*;
 use chrono::Local;
 use diesel::connection::Connection;
@@ -37,7 +38,7 @@ impl Mutation {
         if let Ok(user) = service::find_user_by_email(&input.email, &conn) {
             let matching = security::password_verify(&user.password, &input.password);
             if matching.unwrap_or(false) {
-                auth::sign_in(&user, ctx)?;
+                auth::sign_in(&Identity::from(&user), ctx)?;
                 auth::remember(user.id, &input.remember_me, ctx)?;
                 return Ok(true);
             }

@@ -1,7 +1,6 @@
 mod remember_me;
 
 use crate::constant::system::session::AUTHENTICATED_USER_KEY;
-use crate::database::entity::UserEntity;
 use crate::graphql::GraphqlError;
 use crate::shared::Shared;
 use actix_session::Session;
@@ -10,9 +9,9 @@ use async_graphql::{Context, ErrorExtensions, Result};
 pub use crate::identity::*;
 pub use remember_me::*;
 
-pub fn sign_in(user: &UserEntity, ctx: &Context<'_>) -> Result<()> {
+pub fn sign_in(identity: &Identity, ctx: &Context<'_>) -> Result<()> {
     let session = ctx.data_unchecked::<Shared<Session>>();
-    match session.insert(AUTHENTICATED_USER_KEY, &Identity::from(user)) {
+    match session.insert(AUTHENTICATED_USER_KEY, identity) {
         Ok(()) => Ok(session.renew()),
         Err(e) => {
             let m = "Failed to initiate session.";
@@ -34,12 +33,15 @@ pub fn sign_out(ctx: &Context<'_>) -> Result<()> {
 }
 
 pub fn get_identity(ctx: &Context<'_>) -> Result<Identity> {
-    let identity = get_identity_from_session(ctx)?;
-    if let Some(identity) = identity {
+    if let Some(identity) = get_identity_from_session(ctx)? {
         return Ok(identity);
     }
 
-    get_identity_from_ctx(ctx)
+    if let Some(identity) = get_identity_from_ctx(ctx)? {
+        return Ok(identity);
+    }
+
+    Err(GraphqlError::AuthenticationError.extend())
 }
 
 fn get_identity_from_session(ctx: &Context<'_>) -> Result<Option<Identity>> {
@@ -65,9 +67,15 @@ fn get_identity_from_session(ctx: &Context<'_>) -> Result<Option<Identity>> {
     }
 }
 
-fn get_identity_from_ctx(ctx: &Context<'_>) -> Result<Identity> {
-    ctx.data::<Option<Identity>>()
+fn get_identity_from_ctx(ctx: &Context<'_>) -> Result<Option<Identity>> {
+    let identity = ctx
+        .data::<Option<Identity>>()
         .ok()
-        .and_then(|identity| identity.clone())
-        .ok_or_else(|| GraphqlError::AuthenticationError.extend())
+        .and_then(|identity| identity.clone());
+
+    if identity.is_some() {
+        return Ok(identity);
+    }
+
+    remember_me::get_identity_by_remember_token(ctx)
 }

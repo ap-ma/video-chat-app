@@ -41,14 +41,9 @@ pub fn remember(user_id: u64, remember_me: &Option<bool>, ctx: &Context<'_>) -> 
 }
 
 pub fn attempt_with_remember_token(ctx: &Context<'_>) -> Result<Option<Identity>> {
-    if let Some((claims, user)) = get_user_by_remember_token(ctx)? {
-        if let Some(entity_remember_token) = &user.remember_token {
-            let matching = hash::verify(entity_remember_token, &claims.token, &DIGEST_SECRET_KEY);
-            if matching.unwrap_or(false) {
-                super::sign_in(&user, ctx)?;
-                return Ok(Some(Identity::from(&user)));
-            }
-        }
+    if let Some(identity) = get_identity_by_remember_token(ctx)? {
+        super::sign_in(&identity, ctx)?;
+        return Ok(Some(identity));
     }
 
     Ok(None)
@@ -57,9 +52,9 @@ pub fn attempt_with_remember_token(ctx: &Context<'_>) -> Result<Option<Identity>
 pub fn purge_remember_token(ctx: &Context<'_>) -> Result<()> {
     let conn = common::get_conn(ctx)?;
 
-    if let Some((_, user)) = get_user_by_remember_token(ctx)? {
+    if let Some(identity) = get_identity_by_remember_token(ctx)? {
         let change_user = ChangeUserEntity {
-            id: user.id,
+            id: identity.id,
             remember_token: Some(None),
             updated_at: Some(Local::now().naive_local()),
             ..Default::default()
@@ -76,17 +71,29 @@ pub fn purge_remember_token(ctx: &Context<'_>) -> Result<()> {
     Ok(())
 }
 
-fn get_user_by_remember_token(ctx: &Context<'_>) -> Result<Option<(Claims, UserEntity)>> {
+pub fn get_identity_by_remember_token(ctx: &Context<'_>) -> Result<Option<Identity>> {
     let conn = common::get_conn(ctx)?;
 
     let remember_token = ctx.data::<RememberToken>();
     if let Some(remember_token) = remember_token.ok().and_then(|token| token.0.as_ref()) {
         let claims = security::decrypt_verification_token(remember_token, &CIPHER_PASSWORD)?;
-        let user = service::find_user_by_id(claims.user_id, &conn).ok();
-        return Ok(user.map(|user| (claims, user)));
+        if let Ok(user) = service::find_user_by_id(claims.user_id, &conn) {
+            if verify_remember_token(&claims, &user) {
+                return Ok(Some(Identity::from(&user)));
+            }
+        }
     }
 
     Ok(None)
+}
+
+fn verify_remember_token(claims: &Claims, user: &UserEntity) -> bool {
+    if let Some(entity_remember_token) = &user.remember_token {
+        let matching = hash::verify(entity_remember_token, &claims.token, &DIGEST_SECRET_KEY);
+        return matching.unwrap_or(false);
+    }
+
+    false
 }
 
 fn set_remember_token_cookie(remember_token: &str, max_age: Duration, ctx: &Context<'_>) {
