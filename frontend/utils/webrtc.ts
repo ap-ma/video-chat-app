@@ -1,6 +1,6 @@
 /* eslint-disable promise/catch-or-return, promise/always-return */
 import toast from 'components/01_atoms/Toast'
-import { ICE_SERVER_URL } from 'const'
+import { ICE_SERVER_URLS } from 'const'
 import {
   CancelMutation,
   CancelMutationVariables,
@@ -63,7 +63,12 @@ export class WebRTC {
     // ローカルのMediaStreamの取得
     this.localMediaStream = navigator.mediaDevices.getUserMedia({
       audio: true,
-      video: { facingMode: 'user' }
+      video: {
+        facingMode: 'user',
+        frameRate: { ideal: 30 },
+        width: { ideal: 1024 },
+        height: { ideal: 576 }
+      }
     })
 
     // ローカルのVideoElementの再生
@@ -198,7 +203,7 @@ export class WebRTC {
   private createConnection(contactId?: string): RTCPeerConnection {
     // RTCPeerConnection
     const conn = new RTCPeerConnection({
-      iceServers: [{ urls: ICE_SERVER_URL }]
+      iceServers: ICE_SERVER_URLS?.map((urls) => ({ urls })) ?? []
     })
 
     // ICE Candidate 収集時イベント

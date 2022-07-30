@@ -18,7 +18,7 @@ pub fn register(config: &mut web::ServiceConfig) {
                     .guard(guard::Header("upgrade", "websocket"))
                     .to(subscription),
             )
-            .route(web::get().to(_playground)),
+            // .route(web::get().to(_playground)),
     );
 }
 
