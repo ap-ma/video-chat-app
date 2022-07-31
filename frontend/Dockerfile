@@ -7,7 +7,7 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 # ビルド環境
 FROM developer as builder
 COPY . .
-RUN npm ci --only=production && npm run build
+RUN npm install && npm run build
 
 # リリース環境
 FROM gcr.io/distroless/nodejs:16
