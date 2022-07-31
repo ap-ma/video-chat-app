@@ -81,11 +81,11 @@ const MessageContainer: React.VFC<ContainerProps<MessageProps, PresenterProps>> 
 }) => {
   const workflow = [MESSAGE.CATEGORY.CONTACT_APPLICATION, MESSAGE.CATEGORY.CONTACT_APPROVAL]
   const isDate = isString(msg)
-  const isWorkflow = !isDate && includes(msg.category, ...workflow)
-  const isMessage = !isDate && !isWorkflow
+  const isWorkflow = !isString(msg) && includes(msg.category, ...workflow)
+  const isMessage = !isString(msg) && !isWorkflow
 
-  const message = isMessage ? msg : undefined
-  const text = isDate
+  const message = !isString(msg) && !includes(msg.category, ...workflow) ? msg : undefined
+  const text = isString(msg)
     ? msg
     : !isNullish(contactInfo.result)
     ? getMessage(msg, contactInfo.result, toStr(me.result?.name))
