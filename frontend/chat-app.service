@@ -3,7 +3,8 @@ Description=Chat App
 After=syslog.target network.target auditd.service
 
 [Service]
-ExecStart=/opt/app/node_modules/.bin/next start -p 80
+WorkingDirectory=/opt/app
+ExecStart=npm start
 ExecStop=/bin/kill -15 $MAINPID
 Restart=always
 
