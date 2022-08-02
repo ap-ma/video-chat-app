@@ -16,5 +16,5 @@ pub fn get_db_pool(db_url: &str) -> MySqlPool {
 
 pub fn migration(pool: &MySqlPool) {
     let conn = &pool.get().expect("Unable to get DB connection");
-    diesel_migrations::run_pending_migrations(conn).expect("Failed to run DB migrations");
+    embedded_migrations::run(conn).expect("Failed to run DB migrations");
 }
