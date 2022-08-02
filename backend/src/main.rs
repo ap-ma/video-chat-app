@@ -17,12 +17,14 @@ use actix_web::{cookie, middleware::Logger, web::Data, App, HttpServer};
 use constant::system::{
     API_URL, APP_ADDR, APP_DOMAIN, CORS_MAX_AGE, DATABASE_URL, FRONT_URL, REDIS_URL,
 };
+use std::path::Path;
 
 pub use structure::*;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenv::dotenv().ok();
+    let dotenv_path = Path::new("/opt/app/.env");
+    dotenv::from_path(dotenv_path).ok();
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
     let pool = database::get_db_pool(DATABASE_URL.as_str());

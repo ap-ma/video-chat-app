@@ -1,11 +1,12 @@
 #!/bin/bash
 
 # dotenv
+mkdir -p /opt/app
 if [ -e .env.local ]; then
-  cat .env.local <(echo -e "\n") .env.dev > .env
-  chmod 666 ./.env
+  cat .env.local <(echo -e "\n") .env.dev > /opt/app/.env
+  chmod 666 /opt/app/.env
 else
-  cp -p ./.env.dev ./.env
+  cp -p .env.dev /opt/app/.env
 fi
 
 # db migration
