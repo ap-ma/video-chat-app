@@ -1,0 +1,11 @@
+[Unit]
+Description=Chat App
+After=syslog.target network.target auditd.service
+
+[Service]
+ExecStart=/opt/app/node_modules/.bin/next start -p 80
+ExecStop=/bin/kill -15 $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
