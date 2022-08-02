@@ -4,7 +4,7 @@ mkdir -p /opt/app
 
 pushd `dirname $(cd $(dirname $0); pwd)`
 su -l $(logname) -c "cd $(pwd) && cargo build --release"
-cp ./chat-app-api /opt/app/
+cp ./target/release/chat-app-api /opt/app/
 cp ./chat-app-api.service /etc/systemd/system/
 popd
 
