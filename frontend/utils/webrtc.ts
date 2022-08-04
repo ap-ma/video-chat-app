@@ -25,7 +25,7 @@ export class WebRTC {
   protected connection?: RTCPeerConnection
 
   /** Local MediaStream */
-  protected localMediaStream?: Promise<MediaStream>
+  protected localMediaStream: Promise<MediaStream>
 
   /** call id */
   protected callId?: string
@@ -178,7 +178,7 @@ export class WebRTC {
    * @param enabled - on/off state
    */
   public set setMicState(enabled: boolean) {
-    this.localMediaStream?.then((stream) => {
+    this.localMediaStream.then((stream) => {
       stream.getAudioTracks().forEach((track) => (track.enabled = enabled))
     })
   }
@@ -189,7 +189,7 @@ export class WebRTC {
    * @param enabled -on/off state
    */
   public set setCameraState(enabled: boolean) {
-    this.localMediaStream?.then((stream) => {
+    this.localMediaStream.then((stream) => {
       stream.getVideoTracks().forEach((track) => (track.enabled = enabled))
     })
   }
@@ -247,11 +247,7 @@ export class WebRTC {
 
     // ローカル MediaStream
     this.localMediaStream
-      ?.then((stream) =>
-        stream.getTracks().forEach((track) => {
-          if (!isNullish(this.localMediaStream)) conn.addTrack(track, stream)
-        })
-      )
+      .then((stream) => stream.getTracks().forEach((track) => conn.addTrack(track, stream)))
       .catch(() => this.hangUp())
 
     return conn
@@ -264,12 +260,9 @@ export class WebRTC {
    */
   protected purge(): void {
     this.setCallTypeFunc(CallType.Close)
+    this.localMediaStream.then((stream) => stream.getTracks().forEach((track) => track.stop()))
     if (!isNullish(this.remoteVideo)) WebRTC.clearVideo(this.remoteVideo)
     if (!isNullish(this.localVideo)) WebRTC.clearVideo(this.localVideo)
-    if (!isNullish(this.localMediaStream)) {
-      this.localMediaStream.then((stream) => stream.getTracks().forEach((track) => track.stop()))
-      this.localMediaStream = undefined
-    }
     if (!isNullish(this.connection)) {
       this.connection.close()
       this.connection = undefined
