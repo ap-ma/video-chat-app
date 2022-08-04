@@ -146,7 +146,7 @@ export class WebRTC {
   public addIceCandidate(iceCandidate: IceCandidateSubscription['iceCandidateSubscription']): void {
     if (this.callId !== iceCandidate.callId) return
     const candidate = JSON.parse(iceCandidate.candidate) as RTCIceCandidate
-    this.connection?.addIceCandidate(new RTCIceCandidate(candidate))
+    this.connection?.addIceCandidate(candidate)
   }
 
   /**
