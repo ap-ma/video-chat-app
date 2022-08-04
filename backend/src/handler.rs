@@ -18,7 +18,8 @@ pub fn register(config: &mut web::ServiceConfig) {
                     .guard(guard::Header("upgrade", "websocket"))
                     .to(subscription),
             )
-            // .route(web::get().to(_playground)),
+            // .route(web::get().to(_playground))
+            .route(web::get().to(health_check)),
     );
 }
 
@@ -58,4 +59,8 @@ async fn _playground() -> HttpResponse {
         .body(playground_source(
             GraphQLPlaygroundConfig::new("/").subscription_endpoint("/"),
         ))
+}
+
+async fn health_check() -> &'static str {
+    "OK"
 }
