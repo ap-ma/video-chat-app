@@ -19,7 +19,7 @@ pub fn register(config: &mut web::ServiceConfig) {
                     .to(subscription),
             )
             // .route(web::get().to(_playground))
-            .route(web::get().to(health_check)),
+            .route(web::get().to(_health_check)),
     );
 }
 
@@ -61,6 +61,6 @@ async fn _playground() -> HttpResponse {
         ))
 }
 
-async fn health_check() -> &'static str {
+async fn _health_check() -> &'static str {
     "OK"
 }
