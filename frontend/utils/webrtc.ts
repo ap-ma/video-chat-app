@@ -11,8 +11,8 @@ import {
   PickUpMutationVariables,
   RingUpMutation,
   RingUpMutationVariables,
-  SendIceCandidateMutation,
-  SendIceCandidateMutationVariables,
+  SendIceCandidatesMutation,
+  SendIceCandidatesMutationVariables,
   SignalingSubscription,
   SignalType
 } from 'graphql/generated'
@@ -36,6 +36,9 @@ export class WebRTC {
   /** answer set flag */
   protected answered = false
 
+  /** unsent ICE Candidates */
+  protected unsentCandidates: Array<RTCIceCandidate> = []
+
   /**
    * コンストラクタ
    *
@@ -45,7 +48,7 @@ export class WebRTC {
    * @param pickUpMutation - 通話応答 mutation
    * @param hangUpMutation - 通話終了 mutation
    * @param cancelMutation - 通話キャンセル mutation
-   * @param sendIceCandidateMutation - ICE Candidate 送信 mutation
+   * @param sendIceCandidatesMutation - ICE Candidate 送信 mutation
    * @param remoteVideo - リモート VideoElement
    * @param localVideo - ローカル VideoElement
    */
@@ -56,7 +59,7 @@ export class WebRTC {
     protected pickUpMutation: MutateFunction<PickUpMutation, PickUpMutationVariables>,
     protected hangUpMutation: MutateFunction<HangUpMutation, HangUpMutationVariables>,
     protected cancelMutation: MutateFunction<CancelMutation, CancelMutationVariables>,
-    protected sendIceCandidateMutation: MutateFunction<SendIceCandidateMutation, SendIceCandidateMutationVariables>,
+    protected sendIceCandidatesMutation: MutateFunction<SendIceCandidatesMutation, SendIceCandidatesMutationVariables>,
     protected remoteVideo: HTMLVideoElement | null,
     protected localVideo: HTMLVideoElement | null
   ) {
@@ -87,8 +90,8 @@ export class WebRTC {
    * @returns void
    */
   public offer(contactId: string, otherUserId: string): void {
-    this.connection = this.createConnection(contactId)
     this.otherUserId = otherUserId
+    this.connection = this.createConnection(contactId)
   }
 
   /**
@@ -100,6 +103,8 @@ export class WebRTC {
   public async answer(signal: SignalingSubscription['signalingSubscription']): Promise<void> {
     if (SignalType.Close === signal.signalType) this.purge()
     if (SignalType.Offer !== signal.signalType) return
+    this.callId = signal.callId
+    this.otherUserId = signal.txUserId
     const conn = this.createConnection()
     const sessionDesc = JSON.parse(toStr(signal.sdp)) as RTCSessionDescription
     await conn.setRemoteDescription(sessionDesc)
@@ -108,10 +113,7 @@ export class WebRTC {
     const sdp = JSON.stringify(conn.localDescription)
     const input = { callId: signal.callId, sdp }
     this.pickUpMutation({ variables: { input } }).catch(toast('UnexpectedError'))
-
     this.connection = conn
-    this.callId = signal.callId
-    this.otherUserId = signal.txUserId
     this.answered = true
   }
 
@@ -143,10 +145,11 @@ export class WebRTC {
    * @param iceCandidate - ICE Candidateオブジェクト
    * @returns void
    */
-  public addIceCandidate(iceCandidate: IceCandidateSubscription['iceCandidateSubscription']): void {
+  public addIceCandidates(iceCandidate: IceCandidateSubscription['iceCandidateSubscription']): void {
     if (this.callId !== iceCandidate.callId) return
-    const candidate = JSON.parse(iceCandidate.candidate) as RTCIceCandidate
-    this.connection?.addIceCandidate(candidate)
+    iceCandidate.candidates.forEach((candidate) =>
+      this.connection?.addIceCandidate(JSON.parse(candidate) as RTCIceCandidate)
+    )
   }
 
   /**
@@ -206,10 +209,9 @@ export class WebRTC {
 
     // ICE Candidate 収集時イベント
     conn.onicecandidate = (evt) => {
-      if (isNullish(evt.candidate) || isNullish(this.callId) || isNullish(this.otherUserId)) return
-      const candidate = JSON.stringify(evt.candidate)
-      const input = { callId: this.callId, otherUserId: this.otherUserId, candidate }
-      this.sendIceCandidateMutation({ variables: { input } }).catch(toast('UnexpectedError'))
+      if (isNullish(evt.candidate) || isNullish(this.otherUserId)) return
+      if (!isNullish(this.callId)) return this.sendCandidates([evt.candidate])
+      this.unsentCandidates.push(evt.candidate)
     }
 
     // Offer ネゴシエーション
@@ -220,7 +222,10 @@ export class WebRTC {
       const sdp = JSON.stringify(conn.localDescription)
       const input = { contactId: toStr(contactId), sdp }
       this.ringUpMutation({ variables: { input } })
-        .then(({ data }) => (this.callId = data?.ringUp.message?.call?.id))
+        .then(({ data }) => {
+          this.callId = data?.ringUp.message?.call?.id
+          this.sendCandidates(this.unsentCandidates)
+        })
         .catch(toast('UnexpectedError'))
     }
 
@@ -249,6 +254,19 @@ export class WebRTC {
       .catch(() => this.hangUp())
 
     return conn
+  }
+
+  /**
+   * RTCIceCandidate送信処理
+   *
+   * @param iceCandidates
+   * @returns void
+   */
+  protected sendCandidates(iceCandidates: Array<RTCIceCandidate>): void {
+    if (isNullish(this.callId) || isNullish(this.otherUserId)) return
+    const candidates = iceCandidates.map((candidate) => JSON.stringify(candidate))
+    const input = { callId: this.callId, otherUserId: this.otherUserId, candidates }
+    this.sendIceCandidatesMutation({ variables: { input } }).catch(toast('UnexpectedError'))
   }
 
   /**

@@ -1,7 +1,7 @@
 use super::common::{self, mail_builder, MutationType, SignalType, SimpleBroker};
 use super::form::{
     ChangePasswordInput, EditProfileInput, PickUpInput, ResetPasswordInput, RingUpInput,
-    SendIceCandidateInput, SendImageInput, SendMessageInput, SignInInput, SignUpInput,
+    SendIceCandidatesInput, SendImageInput, SendMessageInput, SignInInput, SignUpInput,
 };
 use super::model::{Contact, IceCandidate, Message, MessageChanged, Signal, User};
 use super::security::auth::{self, Role};
@@ -855,17 +855,17 @@ impl Mutation {
     }
 
     #[graphql(guard = "RoleGuard::new(Role::User)")]
-    async fn send_ice_candidate(
+    async fn send_ice_candidates(
         &self,
         ctx: &Context<'_>,
-        input: SendIceCandidateInput,
+        input: SendIceCandidatesInput,
     ) -> Result<bool> {
         let identity = auth::get_identity(ctx)?;
         let candidate = IceCandidate {
             call_id: common::convert_id(&input.call_id)?,
             tx_user_id: identity.id,
             rx_user_id: common::convert_id(&input.other_user_id)?,
-            candidate: input.candidate,
+            candidates: input.candidates,
         };
 
         publish_candidate(&candidate);
@@ -1326,6 +1326,6 @@ fn publish_signal(signal: &Signal) {
     SimpleBroker::publish(signal.clone());
 }
 
-fn publish_candidate(signal: &IceCandidate) {
-    SimpleBroker::publish(signal.clone());
+fn publish_candidate(candidate: &IceCandidate) {
+    SimpleBroker::publish(candidate.clone());
 }

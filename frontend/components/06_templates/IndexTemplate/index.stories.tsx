@@ -44,8 +44,8 @@ import {
   ReadMessagesMutationVariables,
   RingUpMutation,
   RingUpMutationVariables,
-  SendIceCandidateMutation,
-  SendIceCandidateMutationVariables,
+  SendIceCandidatesMutation,
+  SendIceCandidatesMutationVariables,
   SendImageMutation,
   SendImageMutationVariables,
   SendMessageMutation,
@@ -94,7 +94,7 @@ type IndexTemplateStoryProps = IndexTemplateProps & {
   pickUpLoading: MutaionLoading
   hangUpLoading: MutaionLoading
   cancelLoading: MutaionLoading
-  sendIceCandidateLoading: MutaionLoading
+  sendIceCandidatesLoading: MutaionLoading
   deleteMessageLoading: MutaionLoading
   readMessagesLoading: MutaionLoading
   applyContactLoading: MutaionLoading
@@ -126,7 +126,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
   pickUpLoading,
   hangUpLoading,
   cancelLoading,
-  sendIceCandidateLoading,
+  sendIceCandidatesLoading,
   deleteMessageLoading,
   readMessagesLoading,
   applyContactLoading,
@@ -237,11 +237,11 @@ const Template: Story<IndexTemplateStoryProps> = ({
     cancelLoading
   )
 
-  const sendIceCandidate = dummyMutation<
-    SendIceCandidateMutation['sendIceCandidate'],
-    SendIceCandidateMutation,
-    SendIceCandidateMutationVariables
-  >('SendIceCandidate', undefined, sendIceCandidateLoading)
+  const sendIceCandidates = dummyMutation<
+    SendIceCandidatesMutation['sendIceCandidates'],
+    SendIceCandidatesMutation,
+    SendIceCandidatesMutationVariables
+  >('SendIceCandidate', undefined, sendIceCandidatesLoading)
 
   const deleteMessage = dummyMutation<
     DeleteMessageMutation['deleteMessage'],
@@ -303,7 +303,7 @@ const Template: Story<IndexTemplateStoryProps> = ({
     pickUp,
     hangUp,
     cancel,
-    sendIceCandidate,
+    sendIceCandidates,
     deleteMessage,
     readMessages,
     applyContact,
@@ -366,7 +366,7 @@ Primary.args = {
   pickUpLoading: false,
   hangUpLoading: false,
   cancelLoading: false,
-  sendIceCandidateLoading: false,
+  sendIceCandidatesLoading: false,
   deleteMessageLoading: false,
   readMessagesLoading: false,
   applyContactLoading: false,

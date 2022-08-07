@@ -46,8 +46,8 @@ import {
   RingUpMutationVariables,
   SearchUserQuery,
   SearchUserQueryVariables,
-  SendIceCandidateMutation,
-  SendIceCandidateMutationVariables,
+  SendIceCandidatesMutation,
+  SendIceCandidatesMutationVariables,
   SendImageMutation,
   SendImageMutationVariables,
   SendMessageMutation,
@@ -266,12 +266,12 @@ export type IndexTemplateProps = {
     /**
      * ICE Candidate 送信
      */
-    sendIceCandidate: {
-      result?: SendIceCandidateMutation['sendIceCandidate']
+    sendIceCandidates: {
+      result?: SendIceCandidatesMutation['sendIceCandidates']
       loading: MutaionLoading
       errors?: ValidationErrors
       reset: MutaionReset
-      mutate: MutateFunction<SendIceCandidateMutation, SendIceCandidateMutationVariables>
+      mutate: MutateFunction<SendIceCandidatesMutation, SendIceCandidatesMutationVariables>
     }
     /**
      * メッセージ削除
@@ -390,7 +390,7 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
     pickUp,
     hangUp,
     cancel,
-    sendIceCandidate,
+    sendIceCandidates,
     deleteMessage,
     applyContact,
     approveContact,
@@ -450,7 +450,7 @@ const IndexTemplatePresenter: React.VFC<PresenterProps> = ({
       apolloClient={apolloClient}
       state={{ callType }}
       query={{ contactInfo }}
-      mutation={{ ringUp, pickUp, hangUp, cancel, sendIceCandidate }}
+      mutation={{ ringUp, pickUp, hangUp, cancel, sendIceCandidates }}
       subscription={{ signaling, iceCandidate }}
       {...styles.calling({ dispCalling })}
     />

@@ -1,9 +1,0 @@
-input SendIceCandidateInput {
-  callId: ID!
-  other_user_id: ID!
-  candidate: String!
-}
-
-mutation SendIceCandidate($input: SendIceCandidateInput!) {
-  sendIceCandidate(input: $input)
-}

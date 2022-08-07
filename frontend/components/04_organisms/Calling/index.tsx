@@ -12,8 +12,8 @@ import {
   PickUpMutationVariables,
   RingUpMutation,
   RingUpMutationVariables,
-  SendIceCandidateMutation,
-  SendIceCandidateMutationVariables,
+  SendIceCandidatesMutation,
+  SendIceCandidatesMutationVariables,
   SignalFieldsFragmentDoc,
   SignalingSubscription
 } from 'graphql/generated'
@@ -94,8 +94,8 @@ export type CallingProps = BoxProps & {
     /**
      * ICE Candidate 送信
      */
-    sendIceCandidate: {
-      mutate: MutateFunction<SendIceCandidateMutation, SendIceCandidateMutationVariables>
+    sendIceCandidates: {
+      mutate: MutateFunction<SendIceCandidatesMutation, SendIceCandidatesMutationVariables>
     }
   }
   /**
@@ -185,7 +185,7 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
   apolloClient,
   state: { callType },
   query: { contactInfo },
-  mutation: { ringUp, pickUp, hangUp, cancel, sendIceCandidate },
+  mutation: { ringUp, pickUp, hangUp, cancel, sendIceCandidates },
   subscription: { signaling, iceCandidate },
   ...props
 }) => {
@@ -234,7 +234,7 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
       pickUp.mutate,
       hangUp.mutate,
       cancel.mutate,
-      sendIceCandidate.mutate,
+      sendIceCandidates.mutate,
       remoteVideoRef.current,
       localVideoRef.current
     )
@@ -270,7 +270,7 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
   useMemo(() => {
     const connection = session.current
     if (isNullish(connection) || isNullish(iceCandidate.result)) return
-    connection.addIceCandidate(iceCandidate.result)
+    connection.addIceCandidates(iceCandidate.result)
   }, [iceCandidate.result])
 
   return presenter({

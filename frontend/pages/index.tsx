@@ -31,7 +31,7 @@ import {
   useReadMessagesMutation,
   useRingUpMutation,
   useSearchUserLazyQuery,
-  useSendIceCandidateMutation,
+  useSendIceCandidatesMutation,
   useSendImageMutation,
   useSendMessageMutation,
   useSignalingSubscription,
@@ -194,8 +194,8 @@ const Index: NextPage = () => {
   const cancelResult = handle(cancelMutation.error, handler)
 
   // ICE Candidate 送信
-  const [sendIceCandidate, sendIceCandidateMutation] = useSendIceCandidateMutation()
-  const sendIceCandidateResult = handle(sendIceCandidateMutation.error, handler)
+  const [sendIceCandidates, sendIceCandidatesMutation] = useSendIceCandidatesMutation()
+  const sendIceCandidatesResult = handle(sendIceCandidatesMutation.error, handler)
 
   // メッセージ削除
   const [deleteMessage, deleteMessageMutation] = useDeleteMessageMutation({
@@ -389,12 +389,12 @@ const Index: NextPage = () => {
         reset: cancelMutation.reset,
         mutate: cancel
       },
-      sendIceCandidate: {
-        result: sendIceCandidateMutation.data?.sendIceCandidate,
-        loading: sendIceCandidateMutation.loading,
-        errors: isValidationErrors(sendIceCandidateResult) ? sendIceCandidateResult : undefined,
-        reset: sendIceCandidateMutation.reset,
-        mutate: sendIceCandidate
+      sendIceCandidates: {
+        result: sendIceCandidatesMutation.data?.sendIceCandidates,
+        loading: sendIceCandidatesMutation.loading,
+        errors: isValidationErrors(sendIceCandidatesResult) ? sendIceCandidatesResult : undefined,
+        reset: sendIceCandidatesMutation.reset,
+        mutate: sendIceCandidates
       },
       deleteMessage: {
         result: deleteMessageMutation.data?.deleteMessage,

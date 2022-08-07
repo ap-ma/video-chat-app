@@ -5,7 +5,7 @@ pub struct IceCandidate {
     pub call_id: u64,
     pub tx_user_id: u64,
     pub rx_user_id: u64,
-    pub candidate: String,
+    pub candidates: Vec<String>,
 }
 
 #[Object]
@@ -22,7 +22,7 @@ impl IceCandidate {
         self.rx_user_id.into()
     }
 
-    async fn candidate(&self) -> &str {
-        self.candidate.as_ref()
+    async fn candidates(&self) -> Vec<String> {
+        self.candidates.clone()
     }
 }

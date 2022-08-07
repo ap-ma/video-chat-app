@@ -11,8 +11,8 @@ import {
   PickUpMutationVariables,
   RingUpMutation,
   RingUpMutationVariables,
-  SendIceCandidateMutation,
-  SendIceCandidateMutationVariables,
+  SendIceCandidatesMutation,
+  SendIceCandidatesMutationVariables,
   SignalingSubscription,
   SignalType
 } from 'graphql/generated'
@@ -31,7 +31,7 @@ type CallingStoryProps = CallingProps & {
   pickUpLoading: MutaionLoading
   hangUpLoading: MutaionLoading
   cancelLoading: MutaionLoading
-  sendIceCandidateLoading: MutaionLoading
+  sendIceCandidatesLoading: MutaionLoading
   signalingLoading: SubscriptionLoading
   signalingType: SignalType
 }
@@ -41,7 +41,7 @@ const Template: Story<CallingStoryProps> = ({
   pickUpLoading,
   hangUpLoading,
   cancelLoading,
-  sendIceCandidateLoading,
+  sendIceCandidatesLoading,
   signalingLoading,
   signalingType,
   ...props
@@ -78,18 +78,18 @@ const Template: Story<CallingStoryProps> = ({
     cancelLoading
   )
 
-  const sendIceCandidate = dummyMutation<
-    SendIceCandidateMutation['sendIceCandidate'],
-    SendIceCandidateMutation,
-    SendIceCandidateMutationVariables
-  >('SendIceCandidate', undefined, sendIceCandidateLoading)
+  const sendIceCandidates = dummyMutation<
+    SendIceCandidatesMutation['sendIceCandidates'],
+    SendIceCandidatesMutation,
+    SendIceCandidatesMutationVariables
+  >('SendIceCandidate', undefined, sendIceCandidatesLoading)
 
   const mutation = {
     ringUp,
     pickUp,
     hangUp,
     cancel,
-    sendIceCandidate
+    sendIceCandidates
   }
 
   // subscription
@@ -120,7 +120,7 @@ Primary.args = {
   pickUpLoading: false,
   hangUpLoading: false,
   cancelLoading: false,
-  sendIceCandidateLoading: false,
+  sendIceCandidatesLoading: false,
   signalingLoading: false,
   signalingType: SignalType.Close
 }

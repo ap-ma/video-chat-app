@@ -531,16 +531,24 @@
             "deprecationReason": null
           },
           {
-            "name": "candidate",
+            "name": "candidates",
             "description": null,
             "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                }
               }
             },
             "isDeprecated": false,
@@ -1582,7 +1590,7 @@
             "deprecationReason": null
           },
           {
-            "name": "sendIceCandidate",
+            "name": "sendIceCandidates",
             "description": null,
             "args": [
               {
@@ -1593,7 +1601,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "SendIceCandidateInput",
+                    "name": "SendIceCandidatesInput",
                     "ofType": null
                   }
                 },
@@ -2217,7 +2225,7 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "SendIceCandidateInput",
+        "name": "SendIceCandidatesInput",
         "description": null,
         "fields": null,
         "inputFields": [
@@ -2238,15 +2246,23 @@
             "deprecationReason": null
           },
           {
-            "name": "candidate",
+            "name": "candidates",
             "description": null,
             "type": {
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                }
               }
             },
             "defaultValue": null,

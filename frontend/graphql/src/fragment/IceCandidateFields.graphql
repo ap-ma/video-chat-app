@@ -3,5 +3,5 @@ fragment IceCandidateFields on IceCandidate {
   callId
   txUserId
   rxUserId
-  candidate
+  candidates
 }

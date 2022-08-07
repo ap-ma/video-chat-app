@@ -72,7 +72,7 @@ export type EditProfileInput = {
 export type IceCandidate = {
   __typename?: 'IceCandidate'
   callId: Scalars['ID']
-  candidate: Scalars['String']
+  candidates: Array<Scalars['String']>
   rxUserId: Scalars['ID']
   txUserId: Scalars['ID']
 }
@@ -143,7 +143,7 @@ export type Mutation = {
   readMessages: MessageChanged
   resetPassword: Scalars['Boolean']
   ringUp: MessageChanged
-  sendIceCandidate: Scalars['Boolean']
+  sendIceCandidates: Scalars['Boolean']
   sendImage: MessageChanged
   sendMessage: MessageChanged
   signIn: Scalars['Boolean']
@@ -214,8 +214,8 @@ export type MutationRingUpArgs = {
   input: RingUpInput
 }
 
-export type MutationSendIceCandidateArgs = {
-  input: SendIceCandidateInput
+export type MutationSendIceCandidatesArgs = {
+  input: SendIceCandidatesInput
 }
 
 export type MutationSendImageArgs = {
@@ -291,9 +291,9 @@ export type RingUpInput = {
   sdp: Scalars['String']
 }
 
-export type SendIceCandidateInput = {
+export type SendIceCandidatesInput = {
   callId: Scalars['ID']
-  candidate: Scalars['String']
+  candidates: Array<Scalars['String']>
   otherUserId: Scalars['ID']
 }
 
@@ -453,7 +453,7 @@ export type IceCandidateFieldsFragment = {
   callId: string
   txUserId: string
   rxUserId: string
-  candidate: string
+  candidates: Array<string>
 }
 
 export type LatestMessageFieldsFragment = {
@@ -1307,11 +1307,11 @@ export type RingUpMutation = {
   }
 }
 
-export type SendIceCandidateMutationVariables = Exact<{
-  input: SendIceCandidateInput
+export type SendIceCandidatesMutationVariables = Exact<{
+  input: SendIceCandidatesInput
 }>
 
-export type SendIceCandidateMutation = { __typename?: 'Mutation'; sendIceCandidate: boolean }
+export type SendIceCandidatesMutation = { __typename?: 'Mutation'; sendIceCandidates: boolean }
 
 export type SendImageMutationVariables = Exact<{
   input: SendImageInput
@@ -1780,7 +1780,7 @@ export type IceCandidateSubscription = {
     callId: string
     txUserId: string
     rxUserId: string
-    candidate: string
+    candidates: Array<string>
   }
 }
 
@@ -1965,7 +1965,7 @@ export const IceCandidateFieldsFragmentDoc = gql`
     callId
     txUserId
     rxUserId
-    candidate
+    candidates
   }
 `
 export const MessageChangedFieldsFragmentDoc = gql`
@@ -2608,47 +2608,47 @@ export function useRingUpMutation(baseOptions?: Apollo.MutationHookOptions<RingU
 export type RingUpMutationHookResult = ReturnType<typeof useRingUpMutation>
 export type RingUpMutationResult = Apollo.MutationResult<RingUpMutation>
 export type RingUpMutationOptions = Apollo.BaseMutationOptions<RingUpMutation, RingUpMutationVariables>
-export const SendIceCandidateDocument = gql`
-  mutation SendIceCandidate($input: SendIceCandidateInput!) {
-    sendIceCandidate(input: $input)
+export const SendIceCandidatesDocument = gql`
+  mutation SendIceCandidates($input: SendIceCandidatesInput!) {
+    sendIceCandidates(input: $input)
   }
 `
-export type SendIceCandidateMutationFn = Apollo.MutationFunction<
-  SendIceCandidateMutation,
-  SendIceCandidateMutationVariables
+export type SendIceCandidatesMutationFn = Apollo.MutationFunction<
+  SendIceCandidatesMutation,
+  SendIceCandidatesMutationVariables
 >
 
 /**
- * __useSendIceCandidateMutation__
+ * __useSendIceCandidatesMutation__
  *
- * To run a mutation, you first call `useSendIceCandidateMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSendIceCandidateMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useSendIceCandidatesMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendIceCandidatesMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [sendIceCandidateMutation, { data, loading, error }] = useSendIceCandidateMutation({
+ * const [sendIceCandidatesMutation, { data, loading, error }] = useSendIceCandidatesMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useSendIceCandidateMutation(
-  baseOptions?: Apollo.MutationHookOptions<SendIceCandidateMutation, SendIceCandidateMutationVariables>
+export function useSendIceCandidatesMutation(
+  baseOptions?: Apollo.MutationHookOptions<SendIceCandidatesMutation, SendIceCandidatesMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<SendIceCandidateMutation, SendIceCandidateMutationVariables>(
-    SendIceCandidateDocument,
+  return Apollo.useMutation<SendIceCandidatesMutation, SendIceCandidatesMutationVariables>(
+    SendIceCandidatesDocument,
     options
   )
 }
-export type SendIceCandidateMutationHookResult = ReturnType<typeof useSendIceCandidateMutation>
-export type SendIceCandidateMutationResult = Apollo.MutationResult<SendIceCandidateMutation>
-export type SendIceCandidateMutationOptions = Apollo.BaseMutationOptions<
-  SendIceCandidateMutation,
-  SendIceCandidateMutationVariables
+export type SendIceCandidatesMutationHookResult = ReturnType<typeof useSendIceCandidatesMutation>
+export type SendIceCandidatesMutationResult = Apollo.MutationResult<SendIceCandidatesMutation>
+export type SendIceCandidatesMutationOptions = Apollo.BaseMutationOptions<
+  SendIceCandidatesMutation,
+  SendIceCandidatesMutationVariables
 >
 export const SendImageDocument = gql`
   mutation SendImage($input: SendImageInput!, $dateTimeFormat: String) {
