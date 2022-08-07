@@ -202,9 +202,7 @@ export class WebRTC {
    */
   private createConnection(contactId?: string): RTCPeerConnection {
     // RTCPeerConnection
-    const conn = new RTCPeerConnection({
-      iceServers: ICE_SERVER_URLS?.map((urls) => ({ urls })) ?? []
-    })
+    const conn = new RTCPeerConnection(WebRTC.getPcConfig())
 
     // ICE Candidate 収集時イベント
     conn.onicecandidate = (evt) => {
@@ -267,6 +265,24 @@ export class WebRTC {
       this.connection.close()
       this.connection = undefined
     }
+  }
+
+  /**
+   * RTCConfigurationを取得する
+   *
+   * @returns RTCConfiguration
+   */
+  protected static getPcConfig(): RTCConfiguration {
+    const iceServers = ICE_SERVER_URLS?.map((serverUrl) => {
+      if (serverUrl.includes('@')) {
+        const [user, url] = serverUrl.split('@')
+        const [username, credential] = toStr(user).split(':')
+        return { urls: toStr(url), username, credential }
+      }
+      return { urls: serverUrl }
+    })
+
+    return { iceServers }
   }
 
   /**
