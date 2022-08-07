@@ -103,8 +103,11 @@ export class WebRTC {
   public async answer(signal: SignalingSubscription['signalingSubscription']): Promise<void> {
     if (SignalType.Close === signal.signalType) this.purge()
     if (SignalType.Offer !== signal.signalType) return
+
     this.callId = signal.callId
     this.otherUserId = signal.txUserId
+    this.answered = true
+
     const conn = this.createConnection()
     const sessionDesc = JSON.parse(toStr(signal.sdp)) as RTCSessionDescription
     await conn.setRemoteDescription(sessionDesc)
@@ -113,8 +116,8 @@ export class WebRTC {
     const sdp = JSON.stringify(conn.localDescription)
     const input = { callId: signal.callId, sdp }
     this.pickUpMutation({ variables: { input } }).catch(toast('UnexpectedError'))
+
     this.connection = conn
-    this.answered = true
   }
 
   /**
@@ -130,8 +133,8 @@ export class WebRTC {
     if (SignalType.Answer == signal.signalType) {
       const sessionDesc = JSON.parse(toStr(signal.sdp)) as RTCSessionDescription
       this.connection?.setRemoteDescription(sessionDesc)
-      this.sendCandidates(this.unsentCandidates)
       this.answered = true
+      this.sendCandidates(this.unsentCandidates)
     }
 
     // Close/Cancel取得時
@@ -211,7 +214,7 @@ export class WebRTC {
     // ICE Candidate 収集時イベント
     conn.onicecandidate = (evt) => {
       if (isNullish(evt.candidate) || isNullish(this.otherUserId)) return
-      if (!isNullish(this.callId)) return this.sendCandidates([evt.candidate])
+      if (this.answered) return this.sendCandidates([evt.candidate])
       this.unsentCandidates.push(evt.candidate)
     }
 
