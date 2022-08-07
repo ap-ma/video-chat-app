@@ -4,6 +4,7 @@ import {
   ContactInfoQueryVariables,
   ContactsQuery,
   ContactsQueryVariables,
+  IceCandidateSubscription,
   LatestMessagesQuery,
   LatestMessagesQueryVariables,
   MeQuery,
@@ -11,8 +12,7 @@ import {
   SearchUserQuery,
   SearchUserQueryVariables,
   SignalingSubscription,
-  SignalType,
-  IceCandidateSubscription
+  SignalType
 } from 'graphql/generated'
 import { toStr, zf } from 'utils/general/helper'
 import {
@@ -336,13 +336,13 @@ export function dummyIceCandidate(
   result: IceCandidateSubscription['iceCandidateSubscription']
   loading: SubscriptionLoading
 } {
-  const iceCandidate = {
+  const iceCandidate: IceCandidateSubscription['iceCandidateSubscription'] = {
     __typename: 'IceCandidate',
     callId: '1',
     txUserId: toStr(userId),
     rxUserId: toStr(otherUserId),
-    candidate: ''
-  } as const
+    candidates: ['']
+  }
 
   return {
     result: iceCandidate,
