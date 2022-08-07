@@ -130,6 +130,7 @@ export class WebRTC {
     if (SignalType.Answer == signal.signalType) {
       const sessionDesc = JSON.parse(toStr(signal.sdp)) as RTCSessionDescription
       this.connection?.setRemoteDescription(sessionDesc)
+      this.sendCandidates(this.unsentCandidates)
       this.answered = true
     }
 
@@ -222,10 +223,7 @@ export class WebRTC {
       const sdp = JSON.stringify(conn.localDescription)
       const input = { contactId: toStr(contactId), sdp }
       this.ringUpMutation({ variables: { input } })
-        .then(({ data }) => {
-          this.callId = data?.ringUp.message?.call?.id
-          this.sendCandidates(this.unsentCandidates)
-        })
+        .then(({ data }) => (this.callId = data?.ringUp.message?.call?.id))
         .catch(toast('UnexpectedError'))
     }
 
