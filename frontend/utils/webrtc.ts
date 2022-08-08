@@ -107,16 +107,15 @@ export class WebRTC {
 
     this.callId = signal.callId
     this.otherUserId = signal.txUserId
-    const conn = this.createConnection()
+    this.connection = this.createConnection()
     const sessionDesc = JSON.parse(toStr(signal.sdp)) as RTCSessionDescription
-    await conn.setRemoteDescription(sessionDesc)
+    await this.connection.setRemoteDescription(sessionDesc)
     this.addTrack(async () => {
-      const answer = await conn.createAnswer()
-      await conn.setLocalDescription(answer)
-      const sdp = JSON.stringify(conn.localDescription)
+      const answer = await this.connection?.createAnswer()
+      await this.connection?.setLocalDescription(answer)
+      const sdp = JSON.stringify(this.connection?.localDescription)
       const input = { callId: signal.callId, sdp }
       this.pickUpMutation({ variables: { input } }).catch(toast('UnexpectedError'))
-      this.connection = conn
       this.answered = true
       this.sendCandidates(this.unsentCandidates)
     })
