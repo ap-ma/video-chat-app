@@ -33,7 +33,10 @@ export class WebRTC {
   /** other user id */
   protected otherUserId?: string
 
-  /** answer set flag */
+  /** offered flag */
+  protected offered = false
+
+  /** answered flag */
   protected answered = false
 
   /** unsent ICE Candidates */
@@ -221,7 +224,7 @@ export class WebRTC {
 
     // Offer ネゴシエーション
     conn.onnegotiationneeded = async () => {
-      if (CallType.Offer !== this.callType) return
+      if (CallType.Offer !== this.callType || this.offered) return
       const offer = await conn.createOffer()
       await conn.setLocalDescription(offer)
       const sdp = JSON.stringify(conn.localDescription)
@@ -229,6 +232,7 @@ export class WebRTC {
       this.ringUpMutation({ variables: { input } })
         .then(({ data }) => (this.callId = data?.ringUp.message?.call?.id))
         .catch(toast('UnexpectedError'))
+      this.offered = true
     }
 
     // ICE state 変更時
