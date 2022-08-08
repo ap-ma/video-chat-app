@@ -92,6 +92,7 @@ export class WebRTC {
   public offer(contactId: string, otherUserId: string): void {
     this.otherUserId = otherUserId
     this.connection = this.createConnection(contactId)
+    this.addTrack()
   }
 
   /**
@@ -107,17 +108,18 @@ export class WebRTC {
     this.callId = signal.callId
     this.otherUserId = signal.txUserId
     const conn = this.createConnection()
-    const sessionDesc = JSON.parse(toStr(signal.sdp)) as RTCSessionDescription
-    await conn.setRemoteDescription(sessionDesc)
-    const answer = await conn.createAnswer()
-    await conn.setLocalDescription(answer)
-    const sdp = JSON.stringify(conn.localDescription)
-    const input = { callId: signal.callId, sdp }
-    this.pickUpMutation({ variables: { input } }).catch(toast('UnexpectedError'))
-
-    this.connection = conn
-    this.answered = true
-    this.sendCandidates(this.unsentCandidates)
+    await this.addTrack(async () => {
+      const sessionDesc = JSON.parse(toStr(signal.sdp)) as RTCSessionDescription
+      await conn.setRemoteDescription(sessionDesc)
+      const answer = await conn.createAnswer()
+      await conn.setLocalDescription(answer)
+      const sdp = JSON.stringify(conn.localDescription)
+      const input = { callId: signal.callId, sdp }
+      this.pickUpMutation({ variables: { input } }).catch(toast('UnexpectedError'))
+      this.connection = conn
+      this.answered = true
+      this.sendCandidates(this.unsentCandidates)
+    })
   }
 
   /**
@@ -249,18 +251,28 @@ export class WebRTC {
       if (!isNullish(this.remoteVideo)) WebRTC.playVideo(this.remoteVideo, evt.streams[0])
     }
 
-    // ローカル MediaStream
-    this.localMediaStream
-      .then((stream) => stream.getTracks().forEach((track) => conn.addTrack(track, stream)))
-      .catch(() => this.hangUp())
-
     return conn
+  }
+
+  /**
+   * ピアに送信するメディアトラックを追加する
+   *
+   * @param after - トラック追加後処理
+   * @returns Promise<void>
+   */
+  protected addTrack(after?: () => void): Promise<void> {
+    return this.localMediaStream
+      .then((stream) => {
+        stream.getTracks().forEach((track) => this.connection?.addTrack(track, stream))
+        if (!isNullish(after)) after()
+      })
+      .catch(() => this.hangUp())
   }
 
   /**
    * RTCIceCandidate送信処理
    *
-   * @param iceCandidates
+   * @param iceCandidates - RTCIceCandidate配列
    * @returns void
    */
   protected sendCandidates(iceCandidates: Array<RTCIceCandidate>): void {
