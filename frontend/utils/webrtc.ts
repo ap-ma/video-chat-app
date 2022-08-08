@@ -108,9 +108,9 @@ export class WebRTC {
     this.callId = signal.callId
     this.otherUserId = signal.txUserId
     const conn = this.createConnection()
-    await this.addTrack(async () => {
-      const sessionDesc = JSON.parse(toStr(signal.sdp)) as RTCSessionDescription
-      await conn.setRemoteDescription(sessionDesc)
+    const sessionDesc = JSON.parse(toStr(signal.sdp)) as RTCSessionDescription
+    await conn.setRemoteDescription(sessionDesc)
+    this.addTrack(async () => {
       const answer = await conn.createAnswer()
       await conn.setLocalDescription(answer)
       const sdp = JSON.stringify(conn.localDescription)
@@ -260,7 +260,7 @@ export class WebRTC {
    * @param after - トラック追加後処理
    * @returns Promise<void>
    */
-  protected addTrack(after?: () => void): Promise<void> {
+  protected addTrack(after?: () => unknown): Promise<void> {
     return this.localMediaStream
       .then((stream) => {
         stream.getTracks().forEach((track) => this.connection?.addTrack(track, stream))
