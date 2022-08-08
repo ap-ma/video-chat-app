@@ -18,7 +18,7 @@ import {
 } from 'graphql/generated'
 import { CallType, MutateFunction, SetState } from 'types'
 import { toStr } from 'utils/general/helper'
-import { includes, isNullish } from 'utils/general/object'
+import { includes, isBlank, isNullish } from 'utils/general/object'
 
 export class WebRTC {
   /** RTCPeerConnection */
@@ -106,8 +106,6 @@ export class WebRTC {
 
     this.callId = signal.callId
     this.otherUserId = signal.txUserId
-    this.answered = true
-
     const conn = this.createConnection()
     const sessionDesc = JSON.parse(toStr(signal.sdp)) as RTCSessionDescription
     await conn.setRemoteDescription(sessionDesc)
@@ -118,6 +116,8 @@ export class WebRTC {
     this.pickUpMutation({ variables: { input } }).catch(toast('UnexpectedError'))
 
     this.connection = conn
+    this.answered = true
+    this.sendCandidates(this.unsentCandidates)
   }
 
   /**
@@ -264,7 +264,7 @@ export class WebRTC {
    * @returns void
    */
   protected sendCandidates(iceCandidates: Array<RTCIceCandidate>): void {
-    if (isNullish(this.callId) || isNullish(this.otherUserId)) return
+    if (isNullish(this.callId) || isNullish(this.otherUserId) || isBlank(iceCandidates)) return
     const candidates = iceCandidates.map((candidate) => JSON.stringify(candidate))
     const input = { callId: this.callId, otherUserId: this.otherUserId, candidates }
     this.sendIceCandidatesMutation({ variables: { input } }).catch(toast('UnexpectedError'))
