@@ -108,9 +108,9 @@ export class WebRTC {
     this.callId = signal.callId
     this.otherUserId = signal.txUserId
     this.connection = this.createConnection()
-    const sessionDesc = JSON.parse(toStr(signal.sdp)) as RTCSessionDescription
-    await this.connection.setRemoteDescription(sessionDesc)
     this.addTrack(async () => {
+      const sessionDesc = JSON.parse(toStr(signal.sdp)) as RTCSessionDescription
+      await this.connection?.setRemoteDescription(sessionDesc)
       const answer = await this.connection?.createAnswer()
       await this.connection?.setLocalDescription(answer)
       const sdp = JSON.stringify(this.connection?.localDescription)
