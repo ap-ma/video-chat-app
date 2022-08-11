@@ -1,0 +1,27 @@
+fragment ContactFields on Contact {
+  __typename
+  id
+  userId
+  userCode
+  userName
+  userComment
+  userAvatar
+  status
+  blocked
+}
+
+fragment ContactFieldsWithLatestMessage on Contact {
+  ...ContactFields
+  latestMessage {
+    ...LatestMessageFields
+  }
+}
+
+fragment ContactFieldsWithChat on Contact {
+  ...ContactFields
+  chatCount
+  chatDateCount
+  chat(cursor: $cursor, limit: $limit) {
+    ...MessageFields
+  }
+}

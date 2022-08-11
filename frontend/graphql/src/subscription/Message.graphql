@@ -1,0 +1,5 @@
+subscription Message($dateTimeFormat: String) {
+  messageSubscription {
+    ...MessageChangedFields
+  }
+}

@@ -1,0 +1,10 @@
+input PickUpInput {
+  callId: ID!
+  sdp: String!
+}
+
+mutation PickUp($input: PickUpInput!, $dateTimeFormat: String) {
+  pickUp(input: $input) {
+    ...MessageChangedFields
+  }
+}

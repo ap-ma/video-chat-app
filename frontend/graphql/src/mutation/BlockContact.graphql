@@ -1,0 +1,5 @@
+mutation BlockContact($contactId: ID!) {
+  blockContact(contactId: $contactId) {
+    ...ContactFields
+  }
+}

@@ -1,0 +1,5 @@
+mutation DeleteMessage($messageId: ID!, $dateTimeFormat: String) {
+  deleteMessage(messageId: $messageId) {
+    ...MessageChangedFields
+  }
+}

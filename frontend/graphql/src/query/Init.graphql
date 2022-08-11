@@ -1,0 +1,14 @@
+query Init($contactUserId: ID, $cursor: ID, $limit: Int, $dateTimeFormat: String) {
+  me {
+    ...OwnUserFields
+  }
+  contacts {
+    ...ContactFields
+  }
+  latestMessages {
+    ...LatestMessageFields
+  }
+  contactInfo(contactUserId: $contactUserId) {
+    ...ContactFieldsWithChat
+  }
+}

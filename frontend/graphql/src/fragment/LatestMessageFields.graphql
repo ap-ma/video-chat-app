@@ -1,0 +1,17 @@
+fragment LatestMessageFields on LatestMessage {
+  __typename
+  userId
+  userCode
+  userName
+  userAvatar
+  messageId
+  txUserId
+  messageCategory
+  message
+  messageStatus
+  createdAt(format: $dateTimeFormat)
+  unreadMessageCount
+  call {
+    ...CallFields
+  }
+}

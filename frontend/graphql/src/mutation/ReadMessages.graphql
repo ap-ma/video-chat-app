@@ -1,0 +1,5 @@
+mutation ReadMessages($otherUserId: ID!, $dateTimeFormat: String) {
+  readMessages(otherUserId: $otherUserId) {
+    ...MessageChangedFields
+  }
+}

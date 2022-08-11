@@ -1,4 +1,0 @@
-# prettierの検証対象外とする特定のファイルやディレクトリ
-/.next/
-/tsconfig.json
-/types/advancedtypes.ts

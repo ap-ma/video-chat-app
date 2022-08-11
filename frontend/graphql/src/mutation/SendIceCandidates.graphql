@@ -1,0 +1,9 @@
+input SendIceCandidatesInput {
+  callId: ID!
+  other_user_id: ID!
+  candidates: [String!]!
+}
+
+mutation SendIceCandidates($input: SendIceCandidatesInput!) {
+  sendIceCandidates(input: $input)
+}

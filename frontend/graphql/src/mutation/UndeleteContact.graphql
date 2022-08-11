@@ -1,0 +1,5 @@
+mutation UndeleteContact($contactId: ID!) {
+  undeleteContact(contactId: $contactId) {
+    ...ContactFields
+  }
+}

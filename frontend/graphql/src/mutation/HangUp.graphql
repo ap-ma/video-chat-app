@@ -1,0 +1,5 @@
+mutation HangUp($callId: ID!, $dateTimeFormat: String) {
+  hangUp(callId: $callId) {
+    ...MessageChangedFields
+  }
+}

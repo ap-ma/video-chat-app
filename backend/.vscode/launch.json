@@ -1,0 +1,14 @@
+// extensionsにて「Rust」「CodeLLDB」をインストール、ubuntu上にLLDBをインストール（sudo apt install lldb）
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Rust: debug",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/target/debug/chat-app-api",
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

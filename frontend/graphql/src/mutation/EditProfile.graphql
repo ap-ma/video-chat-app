@@ -1,0 +1,13 @@
+input EditProfileInput {
+  code: String!
+  name: String!
+  comment: String
+  avatar: Upload
+  isAvatarEdited: Boolean
+}
+
+mutation EditProfile($input: EditProfileInput!) {
+  editProfile(input: $input) {
+    ...OwnUserFields
+  }
+}

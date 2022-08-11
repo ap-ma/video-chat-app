@@ -1,0 +1,10 @@
+input SendMessageInput {
+  contactId: ID!
+  message: String!
+}
+
+mutation SendMessage($input: SendMessageInput!, $dateTimeFormat: String) {
+  sendMessage(input: $input) {
+    ...MessageChangedFields
+  }
+}

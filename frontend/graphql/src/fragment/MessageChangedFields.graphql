@@ -1,0 +1,17 @@
+fragment MessageChangedFields on MessageChanged {
+  __typename
+  txUserId
+  rxUserId
+  contactId
+  contactStatus
+  message {
+    ...MessageFields
+  }
+  messages {
+    ...MessageFields
+  }
+  mutationType
+  latestMessage {
+    ...LatestMessageFields
+  }
+}

@@ -1,0 +1,9 @@
+input SignInInput {
+  email: String!
+  password: String!
+  rememberMe: Boolean
+}
+
+mutation SignIn($input: SignInInput!) {
+  signIn(input: $input)
+}

@@ -5,11 +5,11 @@ services:
   rust:
     container_name: rust
     build:
-      context: ./api
+      context: ./backend
       target: developer
     volumes:
-      - ./api:/app
-      - ./api/cache/cargo:/usr/local/cargo/registry
+      - ./backend:/app
+      - ./backend/cache/cargo:/usr/local/cargo/registry
     ports:
       - 8080:8080
     command: bash ./sh/setup.sh
@@ -19,14 +19,27 @@ services:
   node:
     container_name: node
     build:
-      context: ./client
+      context: ./frontend
       target: developer
     volumes:
-      - ./client:/app
+      - ./frontend:/app
     ports:
       - 3000:3000
       - 6006:6006
+      - 9229:9229
     command: bash ./sh/setup.sh
+    environment:
+      TZ: Asia/Tokyo
+
+  redis:
+    container_name: redis
+    build:
+      context: ./session
+    volumes:
+      - ./session/data:/data
+    ports:
+      - 6379:6379
+    command: bash /tmp/setup.sh
     environment:
       TZ: Asia/Tokyo
 
@@ -42,8 +55,8 @@ services:
     command: bash /tmp/setup.sh
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: links_dev
-      MYSQL_USER: links_app
+      MYSQL_DATABASE: dev_db
+      MYSQL_USER: apu
       MYSQL_PASSWORD: secret
       UID: ${USER_ID:-1000}
       GID: ${GROUP_ID:-1000}

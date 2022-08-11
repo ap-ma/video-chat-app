@@ -1,0 +1,9 @@
+fragment CallFields on Call {
+  __typename
+  id
+  messageId
+  status
+  startedAt(format: $dateTimeFormat)
+  endedAt(format: $dateTimeFormat)
+  callTime
+}

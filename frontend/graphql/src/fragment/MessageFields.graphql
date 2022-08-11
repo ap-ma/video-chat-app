@@ -1,0 +1,13 @@
+fragment MessageFields on Message {
+  __typename
+  id
+  txUserId
+  rxUserId
+  category
+  message
+  status
+  createdAt(format: $dateTimeFormat)
+  call {
+    ...CallFields
+  }
+}

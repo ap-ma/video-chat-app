@@ -1,0 +1,7 @@
+fragment IceCandidateFields on IceCandidate {
+  __typename
+  callId
+  txUserId
+  rxUserId
+  candidates
+}
