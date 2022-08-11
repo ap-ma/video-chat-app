@@ -216,6 +216,10 @@ const CallingContainer: React.VFC<ContainerProps<CallingProps, PresenterProps>> 
     const connection = session.current
     if (isNullish(connection)) return
     connection.hangUp()
+    setTimeout(() => {
+      setMicState.on()
+      setCameraState.on()
+    }, 200)
   }
 
   // 通話モード変更時
