@@ -4,6 +4,9 @@ WebRTCを用いたビデオチャットアプリです。
 フロントにReact/Next.js、APIサーバーにRust/Actic Webを使用し、  
 APIランタイムにGraphQLを用いています。
 
+Zennでの紹介記事  
+https://zenn.dev/inf_e/articles/63e51cd42ca5eb
+
 ### 動作確認
 本アプリは画像ファイルのストレージとしてGoogle Cloud Storage(GCS)を使用しています。  
 `backend`ディレクトリ内`.env.dev`ファイルの「**BUCKET_NAME**」にGCSバケット名を指定します。  
