@@ -25,7 +25,7 @@ use std::{fs::File, io::BufReader, path::Path};
 pub use structure::*;
 
 static CERT_PATH: Lazy<String> =
-    Lazy::new(|| String::from("/etc/letsencrypt/live/api.") + APP_DOMAIN.as_str() + "/cert.pem");
+    Lazy::new(|| String::from("/etc/letsencrypt/live/api.") + APP_DOMAIN.as_str() + "/fullchain.pem");
 static KEY_PATH: Lazy<String> =
     Lazy::new(|| String::from("/etc/letsencrypt/live/api.") + APP_DOMAIN.as_str() + "/privkey.pem");
 
